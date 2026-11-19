@@ -2,6 +2,11 @@ package mg.baiboly.app
 
 import android.graphics.Bitmap
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pinch
+import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import mg.baiboly.core.ref.Passage
@@ -145,5 +150,40 @@ class ScreenshotTest {
         }
         vm.changeStyle(Style.Manuscript)
         settle()
+    }
+
+    private fun click(tag: String) {
+        if (tag.startsWith("period:")) rule.onNodeWithTag("timeline").performScrollToNode(androidx.compose.ui.test.hasTestTag(tag))
+        rule.onNodeWithTag(tag, useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        pump(1500)
+    }
+
+    /** The map: decluttered at the opening zoom, then a few periods of the timeline and the other base maps. */
+    @Test fun maps() {
+        settle { vm.ready && vm.chapter != null }
+        vm.chooseUiLanguage("en")
+        vm.changeMode(AppMode.Study)
+        vm.mapForChapter = false
+        vm.screen = Screen.Map
+        pump(4000)
+        shot("m1-all-terrain")
+        click("period:Divided")
+        shot("m2-israel-and-judah")
+        click("period:Jesus")
+        shot("m3-life-of-jesus")
+        // zoom out for Paul's world
+        rule.onNodeWithTag("map").performTouchInput {
+            pinch(center - androidx.compose.ui.geometry.Offset(300f, 0f), center - androidx.compose.ui.geometry.Offset(60f, 0f),
+                center + androidx.compose.ui.geometry.Offset(300f, 0f), center + androidx.compose.ui.geometry.Offset(60f, 0f))
+        }
+        click("period:Church")
+        shot("m4-early-church")
+        click("period:all")
+        click("map-layers")
+        click("map-base:Today")
+        shot("m5-today")
+        click("map-layers")
+        click("map-base:Ancient")
+        shot("m6-ancient")
     }
 }

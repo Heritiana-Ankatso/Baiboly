@@ -64,6 +64,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import mg.baiboly.app.AppMode
 import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.R
@@ -204,7 +205,7 @@ fun AppNavigationBar(vm: AppViewModel) {
                 label = {
                     Text(
                         stringResource(d.label), maxLines = 1, softWrap = false,
-                        style = if (items.size > 3) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
+                        style = if (items.size > 3) MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.sp) else MaterialTheme.typography.labelMedium,
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(

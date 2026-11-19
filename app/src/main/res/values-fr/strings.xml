@@ -195,7 +195,7 @@
         <item>Literal Standard Version (anglais).</item>
         <item>Références croisées pour chaque verset (Treasury of Scripture Knowledge).</item>
         <item>Dictionnaire biblique et thèmes (anglais) et glossaire Martin (français).</item>
-        <item>Carte des lieux bibliques, avec les lieux du chapitre que vous lisez.</item>
+        <item>Carte : moins de noms à la fois (les villages apparaissent en zoomant), une frise des Patriarches à l’Église primitive avec les frontières de chaque époque, les routes, le relief et les frontières actuelles.</item>
         <item>Lecture à voix haute, même écran éteint (à activer dans les réglages). Chaque texte n’est lu qu’avec une voix de sa langue.</item>
         <item>Bibles catholiques avec Tobie, Judith, Maccabées, Sagesse, Siracide et Baruch : Réglages › Avancé › Tradition.</item>
     </string-array>
@@ -261,4 +261,34 @@
     <string name="group_saved">Ma bibliothèque</string>
     <string name="group_app">Application</string>
     <string name="palette_slate">Ardoise</string>
+    <string name="map_layers">Couches de la carte</string>
+    <string name="map_ancient">Monde antique</string>
+    <string name="map_terrain">Relief</string>
+    <string name="map_today">Frontières actuelles</string>
+    <string name="map_roads">Routes</string>
+    <string name="map_realms">Frontières de l’époque</string>
+    <string name="period_all">Toutes les époques</string>
+    <string name="place_mentions">%1$d versets</string>
+    <string name="period_patriarchs">Patriarches</string>
+    <string name="dates_patriarchs">v. 2000–1700 av. J.-C.</string>
+    <string name="period_exodus">Exode et désert</string>
+    <string name="dates_exodus">v. 1450 ou 1250 av. J.-C.</string>
+    <string name="period_conquest">Conquête et juges</string>
+    <string name="dates_conquest">v. 1400–1050 av. J.-C.</string>
+    <string name="period_kingdom">Royaume uni</string>
+    <string name="dates_kingdom">v. 1050–930 av. J.-C.</string>
+    <string name="period_divided">Israël et Juda</string>
+    <string name="dates_divided">930–586 av. J.-C.</string>
+    <string name="period_exile">Exil et retour</string>
+    <string name="dates_exile">586–400 av. J.-C.</string>
+    <string name="period_between">Entre les Testaments</string>
+    <string name="dates_between">400–4 av. J.-C.</string>
+    <string name="period_jesus">Vie de Jésus</string>
+    <string name="dates_jesus">v. 4 av. – 30 apr. J.-C.</string>
+    <string name="period_church">Église primitive</string>
+    <string name="dates_church">30–100 apr. J.-C.</string>
+    <string name="realm_persia">Empire perse</string>
+    <string name="realm_hasmonean">Royaume hasmonéen (v. 140–37 av. J.-C.)</string>
+    <string name="realm_herod">Royaume d’Hérode le Grand</string>
+    <string name="realm_rome">Provinces romaines (v. 200 apr. J.-C.)</string>
 </resources>

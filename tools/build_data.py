@@ -49,7 +49,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 7
+DATA_VERSION = 8
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -926,7 +926,23 @@ def build_study_library(offline):
     land = fetch(L.NE.format("ne_10m_land"), "ne_10m_land.geojson", offline)
     lakes = fetch(L.NE.format("ne_10m_lakes"), "ne_10m_lakes.geojson", offline)
     rivers = fetch(L.NE.format("ne_10m_rivers_lake_centerlines"), "ne_10m_rivers.geojson", offline)
-    m = L.build_map(land, lakes, rivers, os.path.join(ROOT, "app", "src", "main", "assets", "map.json"))
+    # roads and borders of the ancient world (AWMC, ODbL), today's borders and cities (Natural Earth)
+    awmc_lic = fetch(L.AWMC_LICENCE, "awmc-license.txt", offline)
+    with open(awmc_lic, encoding="utf-8-sig") as f:
+        if "Open Database License" not in f.read(2000):
+            raise SystemExit("AWMC licence is no longer ODbL: review before shipping")
+    LICENCES.append(("awmc", "Roman roads and period borders (Ancient World Mapping Center geodata)", "Ancient World Mapping Center, UNC Chapel Hill",
+                     "https://github.com/AWMC/geodata", "ODbL 1.0 (Open Database License); the map data derived from it (assets/map.json) is offered under the same licence",
+                     "https://opendatacommons.org/licenses/odbl/1-0/"))
+    roads = fetch(L.AWMC.format(L.AWMC_ROADS), "awmc-roads.geojson", offline)
+    realms = {k: fetch(L.AWMC.format(v), f"awmc-{k}.geojson", offline) for k, v in L.AWMC_REALMS.items()}
+    countries = fetch(L.NE.format("ne_50m_admin_0_countries"), "ne_50m_admin_0_countries.geojson", offline)
+    cities = fetch(L.NE.format("ne_50m_populated_places"), "ne_50m_populated_places.geojson", offline)
+    relief = fetch(L.NE_RELIEF, "ne-sr-lr.tif", offline)
+    rs = L.build_relief(relief, os.path.join(ROOT, "app", "src", "main", "assets", "map_relief.jpg"))
+    print(f"  relief {rs[0]}x{rs[1]}")
+    m = L.build_map(land, lakes, rivers, os.path.join(ROOT, "app", "src", "main", "assets", "map.json"),
+                    roads_path=roads, realms=realms, countries_path=countries, cities_path=cities, routes=L.build_routes(geo))
     LICENCES.append(("naturalearth", "Map outlines (Natural Earth 1:10m land, lakes, rivers)", "Natural Earth",
                      "https://www.naturalearthdata.com", "Public Domain", "https://github.com/nvkelso/natural-earth-vector"))
 

@@ -197,7 +197,7 @@
         <item>Literal Standard Version (anglisy).</item>
         <item>Andinin-teny mifandray ho an’ny andininy tsirairay (Treasury of Scripture Knowledge).</item>
         <item>Rakibolana sy lohahevitra ara-Baiboly (anglisy) ary glossaire Martin (frantsay).</item>
-        <item>Sarintanin’ny toerana ao amin’ny Baiboly, miaraka amin’ny toerana ao amin’ny toko vakianao.</item>
+        <item>Sarintany: anarana vitsy kokoa indray mandeha (miseho rehefa ahitsy ny tanàna kely), tetiandro manomboka amin’ny Razambe ka hatramin’ny Fiangonana voalohany miaraka amin’ny sisintany tamin’izany, lalana, endriky ny tany ary sisintany ankehitriny.</item>
         <item>Famakiana mafy, na dia maty aza ny efijery (alefaso ao amin’ny fikirana). Ny feo amin’ny fitenin’ny soratra ihany no mamaky azy.</item>
         <item>Baiboly katolika misy an’i Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika ary Baroka: Fikirana › Safidy hafa › Fiangonana sy boky.</item>
     </string-array>
@@ -263,4 +263,34 @@
     <string name="group_saved">Tahiriko</string>
     <string name="group_app">Rindranasa</string>
     <string name="palette_slate">Vato</string>
+    <string name="map_layers">Sosona amin’ny sarintany</string>
+    <string name="map_ancient">Tontolo fahiny</string>
+    <string name="map_terrain">Endriky ny tany</string>
+    <string name="map_today">Sisintany ankehitriny</string>
+    <string name="map_roads">Lalana</string>
+    <string name="map_realms">Sisintany tamin’izany</string>
+    <string name="period_all">Vanim-potoana rehetra</string>
+    <string name="place_mentions">andininy %1$d</string>
+    <string name="period_patriarchs">Razambe</string>
+    <string name="dates_patriarchs">t. 2000–1700 talohan’i J.K.</string>
+    <string name="period_exodus">Fivoahana sy efitra</string>
+    <string name="dates_exodus">t. 1450 na 1250 talohan’i J.K.</string>
+    <string name="period_conquest">Fandresena sy mpitsara</string>
+    <string name="dates_conquest">t. 1400–1050 talohan’i J.K.</string>
+    <string name="period_kingdom">Fanjakana tokana</string>
+    <string name="dates_kingdom">t. 1050–930 talohan’i J.K.</string>
+    <string name="period_divided">Isiraely sy Joda</string>
+    <string name="dates_divided">930–586 talohan’i J.K.</string>
+    <string name="period_exile">Sesitany sy fiverenana</string>
+    <string name="dates_exile">586–400 talohan’i J.K.</string>
+    <string name="period_between">Anelanelan’ny Testamenta</string>
+    <string name="dates_between">400–4 talohan’i J.K.</string>
+    <string name="period_jesus">Fiainan’i Jesosy</string>
+    <string name="dates_jesus">t. 4 talohan’i J.K. – 30 taorian’i J.K.</string>
+    <string name="period_church">Fiangonana voalohany</string>
+    <string name="dates_church">30–100 taorian’i J.K.</string>
+    <string name="realm_persia">Fanjakana persiana</string>
+    <string name="realm_hasmonean">Fanjakana hasmoneana (t. 140–37 talohan’i J.K.)</string>
+    <string name="realm_herod">Fanjakan’i Heroda Lehibe</string>
+    <string name="realm_rome">Faritany romana (t. 200 taorian’i J.K.)</string>
 </resources>

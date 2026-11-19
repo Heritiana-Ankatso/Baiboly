@@ -212,7 +212,7 @@
         <item>Literal Standard Version (English).</item>
         <item>Cross-references for every verse (Treasury of Scripture Knowledge).</item>
         <item>Bible dictionary and topics (English) and the Martin glossary (French).</item>
-        <item>Map of Bible places, with the places of the chapter you are reading.</item>
+        <item>Map: fewer names at once (villages appear as you zoom in), a timeline from the Patriarchs to the early church with the borders of each time, roads, relief, and today’s borders.</item>
         <item>Reading aloud, also with the screen off (switch it on in Settings). Each text is read only with a voice in its own language.</item>
         <item>Catholic Bibles with Tobit, Judith, Maccabees, Wisdom, Sirach and Baruch: Settings › Advanced › Tradition.</item>
     </string-array>
@@ -278,4 +278,34 @@
     <string name="group_saved">My library</string>
     <string name="group_app">App</string>
     <string name="palette_slate">Slate</string>
+    <string name="map_layers">Map layers</string>
+    <string name="map_ancient">Ancient world</string>
+    <string name="map_terrain">Terrain</string>
+    <string name="map_today">Today’s borders</string>
+    <string name="map_roads">Roads</string>
+    <string name="map_realms">Borders of the time</string>
+    <string name="period_all">All periods</string>
+    <string name="place_mentions">%1$d verses</string>
+    <string name="period_patriarchs">Patriarchs</string>
+    <string name="dates_patriarchs">c. 2000–1700 BC</string>
+    <string name="period_exodus">Exodus and wilderness</string>
+    <string name="dates_exodus">c. 1450 or 1250 BC</string>
+    <string name="period_conquest">Conquest and judges</string>
+    <string name="dates_conquest">c. 1400–1050 BC</string>
+    <string name="period_kingdom">United kingdom</string>
+    <string name="dates_kingdom">c. 1050–930 BC</string>
+    <string name="period_divided">Israel and Judah</string>
+    <string name="dates_divided">930–586 BC</string>
+    <string name="period_exile">Exile and return</string>
+    <string name="dates_exile">586–400 BC</string>
+    <string name="period_between">Between the Testaments</string>
+    <string name="dates_between">400–4 BC</string>
+    <string name="period_jesus">Life of Jesus</string>
+    <string name="dates_jesus">c. 4 BC – AD 30</string>
+    <string name="period_church">Early church</string>
+    <string name="dates_church">AD 30–100</string>
+    <string name="realm_persia">Persian empire</string>
+    <string name="realm_hasmonean">Hasmonean kingdom (c. 140–37 BC)</string>
+    <string name="realm_herod">Kingdom of Herod the Great</string>
+    <string name="realm_rome">Roman provinces (c. AD 200)</string>
 </resources>

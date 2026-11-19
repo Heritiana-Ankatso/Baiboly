@@ -11,6 +11,7 @@ captures/
 app/src/main/assets/databases/
 app/src/main/assets/licences.json
 app/src/main/assets/map.json
+app/src/main/assets/map_relief.jpg
 # Signing keys and their passwords never go into the repository (it will be public)
 keystore.properties
 *.p12

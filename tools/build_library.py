@@ -27,6 +27,89 @@ import zlib
 GEO_URL = "https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/main/data/ancient.jsonl"
 GEO_LICENCE_URL = "https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/main/license.txt"
 NE = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/{}.geojson"
+# Ancient World Mapping Center geodata (ODbL): Roman roads and period borders
+AWMC = "https://raw.githubusercontent.com/AWMC/geodata/master/{}"
+AWMC_LICENCE = AWMC.format("LICENSE.txt")
+# Natural Earth shaded relief, 10m "low resolution" (1.3 arc-minutes per pixel), public domain
+NE_RELIEF = "https://raw.githubusercontent.com/nvkelso/natural-earth-raster/master/10m_rasters/SR_LR/SR_LR.tif"
+AWMC_ROADS = "Cultural-Data/roads/roads.geojson"
+AWMC_REALMS = {  # key -> file; drawn for the period that uses it (see PERIODS)
+    "persia": "Cultural-Data/political_shading/persian_extent/extent_of_the_persian_empire.geojson",
+    "hasmonean": "Cultural-Data/political_shading/hasmonean/hasmonean_kingdom.geojson",
+    "herod": "Cultural-Data/political_shading/herod/herods_kingdom.geojson",
+    "rome": "Cultural-Data/political_shading/roman_empire_ce_200_provinces/roman_empire_ce_200_provinces.geojson",
+}
+
+# ---------------------------------------------------------------- timeline
+
+# Periods of biblical history, by the books (and chapters) whose events fall in them.
+# Bit i of a place's `periods` is set when a verse of period i names it. Poetry and
+# wisdom books (Job, Psalms, Proverbs, Ecclesiastes, Song) belong to no period.
+PERIODS = [
+    ("patriarchs", lambda b, c: b == 1),
+    ("exodus", lambda b, c: 2 <= b <= 5),
+    ("conquest", lambda b, c: 6 <= b <= 8),
+    ("kingdom", lambda b, c: b in (9, 10, 13) or (b == 11 and c <= 11) or (b == 14 and c <= 9)),
+    ("divided", lambda b, c: (b == 11 and c >= 12) or b == 12 or (b == 14 and c >= 10) or b in (23, 24, 25) or 28 <= b <= 36),
+    ("exile", lambda b, c: b in (15, 16, 17, 26, 27, 37, 38, 39)),
+    ("between", lambda b, c: 67 <= b <= 73),
+    ("jesus", lambda b, c: 40 <= b <= 43),
+    ("church", lambda b, c: 44 <= b <= 66),
+]
+
+
+def place_stats(links):
+    """place id -> (verses that name it, bit mask of periods, verses per period "n0,n1,...")."""
+    counts = {}
+    for pid, b, c, _v in links:
+        n, per = counts.get(pid, (0, [0] * len(PERIODS)))
+        for i, (_k, test) in enumerate(PERIODS):
+            if test(b, c):
+                per[i] += 1
+        counts[pid] = (n + 1, per)
+    return {pid: (n, sum(1 << i for i, k in enumerate(per) if k), ",".join(map(str, per))) for pid, (n, per) in counts.items()}
+
+
+# Main highways of the Old Testament world, traced through places whose site is known.
+# Names: English, French, Malagasy.
+ROUTES = [
+    (("Way of the Sea", "Chemin de la mer", "Lalan’ny ranomasina"),
+     ["Sin", "Gaza", "Ashkelon", "Ashdod", "Joppa", "Aphek", "Megiddo", "Hazor", "Dan", "Damascus"]),
+    (("King’s Highway", "Route royale", "Lalam-panjakana"),
+     ["Ezion-geber", "Bozrah", "Kir-hareseth", "Dibon", "Heshbon", "Rabbah", "Ramoth-gilead", "Damascus"]),
+    (("Ridge Route", "Route des crêtes", "Lalana an-tampon-tendrombohitra"),
+     ["Beersheba", "Hebron", "Bethlehem", "Jerusalem", "Bethel", "Shechem", "Dothan", "Megiddo"]),
+]
+
+
+def build_routes(geo_path):
+    """Resolve each route's places to coordinates (several places share a name: take the nearest)."""
+    by_name = {}
+    with open(geo_path, encoding="utf-8") as f:
+        for line in f:
+            d = json.loads(line)
+            ident = (d.get("identifications") or [None])[0]
+            res = ((ident or {}).get("resolutions") or [None])[0]
+            if not res or not res.get("lonlat"):
+                continue
+            lon, lat = (float(x) for x in res["lonlat"].split(","))
+            base = re.sub(r" \d+$", "", d["friendly_id"])
+            by_name.setdefault(base, []).append((len(d.get("verses", [])), lon, lat))
+    out = []
+    for names, stops in ROUTES:
+        pts, prev = [], None
+        for stop in stops:
+            cands = by_name.get(stop)
+            if not cands:
+                raise SystemExit(f"route place not found: {stop}")
+            if prev is None:
+                best = max(cands)
+            else:
+                best = min(cands, key=lambda c: (c[1] - prev[0]) ** 2 + (c[2] - prev[1]) ** 2)
+            prev = (best[1], best[2])
+            pts.append(prev)
+        out.append({"name": list(names), "p": [round(v, 3) for p in pts for v in p]})
+    return out
 
 # Bible lands, from Rome to Persia and from the Black Sea to Upper Egypt.
 BBOX = (8.0, 22.0, 56.0, 44.0)  # lon_min, lat_min, lon_max, lat_max
@@ -302,7 +385,7 @@ def _rings(geom):
         yield from geom["coordinates"]
 
 
-def build_map(land_path, lakes_path, rivers_path, out_path):
+def build_map(land_path, lakes_path, rivers_path, out_path, roads_path=None, realms=None, countries_path=None, cities_path=None, routes=None):
     def layer(path, tol, keep=lambda props: True, min_points=3, polygon=True):
         out = []
         with open(path, encoding="utf-8") as f:
@@ -335,9 +418,69 @@ def build_map(land_path, lakes_path, rivers_path, out_path):
                         keep=lambda p: any(r in (p.get("name") or "") for r in big_rivers)),
         "credit": "Natural Earth (public domain)",
     }
+    if roads_path:
+        # Roman roads (AWMC): major roads kept apart so they can be drawn bolder
+        roads = []
+        with open(roads_path, encoding="utf-8") as f:
+            for feat in json.load(f)["features"]:
+                major = 1 if (feat.get("properties") or {}).get("Major_or_M") == "1" else 0
+                for line in _rings(feat["geometry"]):
+                    pts = [(float(x), float(y)) for x, y, *_ in line]
+                    if not _in_bbox(pts, margin=0):
+                        continue
+                    pts = _simplify(pts, 0.01)
+                    if len(pts) >= 2:
+                        roads.append({"m": major, "p": [round(v, 3) for q in pts for v in q]})
+        result["roads"] = roads
+    if routes:
+        result["routes"] = routes
+    if realms:
+        result["realms"] = {k: layer(path, 0.02) for k, path in realms.items()}
+    if countries_path:
+        result["countries"] = layer(countries_path, 0.02)
+        labels = []
+        lo1, la1, lo2, la2 = BBOX
+        with open(countries_path, encoding="utf-8") as f:
+            for feat in json.load(f)["features"]:
+                p = feat["properties"]
+                x, y = p.get("LABEL_X"), p.get("LABEL_Y")
+                if x is None or not (lo1 <= x <= lo2 and la1 <= y <= la2):
+                    continue
+                labels.append({"en": p.get("NAME_EN") or p["NAME"], "fr": p.get("NAME_FR") or p["NAME"], "x": round(x, 2), "y": round(y, 2),
+                               "r": p.get("LABELRANK") or 5})
+        result["country_labels"] = labels
+    if cities_path:
+        cities = []
+        lo1, la1, lo2, la2 = BBOX
+        with open(cities_path, encoding="utf-8") as f:
+            for feat in json.load(f)["features"]:
+                p = feat["properties"]
+                x, y = feat["geometry"]["coordinates"][:2]
+                if not (lo1 <= x <= lo2 and la1 <= y <= la2) or (p.get("SCALERANK") or 10) > 4:
+                    continue
+                cities.append({"en": p.get("NAME_EN") or p["NAME"], "fr": p.get("NAME_FR") or p["NAME"], "x": round(x, 3), "y": round(y, 3),
+                               "r": p.get("SCALERANK") or 4})
+        result["cities"] = cities
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, separators=(",", ":"))
     return result
+
+
+def build_relief(tif_path, out_path):
+    """Natural Earth shaded relief cut to the map's extent, as a greyscale JPEG.
+
+    Flat ground and water (value 206 in SR_LR) become white, so the app can
+    lay the image over its own land colour with a multiply blend."""
+    from PIL import Image
+    Image.MAX_IMAGE_PIXELS = None
+    im = Image.open(tif_path)
+    w, h = im.size
+    lo1, la1, lo2, la2 = BBOX
+    box = (round((lo1 + 180) * w / 360), round((90 - la2) * h / 180), round((lo2 + 180) * w / 360), round((90 - la1) * h / 180))
+    crop = im.crop(box).convert("L")
+    lut = [255 if v >= 206 else round(255 * (v / 206) ** 1.8) for v in range(256)]
+    crop.point(lut).save(out_path, quality=88)
+    return crop.size
 
 
 # ---------------------------------------------------------------- library.db
@@ -360,7 +503,8 @@ def build_library(db_path, tsk_rows, dicts, places, place_links):
             PRIMARY KEY(source, key)) WITHOUT ROWID;
         CREATE INDEX dict_by_norm ON dict_entry(source, key_norm);
         CREATE TABLE place(id TEXT PRIMARY KEY, name TEXT NOT NULL, type TEXT NOT NULL, lon REAL NOT NULL,
-            lat REAL NOT NULL, confidence INTEGER NOT NULL) WITHOUT ROWID;
+            lat REAL NOT NULL, confidence INTEGER NOT NULL,
+            mentions INTEGER NOT NULL, periods INTEGER NOT NULL, period_mentions TEXT NOT NULL) WITHOUT ROWID;
         CREATE TABLE place_verse(place TEXT NOT NULL, book INTEGER NOT NULL, chapter INTEGER NOT NULL,
             verse INTEGER NOT NULL, PRIMARY KEY(place, book, chapter, verse)) WITHOUT ROWID;
         CREATE INDEX place_by_chapter ON place_verse(book, chapter);
@@ -379,7 +523,10 @@ def build_library(db_path, tsk_rows, dicts, places, place_links):
                 continue
             seen.add(key)
             db.execute("INSERT INTO dict_entry VALUES(?,?,?,?)", (sid, key, norm(key), body))
-    db.executemany("INSERT INTO place VALUES(?,?,?,?,?,?)", places)
+    # mentions: how many verses name the place (its weight on the map); periods: see PERIODS
+    stats = place_stats(place_links)
+    empty = (0, 0, ",".join("0" * len(PERIODS)))
+    db.executemany("INSERT INTO place VALUES(?,?,?,?,?,?,?,?,?)", [p + stats.get(p[0], empty) for p in places])
     db.executemany("INSERT OR IGNORE INTO place_verse VALUES(?,?,?,?)", place_links)
     db.commit()
     db.execute("VACUUM")

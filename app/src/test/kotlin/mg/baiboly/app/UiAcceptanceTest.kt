@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import mg.baiboly.core.ref.Passage
 import mg.baiboly.data.UserStore
 import org.junit.Rule
+import org.robolectric.shadows.ShadowLooper
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -262,10 +263,17 @@ class UiAcceptanceTest {
         tag("swatch:0").tap()
         rule.waitForIdle()
 
-        val store = UserStore(rule.activity.application)
-        waitFor { store.notes().isNotEmpty() && store.highlights().isNotEmpty() }
-        assertEquals(Passage(19, 23, 1, 1), store.notes().single().passage)
-        assertEquals(Passage(19, 23, 2, 3), store.highlights().single().passage)
+        waitFor { vm.notes.isNotEmpty() && vm.chapterHighlights.isNotEmpty() }
+        // closing and reopening the app: a new ViewModel reads them back from storage
+        Thread.sleep(500)
+        val old = vm
+        rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
+        rule.activityRule.scenario.recreate()
+        waitFor { vm !== old && vm.ready }
+        vm.refreshNotes(); vm.refreshHighlights()
+        waitFor { vm.notes.isNotEmpty() && vm.highlights.isNotEmpty() }
+        assertEquals(Passage(19, 23, 1, 1), vm.notes.single().passage)
+        assertEquals(Passage(19, 23, 2, 3), vm.highlights.single().passage)
 
         vm.openChapter(1, 1)
         waitFor { vm.chapter?.book == 1 }
@@ -394,5 +402,25 @@ class UiAcceptanceTest {
             vm.screen = Screen.Main
             rule.waitForIdle()
         }
+    }
+
+    /** Map: the timeline shows a period with the borders of its time; layers switch the base map. */
+    @Test fun mapTimelineAndLayers() {
+        ready()
+        vm.changeMode(AppMode.Study)
+        tag("nav:Map").tap()
+        waitFor { vm.screen == Screen.Map }
+        tag("map-all").tap()
+        tag("timeline").performScrollToNode(androidx.compose.ui.test.hasTestTag("period:Jesus"))
+        tag("period:Jesus").tap()
+        waitFor { runCatching { tag("map-realm").assertExists(); true }.getOrDefault(false) }
+        rule.onNodeWithText("Kingdom of Herod the Great").assertExists()
+        tag("timeline").performScrollToNode(androidx.compose.ui.test.hasTestTag("period:all"))
+        tag("period:all").tap()
+        tag("map-realm").assertDoesNotExist()
+        tag("map-layers").tap()
+        tag("map-base:Today").assertExists()
+        tag("map-base:Today").tap()
+        tag("map").assertExists()
     }
 }

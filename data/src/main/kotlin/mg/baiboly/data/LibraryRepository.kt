@@ -19,7 +19,16 @@ data class Place(
     val lat: Double,
     /** 3 = well established, 2 = likely, 1 = uncertain (OpenBible.info votes). */
     val confidence: Int,
-)
+    /** Number of verses that name the place: its weight on the map. */
+    val mentions: Int = 0,
+    /** Bit i set when the place is named in period i of the timeline (tools/build_library.py PERIODS). */
+    val periods: Int = 0,
+    /** Verses naming the place in each period, same order as the bits of [periods]. */
+    val periodMentions: IntArray = IntArray(0),
+) {
+    /** The name without the number that tells apart places of the same name ("Bethel 2" -> "Bethel"). */
+    val displayName: String get() = name.replace(Regex(" \\d+$"), "")
+}
 
 /** A piece of dictionary text: plain, a Bible reference, or a link to another entry. */
 sealed interface Markup {
@@ -111,8 +120,11 @@ class LibraryRepository(private val dbs: AssetDatabases, private val study: Stud
     }
 
     val places: List<Place> by lazy {
-        db.rawQuery("SELECT id, name, type, lon, lat, confidence FROM place", null).use { c ->
-            buildList { while (c.moveToNext()) add(Place(c.getString(0), c.getString(1), c.getString(2), c.getDouble(3), c.getDouble(4), c.getInt(5))) }
+        db.rawQuery("SELECT id, name, type, lon, lat, confidence, mentions, periods, period_mentions FROM place ORDER BY mentions DESC", null).use { c ->
+            buildList {
+                while (c.moveToNext()) add(Place(c.getString(0), c.getString(1), c.getString(2), c.getDouble(3), c.getDouble(4), c.getInt(5), c.getInt(6), c.getInt(7),
+                    c.getString(8).split(',').map { it.toInt() }.toIntArray()))
+            }
         }
     }
 

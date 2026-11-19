@@ -132,6 +132,13 @@ class DataAcceptanceTest {
         val exodus14 = lib.placesIn(2, 14).map { it.name }
         assertTrue(exodus14.any { it.contains("Red Sea") || it.contains("Pi-hahiroth") || it.contains("Baal-zephon") }, exodus14.toString())
         val jer = lib.places.first { it.name == "Jerusalem" }
+        // map weight and timeline: Jerusalem is the most named place, in every period from the patriarchs (Gen 14 Salem aside) to the church
+        assertEquals("Jerusalem", lib.places.first().name)
+        assertTrue(jer.mentions > 500)
+        assertTrue(jer.periods and (1 shl 7) != 0 && jer.periods and (1 shl 8) != 0, "Jerusalem in the Gospels and Acts")
+        assertTrue(jer.periodMentions[7] > 50)
+        val ephesus = lib.places.first { it.displayName == "Ephesus" }
+        assertEquals(1 shl 8, ephesus.periods, "Ephesus only in the early church")
         assertTrue(jer.lat in 31.7..31.8 && jer.lon in 35.2..35.3)
         assertTrue(lib.versesOf(jer.id).size > 500)
     }
