@@ -21,7 +21,7 @@ Secrets stay private when the repository is public, and are not given to pull re
 
 1. Set the version in `gradle.properties`: `baiboly.versionName=1.3.0` (the versionCode is the commit count, so it always rises).
 2. Update the "What's new" texts: `app/src/main/res/values*/strings.xml` (`whats_new_items`) and `docs/release-notes.md`.
-3. Commit, then tag and push: `git tag v1.3.0 && git push origin v1.3.0`.
+3. Merge to `main`, then either press **Run workflow** under *Actions › Release* (it releases the version in `gradle.properties` from `main` and creates the tag), or tag and push yourself: `git tag v1.3.0 && git push origin v1.3.0`.
 4. The *Release* workflow builds, runs every test, signs, refuses a debug-signed APK, and publishes *Baiboly v1.3.0* with the APK and its SHA-256.
 
 ## What an update keeps
