@@ -17,6 +17,7 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 | French | Bible Crampon 1923 ✝ | Classic Catholic translation | Public domain |
 | English | King James Version | Word-for-word, classic | Public domain |
 | English | Berean Standard Bible | Modern, close to the original | Public domain |
+| English | Literal Standard Version | Modern, very literal | CC BY-SA 4.0 |
 | English | World English Bible | Modern, easy to read | Public domain |
 | English | Bible in Basic English | Very simple vocabulary | Public domain |
 | English | World English Bible, Catholic Edition ✝ | Modern, easy to read | Public domain |
@@ -28,11 +29,21 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 
 **Settings at hand.** Theme (light / dark / device) and language (MG / FR / EN) are one tap each, at the top of the side menu and of Settings.
 
+**Study tools (all offline).**
+* **Cross-references** for any verse (select it, then *Cross-references*): the Treasury of Scripture Knowledge, public domain, in Malagasy 1865 numbering.
+* **Dictionary and topics** (side menu or ⋮): Easton's Bible Dictionary and Nave's Topical Bible (English, public domain) and the Glossaire de la Bible Martin (French, ~1,000 older Bible words, free with credit to biblemartin.com). Bible references in entries open the verse. No free Malagasy Bible dictionary was found; the French Westphal dictionary is licensed only for CrossWire's own format.
+* **Map** (side menu, or ⋮ › *Places in this chapter*): 1,300 Bible places from OpenBible.info (CC BY 4.0) on an offline map of the Bible lands drawn from Natural Earth (public domain); tap a place for its verses. Place names are in English.
+* **Reading aloud** (off by default; switch on in Settings): ⋮ › *Listen* or *Listen from here* reads with the phone's text-to-speech voice, verse by verse and on into the next chapter, also with the screen off, with controls in the notification and on the lock screen. Phones have no Malagasy voice yet, so Malagasy is read with a French voice. This is the only part of the app allowed to use audio (a reviewed exception in `tools/check_silence.sh`).
+
 **Study symbol.** The study button shows **א** (Aleph) in books written in Hebrew or Aramaic (the Old Testament) and **α** in books that come down to us in Greek (New Testament and the deuterocanonical books).
 
 The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the reading-text menu (tap the title) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
 
 The app has no INTERNET or VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
+
+## Installing
+
+The latest release build is in the repository: [`apk/Baiboly.apk`](apk/Baiboly.apk) (signed with a debug key; see *Release signing* below for a store build). On the phone, allow installing from this source when asked.
 
 ## Building
 

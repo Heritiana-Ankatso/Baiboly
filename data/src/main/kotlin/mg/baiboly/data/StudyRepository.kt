@@ -59,6 +59,9 @@ class StudyRepository(private val dbs: AssetDatabases) {
 
     private fun fromKjv(k: VerseRef): VerseRef = inverse[k] ?: k
 
+    /** A KJV-numbered reference (dictionaries use KJV numbering) in Malagasy 1865 numbering. */
+    fun kjvToMg(k: VerseRef): VerseRef = fromKjv(k)
+
     fun verse(mg: VerseRef): VerseStudy {
         val (kjv, uncertain) = toKjv(mg)
         val words = db.rawQuery(

@@ -156,6 +156,8 @@ fun SideMenu(vm: AppViewModel, close: () -> Unit) {
             item {
                 GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 10.dp))
                 val entries = listOf(
+                    R.string.dictionary to Screen.Dictionary,
+                    R.string.map to Screen.Map,
                     R.string.history to Screen.History,
                     R.string.notes to Screen.Notes,
                     R.string.highlights to Screen.Highlights,
@@ -176,6 +178,7 @@ fun SideMenu(vm: AppViewModel, close: () -> Unit) {
                                 Screen.Lists -> vm.refreshSavedLists()
                                 else -> Unit
                             }
+                            if (screen == Screen.Map) vm.mapForChapter = false
                             vm.screen = screen
                             close()
                         },
@@ -543,6 +546,8 @@ fun SettingsScreen(vm: AppViewModel) {
                 Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * 1.55f).sp, fontFamily = TextSerif)
             }
             GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
+            ReadAloudSettings(vm)
+            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
             Column(Modifier.padding(horizontal = 20.dp)) {
                 Text(stringResource(R.string.default_bible), style = MaterialTheme.typography.titleMedium)
                 Text(
@@ -584,6 +589,33 @@ fun SettingsScreen(vm: AppViewModel) {
                     modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
                 )
             }
+        }
+    }
+}
+
+/** Reading aloud: off by default; switching it on asks for the notification permission (Android 13+). */
+@Composable
+private fun ReadAloudSettings(vm: AppViewModel) {
+    val notifPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    Column(Modifier.padding(horizontal = 20.dp)) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable {
+                val on = !vm.readAloudEnabled
+                vm.enableReadAloud(on)
+                if (on && android.os.Build.VERSION.SDK_INT >= 33) notifPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }.testTag("settings-read-aloud"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.read_aloud), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.read_aloud_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            androidx.compose.material3.Switch(checked = vm.readAloudEnabled, onCheckedChange = null)
+        }
+        if (vm.readAloudEnabled) {
+            Text(stringResource(R.string.reading_speed), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 8.dp))
+            Slider(value = vm.readRate, onValueChange = { vm.changeReadRate(it) }, valueRange = 0.6f..1.6f, steps = 9)
+            Text(stringResource(R.string.malagasy_voice_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

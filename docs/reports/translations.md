@@ -10,6 +10,7 @@
 | crampon | Bible Crampon 1923 | fr | Classic church translation | 34648 | 1333 |
 | kjv | King James Version | en | Word-for-word, close to the original | 31102 | 1189 |
 | bsb | Berean Standard Bible | en | Modern language, close to the original | 31086 | 1189 |
+| lsv | Literal Standard Version | en | Word-for-word, close to the original | 31104 | 1189 |
 | web | World English Bible | en | Modern, easy to read | 31098 | 1189 |
 | bbe | Bible in Basic English | en | Very simple vocabulary (850 basic words) | 31086 | 1189 |
 | webc | World English Bible, Catholic Edition | en | Modern, easy to read | 35379 | 1328 |

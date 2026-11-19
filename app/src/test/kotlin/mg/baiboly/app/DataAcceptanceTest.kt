@@ -34,7 +34,8 @@ class DataAcceptanceTest {
         for (t in bible.translations) {
             assertTrue(bible.verses(t.id, 43, 3, 16, 16).single().text.isNotBlank(), t.id)
         }
-        assertEquals(12, bible.translations.size)
+        assertEquals(13, bible.translations.size)
+        assertTrue(bible.verses("lsv", 43, 3, 16, 16).single().text.contains("God so loved the world"))
         // Catholic Bibles: 73 books, deuterocanonical books readable
         assertEquals(setOf("ncl_fr", "crampon", "webc", "dra"), bible.translations.filter { it.catholic }.map { it.id }.toSet())
         for (id in listOf("ncl_fr", "crampon", "webc", "dra")) {
@@ -107,5 +108,31 @@ class DataAcceptanceTest {
         val restored: ServiceList = b.loadList(l.id)!!
         assertEquals(l.items, restored.items)
         assertEquals(listOf(3 to 12), b.highlights().filter { it.charStart != null }.map { it.charStart to it.charEnd })
+    }
+
+    @Test fun library_crossRefs_dictionaries_places() {
+        val lib = mg.baiboly.data.LibraryRepository(dbs, StudyRepository(dbs))
+        // TSK cross-references for John 3:16
+        val x = lib.crossRefs(43, 3, 16)
+        assertTrue(x.isNotEmpty() && x.all { it.refs.isNotEmpty() }, x.toString())
+        // Psalm numbering: KJV Psalm 3:1 is Malagasy Salamo 3:2 (the title is verse 1 there)
+        assertEquals(Passage(19, 3, 2, 2), lib.osisToPassage("Ps.3.1"))
+        assertEquals(Passage(19, 23, 1, 1), lib.osisToPassage("Ps.23.1")) // same numbering in Psalm 23
+        assertEquals(Passage(1, 1, 1, 3), lib.osisToPassage("Gen.1.1-Gen.1.3"))
+        // dictionaries
+        assertEquals(setOf("easton", "nave", "martin"), lib.sources.map { it.id }.toSet())
+        val jerusalem = lib.entry("easton", "Jerusalem")!!
+        val parts = lib.markup(jerusalem.body)
+        assertTrue(parts.any { it is mg.baiboly.data.Markup.Ref }, "Easton entries link to verses")
+        assertTrue(lib.search("easton", "jerus").first().startsWith("JERUSALEM"))
+        assertTrue(lib.search("martin", "bouffi").isNotEmpty(), "French glossary")
+        assertTrue(lib.search("nave", "prayer").isNotEmpty())
+        // places
+        assertTrue(lib.places.size > 1000)
+        val exodus14 = lib.placesIn(2, 14).map { it.name }
+        assertTrue(exodus14.any { it.contains("Red Sea") || it.contains("Pi-hahiroth") || it.contains("Baal-zephon") }, exodus14.toString())
+        val jer = lib.places.first { it.name == "Jerusalem" }
+        assertTrue(jer.lat in 31.7..31.8 && jer.lon in 35.2..35.3)
+        assertTrue(lib.versesOf(jer.id).size > 500)
     }
 }

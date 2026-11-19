@@ -49,7 +49,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 6
+DATA_VERSION = 7
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -65,6 +65,7 @@ TRANSLATIONS = [
     ("crampon", 11, "fr", "CRA", "Bible Crampon 1923", "classic", "crosswire", "FreCrampon"),
     ("kjv", 5, "en", "KJV", "King James Version", "literal", "ebible", "eng-kjv2006"),
     ("bsb", 6, "en", "BSB", "Berean Standard Bible", "faithful-modern", "ebible", "engbsb"),
+    ("lsv", 14, "en", "LSV", "Literal Standard Version", "literal", "ebible", "englsv"),
     ("web", 7, "en", "WEB", "World English Bible", "accessible", "ebible", "eng-web"),
     ("bbe", 8, "en", "BBE", "Bible in Basic English", "simplified", "ebible", "engBBE"),
     ("webc", 12, "en", "WEBC", "World English Bible, Catholic Edition", "accessible", "ebible", "eng-web-c"),
@@ -94,6 +95,7 @@ BOOK_COUNT = 73
 OPEN_LICENCES = {
     "francl": ("Creative Commons Attribution Share-Alike license 4.0", "CC BY-SA 4.0, © 2022 Fraternité de Tibériade"),
     "tdx": ("Creative Commons Attribution Share-Alike license 4.0", "CC BY-SA 4.0, © 2023 Steve Lellelid"),
+    "englsv": ("Creative Commons Attribution Share-Alike license 4.0", "CC BY-SA 4.0, © 2020 Covenant Press"),
 }
 STYLE_NOTE = {
     "classic": "Classic church translation",
@@ -243,6 +245,7 @@ def conf_of(zf):
 # ---------------------------------------------------------------------------
 LICENCES = []
 OFFLINE = False
+VMAP = {}  # Malagasy verse -> KJV (chapter, verse), where the numbering differs
 
 
 def check_crosswire(mod, conf):
@@ -862,10 +865,12 @@ def build(offline, openscriptures=True):
                 method = "psalm_title_offset"
                 for v in range(1, m + 1):
                     sdb.execute("INSERT INTO verse_map VALUES('mg1865',?,?,?,?,?)", (b, c, v, c, max(1, v - 1)))
+                    VMAP[(b, c, v)] = (c, max(1, v - 1))
             elif m == k + 2 and (b, c, 1) in canonical_titles and (b, c, 2) in canonical_titles and b == 19:
                 method = "psalm_title_offset_2"
                 for v in range(1, m + 1):
                     sdb.execute("INSERT INTO verse_map VALUES('mg1865',?,?,?,?,?)", (b, c, v, c, max(1, v - 2)))
+                    VMAP[(b, c, v)] = (c, max(1, v - 2))
             sdb.execute("INSERT INTO verse_map_chapter VALUES('mg1865',?,?,?,?,?)", (b, c, m, k, method))
             mism.append((b, c, m, k, method))
     sdb.commit()
@@ -873,12 +878,64 @@ def build(offline, openscriptures=True):
     sdb.close()
 
     # ---------------- reports ----------------
+    build_study_library(offline)
     write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map)
     sizes["study.db"] = os.path.getsize(sp)
+    sizes["library.db"] = os.path.getsize(os.path.join(ASSETS, "library.db"))
     with open(os.path.join(ASSETS, "manifest.json"), "w") as f:
         json.dump({"data_version": DATA_VERSION, "files": sorted(sizes)}, f)
     for k, v in sorted(sizes.items()):
         print(f"  {k:24s} {v / 1e6:6.2f} MB")
+
+
+def build_study_library(offline):
+    """Cross-references, dictionaries, places and map outlines (tools/build_library.py)."""
+    import build_library as L
+    print("Study library")
+    numbering = L.Numbering(VMAP)
+
+    tsk = fetch(CROSSWIRE.format("TSK"), "TSK.zip", offline)
+    check_crosswire("TSK", conf_of(zipfile.ZipFile(tsk)))
+    xrefs = L.load_tsk(tsk, CANONS["kjv"], OSIS_IDS, numbering)
+
+    dicts = []
+    for mod, sid, kind in (("Easton", "easton", "dictionary"), ("Nave", "nave", "topics")):
+        path = fetch(CROSSWIRE.format(mod), mod + ".zip", offline)
+        conf, entries = L.load_zld_dict(path, read_zld, conf_of)
+        check_crosswire(mod, conf)
+        dicts.append((sid, conf.get("Description", mod), "en", kind, "Public Domain", CROSSWIRE.format(mod), entries, norm))
+    path = fetch(CROSSWIRE.format("FreGBM"), "FreGBM.zip", offline)
+    conf, entries = L.load_rawld4_or_rawld(path, conf_of)
+    # "Any distribution authorized, with the mention of the site: www.biblemartin.com"
+    if "biblemartin.com" not in conf.get("Copyright", "") or "distribution authorized" not in conf.get("Copyright", ""):
+        sys.exit("LICENCE CHECK FAILED: FreGBM copyright statement changed")
+    martin_licence = "Free distribution with mention of www.biblemartin.com"
+    dicts.append(("martin", "Glossaire de la Bible David Martin (1744)", "fr", "glossary", martin_licence,
+                  "http://www.biblemartin.com/bible/glossaire_txt.htm", entries, norm))
+    LICENCES.append(("FreGBM", "Glossaire de la Bible David Martin (1744)", "CrossWire SWORD module FreGBM",
+                     CROSSWIRE.format("FreGBM"), martin_licence, "www.biblemartin.com"))
+
+    geo = fetch(L.GEO_URL, "openbible-ancient.jsonl", offline)
+    geo_lic = fetch(L.GEO_LICENCE_URL, "openbible-geo-license.txt", offline)
+    if "Attribution 4.0 International" not in open(geo_lic, encoding="utf-8").read(2000):
+        sys.exit("LICENCE CHECK FAILED: OpenBible.info geocoding data is no longer CC BY 4.0")
+    LICENCES.append(("openbible-geo", "Bible places (OpenBible.info Bible Geocoding Data)", "OpenBible.info",
+                     "https://github.com/openbibleinfo/Bible-Geocoding-Data", "CC BY 4.0, © OpenBible.info", "https://www.openbible.info/geo/"))
+    places, links = L.load_places(geo, OSIS_IDS, numbering)
+
+    land = fetch(L.NE.format("ne_10m_land"), "ne_10m_land.geojson", offline)
+    lakes = fetch(L.NE.format("ne_10m_lakes"), "ne_10m_lakes.geojson", offline)
+    rivers = fetch(L.NE.format("ne_10m_rivers_lake_centerlines"), "ne_10m_rivers.geojson", offline)
+    m = L.build_map(land, lakes, rivers, os.path.join(ROOT, "app", "src", "main", "assets", "map.json"))
+    LICENCES.append(("naturalearth", "Map outlines (Natural Earth 1:10m land, lakes, rivers)", "Natural Earth",
+                     "https://www.naturalearthdata.com", "Public Domain", "https://github.com/nvkelso/natural-earth-vector"))
+
+    lib = os.path.join(ASSETS, "library.db")
+    L.build_library(lib, xrefs, dicts, places, links)
+    sqlite3.connect(lib).execute("INSERT INTO meta VALUES('data_version', ?)", (str(DATA_VERSION),)).connection.commit()
+    print(f"  cross-references {len(xrefs)}, dictionaries {[len(d[6]) for d in dicts]}, places {len(places)} "
+          f"({len(links)} verse links), map rings land {len(m['land'])} lakes {len(m['lakes'])} rivers {len(m['rivers'])}, "
+          f"library.db {os.path.getsize(lib) / 1e6:.2f} MB, map.json {os.path.getsize(os.path.join(ROOT, 'app', 'src', 'main', 'assets', 'map.json')) / 1e6:.2f} MB")
 
 
 def write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map):

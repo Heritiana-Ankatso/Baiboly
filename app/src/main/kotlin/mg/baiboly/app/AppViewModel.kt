@@ -22,6 +22,9 @@ import mg.baiboly.data.AssetDatabases
 import mg.baiboly.data.BibleRepository
 import mg.baiboly.data.ChapterText
 import mg.baiboly.data.Highlight
+import mg.baiboly.data.LibraryRepository
+import mg.baiboly.app.audio.ReadAloud
+import mg.baiboly.app.audio.ReadAloudState
 import mg.baiboly.data.LexiconEntry
 import mg.baiboly.data.Note
 import mg.baiboly.data.RecentPassage
@@ -40,7 +43,7 @@ import java.util.Locale
 /** Where the reader is: the chapter shown and the verses to scroll to and mark. */
 data class ReaderLocation(val book: Int, val chapter: Int, val focus: Passage?)
 
-enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup }
+enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup, Dictionary, Map }
 
 enum class ThemeMode { System, Light, Dark }
 
@@ -55,6 +58,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val dbs = AssetDatabases(app)
     val bible = BibleRepository(dbs)
     val study = StudyRepository(dbs)
+    val library = LibraryRepository(dbs, study)
     private val user = UserStore(app)
     private val io = Dispatchers.IO.limitedParallelism(1)
 
@@ -78,6 +82,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var studyMode by mutableStateOf(prefs.getBoolean("alpha", false))
         private set
     var translations by mutableStateOf<List<Translation>>(emptyList())
+        private set
+
+    /** Reading aloud is off until the user switches it on in Settings (the app is silent by default). */
+    var readAloudEnabled by mutableStateOf(prefs.getBoolean("read_aloud", false))
+        private set
+    var readRate by mutableStateOf(prefs.getFloat("read_rate", 1f))
+        private set
+    var readState by mutableStateOf(ReadAloudState())
         private set
 
     // ------------------------------------------------------------ list + reader
@@ -110,6 +122,19 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var message by mutableStateOf<String?>(null)
 
     init {
+        // Follow the reading: highlight the verse, turn to the next chapter with it.
+        viewModelScope.launch {
+            ReadAloud.state.collect { s ->
+                val was = readState
+                readState = s
+                if (s.fallbackVoice != null && was.fallbackVoice == null) message = str(R.string.voice_fallback, s.fallbackVoice)
+                if (s.error != null && was.error == null) message = s.error
+                if (s.active && s.book > 0 && (s.book != location.book || s.chapter != location.chapter)) {
+                    if (s.translation != translationId) translationId = s.translation
+                    go(ReaderLocation(s.book, s.chapter, null), null)
+                }
+            }
+        }
         viewModelScope.launch {
             // Resource strings are read on the main thread, never inside the io blocks.
             val newTitle = defaultTitle()
@@ -330,6 +355,47 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         theme = t
         persistState()
     }
+
+    fun enableReadAloud(on: Boolean) {
+        readAloudEnabled = on
+        prefs.edit().putBoolean("read_aloud", on).apply()
+        if (!on) stopReading()
+    }
+
+    fun changeReadRate(rate: Float) {
+        readRate = rate.coerceIn(0.6f, 1.6f)
+        prefs.edit().putFloat("read_rate", readRate).apply()
+    }
+
+    /** Starts reading the shown chapter aloud from [verse] (only ever on the user's tap). */
+    fun startReading(verse: Int = location.focus?.takeIf { !it.isWholeChapter && it.book == location.book && it.chapter == location.chapter }?.verseStart ?: 1) {
+        if (!readAloudEnabled) return
+        ReadAloud.start(getApplication(), translationId, location.book, location.chapter, verse, readRate)
+    }
+
+    fun pauseReading() = ReadAloud.send(getApplication(), ReadAloud.ACTION_PAUSE)
+    fun resumeReading() = ReadAloud.send(getApplication(), ReadAloud.ACTION_RESUME)
+    fun stopReading() = ReadAloud.send(getApplication(), ReadAloud.ACTION_STOP)
+    fun nextVerseReading() = ReadAloud.send(getApplication(), ReadAloud.ACTION_NEXT)
+    fun previousVerseReading() = ReadAloud.send(getApplication(), ReadAloud.ACTION_PREVIOUS)
+
+    // ------------------------------------------------------------ library (cross-references, dictionaries, places)
+
+    suspend fun crossRefs(verse: Int) = withContext(io) { library.crossRefs(location.book, location.chapter, verse) }
+
+    suspend fun verseLine(p: Passage): String = withContext(io) {
+        bible.verses(translationId, p.book, p.chapter, p.verseStart, p.verseEnd).joinToString(" ") { it.text }
+    }
+
+    suspend fun dictSources() = withContext(io) { library.sources }
+    suspend fun dictSearch(source: String, q: String) = withContext(io) { library.search(source, q) }
+    suspend fun dictEntry(source: String, key: String) = withContext(io) { library.entry(source, key) }
+    suspend fun places() = withContext(io) { library.places }
+    suspend fun placesInChapter() = withContext(io) { library.placesIn(location.book, location.chapter) }
+    suspend fun placeVerses(id: String) = withContext(io) { library.versesOf(id) }
+
+    /** Map opened from the reader shows this chapter's places; from the menu, all places. */
+    var mapForChapter by mutableStateOf(false)
 
     fun toggleStudyMode() {
         studyMode = !studyMode

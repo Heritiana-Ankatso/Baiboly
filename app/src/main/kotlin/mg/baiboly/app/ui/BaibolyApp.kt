@@ -59,6 +59,8 @@ private fun AppContent(vm: AppViewModel) {
                             Screen.Settings -> SettingsScreen(vm)
                             Screen.About -> AboutScreen(vm)
                             Screen.Backup -> BackupScreen(vm)
+                            Screen.Dictionary -> DictionaryScreen(vm)
+                            Screen.Map -> MapScreen(vm)
                         }
                     }
                 }

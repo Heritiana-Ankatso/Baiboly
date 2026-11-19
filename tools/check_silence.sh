@@ -17,8 +17,13 @@ patterns=(
 regex=$(IFS='|'; echo "${patterns[*]}")
 status=0
 
+# A file may be exempted as a whole only with a first line containing
+# "silence-check: allow-file (<reason>)"; such files are listed on every run.
+allowed=$(grep -rlE --include='*.kt' --include='*.java' 'silence-check: allow-file' core/src data/src app/src 2>/dev/null \
+          | while read -r f; do head -n 1 "$f" | grep -q 'silence-check: allow-file' && echo "$f"; done || true)
 hits=$(grep -rnE "$regex" --include='*.kt' --include='*.java' --include='*.xml' \
         core/src data/src app/src 2>/dev/null | grep -v 'silence-check: allow' || true)
+for f in $allowed; do hits=$(echo "$hits" | grep -v "^$f:" || true); done
 if [[ -n "$hits" ]]; then
   echo "silence check: audio/vibration/sound API found (mark a reviewed line with 'silence-check: allow'):"
   echo "$hits"
@@ -36,5 +41,8 @@ if [[ -n "$perm" ]]; then
   status=1
 fi
 
-[[ $status -eq 0 ]] && echo "silence check: OK (no audio, vibration, sound-effect API; no INTERNET/VIBRATE permission)"
+if [[ $status -eq 0 ]]; then
+  echo "silence check: OK (no audio, vibration, sound-effect API; no INTERNET/VIBRATE permission)"
+  for f in $allowed; do echo "  reviewed exception: $f — $(head -n 1 "$f" | sed 's/.*allow-file *//')"; done
+fi
 exit $status

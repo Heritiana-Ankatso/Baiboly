@@ -120,6 +120,7 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
     var selected by remember { mutableStateOf(setOf<Int>()) }
     var wordsVerse by remember { mutableStateOf<Int?>(null) }
     var noteDraft by remember { mutableStateOf<NoteDraft?>(null) }
+    var xrefVerse by remember { mutableStateOf<Int?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val clipboard = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
@@ -168,11 +169,16 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
                     onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
                     onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
                     onWords = if (selected.size == 1) ({ wordsVerse = selected.first() }) else null,
+                    onCrossRefs = if (selected.size == 1) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
+                    onListen = if (vm.readAloudEnabled) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
                     onAddToList = { vm.addToList(selectedPassages()); selected = emptySet() },
                     onClear = { selected = emptySet() },
                 )
             } else {
-                ActionBar(onAdd = { showAdd = true }, onBrowse = { showBrowse = true })
+                Column {
+                    ReadingBar(vm)
+                    ActionBar(onAdd = { showAdd = true }, onBrowse = { showBrowse = true })
+                }
             }
         },
         snackbarHost = { SnackbarHost(snackbar) },
@@ -214,6 +220,7 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
     if (showAdd) AddPanel(vm, onDismiss = { showAdd = false })
     if (showBrowse) BrowseSheet(vm, onDismiss = { showBrowse = false })
     studyVerse?.let { v -> StudySheet(vm, loc.book, loc.chapter, v, onDismiss = { studyVerse = null }) }
+    xrefVerse?.let { v -> CrossRefSheet(vm, v, onDismiss = { xrefVerse = null }) }
     noteDraft?.let { d ->
         NoteDialog(
             title = d.passage.longLabel(translation?.lang ?: "mg"),
@@ -288,10 +295,39 @@ private fun ReaderTopBar(vm: AppViewModel, openMenu: () -> Unit) {
                 IconButton(onClick = { vm.search(vm.searchQuery, vm.translationId); vm.screen = Screen.Search }) {
                     Icon(Icons.Filled.Search, stringResource(R.string.search))
                 }
+                ReaderMoreMenu(vm)
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
         )
         GoldRule()
+    }
+}
+
+/** Listen, places of this chapter, dictionary. */
+@Composable
+private fun ReaderMoreMenu(vm: AppViewModel) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }, modifier = Modifier.testTag("more")) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more)) }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            if (vm.readAloudEnabled) DropdownMenuItem(
+                text = { Text(stringResource(R.string.listen)) },
+                leadingIcon = { Text("🕮", color = LocalOrnament.current.gold) },
+                onClick = { open = false; vm.startReading() },
+                modifier = Modifier.testTag("menu-listen"),
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.places_this_chapter)) },
+                leadingIcon = { Text("⌖", color = LocalOrnament.current.gold, fontSize = 18.sp) },
+                onClick = { open = false; vm.mapForChapter = true; vm.screen = Screen.Map },
+                modifier = Modifier.testTag("menu-map"),
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.dictionary)) },
+                leadingIcon = { Text("❦", color = LocalOrnament.current.gold) },
+                onClick = { open = false; vm.screen = Screen.Dictionary },
+            )
+        }
     }
 }
 
@@ -530,6 +566,15 @@ private fun Reader(
     val notes = vm.chapterNotes
     val charHighlights = vm.translationId == BibleRepository.PRIMARY
     val textSize = vm.textSize
+    // verse being read aloud in this chapter (highlighted and kept in view)
+    val rs = vm.readState
+    val reading = if (rs.active && rs.book == ch?.book && rs.chapter == ch.chapter && rs.translation == vm.translationId) rs.verse else null
+    LaunchedEffect(reading, rows) {
+        if (reading != null) {
+            val idx = rows.indexOfFirst { it is ReaderRow.Verse && it.verse == reading }
+            if (idx >= 0 && state.layoutInfo.visibleItemsInfo.none { it.index == idx }) state.animateScrollToItem(idx)
+        }
+    }
 
     if (ch == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(stringResource(R.string.loading)) }
@@ -565,7 +610,7 @@ private fun Reader(
                     verse = r.verse,
                     text = r.text,
                     textSize = textSize,
-                    focused = focus?.contains(r.verse) == true,
+                    focused = focus?.contains(r.verse) == true || reading == r.verse,
                     selected = r.verse in selected,
                     highlights = highlights.filter { it.passage.contains(r.verse) }.map { h ->
                         Triple(if (charHighlights) h.charStart else null, if (charHighlights) h.charEnd else null, h.colour)
@@ -736,6 +781,8 @@ private fun SelectionBar(
     onHighlight: (Int) -> Unit,
     onRemoveHighlight: () -> Unit,
     onWords: (() -> Unit)?,
+    onCrossRefs: (() -> Unit)?,
+    onListen: (() -> Unit)?,
     onAddToList: () -> Unit,
     onClear: () -> Unit,
 ) {
@@ -771,6 +818,8 @@ private fun SelectionBar(
                 BarButton(stringResource(R.string.copy), onCopy)
                 BarButton(stringResource(R.string.add_note), onNote)
                 BarButton(stringResource(R.string.highlight)) { colours = !colours }
+                if (onCrossRefs != null) BarButton(stringResource(R.string.cross_references), onCrossRefs)
+                if (onListen != null) BarButton(stringResource(R.string.listen_from_here), onListen)
                 if (onWords != null) BarButton(stringResource(R.string.select_words), onWords)
                 BarButton(stringResource(R.string.add_to_list), onAddToList)
             }

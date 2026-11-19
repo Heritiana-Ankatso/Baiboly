@@ -12,6 +12,7 @@ Every source below passed the automatic licence check in `tools/build_data.py` (
 | CrossWire SWORD module FreCrampon | La Bible Augustin Crampon 1923 | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/FreCrampon.zip | https://fr.wikisource.org/wiki/Bible_Crampon_1923 |
 | eBible.org eng-kjv2006 | King James (Authorized) Version | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-kjv2006_vpl.zip | http://ebible.org/eng-kjv2006/ |
 | eBible.org engbsb | Berean Standard Bible | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/engbsb_vpl.zip | http://ebible.org/engbsb/ |
+| eBible.org englsv | Literal Standard Version | CC BY-SA 4.0, © 2020 Covenant Press (licence text checked on the publisher's copyright page) | https://ebible.org/Scriptures/englsv_vpl.zip | http://eBible.org/englsv/ |
 | eBible.org eng-web | World English Bible Classic | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-web_vpl.zip | http://ebible.org/eng-web/ |
 | eBible.org engBBE | Bible in Basic English | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/engBBE_vpl.zip | http://ebible.org/engBBE/ |
 | eBible.org eng-web-c | World English Bible (Catholic) | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-web-c_vpl.zip | http://ebible.org/eng-web-c/ |
@@ -20,5 +21,11 @@ Every source below passed the automatic licence check in `tools/build_data.py` (
 | CrossWire SWORD module StrongsGreek | Strong's Greek Bible Dictionary | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/StrongsGreek.zip | http://www.bf.org/ |
 | CrossWire SWORD module StrongsHebrew | Strong's Hebrew Bible Dictionary | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/StrongsHebrew.zip | http://www.bf.org/ |
 | Open Scriptures strongs | Strong's Hebrew and Greek dictionaries (JSON) | CC-BY-SA (Open Scriptures, as stated in the file header); attribution: Open Scriptures, derived from Strong's 1890/1894 dictionaries | https://raw.githubusercontent.com/openscriptures/strongs/master/{hebrew,greek}/strongs-{hebrew,greek}-dictionary.js | https://github.com/openscriptures/strongs |
+| CrossWire SWORD module TSK | Treasury of Scripture Knowledge | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/TSK.zip |  |
+| CrossWire SWORD module Easton | Easton's Bible Dictionary | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/Easton.zip | CCEL |
+| CrossWire SWORD module Nave | Naveߴs Topical Bible | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/Nave.zip | https://ccel.org/ccel/n/nave/bible.xml |
+| CrossWire SWORD module FreGBM | Glossaire de la Bible David Martin (1744) | Free distribution with mention of www.biblemartin.com | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/FreGBM.zip | www.biblemartin.com |
+| OpenBible.info | Bible places (OpenBible.info Bible Geocoding Data) | CC BY 4.0, © OpenBible.info | https://github.com/openbibleinfo/Bible-Geocoding-Data | https://www.openbible.info/geo/ |
+| Natural Earth | Map outlines (Natural Earth 1:10m land, lakes, rivers) | Public Domain | https://www.naturalearthdata.com | https://github.com/nvkelso/natural-earth-vector |
 
 Tools: versification tables from PySword 0.2.8 (MIT licence), `tools/vendor/sword_canons.py`.

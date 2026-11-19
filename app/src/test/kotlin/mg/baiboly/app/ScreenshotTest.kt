@@ -25,6 +25,17 @@ class ScreenshotTest {
     private val vm: AppViewModel get() = ViewModelProvider(rule.activity)[AppViewModel::class.java]
     private val out = File(System.getProperty("user.dir")!!).parentFile!!.resolve("docs/screenshots").apply { mkdirs() }
 
+    /** Lets background loading (databases on the io thread) finish, frame by frame. */
+    private fun pump(ms: Long) {
+        val end = System.currentTimeMillis() + ms
+        while (System.currentTimeMillis() < end) {
+            ShadowLooper.idleMainLooper()
+            rule.mainClock.advanceTimeByFrame()
+            Thread.sleep(40)
+        }
+        rule.waitForIdle()
+    }
+
     private fun settle(cond: () -> Boolean = { true }) {
         for (i in 0 until 300) {
             ShadowLooper.idleMainLooper()
@@ -84,5 +95,19 @@ class ScreenshotTest {
         if (!vm.studyMode) vm.toggleStudyMode()
         settle()
         shot("06-genesis-aleph-fr")
+
+        // study tools: map of Exodus 14, dictionary, cross-references, reading bar
+        vm.chooseUiLanguage("mg")
+        vm.setTranslation("mg1865")
+        open(Passage(2, 14))
+        vm.mapForChapter = true
+        vm.screen = Screen.Map
+        pump(4000)
+        shot("07-map-exodus-14")
+        vm.screen = Screen.Dictionary
+        pump(2500)
+        shot("08-dictionary")
+        vm.screen = Screen.Main
+        settle()
     }
 }
