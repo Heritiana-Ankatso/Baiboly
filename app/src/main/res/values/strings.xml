@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Baiboly</string>
+
+    <!-- Top bar -->
+    <string name="menu">Menu</string>
+    <string name="search">Search</string>
+    <string name="study_mode">Original-language study (α)</string>
+    <string name="study_mode_on">α on: tap a verse number to study it</string>
+    <string name="study_mode_off">α off</string>
+    <string name="choose_translation">Reading text</string>
+
+    <!-- List strip -->
+    <string name="start_list">Start a list</string>
+    <string name="side_tag">side</string>
+    <string name="mark_side">Mark as side verse</string>
+    <string name="unmark_side">Unmark side verse</string>
+    <string name="move_earlier">Move earlier</string>
+    <string name="move_later">Move later</string>
+    <string name="delete">Delete</string>
+    <string name="list_menu">List options</string>
+    <string name="new_list">New list</string>
+    <string name="saved_lists">Saved lists</string>
+    <string name="rename_list">Rename list</string>
+    <string name="list_title">List title</string>
+    <string name="default_list_title">Service %1$s</string>
+
+    <!-- Reader -->
+    <string name="previous_chapter">Previous chapter</string>
+    <string name="next_chapter">Next chapter</string>
+    <string name="back_to_my_place">Back to my place</string>
+    <string name="text_size">Text size</string>
+    <string name="chapter_label">%1$s %2$d</string>
+    <string name="loading">Loading…</string>
+    <string name="translation_note_numbering">Verse numbers follow this translation and can differ slightly from the Malagasy text.</string>
+
+    <!-- Action bar -->
+    <string name="add">Add</string>
+    <string name="browse">Browse</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="save">Save</string>
+    <string name="ok">OK</string>
+
+    <!-- Add panel -->
+    <string name="add_verses">Add verses</string>
+    <string name="keypad">Keypad</string>
+    <string name="keyboard">Keyboard</string>
+    <string name="entry_hint">e.g. Jao 3: 16 or Efe 2: 4, 8-9</string>
+    <string name="backspace">Delete last character</string>
+    <string name="clear">Clear</string>
+    <string name="added_x">Added: %1$s</string>
+    <string name="preview_x">→ %1$s</string>
+    <string name="err_unknown_book">Unknown book “%1$s”</string>
+    <string name="err_ambiguous_book">“%1$s” could be: %2$s</string>
+    <string name="err_missing_book">Start with a book name</string>
+    <string name="err_chapter_range">%1$s has %3$d chapters (not %2$d)</string>
+    <string name="err_verse_range">%1$s %2$d has %4$d verses (not %3$d)</string>
+    <string name="err_reversed">Range %1$d-%2$d is reversed</string>
+    <string name="err_syntax">Cannot read “%1$s”</string>
+    <string name="recent">Recent</string>
+
+    <!-- Browse -->
+    <string name="old_testament">Old Testament</string>
+    <string name="new_testament">New Testament</string>
+    <string name="books">Books</string>
+    <string name="add_to_list">Add to list</string>
+    <string name="open_without_adding">Open without adding</string>
+    <string name="select_verses_hint">Tap verses to select them</string>
+    <string name="whole_chapter">Whole chapter</string>
+
+    <!-- Side menu -->
+    <string name="books_of_bible">Books of the Bible</string>
+    <string name="history">History</string>
+    <string name="notes">Notes</string>
+    <string name="highlights">Highlights</string>
+    <string name="backup">Backup</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+
+    <!-- Selection -->
+    <string name="copy">Copy</string>
+    <string name="add_note">Add note</string>
+    <string name="highlight">Highlight</string>
+    <string name="select_words">Select words</string>
+    <string name="copied">Copied</string>
+    <string name="note_hint">Your note</string>
+    <string name="edit_note">Edit note</string>
+    <string name="remove_highlight">Remove highlight</string>
+    <string name="select_words_hint">Drag the handles to choose words, then pick an action.</string>
+    <string name="n_selected">%1$s selected</string>
+
+    <!-- Lists screens -->
+    <string name="empty_history">No passages opened yet.</string>
+    <string name="empty_notes">No notes yet. Tap a verse, then Add note.</string>
+    <string name="empty_highlights">No highlights yet. Tap a verse, then Highlight.</string>
+    <string name="clear_history">Clear history</string>
+    <string name="open">Open</string>
+    <string name="duplicate">Duplicate</string>
+    <string name="items_count">%1$d items</string>
+    <string name="current_list">current</string>
+    <string name="copy_suffix">%1$s (copy)</string>
+
+    <!-- Search -->
+    <string name="search_hint">Search the text (accents optional)</string>
+    <string name="search_in">Search in %1$s</string>
+    <string name="results_count">%1$d results</string>
+    <string name="results_limited">%1$d+ results (showing the first %1$d)</string>
+    <string name="no_results">No results.</string>
+
+    <!-- Settings -->
+    <string name="theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="sample_text">Fa toy izao no nitiavan’ Andriamanitra izao tontolo izao…</string>
+    <string name="interface_language">Interface language: follows the phone (English or French). On Android 13+ it can be set per app in the system settings.</string>
+
+    <!-- Backup -->
+    <string name="backup_intro">Save lists, notes, highlights and history to one file, or restore them from a file. Nothing leaves the phone unless you move the file yourself.</string>
+    <string name="export_backup">Export backup file</string>
+    <string name="import_backup">Restore from backup file</string>
+    <string name="import_confirm">Restoring replaces all current lists, notes, highlights and history with the backup. Continue?</string>
+    <string name="backup_saved">Backup saved.</string>
+    <string name="backup_restored">Backup restored.</string>
+    <string name="backup_failed">Could not read this file: %1$s</string>
+
+    <!-- About -->
+    <string name="about_text">Baiboly is a free, offline Bible for church services and personal study. It makes no sound, needs no account and never connects to the internet.</string>
+    <string name="sources_licences">Texts, data and licences</string>
+    <string name="reading_texts">Reading texts</string>
+    <string name="study_data">Study data</string>
+    <string name="version_x">Version %1$s</string>
+
+    <!-- Study -->
+    <string name="study_title">Original language · %1$s</string>
+    <string name="study_kjv_note">Words follow the King James Version tagging (KJV %1$s), so they may differ from the Malagasy wording.</string>
+    <string name="study_numbering_warning">Verse numbering differs in this chapter and the KJV verse could not be matched with certainty.</string>
+    <string name="study_no_words">No tagged words for this verse.</string>
+    <string name="found_n_verses">Found %1$d verses</string>
+    <string name="part_of_speech">Part of speech</string>
+    <string name="definition">Definition</string>
+    <string name="kjv_usage">KJV renderings</string>
+    <string name="pronunciation">Pronunciation</string>
+    <string name="back">Back</string>
+    <string name="no_entry">No dictionary entry for %1$s.</string>
+    <string name="opened_in_malagasy">Opened in the Malagasy text</string>
+</resources>
