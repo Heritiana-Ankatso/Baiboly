@@ -31,7 +31,7 @@ data class RecentPassage(val passage: Passage, val openedAt: Long)
  * The user's own data (brief section 3), in plain SQLite. All verse numbers
  * are Malagasy 1865 numbers. Call from a background thread.
  */
-class UserStore(context: Context) : SQLiteOpenHelper(context, "user.db", null, 1) {
+class UserStore(context: Context) : SQLiteOpenHelper(context, "user.db", null, SCHEMA_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE service_list(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, date TEXT NOT NULL, created_at INTEGER NOT NULL)")
@@ -58,7 +58,19 @@ class UserStore(context: Context) : SQLiteOpenHelper(context, "user.db", null, 1
         db.execSQL("CREATE INDEX highlight_by_chapter ON highlight(book, chapter)")
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+    /**
+     * App updates keep the user's data. Each schema change gets one numbered
+     * step here, applied in order inside one transaction, and SCHEMA_VERSION
+     * goes up by one. Steps only add or transform; they never drop user data.
+     */
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        for (v in oldVersion + 1..newVersion) MIGRATIONS[v]?.invoke(db)
+    }
+
+    /** A newer app's database opened by an older app (downgrade): keep the data, refuse to guess. */
+    override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        throw IllegalStateException("user.db is from a newer version of Baiboly ($oldVersion > $newVersion); install the newer version")
+    }
 
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
@@ -263,6 +275,11 @@ class UserStore(context: Context) : SQLiteOpenHelper(context, "user.db", null, 1
     }
 
     companion object {
+        const val SCHEMA_VERSION = 1
+
+        /** schema version -> step that brings the previous version up to it (none yet). */
+        private val MIGRATIONS: Map<Int, (SQLiteDatabase) -> Unit> = mapOf()
+
         /** Parent tables first. */
         val TABLES = listOf("service_list", "list_item", "recent_passage", "note", "highlight")
     }

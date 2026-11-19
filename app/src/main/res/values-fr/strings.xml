@@ -156,10 +156,9 @@
     <string name="listen">Écouter</string>
     <string name="listen_from_here">Écouter d’ici</string>
     <string name="read_aloud">Lecture à voix haute</string>
-    <string name="read_aloud_hint">Désactivée par défaut. Activée, « Écouter » lit le chapitre avec la voix du téléphone, même écran éteint.</string>
+    <string name="read_aloud_hint">Désactivée par défaut. Activée, « Écouter » lit le chapitre avec la voix du téléphone dans la langue du texte, même écran éteint.</string>
     <string name="reading_speed">Vitesse de lecture</string>
-    <string name="malagasy_voice_note">Les téléphones n’ont pas encore de voix malgache : les textes malgaches sont lus avec une voix française, proche de l’orthographe malgache. Les textes français et anglais ont leur propre voix.</string>
-    <string name="voice_fallback">Pas de voix pour cette langue sur le téléphone : lecture avec la voix %1$s.</string>
+    <string name="malagasy_voice_note">Chaque texte n’est lu qu’avec une voix de sa propre langue. La plupart des téléphones n’ont pas encore de voix malgache : les textes malgaches ne pourront être lus qu’une fois une voix malgache installée. Les textes français et anglais utilisent les voix française et anglaise du téléphone.</string>
     <string name="tts_unavailable">Le téléphone n’a pas de synthèse vocale. Installez-en une (p. ex. Services vocaux Google) dans les réglages du téléphone.</string>
     <string name="pause">Pause</string>
     <string name="resume">Reprendre</string>
@@ -181,4 +180,22 @@
     <string name="place_certain">localisation établie</string>
     <string name="place_likely">localisation probable</string>
     <string name="place_uncertain">localisation incertaine</string>
+    <string name="voice_missing">Aucune voix %1$s n’est installée sur ce téléphone : ce texte ne peut pas être lu à voix haute. Une voix peut être ajoutée dans les réglages de synthèse vocale du téléphone.</string>
+    <string name="lang_malagasy">malgache</string>
+    <string name="lang_french">française</string>
+    <string name="lang_english">anglaise</string>
+    <string name="whats_new">Nouveautés</string>
+    <string name="whats_new_ok">Amen</string>
+    <string name="updates_hint">Les mises à jour s’installent par-dessus l’application et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
+    <string-array name="whats_new_items">
+        <item>Une nouvelle apparence : vélin et encre le jour, noir chaud et or la nuit.</item>
+        <item>Thème et langue (malgache, français, anglais) à portée de doigt dans le menu et les réglages.</item>
+        <item>Bibles catholiques : Crampon 1923, néo-Crampon Libre, World English Bible édition catholique, Douay-Rheims — avec Tobie, Judith, Maccabées, Sagesse, Siracide et Baruch.</item>
+        <item>Literal Standard Version (anglais).</item>
+        <item>Références croisées pour chaque verset (Treasury of Scripture Knowledge).</item>
+        <item>Dictionnaire biblique et thèmes (anglais) et glossaire Martin (français).</item>
+        <item>Carte des lieux bibliques, avec les lieux du chapitre que vous lisez.</item>
+        <item>Lecture à voix haute, même écran éteint (à activer dans les réglages). Chaque texte n’est lu qu’avec une voix de sa langue.</item>
+        <item>Symbole d’étude : א pour l’Ancien Testament, α pour le Nouveau.</item>
+    </string-array>
 </resources>

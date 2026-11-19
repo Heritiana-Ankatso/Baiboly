@@ -1,4 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+fun gitCommitCount(): Int = try {
+    val p = ProcessBuilder("git", "rev-list", "--count", "HEAD").directory(rootDir).redirectErrorStream(true).start()
+    p.inputStream.bufferedReader().readText().trim().toInt().also { p.waitFor() }
+} catch (e: Exception) {
+    1
+}
 
 plugins {
     id("com.android.application")
@@ -14,21 +22,31 @@ android {
         applicationId = "mg.baiboly.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        // versionCode rises with every commit, so each build installs over the previous one;
+        // versionName is the human version, set in gradle.properties for each release.
+        versionCode = gitCommitCount()
+        versionName = providers.gradleProperty("baiboly.versionName").getOrElse("1.0.0")
     }
 
     signingConfigs {
-        // A release keystore can be supplied through gradle properties; otherwise the
-        // release build is signed with the debug key so it installs for testing.
+        // The permanent release key is never in the repository. It comes from
+        // environment variables (GitHub Actions secrets) or from a local, ignored
+        // keystore.properties file. Without it, release builds fall back to the
+        // debug key and say so: such an APK cannot update an installed release.
         create("release") {
-            val store = providers.gradleProperty("baiboly.storeFile").orNull
-            if (store != null) {
+            val props = Properties().apply {
+                rootProject.file("keystore.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+            }
+            fun secret(name: String): String? = System.getenv(name) ?: props.getProperty(name)
+            val store = secret("BAIBOLY_KEYSTORE")
+            if (store != null && file(store).exists()) {
                 storeFile = file(store)
-                storePassword = providers.gradleProperty("baiboly.storePassword").get()
-                keyAlias = providers.gradleProperty("baiboly.keyAlias").get()
-                keyPassword = providers.gradleProperty("baiboly.keyPassword").get()
+                storeType = "pkcs12"
+                storePassword = secret("BAIBOLY_KEYSTORE_PASSWORD")
+                keyAlias = secret("BAIBOLY_KEY_ALIAS") ?: "baiboly"
+                keyPassword = secret("BAIBOLY_KEY_PASSWORD")
             } else {
+                logger.warn("Baiboly: no release key (BAIBOLY_KEYSTORE); release APK is signed with the DEBUG key and cannot update an installed release.")
                 val debug = getByName("debug")
                 storeFile = debug.storeFile
                 storePassword = debug.storePassword

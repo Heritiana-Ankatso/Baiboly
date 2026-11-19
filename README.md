@@ -43,7 +43,7 @@ The app has no INTERNET or VIBRATE permission, no accounts, no analytics and no 
 
 ## Installing
 
-The latest release build is in the repository: [`apk/Baiboly.apk`](apk/Baiboly.apk) (signed with a debug key; see *Release signing* below for a store build). On the phone, allow installing from this source when asked.
+Download the APK from the repository's **Releases** page (each version has its own release, built and signed by GitHub Actions). Updates install over the app and keep lists, notes, highlights and settings; after an update the app shows "What's new" once. See [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Building
 
@@ -56,7 +56,7 @@ python3 tools/build_data.py          # downloads the sources once (cached in too
 
 * The Gradle `bibleData` task runs `tools/build_data.py` automatically when the databases are missing.
 * The generated databases are not committed (about 120 MB). They are rebuilt from the sources.
-* **Release signing.** Pass `-Pbaiboly.storeFile=… -Pbaiboly.storePassword=… -Pbaiboly.keyAlias=… -Pbaiboly.keyPassword=…`. Without these, the release APK is signed with the debug key so it can be installed for testing.
+* **Release signing.** The permanent key is never in the repository: GitHub Actions uses repository secrets, local builds a git-ignored `keystore.properties` (see [docs/RELEASING.md](docs/RELEASING.md)). Without a key, release builds are signed with the debug key and cannot update an installed release.
 
 **Tests:**
 

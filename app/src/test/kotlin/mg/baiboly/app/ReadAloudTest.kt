@@ -66,4 +66,19 @@ class ReadAloudTest {
         val prefs = app.getSharedPreferences("app_state", 0)
         assertFalse(prefs.getBoolean("read_aloud", false))
     }
+
+    @Test fun malagasyIsNotReadWithAnotherLanguagesVoice() {
+        // the phone has French and English voices, but no Malagasy one
+        ShadowTextToSpeech.addLanguageAvailability(java.util.Locale.FRENCH)
+        ShadowTextToSpeech.addLanguageAvailability(java.util.Locale.ENGLISH)
+        val start = Intent(app, ReadAloudService::class.java).setAction(ReadAloud.ACTION_START)
+            .putExtra("translation", "mg1865").putExtra("book", 43).putExtra("chapter", 3).putExtra("verse", 16).putExtra("rate", 1f)
+        Robolectric.buildService(ReadAloudService::class.java, start).create().startCommand(0, 1)
+        val tts = ShadowTextToSpeech.getLastTextToSpeechInstance()!!
+        shadowOf(tts).onInitListener.onInit(TextToSpeech.SUCCESS)
+        idle { ReadAloud.errors.value != null }
+        assertTrue(shadowOf(tts).spokenTextList.isEmpty(), "nothing is read with a French voice")
+        assertFalse(ReadAloud.state.value.active)
+        assertTrue(ReadAloud.errors.value!!.second.contains("malagasy", ignoreCase = true), ReadAloud.errors.value!!.second)
+    }
 }

@@ -221,6 +221,7 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
     if (showBrowse) BrowseSheet(vm, onDismiss = { showBrowse = false })
     studyVerse?.let { v -> StudySheet(vm, loc.book, loc.chapter, v, onDismiss = { studyVerse = null }) }
     xrefVerse?.let { v -> CrossRefSheet(vm, v, onDismiss = { xrefVerse = null }) }
+    if (vm.showWhatsNew) WhatsNewSheet(vm.versionName, onDismiss = { vm.dismissWhatsNew() })
     noteDraft?.let { d ->
         NoteDialog(
             title = d.passage.longLabel(translation?.lang ?: "mg"),

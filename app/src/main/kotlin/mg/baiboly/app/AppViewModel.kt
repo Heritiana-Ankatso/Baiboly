@@ -122,13 +122,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var message by mutableStateOf<String?>(null)
 
     init {
+        // Reading-aloud problems (e.g. no Malagasy voice on the phone) are shown as messages.
+        viewModelScope.launch {
+            var seen = ReadAloud.errors.value?.first
+            ReadAloud.errors.collect { e -> if (e != null && e.first != seen) { seen = e.first; message = e.second } }
+        }
         // Follow the reading: highlight the verse, turn to the next chapter with it.
         viewModelScope.launch {
             ReadAloud.state.collect { s ->
-                val was = readState
                 readState = s
-                if (s.fallbackVoice != null && was.fallbackVoice == null) message = str(R.string.voice_fallback, s.fallbackVoice)
-                if (s.error != null && was.error == null) message = s.error
                 if (s.active && s.book > 0 && (s.book != location.book || s.chapter != location.chapter)) {
                     if (s.translation != translationId) translationId = s.translation
                     go(ReaderLocation(s.book, s.chapter, null), null)
@@ -393,6 +395,31 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     suspend fun places() = withContext(io) { library.places }
     suspend fun placesInChapter() = withContext(io) { library.placesIn(location.book, location.chapter) }
     suspend fun placeVerses(id: String) = withContext(io) { library.versesOf(id) }
+
+    /** Installed version, for About and the "What's new" page. */
+    val versionName: String = runCatching { app.packageManager.getPackageInfo(app.packageName, 0).versionName }.getOrNull() ?: ""
+    private val versionCode: Long = runCatching {
+        val info = app.packageManager.getPackageInfo(app.packageName, 0)
+        if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else @Suppress("DEPRECATION") info.versionCode.toLong()
+    }.getOrDefault(0L)
+
+    /**
+     * "What's new" after an update: shown once when the app was already in use
+     * and the installed version is newer than the last one seen; never on a
+     * first install.
+     */
+    var showWhatsNew by mutableStateOf(
+        prefs.contains("list_id") && prefs.getLong("seen_version_code", -1L) < versionCode
+    )
+
+    fun dismissWhatsNew() {
+        showWhatsNew = false
+        prefs.edit().putLong("seen_version_code", versionCode).apply()
+    }
+
+    init {
+        if (!prefs.contains("list_id")) prefs.edit().putLong("seen_version_code", versionCode).apply()
+    }
 
     /** Map opened from the reader shows this chapter's places; from the menu, all places. */
     var mapForChapter by mutableStateOf(false)

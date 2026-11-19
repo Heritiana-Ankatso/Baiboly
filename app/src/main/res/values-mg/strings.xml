@@ -158,10 +158,9 @@
     <string name="listen">Henoina</string>
     <string name="listen_from_here">Henoina hatreto</string>
     <string name="read_aloud">Famakiana mafy</string>
-    <string name="read_aloud_hint">Tsy mandeha raha tsy alefanao. Rehefa alefa, ny « Henoina » dia mamaky ny toko amin’ny feon’ny finday, na dia maty aza ny efijery.</string>
+    <string name="read_aloud_hint">Tsy mandeha raha tsy alefanao. Rehefa alefa, ny « Henoina » dia mamaky ny toko amin’ny feon’ny finday amin’ny fitenin’ilay soratra, na dia maty aza ny efijery.</string>
     <string name="reading_speed">Hafainganan’ny famakiana</string>
-    <string name="malagasy_voice_note">Mbola tsy misy feo malagasy ny finday: feo frantsay no mamaky ny soratra malagasy, satria akaiky ny fanoratana malagasy izy. Manana ny feony ny soratra frantsay sy anglisy.</string>
-    <string name="voice_fallback">Tsy misy feo amin’ity fiteny ity ny finday: ny feo %1$s no mamaky.</string>
+    <string name="malagasy_voice_note">Ny feo amin’ny fitenin’ny soratra ihany no mamaky azy. Mbola tsy manana feo malagasy ny ankamaroan’ny finday, ka ny soratra malagasy dia tsy ho azo vakiana mafy raha tsy misy feo malagasy apetraka. Ny feo frantsay sy anglisy amin’ny finday no mamaky ny soratra frantsay sy anglisy.</string>
     <string name="tts_unavailable">Tsy manana motera famakiana feo ny finday. Apetraho iray (oh. Speech Services by Google) ao amin’ny fikirana.</string>
     <string name="pause">Ajanony kely</string>
     <string name="resume">Tohizo</string>
@@ -183,4 +182,22 @@
     <string name="place_certain">toerana fantatra tsara</string>
     <string name="place_likely">toerana azo inoana</string>
     <string name="place_uncertain">toerana tsy azo antoka</string>
+    <string name="voice_missing">Tsy misy feo %1$s ao amin’ity finday ity, ka tsy azo vakiana mafy ity soratra ity. Azo ampiana feo ao amin’ny fikirana famakiana feo amin’ny finday.</string>
+    <string name="lang_malagasy">malagasy</string>
+    <string name="lang_french">frantsay</string>
+    <string name="lang_english">anglisy</string>
+    <string name="whats_new">Vaovao</string>
+    <string name="whats_new_ok">Amena</string>
+    <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
+    <string-array name="whats_new_items">
+        <item>Endrika vaovao: taratasy sy ranomainty amin’ny andro, mainty mafana sy volamena amin’ny alina.</item>
+        <item>Endrika sy fiteny (malagasy, frantsay, anglisy) azo ovaina avy hatrany ao amin’ny menio sy ny fikirana.</item>
+        <item>Baiboly katolika: Crampon 1923, néo-Crampon Libre, World English Bible katolika, Douay-Rheims — miaraka amin’i Tobia, Jodita, Makabeo, Fahendrena, Eklesiastika ary Baroka.</item>
+        <item>Literal Standard Version (anglisy).</item>
+        <item>Fifandraisan-teny ho an’ny andininy tsirairay (Treasury of Scripture Knowledge).</item>
+        <item>Rakibolana sy lohahevitra ara-Baiboly (anglisy) ary glossaire Martin (frantsay).</item>
+        <item>Sarintanin’ny toerana ao amin’ny Baiboly, miaraka amin’ny toerana ao amin’ny toko vakianao.</item>
+        <item>Famakiana mafy, na dia maty aza ny efijery (alefaso ao amin’ny fikirana). Ny feo amin’ny fitenin’ny soratra ihany no mamaky azy.</item>
+        <item>Marika fandalinana: א ho an’ny Testamenta Taloha, α ho an’ny Vaovao.</item>
+    </string-array>
 </resources>

@@ -32,6 +32,7 @@ class FreshInstallTest {
         assertTrue(vm.ready && vm.chapter != null, "first launch did not finish loading")
         rule.waitForIdle()
         assertEquals("mg", vm.uiLanguage)
+        assertEquals(false, vm.showWhatsNew, "no \"What's new\" on a first install")
         assertEquals("mg1865", vm.defaultTranslationId)
         assertEquals("mg1865", vm.translationId)
         rule.onNodeWithText("Hijery").assertExists()            // Browse

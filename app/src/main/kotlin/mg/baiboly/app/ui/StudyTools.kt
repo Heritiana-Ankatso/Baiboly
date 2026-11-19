@@ -510,3 +510,38 @@ fun ReadingBar(vm: AppViewModel) {
     }
 }
 
+
+// ---------------------------------------------------------------- what's new
+
+/** Release notes, shown once after an update (and from About). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WhatsNewSheet(version: String, onDismiss: () -> Unit) {
+    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val ornament = LocalOrnament.current
+    val items = androidx.compose.ui.res.stringArrayResource(R.array.whats_new_items)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+        Column(
+            Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 24.dp).padding(bottom = 16.dp).testTag("whats-new"),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text("✠", color = ornament.gold, fontSize = 22.sp)
+            Text(stringResource(R.string.whats_new), style = MaterialTheme.typography.headlineSmall, color = ornament.rubric)
+            Text(stringResource(R.string.version_x, version), style = MaterialTheme.typography.labelMedium, color = ornament.gold, letterSpacing = 2.sp)
+            Fleuron()
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).heightIn(max = 420.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items.forEach { item ->
+                    Row {
+                        Text("❧", color = ornament.gold, modifier = Modifier.padding(end = 10.dp, top = 2.dp))
+                        Text(item, style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+            }
+            androidx.compose.material3.Button(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(27.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 18.dp).heightIn(min = 52.dp),
+            ) { Text(stringResource(R.string.whats_new_ok), style = MaterialTheme.typography.titleMedium) }
+        }
+    }
+}

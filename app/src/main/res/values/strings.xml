@@ -173,10 +173,9 @@
     <string name="listen">Listen</string>
     <string name="listen_from_here">Listen from here</string>
     <string name="read_aloud">Reading aloud</string>
-    <string name="read_aloud_hint">Off by default. When on, “Listen” reads the chapter with the phone’s voice, also with the screen off.</string>
+    <string name="read_aloud_hint">Off by default. When on, “Listen” reads the chapter with the phone’s voice for the text’s language, also with the screen off.</string>
     <string name="reading_speed">Reading speed</string>
-    <string name="malagasy_voice_note">Phones have no Malagasy voice yet: Malagasy texts are read with a French voice, which follows Malagasy spelling closely. French and English texts use their own voice.</string>
-    <string name="voice_fallback">No voice for this language on the phone: reading with the %1$s voice.</string>
+    <string name="malagasy_voice_note">Each text is read only with a voice in its own language. Most phones have no Malagasy voice yet, so Malagasy texts can be read aloud only once a Malagasy voice is installed. French and English texts use the phone’s French and English voices.</string>
     <string name="tts_unavailable">The phone has no text-to-speech engine. Install one (e.g. Speech Services by Google) in the phone’s settings.</string>
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
@@ -198,4 +197,22 @@
     <string name="place_certain">location well established</string>
     <string name="place_likely">likely location</string>
     <string name="place_uncertain">uncertain location</string>
+    <string name="voice_missing">No %1$s voice is installed on this phone, so this text cannot be read aloud. A voice can be added in the phone’s text-to-speech settings.</string>
+    <string name="lang_malagasy">Malagasy</string>
+    <string name="lang_french">French</string>
+    <string name="lang_english">English</string>
+    <string name="whats_new">What’s new</string>
+    <string name="whats_new_ok">Amen</string>
+    <string name="updates_hint">Updates install over the app and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
+    <string-array name="whats_new_items">
+        <item>A new look: vellum and ink by day, warm black and gold by night.</item>
+        <item>Theme and language (Malagasy, French, English) one tap away in the menu and in Settings.</item>
+        <item>Catholic Bibles: Crampon 1923, néo-Crampon Libre, World English Bible Catholic Edition, Douay-Rheims — with Tobit, Judith, Maccabees, Wisdom, Sirach and Baruch.</item>
+        <item>Literal Standard Version (English).</item>
+        <item>Cross-references for every verse (Treasury of Scripture Knowledge).</item>
+        <item>Bible dictionary and topics (English) and the Martin glossary (French).</item>
+        <item>Map of Bible places, with the places of the chapter you are reading.</item>
+        <item>Reading aloud, also with the screen off (switch it on in Settings). Each text is read only with a voice in its own language.</item>
+        <item>Study symbol: א for the Old Testament, α for the New.</item>
+    </string-array>
 </resources>

@@ -665,6 +665,11 @@ fun AboutScreen(vm: AppViewModel) {
             Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium, fontFamily = TextSerif)
             Text(stringResource(R.string.version_x, version), color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(stringResource(R.string.about_text), modifier = Modifier.padding(vertical = 12.dp))
+            var notes by remember { mutableStateOf(false) }
+            OutlinedButton(onClick = { notes = true }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.whats_new)) }
+            if (notes) WhatsNewSheet(vm.versionName, onDismiss = { notes = false })
+            Text(stringResource(R.string.updates_hint), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 8.dp))
             Text(stringResource(R.string.reading_texts), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
             vm.translations.forEach { t ->
                 Column(Modifier.padding(vertical = 6.dp)) {

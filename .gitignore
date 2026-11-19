@@ -11,3 +11,10 @@ captures/
 app/src/main/assets/databases/
 app/src/main/assets/licences.json
 app/src/main/assets/map.json
+# Signing keys and their passwords never go into the repository (it will be public)
+keystore.properties
+*.p12
+*.jks
+*.keystore
+*.base64
+apk/

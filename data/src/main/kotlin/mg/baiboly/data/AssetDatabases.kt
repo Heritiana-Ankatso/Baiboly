@@ -19,6 +19,34 @@ class AssetDatabases(private val context: Context) {
     }
     private val open = HashMap<String, SQLiteDatabase>()
 
+    private val bundled: Set<String> by lazy {
+        context.assets.open("databases/manifest.json").use {
+            val files = JSONObject(it.readBytes().decodeToString()).getJSONArray("files")
+            (0 until files.length()).map { i -> files.getString(i) }.toSet()
+        }
+    }
+
+    init {
+        removeObsolete()
+    }
+
+    /**
+     * After an app update, files of the previous data version are replaced on
+     * first use; files no longer shipped at all (e.g. a translation that was
+     * removed) are deleted here so they do not take space. user.db is never touched.
+     */
+    private fun removeObsolete() {
+        val prefs = context.getSharedPreferences("asset_databases", Context.MODE_PRIVATE)
+        if (prefs.getInt("cleaned_for", -1) == dataVersion) return
+        val dir = context.getDatabasePath("bible.db").parentFile ?: return
+        dir.listFiles()?.forEach { f ->
+            val name = f.name.removeSuffix("-journal").removeSuffix(".tmp")
+            val ours = name == "bible.db" || name == "study.db" || name == "library.db" || name.startsWith("text-")
+            if (ours && name !in bundled) f.delete()
+        }
+        prefs.edit().putInt("cleaned_for", dataVersion).apply()
+    }
+
     @Synchronized
     fun get(name: String): SQLiteDatabase {
         open[name]?.let { return it }

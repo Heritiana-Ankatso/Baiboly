@@ -43,15 +43,16 @@ data class ReadAloudState(
     val book: Int = 0,
     val chapter: Int = 0,
     val verse: Int = 0,
-    /** Set when the text's language has no voice on the phone and another voice is used. */
-    val fallbackVoice: String? = null,
-    val error: String? = null,
 )
 
 /** Entry points used by the UI. Nothing here starts on its own. */
 object ReadAloud {
     internal val mutableState = MutableStateFlow(ReadAloudState())
     val state: StateFlow<ReadAloudState> = mutableState
+
+    /** Why reading could not start (no voice for the language, no speech engine); a new value per event. */
+    internal val mutableErrors = MutableStateFlow<Pair<Long, String>?>(null)
+    val errors: StateFlow<Pair<Long, String>?> = mutableErrors
 
     const val ACTION_START = "mg.baiboly.READ_START"
     const val ACTION_PAUSE = "mg.baiboly.READ_PAUSE"
@@ -148,7 +149,7 @@ class ReadAloudService : Service() {
         tts = TextToSpeech(applicationContext) { status ->
             main.post {
                 if (status != TextToSpeech.SUCCESS) {
-                    publish(error = getStringLocalized(R.string.tts_unavailable))
+                    reportError(getStringLocalized(R.string.tts_unavailable))
                     stopReading()
                     return@post
                 }
@@ -175,19 +176,26 @@ class ReadAloudService : Service() {
         }
     }
 
-    /** Voice for the text's language; Malagasy falls back to French (close spelling) when no Malagasy voice exists. */
-    private fun chooseVoice(): String? {
-        val t = tts ?: return null
+    /**
+     * Sets the voice for the text's own language. There is no substitute voice:
+     * when the phone has no voice for the language (today, usually Malagasy),
+     * nothing is read and the user is told why.
+     */
+    private fun chooseVoice(): Boolean {
+        val t = tts ?: return false
         val lang = bible.translation(translation).lang
         val wanted = when (lang) { "fr" -> Locale.FRENCH; "en" -> Locale.ENGLISH; else -> Locale("mg") }
-        val ok = t.isLanguageAvailable(wanted) >= TextToSpeech.LANG_AVAILABLE
-        if (ok) {
-            t.language = wanted
-            return null
+        if (t.isLanguageAvailable(wanted) < TextToSpeech.LANG_AVAILABLE) {
+            val name = getStringLocalized(when (lang) { "fr" -> R.string.lang_french; "en" -> R.string.lang_english; else -> R.string.lang_malagasy })
+            reportError(UiLanguage.wrap(this).getString(R.string.voice_missing, name))
+            return false
         }
-        val fallback = if (lang == "mg") Locale.FRENCH else Locale.getDefault()
-        t.language = fallback
-        return fallback.getDisplayLanguage(Locale(UiLanguage.current(this).ifEmpty { "en" }))
+        t.language = wanted
+        return true
+    }
+
+    private fun reportError(message: String) {
+        ReadAloud.mutableErrors.value = System.nanoTime() to message
     }
 
     private fun currentId() = "v$book.$chapter.${verses.getOrNull(index)?.verse}"
@@ -200,9 +208,9 @@ class ReadAloudService : Service() {
                 verses = vs
                 index = vs.indexOfFirst { it.verse >= startVerse }.coerceAtLeast(0)
                 if (vs.isEmpty()) return@post stopReading()
-                val fallback = chooseVoice()
+                if (!chooseVoice()) return@post stopReading()
                 tts?.setSpeechRate(rate)
-                publish(fallbackVoice = fallback)
+                publish()
                 if (wantPlaying) startPlaying() else updateSession()
             }
         }
@@ -279,9 +287,9 @@ class ReadAloudService : Service() {
 
     // ------------------------------------------------------------------ state, notification, session
 
-    private fun publish(fallbackVoice: String? = ReadAloud.state.value.fallbackVoice, error: String? = null) {
+    private fun publish() {
         val v = verses.getOrNull(index)?.verse ?: 0
-        ReadAloud.mutableState.value = ReadAloudState(true, playing, translation, book, chapter, v, fallbackVoice, error)
+        ReadAloud.mutableState.value = ReadAloudState(true, playing, translation, book, chapter, v)
         if (ReadAloud.state.value.active) notificationManager().notify(NOTIFICATION_ID, buildNotification())
     }
 
