@@ -4,10 +4,10 @@ Release build (`./gradlew :app:assembleRelease`, R8 minified, resources shrunk),
 
 | Part | In the APK (compressed) | On the device once unpacked |
 |---|---|---|
-| **Whole release APK** | **40.6 MB** | |
+| **Whole release APK** | **45.1 MB** | |
 | App code (`classes.dex`) | 1.1 MB | |
 | `bible.db`: catalogue + Malagasy 1865 + search index | 4.2 MB | 13.7 MB |
-| 7 other reading texts (`text-*.db`), about 4 MB each | 29.5 MB | 12–13.5 MB each |
+| 8 other reading texts (`text-*.db`), about 4–4.6 MB each | 34.0 MB | 12–13.5 MB each |
 | **Study data (`study.db`)** | **5.5 MB** | **15.5 MB** |
 
 What the study data adds: **5.5 MB to the APK** and 15.5 MB on the device, once the
@@ -16,7 +16,7 @@ What the study data adds: **5.5 MB to the APK** and 15.5 MB on the device, once 
 
 Notes
 
-* The 25 MB soft target was lifted by the user. Without the 7 extra translations the APK
+* The 25 MB soft target was lifted by the user. Without the 8 extra translations the APK
   would be about 11 MB.
 * Device storage: `bible.db` is unpacked on first launch. Each other translation is
   unpacked only when it is first opened, and `study.db` only when α is first used. On a

@@ -91,7 +91,7 @@ fun BrowseSheet(vm: AppViewModel, onDismiss: () -> Unit) {
             val c = chapter
             when {
                 b == null -> BookGrid(lang) { book = it }
-                c == null -> ChapterGrid(b) { chapter = it; selected = emptySet() }
+                c == null -> ChapterGrid(vm.chapterCount(b)) { chapter = it; selected = emptySet() }
                 else -> {
                     var verses by remember(b, c, vm.translationId) { mutableStateOf<List<VerseText>>(emptyList()) }
                     LaunchedEffect(b, c, vm.translationId) {
@@ -140,7 +140,9 @@ fun BrowseSheet(vm: AppViewModel, onDismiss: () -> Unit) {
                         Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        Button(onClick = {
+                        // The service list uses Malagasy numbering: a chapter that exists only in
+                        // another text's numbering (e.g. KJV Malachi 4) can be opened, not added.
+                        Button(enabled = c <= Canon.chapterCount(b), onClick = {
                             vm.addToList(passages)
                             vm.message = ctx.getString(R.string.added_x, Passage.describe(passages, lang))
                             selected = emptySet()
@@ -180,14 +182,14 @@ fun BookGrid(lang: String, onBook: (Int) -> Unit) {
 }
 
 @Composable
-fun ChapterGrid(book: Int, onChapter: (Int) -> Unit) {
+fun ChapterGrid(chapters: Int, onChapter: (Int) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(56.dp),
         contentPadding = PaddingValues(12.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        items((1..Canon.chapterCount(book)).toList()) { c -> Key("$c", Modifier.testTag("browse-chapter:$c")) { onChapter(c) } }
+        items((1..chapters).toList()) { c -> Key("$c", Modifier.testTag("browse-chapter:$c")) { onChapter(c) } }
     }
 }
 

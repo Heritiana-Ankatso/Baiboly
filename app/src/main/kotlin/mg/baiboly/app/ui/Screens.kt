@@ -119,7 +119,7 @@ fun SideMenu(vm: AppViewModel, close: () -> Unit) {
                                 openBook = if (openBook == b.id) null else b.id
                             }
                             if (openBook == b.id) {
-                                ChapterChips(b.id) { c -> vm.openChapter(b.id, c); close() }
+                                ChapterChips(vm.chapterCount(b.id)) { c -> vm.openChapter(b.id, c); close() }
                             }
                         }
                     }
@@ -172,8 +172,8 @@ private fun MenuRow(label: String, indent: androidx.compose.ui.unit.Dp = 0.dp, e
 
 /** Chapter numbers in rows of six, so any chapter is three taps from the menu button. */
 @Composable
-private fun ChapterChips(book: Int, onChapter: (Int) -> Unit) {
-    val n = Canon.chapterCount(book)
+private fun ChapterChips(chapters: Int, onChapter: (Int) -> Unit) {
+    val n = chapters
     Column(Modifier.padding(start = 36.dp, end = 12.dp, bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         (1..n).chunked(5).forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -436,10 +436,18 @@ fun SettingsScreen(vm: AppViewModel) {
                     Text(stringResource(label))
                 }
             }
-            Text(stringResource(R.string.choose_translation), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+            Text(stringResource(R.string.default_bible), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+            Text(
+                stringResource(R.string.default_bible_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             vm.translations.forEach { t ->
-                Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setTranslation(t.id) }, verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(selected = vm.translationId == t.id, onClick = { vm.setTranslation(t.id) })
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setDefaultTranslation(t.id) }.testTag("settings-default:${t.id}"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = vm.defaultTranslationId == t.id, onClick = { vm.setDefaultTranslation(t.id) })
                     Column {
                         Text("${t.name} (${t.shortName})")
                         Text(

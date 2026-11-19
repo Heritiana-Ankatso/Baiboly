@@ -5,18 +5,21 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 * **Church services.** Capture the verses the preacher announces as a short list, then move between them.
 * **Reading and study.** Read chapter by chapter, keep notes and highlights, and look at the Greek and Hebrew words behind a verse (α mode).
 
-**Reading texts (all public domain):**
+**Reading texts:**
 
-| Language | Translation | Style |
-|---|---|---|
-| Malagasy | Baiboly Malagasy 1865 | Classic church translation (primary text) |
-| French | Louis Segond 1910 | Classic church translation |
-| French | Bible J.N. Darby | Word-for-word, close to the original |
-| French | Sainte Bible libre pour le monde | Modern, easy to read (still a draft at its publisher) |
-| English | King James Version | Word-for-word, classic |
-| English | Berean Standard Bible | Modern, close to the original |
-| English | World English Bible | Modern, easy to read |
-| English | Bible in Basic English | Very simple vocabulary |
+| Language | Translation | Style | Licence |
+|---|---|---|---|
+| Malagasy | Baiboly Malagasy 1865 | Classic church translation (primary text, default) | Public domain |
+| Malagasy | Saontsin’ Añahare (Tandroy) | Regional dialect of southern Madagascar, draft | CC BY-SA 4.0 |
+| French | Louis Segond 1910 | Classic church translation | Public domain |
+| French | Bible J.N. Darby | Word-for-word, close to the original | Public domain |
+| French | Sainte Bible néo-Crampon Libre | Modern French, close to the original | CC BY-SA 4.0 |
+| English | King James Version | Word-for-word, classic | Public domain |
+| English | Berean Standard Bible | Modern, close to the original | Public domain |
+| English | World English Bible | Modern, easy to read | Public domain |
+| English | Bible in Basic English | Very simple vocabulary | Public domain |
+
+The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the reading-text menu (tap the title) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
 
 The app has no INTERNET or VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
 
@@ -76,7 +79,8 @@ Every source passes an automatic licence check before it is used; see [docs/data
 | 12 | Backup and restore reproduce data exactly | `DataAcceptanceTest.task12_backupRoundTrip` |
 | 13 | Study pipeline: 2 Tim 2:25 → *acknowledging* = G1922 ἐπίγνωσις; gap report | `DataAcceptanceTest.task13_studyData`, [docs/reports/lexicon_gaps.md](docs/reports/lexicon_gaps.md) |
 | 14 | α panel, entry, Found N verses → Malagasy text with Back to my place | `UiAcceptanceTest.studyPanel` |
-| — | Malagasy interface (switch, live change, kept after restart) | `UiAcceptanceTest.malagasyInterface` |
+| — | Malagasy interface by default; switch, live change, kept after restart | `FreshInstallTest`, `UiAcceptanceTest.malagasyInterface` |
+| — | Default Bible in one tap; each text's own chapter numbering (KJV Malachi 4) | `UiAcceptanceTest.defaultBibleAndOwnChapterNumbering` |
 | 15 | Offline, dark mode, size report | No network permission at all; [docs/size-report.md](docs/size-report.md) |
 
 **Not verified here:** no Android emulator could run in the build environment (no hardware virtualisation). The UI scenarios run under Robolectric on the JVM, not on a phone, and touch-target size and low-end-device performance still need a check on a real device.
@@ -87,16 +91,18 @@ Every source passes an automatic licence check before it is used; see [docs/data
 * **Add panel also stays open after Add**, showing "Added: …", so several verses can be captured in a row.
 * **Swipe while away from the list.** When the reader is away from the current list item, the first swipe returns to it instead of skipping an item.
 * **Selecting text.** Tapping a verse (text or number) selects it; adjacent verses merge. "Select words" picks a character range inside one verse. With α on, the verse number opens the study panel instead.
-* **Interface language.** Malagasy, French and English. Chosen in Settings → *Interface language* (default: same as the phone), applied immediately and remembered; few phones offer Malagasy as a system language, so the choice lives in the app. The Malagasy wording (`res/values-mg/strings.xml`) is a draft to be reviewed by a native speaker; for example *History* is *Novakiana* to avoid a clash with the book *Tantara*.
-* **Reading in French or English.** The service list and notes use Malagasy verse numbers. Other translations are shown with their own numbering, which differs in some chapters, mainly Darby in the Old Testament. Character-level highlights apply to the Malagasy text only.
+* **Interface language.** Malagasy by default; French, English or "same as the phone" in Settings → *Fiteny ampiasaina*, applied immediately and remembered; few phones offer Malagasy as a system language, so the choice lives in the app. The Malagasy wording (`res/values-mg/strings.xml`) is a draft to be reviewed by a native speaker; for example *History* is *Novakiana* to avoid a clash with the book *Tantara*.
+* **Psalm numbering (kept, as decided by the user).** Malagasy 1865 numbers psalm titles as verse 1, so Salamo 3 has 9 verses and Salamo 3:2 is KJV Psalm 3:1. The study panel maps this automatically.
+* **Default Bible vs. the text being read.** The default Bible is what the app opens with. Switching text from the title menu lasts until the app is closed; ☆/★ in that menu (or Settings) changes the default in one tap.
+* **Reading in other texts.** The service list and notes use Malagasy 1865 verse numbers. Each text keeps its own chapter and verse numbering when read (for example Malachi has 4 chapters in the KJV, Segond and BSB, 3 in Malagasy 1865 and néo-Crampon). A chapter that exists only in another text's numbering can be opened but not added to the list. Character-level highlights apply to the Malagasy text only.
+* **Abbreviations** come from your examples, the Malagasy Bible dictionary's list and the 1865 source file (see [docs/abbreviations-review.md](docs/abbreviations-review.md)). *Mpit* is Mpitoriteny and *Mpits* Mpitsara; *Fil* is ambiguous (Filipiana or Filemona), so the app asks. Any unambiguous beginning of a book name also works (*Ohab*, *Asa*, *Filip*…).
+* **néo-Crampon Libre** (CC BY-SA 4.0) is a Catholic translation: its deuterocanonical books and the Greek additions to Esther and Daniel are left out to match the 66-book canon, and it writes the divine name *Yahweh*. Attribution is on the About screen; the build re-checks both CC BY-SA licence texts on the publisher's pages.
 * **Lexicon sources.** Base: the public-domain CrossWire Strong's dictionaries. On top: the Open Scriptures dictionaries (CC-BY-SA, approved by the user), which add Hebrew-script lemmas (אֱלֹהִים) and the 31 Greek entries missing from the base. Every tagged Strong's number now has an entry. The attribution is shown on the About screen; the build checks that the source still states CC-BY-SA. `--no-openscriptures` builds with public-domain data only.
 * **Part of speech.** Strong's dictionaries have no part-of-speech field. It is filled only where Strong's own wording states it (about 13% of entries), never guessed.
 * **Licence note.** Because part of the lexicon is CC-BY-SA, a redistributed adaptation of that lexicon data must keep the same licence and attribution. This concerns the data only, not the app's code or the public-domain Bible texts.
 
 ## Open points for the user
 
-1. **Psalm numbering.** The Malagasy 1865 source numbers psalm titles as verse 1 (German versification). So Salamo 3 has 9 verses, and Salamo 3:2 is KJV Psalm 3:1. Please check this against the printed Baiboly used in church. Your example `Sal 1: 3-4; 3: 8-12` is parsed correctly (book carried over after `;`), but Salamo 3:12 does not exist, so the entry is rejected, as the brief requires.
-2. **Unconfirmed abbreviations**: [docs/abbreviations-review.md](docs/abbreviations-review.md).
-3. **Malagasy interface wording**: please review `app/src/main/res/values-mg/strings.xml`.
-4. **Verse numbering.** 85 chapters differ between the Malagasy text and the KJV with no evidence-based mapping. In those chapters the study panel shows a warning. See [docs/reports/verse_map.md](docs/reports/verse_map.md).
-5. **Sainte Bible libre** is marked by its publisher as a draft still being proofread. Keep it, or replace it?
+1. **Abbreviations still from the 1865 source file only** (status *source-text* in [docs/abbreviations-review.md](docs/abbreviations-review.md)) are consistent with common usage but not confirmed from a published list.
+2. **Malagasy interface wording**: please review `app/src/main/res/values-mg/strings.xml` (for example *Baiboly fampiasa matetika* for "default Bible").
+3. **Verse numbering.** 85 chapters differ between the Malagasy text and the KJV with no evidence-based mapping. In those chapters the study panel shows a warning. See [docs/reports/verse_map.md](docs/reports/verse_map.md).

@@ -328,6 +328,27 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
                         }
                     },
                     leadingIcon = { Text(t.shortName, style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(52.dp)) },
+                    // One tap on the star makes this the Bible the app opens with.
+                    trailingIcon = {
+                        val isDefault = t.id == vm.defaultTranslationId
+                        val setDefault = stringResource(R.string.set_default)
+                        Box(
+                            Modifier.size(48.dp).clip(CircleShape)
+                                .clickable(onClickLabel = setDefault) {
+                                    vm.setDefaultTranslation(t.id)
+                                    vm.message = vm.str(R.string.default_set, t.name)
+                                    onDismiss()
+                                }
+                                .testTag("default:${t.id}"),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                if (isDefault) "★" else "☆",
+                                fontSize = 22.sp,
+                                color = if (isDefault) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
                     onClick = { vm.setTranslation(t.id); onDismiss() },
                     modifier = Modifier.heightIn(min = 56.dp),
                 )

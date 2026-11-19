@@ -13,6 +13,7 @@ fun styleNote(t: Translation): String = when (t.style) {
     "faithful-modern" -> stringResource(R.string.style_faithful_modern)
     "accessible" -> stringResource(R.string.style_accessible)
     "simplified" -> stringResource(R.string.style_simplified)
+    "regional" -> stringResource(R.string.style_regional)
     else -> t.styleNote
 }
 
@@ -21,6 +22,7 @@ fun styleNote(t: Translation): String = when (t.style) {
 fun translationNote(t: Translation): String? = when (t.id) {
     "mg1865" -> stringResource(R.string.note_mg1865)
     "darby_fr" -> stringResource(R.string.note_darby_fr)
-    "sbl_fr" -> stringResource(R.string.note_sbl_fr)
+    "ncl_fr" -> stringResource(R.string.note_ncl_fr)
+    "tdx" -> stringResource(R.string.note_tdx)
     else -> t.notes
 }

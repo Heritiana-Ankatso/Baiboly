@@ -149,11 +149,17 @@
     <string name="language_system">Same as the phone</string>
     <string name="style_classic">Classic church translation</string>
     <string name="style_literal">Word-for-word, close to the original</string>
-    <string name="style_faithful_modern">Modern English, close to the original</string>
+    <string name="style_faithful_modern">Modern language, close to the original</string>
     <string name="style_accessible">Modern, easy to read</string>
     <string name="style_simplified">Very simple vocabulary (850 basic words)</string>
     <string name="note_mg1865">Psalm titles are numbered as verse 1 in this source.</string>
     <string name="note_darby_fr">Old Testament verse numbers follow the Hebrew Bible in places.</string>
-    <string name="note_sbl_fr">Draft translation still being proofread by its publisher.</string>
     <string name="about_tools">Versification tables: PySword 0.2.8 (MIT licence). App code: Kotlin, Jetpack Compose (Apache 2.0).</string>
+    <string name="default_bible">Default Bible</string>
+    <string name="default_bible_hint">The Bible the app opens with. You can also tap ☆ in the reading-text menu (tap the title at the top).</string>
+    <string name="set_default">Set as the default Bible</string>
+    <string name="default_set">%1$s is now your default Bible</string>
+    <string name="style_regional">Regional Malagasy (Tandroy-Mahafaly), draft</string>
+    <string name="note_ncl_fr">Adapted under CC BY-SA 4.0: deuterocanonical books, notes and formatting left out; the text itself is unchanged.</string>
+    <string name="note_tdx">Tandroy dialect of southern Madagascar. Draft version published by its translator.</string>
 </resources>

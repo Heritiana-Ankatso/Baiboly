@@ -59,8 +59,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val io = Dispatchers.IO.limitedParallelism(1)
 
     // ------------------------------------------------------------ settings
-    var translationId by mutableStateOf(prefs.getString("translation", BibleRepository.PRIMARY)!!)
+    /** The Bible the app opens with; changed in one tap from the reading-text menu or Settings. */
+    var defaultTranslationId by mutableStateOf(prefs.getString("default_translation", BibleRepository.PRIMARY)!!)
         private set
+
+    /** The text being read now: starts as the default, can be switched for a while without changing the default. */
+    var translationId by mutableStateOf(defaultTranslationId)
+        private set
+
+    /** Chapters per book in the current text's own numbering. */
+    private var chapterCounts by mutableStateOf<Map<Int, Int>>(emptyMap())
+
+    fun chapterCount(book: Int): Int = chapterCounts[book] ?: Canon.chapterCount(book)
     var textSize by mutableStateOf(prefs.getFloat("text_size", 20f))
         private set
     var theme by mutableStateOf(ThemeMode.entries[prefs.getInt("theme", 0)])
@@ -101,16 +111,19 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         viewModelScope.launch {
+            // Resource strings are read on the main thread, never inside the io blocks.
+            val newTitle = defaultTitle()
             withContext(io) {
                 val ts = bible.translations
                 val listId = prefs.getLong("list_id", -1)
                 val restored = if (listId > 0) user.loadList(listId, prefs.getInt("list_current", 0)) else null
-                val l = restored ?: user.createList(defaultTitle(), today())
+                val l = restored ?: user.createList(newTitle, today())
                 val rec = user.recent()
                 val usage = user.bookUsage()
                 withContext(Dispatchers.Main) {
                     translations = ts
-                    if (ts.none { it.id == translationId }) translationId = BibleRepository.PRIMARY
+                    if (ts.none { it.id == defaultTranslationId }) defaultTranslationId = BibleRepository.PRIMARY
+                    if (ts.none { it.id == translationId }) translationId = defaultTranslationId
                     list = l
                     recent = rec.map { it.passage }
                     bookUsage = usage
@@ -133,7 +146,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** A string in the interface language chosen in the app (not only the phone's). */
     fun str(id: Int, vararg args: Any): String = UiLanguage.wrap(getApplication()).getString(id, *args)
 
-    var uiLanguage by mutableStateOf(prefs.getString(UiLanguage.KEY, "") ?: "")
+    var uiLanguage by mutableStateOf(prefs.getString(UiLanguage.KEY, UiLanguage.DEFAULT) ?: UiLanguage.DEFAULT)
         private set
 
     /** Saves the interface language; the UI switches at once. */
@@ -150,7 +163,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private fun persistState() {
         val f = location.focus
         prefs.edit()
-            .putString("translation", translationId)
+            .putString("default_translation", defaultTranslationId)
             .putFloat("text_size", textSize)
             .putInt("theme", theme.ordinal)
             .putBoolean("alpha", studyMode)
@@ -189,10 +202,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private var loadJob: Job? = null
 
     private fun loadChapter() {
-        val loc = location
         val tid = translationId
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
+            val counts = withContext(io) { bible.chapterCounts(tid) }
+            chapterCounts = counts
+            // e.g. Malachi 4 exists in the KJV numbering but not in the Malagasy one
+            val max = counts[location.book] ?: Canon.chapterCount(location.book)
+            if (location.chapter > max) {
+                location = ReaderLocation(location.book, max, null)
+                persistState()
+            }
+            val loc = location
             val (text, hl, notes) = withContext(io) {
                 Triple(bible.chapter(tid, loc.book, loc.chapter), user.highlightsIn(loc.book, loc.chapter), user.notesIn(loc.book, loc.chapter))
             }
@@ -237,12 +258,25 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun openChapter(book: Int, chapter: Int) = openPassage(Passage(book, chapter))
 
+    /** Next chapter through the whole Bible, in the current text's own chapter numbering. */
     fun nextChapter() {
-        Canon.nextChapter(location.book, location.chapter)?.let { (b, c) -> go(ReaderLocation(b, c, null), null) }
+        val (b, c) = location.book to location.chapter
+        val next = when {
+            c < chapterCount(b) -> b to c + 1
+            b < Canon.BOOK_COUNT -> b + 1 to 1
+            else -> return
+        }
+        go(ReaderLocation(next.first, next.second, null), null)
     }
 
     fun previousChapter() {
-        Canon.previousChapter(location.book, location.chapter)?.let { (b, c) -> go(ReaderLocation(b, c, null), null) }
+        val (b, c) = location.book to location.chapter
+        val prev = when {
+            c > 1 -> b to c - 1
+            b > 1 -> b - 1 to chapterCount(b - 1)
+            else -> return
+        }
+        go(ReaderLocation(prev.first, prev.second, null), null)
     }
 
     /** True when the reader is not showing the current list item: show Back to my place. */
@@ -273,6 +307,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         translationId = id
         persistState()
         loadChapter()
+    }
+
+    /** Makes [id] the Bible the app opens with, and switches to it now. */
+    fun setDefaultTranslation(id: String) {
+        defaultTranslationId = id
+        searchTranslation = id
+        setTranslation(id)
     }
 
     fun changeTextSize(sp: Float) {
@@ -328,7 +369,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun newList() {
         viewModelScope.launch {
-            val l = withContext(io) { user.createList(defaultTitle(), today()) }
+            val newTitle = defaultTitle()
+            val l = withContext(io) { user.createList(newTitle, today()) }
             list = l
             persistState()
             refreshSavedLists()
@@ -347,7 +389,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun duplicateSavedList(id: Long, title: String) {
         viewModelScope.launch {
-            withContext(io) { user.duplicateList(id, str(R.string.copy_suffix, title), today()) }
+            val copyTitle = str(R.string.copy_suffix, title)
+            withContext(io) { user.duplicateList(id, copyTitle, today()) }
             refreshSavedLists()
         }
     }
@@ -356,7 +399,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             withContext(io) { user.deleteList(id) }
             if (id == list.id) {
-                val l = withContext(io) { user.createList(defaultTitle(), today()) }
+                val newTitle = defaultTitle()
+                val l = withContext(io) { user.createList(newTitle, today()) }
                 list = l
                 persistState()
             }
@@ -455,7 +499,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var searchResults by mutableStateOf<List<SearchHit>>(emptyList())
         private set
-    var searchTranslation by mutableStateOf(BibleRepository.PRIMARY)
+    var searchTranslation by mutableStateOf(defaultTranslationId)
     private var searchJob: Job? = null
     val searchLimit = 500
 
@@ -536,13 +580,16 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private suspend fun reloadFromPrefs() {
-        translationId = prefs.getString("translation", BibleRepository.PRIMARY)!!
+        defaultTranslationId = prefs.getString("default_translation", BibleRepository.PRIMARY)!!
+        translationId = defaultTranslationId
+        uiLanguage = prefs.getString(UiLanguage.KEY, UiLanguage.DEFAULT) ?: UiLanguage.DEFAULT
         textSize = prefs.getFloat("text_size", 20f)
         theme = ThemeMode.entries[prefs.getInt("theme", 0).coerceIn(0, 2)]
         studyMode = prefs.getBoolean("alpha", false)
+        val newTitle = defaultTitle()
         val (l, rec, usage) = withContext(io) {
             val id = prefs.getLong("list_id", -1)
-            val l = user.loadList(id, prefs.getInt("list_current", 0)) ?: user.createList(defaultTitle(), today())
+            val l = user.loadList(id, prefs.getInt("list_current", 0)) ?: user.createList(newTitle, today())
             Triple(l, user.recent(), user.bookUsage())
         }
         list = l

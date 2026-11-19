@@ -34,7 +34,18 @@ class DataAcceptanceTest {
         for (t in bible.translations) {
             assertTrue(bible.verses(t.id, 43, 3, 16, 16).single().text.isNotBlank(), t.id)
         }
-        assertEquals(8, bible.translations.size)
+        assertEquals(9, bible.translations.size)
+        assertEquals(listOf("mg1865", "tdx"), bible.translations.filter { it.lang == "mg" }.map { it.id })
+        assertTrue(bible.translations.none { it.id == "sbl_fr" })
+        assertTrue(bible.verses("ncl_fr", 43, 3, 16, 16).single().text.contains("Dieu a tellement aimé le monde"))
+        // Each text keeps its own chapter numbering: Malachi has 4 chapters in the KJV, 3 in Malagasy 1865.
+        assertEquals(4, bible.chapterCounts("kjv")[39])
+        assertEquals(3, bible.chapterCounts("mg1865")[39])
+        assertEquals(6, bible.chapter("kjv", 39, 4).verses.size)
+        // néo-Crampon: Greek additions to Esther left out (10 chapters, as in the 66-book canon)
+        assertEquals(10, bible.chapterCounts("ncl_fr")[17])
+        // no soft hyphens left in the Tandroy text
+        assertTrue(bible.verses("tdx", 43, 3, 16, 16).single().text.none { it == '\u00ad' })
         assertEquals(setOf("mg", "fr", "en"), bible.translations.map { it.lang }.toSet())
     }
 

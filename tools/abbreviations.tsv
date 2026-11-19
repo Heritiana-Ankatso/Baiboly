@@ -1,69 +1,70 @@
-# Malagasy book abbreviations. Edit abbr_mg / aliases, then set status=confirmed.
-# aliases: extra spellings separated by '|' (accents and case are ignored by the parser).
+# Malagasy book abbreviations (the parser also accepts any unambiguous start of the name).
+# status: confirmed = the user's own; sourced = seen in published Malagasy usage; source-text = from the 1865 source file.
+# aliases: extra spellings separated by '|' (accents and case are ignored).
 book	name_mg	abbr_mg	status	source	aliases
-1	Genesisy	Gen	unconfirmed	mg1865 toc3	
-2	Eksodosy	Eks	unconfirmed	mg1865 toc3	
-3	Levitikosy	Lev	unconfirmed	mg1865 toc3	
-4	Nomery	Nom	unconfirmed	mg1865 toc3	
-5	Deotoronomia	Deo	unconfirmed	mg1865 toc3	
-6	Josoa	Jos	unconfirmed	mg1865 toc3	
-7	Mpitsara	Mpits	unconfirmed	mg1865 toc3	
-8	Rota	Rota	unconfirmed	mg1865 toc3	
-9	1 Samoela	Sam	unconfirmed	mg1865 toc3	
-10	2 Samoela	Sam	unconfirmed	mg1865 toc3	
-11	1 Mpanjaka	Mpan	unconfirmed	mg1865 toc3	
-12	2 Mpanjaka	Mpan	unconfirmed	mg1865 toc3	
-13	1 Tantara	Tan	unconfirmed	mg1865 toc3	
-14	2 Tantara	Tan	unconfirmed	mg1865 toc3	
-15	Ezra	Ezra	unconfirmed	mg1865 toc3	
-16	Nehemia	Neh	unconfirmed	mg1865 toc3	
-17	Estera	Est	unconfirmed	mg1865 toc3	
-18	Joba	Joba	unconfirmed	mg1865 toc3	
+1	Genesisy	Gen	sourced	Malagasy Bible dictionary (malagasyword.org) list, quoted in search results	
+2	Eksodosy	Eks	sourced	Malagasy Bible dictionary (malagasyword.org) list, quoted in search results	
+3	Levitikosy	Lev	source-text	Malagasy 1865 source (toc3), matches common usage	
+4	Nomery	Nom	source-text	Malagasy 1865 source (toc3), matches common usage	
+5	Deotoronomia	Deot	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt	Deo|Deoteronomia
+6	Josoa	Jos	source-text	Malagasy 1865 source (toc3), matches common usage	
+7	Mpitsara	Mpits	source-text	Malagasy 1865 source (toc3), matches common usage; distinct from Mpit (Mpitoriteny)	
+8	Rota	Rota	source-text	Malagasy 1865 source (toc3), matches common usage	
+9	1 Samoela	Sam	source-text	Malagasy 1865 source (toc3), matches common usage	
+10	2 Samoela	Sam	source-text	Malagasy 1865 source (toc3), matches common usage	
+11	1 Mpanjaka	Mpan	source-text	Malagasy 1865 source (toc3), matches common usage	Mpanj
+12	2 Mpanjaka	Mpan	source-text	Malagasy 1865 source (toc3), matches common usage	Mpanj
+13	1 Tantara	Tant	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt	Tan
+14	2 Tantara	Tant	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt	Tan
+15	Ezra	Ezra	source-text	Malagasy 1865 source (toc3), matches common usage	
+16	Nehemia	Neh	source-text	Malagasy 1865 source (toc3), matches common usage	
+17	Estera	Est	source-text	Malagasy 1865 source (toc3), matches common usage	
+18	Joba	Joba	source-text	Malagasy 1865 source (toc3), matches common usage	Job
 19	Salamo	Sal	confirmed	user example	
-20	Ohabolana	Oha	unconfirmed	mg1865 toc3	
-21	Mpitoriteny	Mpito	unconfirmed	mg1865 toc3	
-22	Tonon-kiran’ i Solomona	Ton	unconfirmed	mg1865 toc3	
-23	Isaia	Isa	unconfirmed	mg1865 toc3	
-24	Jeremia	Jer	unconfirmed	mg1865 toc3	
-25	Fitomaniana	Fit	unconfirmed	mg1865 toc3	
-26	Ezekiela	Ezek	unconfirmed	mg1865 toc3	
-27	Daniela	Dan	unconfirmed	mg1865 toc3	
-28	Hosea	Hos	unconfirmed	mg1865 toc3	
-29	Joela	Joe	unconfirmed	mg1865 toc3	
-30	Amosa	Amo	unconfirmed	mg1865 toc3	
-31	Obadia	Oba	unconfirmed	mg1865 toc3	
-32	Jona	Jona	unconfirmed	mg1865 toc3	
-33	Mika	Mik	unconfirmed	mg1865 toc3	
-34	Nahoma	Nah	unconfirmed	mg1865 toc3	
-35	Habakoka	Hab	unconfirmed	mg1865 toc3	
-36	Zefania	Zef	unconfirmed	mg1865 toc3	
-37	Hagay	Hag	unconfirmed	mg1865 toc3	
-38	Zakaria	Zak	unconfirmed	mg1865 toc3	
-39	Malakia	Mal	unconfirmed	mg1865 toc3	
-40	Matio	Mat	unconfirmed	mg1865 toc3	
-41	Marka	Mar	unconfirmed	mg1865 toc3	
-42	Lioka	Lio	unconfirmed	mg1865 toc3	
+20	Ohabolana	Oha	source-text	Malagasy 1865 source (toc3), matches common usage	
+21	Mpitoriteny	Mpit	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt; distinct from Mpits (Mpitsara)	Mpito
+22	Tonon-kiran’ i Solomona	Ton	source-text	Malagasy 1865 source (toc3), matches common usage	Tonon-kira|Tononkira|Tonon-kiran’i Solomona
+23	Isaia	Isa	source-text	Malagasy 1865 source (toc3), matches common usage	
+24	Jeremia	Jer	source-text	Malagasy 1865 source (toc3), matches common usage	
+25	Fitomaniana	Fit	source-text	Malagasy 1865 source (toc3), matches common usage	
+26	Ezekiela	Ezek	source-text	Malagasy 1865 source (toc3), matches common usage	
+27	Daniela	Dan	source-text	Malagasy 1865 source (toc3), matches common usage	
+28	Hosea	Hos	source-text	Malagasy 1865 source (toc3), matches common usage	
+29	Joela	Joe	source-text	Malagasy 1865 source (toc3), matches common usage	Joela
+30	Amosa	Amo	source-text	Malagasy 1865 source (toc3), matches common usage	Amosa|Am
+31	Obadia	Oba	source-text	Malagasy 1865 source (toc3), matches common usage	Obad
+32	Jona	Jona	source-text	Malagasy 1865 source (toc3), matches common usage	
+33	Mika	Mik	source-text	Malagasy 1865 source (toc3), matches common usage	
+34	Nahoma	Nah	source-text	Malagasy 1865 source (toc3), matches common usage	
+35	Habakoka	Hab	source-text	Malagasy 1865 source (toc3), matches common usage	
+36	Zefania	Zef	source-text	Malagasy 1865 source (toc3), matches common usage	
+37	Hagay	Hag	source-text	Malagasy 1865 source (toc3), matches common usage	
+38	Zakaria	Zak	source-text	Malagasy 1865 source (toc3), matches common usage	
+39	Malakia	Mal	source-text	Malagasy 1865 source (toc3), matches common usage	
+40	Matio	Mat	source-text	Malagasy 1865 source (toc3), matches common usage	
+41	Marka	Mar	source-text	Malagasy 1865 source (toc3), matches common usage	
+42	Lioka	Lio	source-text	Malagasy 1865 source (toc3), matches common usage	
 43	Jaona	Jao	confirmed	user example	
-44	Asan’ ny Apostoly	Asan	unconfirmed	mg1865 toc3	
-45	Romana	Rom	unconfirmed	mg1865 toc3	
-46	1 Korintiana	Kor	unconfirmed	mg1865 toc3	
-47	2 Korintiana	Kor	unconfirmed	mg1865 toc3	
-48	Galatiana	Gal	unconfirmed	mg1865 toc3	
+44	Asan’ ny Apostoly	Asan	source-text	Malagasy 1865 source (toc3), matches common usage	Asan’ny Apostoly
+45	Romana	Rom	source-text	Malagasy 1865 source (toc3), matches common usage	
+46	1 Korintiana	Kor	source-text	Malagasy 1865 source (toc3), matches common usage	
+47	2 Korintiana	Kor	source-text	Malagasy 1865 source (toc3), matches common usage	
+48	Galatiana	Gal	source-text	Malagasy 1865 source (toc3), matches common usage	
 49	Efesiana	Efe	confirmed	user example	
-50	Filipiana	Flp	unconfirmed	mg1865 toc3	
-51	Kolosiana	Kol	unconfirmed	mg1865 toc3	
-52	1 Tesaloniana	Tes	unconfirmed	mg1865 toc3	
-53	2 Tesaloniana	Tes	unconfirmed	mg1865 toc3	
+50	Filipiana	Flp	source-text	Malagasy 1865 source (toc3), matches common usage	
+51	Kolosiana	Kol	source-text	Malagasy 1865 source (toc3), matches common usage	
+52	1 Tesaloniana	Tes	source-text	Malagasy 1865 source (toc3), matches common usage	
+53	2 Tesaloniana	Tes	source-text	Malagasy 1865 source (toc3), matches common usage	
 54	1 Timoty	Tim	confirmed	user example	
 55	2 Timoty	Tim	confirmed	user example	
-56	Titosy	Tit	unconfirmed	mg1865 toc3	
-57	Filemona	Flm	unconfirmed	mg1865 toc3	
-58	Hebreo	Heb	unconfirmed	mg1865 toc3	
-59	Jakoba	Jak	unconfirmed	mg1865 toc3	
-60	1 Petera	Pet	unconfirmed	mg1865 toc3	
-61	2 Petera	Pet	unconfirmed	mg1865 toc3	
-62	1 Jaona	Jao	unconfirmed	mg1865 toc3	
-63	2 Jaona	Jao	unconfirmed	mg1865 toc3	
-64	3 Jaona	Jao	unconfirmed	mg1865 toc3	
-65	Joda	Joda	unconfirmed	mg1865 toc3	
-66	Apokalypsy	Apok	unconfirmed	mg1865 toc3	
+56	Titosy	Tit	source-text	Malagasy 1865 source (toc3), matches common usage	Titosy
+57	Filemona	Flm	source-text	Malagasy 1865 source (toc3), matches common usage	Filem|Filemona
+58	Hebreo	Heb	source-text	Malagasy 1865 source (toc3), matches common usage	Hebreo
+59	Jakoba	Jak	source-text	Malagasy 1865 source (toc3), matches common usage	
+60	1 Petera	Pet	source-text	Malagasy 1865 source (toc3), matches common usage	
+61	2 Petera	Pet	source-text	Malagasy 1865 source (toc3), matches common usage	
+62	1 Jaona	Jao	source-text	Malagasy 1865 source (toc3), matches common usage	
+63	2 Jaona	Jao	source-text	Malagasy 1865 source (toc3), matches common usage	
+64	3 Jaona	Jao	source-text	Malagasy 1865 source (toc3), matches common usage	
+65	Joda	Joda	source-text	Malagasy 1865 source (toc3), matches common usage	Jod|Jud
+66	Apokalypsy	Apok	source-text	Malagasy 1865 source (toc3), matches common usage	Apo|Apokalipsy

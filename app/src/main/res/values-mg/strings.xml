@@ -107,12 +107,11 @@
 
     <string name="style_classic">Dikan-teny mahazatra ampiasain’ny fiangonana</string>
     <string name="style_literal">Adika teny isan-teny, akaiky ny soratra tany am-boalohany</string>
-    <string name="style_faithful_modern">Anglisy ankehitriny, akaiky ny soratra tany am-boalohany</string>
+    <string name="style_faithful_modern">Fiteny ankehitriny, akaiky ny soratra tany am-boalohany</string>
     <string name="style_accessible">Fiteny ankehitriny, mora vakiana</string>
     <string name="style_simplified">Voambolana tsotra dia tsotra (teny fototra 850)</string>
     <string name="note_mg1865">Ao amin’ity loharano ity, andininy 1 ny lohatenin’ny salamo.</string>
     <string name="note_darby_fr">Ao amin’ny Testamenta Taloha, manaraka ny Baiboly hebreo indraindray ny laharan’ny andininy.</string>
-    <string name="note_sbl_fr">Dikan-teny mbola hamarinin’ny mpamoaka azy.</string>
 
     <string name="backup_intro">Tehirizo ao anaty rakitra iray ny lisitra, ny fanamarihana, ny voaloko ary ny novakiana, na avereno avy amin’ny rakitra iray. Tsy misy mivoaka ny finday raha tsy ianao no mamindra ilay rakitra.</string>
     <string name="export_backup">Hitahiry ao anaty rakitra</string>
@@ -141,4 +140,11 @@
     <string name="back">Hiverina</string>
     <string name="no_entry">Tsy misy ao amin’ny rakibolana ny %1$s.</string>
     <string name="opened_in_malagasy">Nosokafana tamin’ny Baiboly malagasy</string>
+    <string name="default_bible">Baiboly fampiasa matetika</string>
+    <string name="default_bible_hint">Ny Baiboly isokafan’ny fampiharana. Azonao tsindriana koa ny ☆ ao amin’ny lisitry ny dikan-teny (tsindrio ny lohateny eo ambony).</string>
+    <string name="set_default">Ataovy Baiboly fampiasa matetika</string>
+    <string name="default_set">%1$s no Baiboly fampiasanao matetika izao</string>
+    <string name="style_regional">Fitenim-paritra (Tandroy-Mahafaly), mbola drafitra</string>
+    <string name="note_ncl_fr">Nalaina araka ny fahazoan-dalana CC BY-SA 4.0: tsy nampidirina ireo boky deoterokanonika, fanamarihana ary fandaminana; tsy niova ny soratra.</string>
+    <string name="note_tdx">Fitenim-paritra tandroy any atsimon’i Madagasikara. Drafitra navoakan’ny mpandika azy.</string>
 </resources>

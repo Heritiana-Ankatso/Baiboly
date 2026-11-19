@@ -87,6 +87,17 @@ class BibleRepository(private val dbs: AssetDatabases) {
         ).use { c -> buildList { while (c.moveToNext()) add(VerseText(c.getInt(0), c.getString(1))) } }
     }
 
+    private val chapterCountCache = HashMap<String, Map<Int, Int>>()
+
+    /** Chapters per book in this translation's own numbering (Malachi has 3 or 4, Joel 3 or 4...). */
+    @Synchronized
+    fun chapterCounts(translationId: String): Map<Int, Int> = chapterCountCache.getOrPut(translationId) {
+        val t = translation(translationId)
+        db(t).rawQuery(
+            "SELECT book, MAX(chapter) FROM chapter_info WHERE translation=? GROUP BY book", arrayOf(t.id),
+        ).use { c -> buildMap { while (c.moveToNext()) put(c.getInt(0), c.getInt(1)) } }
+    }
+
     fun verseCount(translationId: String, book: Int, chapter: Int): Int {
         val t = translation(translationId)
         return db(t).rawQuery(

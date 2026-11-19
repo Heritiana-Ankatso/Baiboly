@@ -11,10 +11,13 @@ import java.util.Locale
  */
 object UiLanguage {
     const val KEY = "ui_lang"
+
+    /** Malagasy unless the user chooses otherwise ("" = same as the phone). */
+    const val DEFAULT = "mg"
     val choices = listOf("", "mg", "fr", "en")
 
     fun current(context: Context): String =
-        context.getSharedPreferences("app_state", Context.MODE_PRIVATE).getString(KEY, "") ?: ""
+        context.getSharedPreferences("app_state", Context.MODE_PRIVATE).getString(KEY, DEFAULT) ?: DEFAULT
 
     /** A context whose resources use the chosen language. */
     fun wrap(context: Context): Context = wrap(context, current(context))

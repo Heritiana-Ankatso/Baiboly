@@ -277,4 +277,27 @@ class UiAcceptanceTest {
         waitFor { vm.ready && vm.chapter != null }
         rule.onNodeWithText("Hijery").assertExists()
     }
+
+    /** The default Bible is set with one tap on its star; it is what the app opens with. */
+    @Test fun defaultBibleAndOwnChapterNumbering() {
+        ready()
+        assertEquals("mg1865", vm.defaultTranslationId)
+        tag("reader").assertExists()
+        rule.onNodeWithText("MG1865 ▾").tap()      // the reading-text menu under the title
+        tag("default:lsg1910").tap()               // one tap: default Bible
+        waitFor { vm.defaultTranslationId == "lsg1910" && vm.translationId == "lsg1910" && vm.chapter?.translation == "lsg1910" }
+        // switching the text for a while does not change the default
+        vm.setTranslation("kjv")
+        vm.openChapter(39, 3)
+        waitFor { vm.chapter?.translation == "kjv" && vm.chapter?.chapter == 3 }
+        tag("next-chapter").tap()
+        waitFor { vm.chapter?.book == 39 && vm.chapter?.chapter == 4 } // KJV Malachi 4
+        assertEquals("lsg1910", vm.defaultTranslationId)
+        // reopen: the app starts with the default Bible
+        val old = vm
+        rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
+        rule.activityRule.scenario.recreate()
+        waitFor { vm !== old && vm.ready && vm.chapter != null }
+        assertEquals("lsg1910", vm.translationId)
+    }
 }

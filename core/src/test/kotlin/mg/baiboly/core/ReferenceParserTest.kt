@@ -128,4 +128,19 @@ class ReferenceParserTest {
         assertEquals(1 to 50, Canon.previousChapter(2, 1))
         assertNull(Canon.previousChapter(1, 1))
     }
+
+    /** Abbreviations from the 1865 source and the Malagasy Bible dictionary; longer prefixes also work. */
+    @Test fun malagasyAbbreviations() {
+        val expect = mapOf(
+            "Gen 1:1" to 1, "Eks 3:14" to 2, "Deot 6:4" to 5, "Deo 6:4" to 5, "Deoteronomia 6:4" to 5,
+            "Mpits 6:12" to 7, "Mpit 3:1" to 21, "1 Mpanj 18:21" to 11, "2 Tant 7:14" to 14,
+            "Oha 3:5" to 20, "Ohab 3:5" to 20, "Ton 2:4" to 22, "Fit 3:22" to 25, "Ezek 37:4" to 26,
+            "Asan 2:38" to 44, "Asa 2:38" to 44, "Flp 4:13" to 50, "Filip 4:13" to 50, "Flm 1:6" to 57,
+            "Filem 1:6" to 57, "Jak 1:5" to 59, "1 Pet 5:7" to 60, "Apok 21:4" to 66, "Joda 1:24" to 65,
+        )
+        for ((ref, book) in expect) assertEquals(book, ok(ref).single().book, ref)
+        // "Fil" could be Filipiana or Filemona: the parser asks instead of guessing
+        val e = assertIs<ParseError.AmbiguousBook>(ReferenceParser.parse("Fil 4:13").error)
+        assertEquals(setOf(50, 57), e.candidates.toSet())
+    }
 }

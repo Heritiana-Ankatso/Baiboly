@@ -49,7 +49,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 4
+DATA_VERSION = 5
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -58,18 +58,28 @@ DATA_VERSION = 4
 TRANSLATIONS = [
     # id, num, lang, short, name, style, source kind, source id
     ("mg1865", 1, "mg", "MG1865", "Baiboly Malagasy 1865", "classic", "crosswire", "Mg1865"),
+    ("tdx", 10, "mg", "TDX", "Saontsin’ Añahare (Tandroy)", "regional", "ebible", "tdx"),
     ("lsg1910", 2, "fr", "LSG", "Louis Segond 1910", "classic", "ebible", "fraLSG"),
     ("darby_fr", 3, "fr", "JND", "Bible J.N. Darby (français)", "literal", "ebible", "frajnd"),
-    ("sbl_fr", 4, "fr", "SBL", "Sainte Bible libre pour le monde", "accessible", "ebible", "frasbl"),
+    ("ncl_fr", 9, "fr", "NCL", "Sainte Bible néo-Crampon Libre", "faithful-modern", "ebible", "francl"),
     ("kjv", 5, "en", "KJV", "King James Version", "literal", "ebible", "eng-kjv2006"),
     ("bsb", 6, "en", "BSB", "Berean Standard Bible", "faithful-modern", "ebible", "engbsb"),
     ("web", 7, "en", "WEB", "World English Bible", "accessible", "ebible", "eng-web"),
     ("bbe", 8, "en", "BBE", "Bible in Basic English", "simplified", "ebible", "engBBE"),
 ]
+
+# eBible texts that are not public domain but whose open licence the user has
+# accepted. The licence text on the publisher's copyright page is checked at
+# every build.
+OPEN_LICENCES = {
+    "francl": ("Creative Commons Attribution Share-Alike license 4.0", "CC BY-SA 4.0, © 2022 Fraternité de Tibériade"),
+    "tdx": ("Creative Commons Attribution Share-Alike license 4.0", "CC BY-SA 4.0, © 2023 Steve Lellelid"),
+}
 STYLE_NOTE = {
     "classic": "Classic church translation",
     "literal": "Word-for-word, close to the original",
-    "faithful-modern": "Modern English, close to the original",
+    "faithful-modern": "Modern language, close to the original",
+    "regional": "Regional Malagasy (Tandroy-Mahafaly), draft",
     "accessible": "Modern, easy to read",
     "simplified": "Very simple vocabulary (850 basic words)",
 }
@@ -121,7 +131,8 @@ def fetch(url: str, name: str, offline: bool) -> str:
         if offline:
             sys.exit(f"missing cached source {name} (run without --offline)")
         print(f"  downloading {url}")
-        with urllib.request.urlopen(url, timeout=120) as r, open(path + ".part", "wb") as f:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; bible-data-build)"})
+        with urllib.request.urlopen(req, timeout=120) as r, open(path + ".part", "wb") as f:
             f.write(r.read())
         os.replace(path + ".part", path)
     return path
@@ -207,6 +218,7 @@ def conf_of(zf):
 # Licence checks
 # ---------------------------------------------------------------------------
 LICENCES = []
+OFFLINE = False
 
 
 def check_crosswire(mod, conf):
@@ -222,11 +234,21 @@ def check_ebible(tid, catalogue):
     row = catalogue.get(tid)
     if not row:
         sys.exit(f"LICENCE CHECK FAILED: {tid} not in eBible catalogue")
-    if row["Copyright"].strip().lower() != "public domain" or row["Redistributable"] != "True":
+    if row["Redistributable"] != "True":
+        sys.exit(f"LICENCE CHECK FAILED: {tid} is not redistributable")
+    if row["Copyright"].strip().lower() == "public domain":
+        licence = "Public Domain (eBible.org catalogue + about page)"
+    elif tid in OPEN_LICENCES:
+        expected, licence = OPEN_LICENCES[tid]
+        page = fetch(f"https://ebible.org/{tid}/copyright.htm", f"{tid}_copyright.htm", OFFLINE)
+        text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", open(page, encoding="utf-8-sig").read())))
+        if expected not in text:
+            sys.exit(f"LICENCE CHECK FAILED: {tid} copyright page no longer states {expected!r}")
+        licence += " (licence text checked on the publisher's copyright page)"
+    else:
         sys.exit(f"LICENCE CHECK FAILED: {tid} copyright={row['Copyright']!r}")
     LICENCES.append((tid, row["title"] or row["shortTitle"], "eBible.org " + tid,
-                     EBIBLE.format(tid + "_vpl.zip"), "Public Domain (eBible.org catalogue + about page)",
-                     row.get("publicationURL", "")))
+                     EBIBLE.format(tid + "_vpl.zip"), licence, row.get("publicationURL", "")))
     return row
 
 
@@ -309,6 +331,7 @@ def load_vpl(tid, offline):
             continue
         text = m.group(4)
         text = re.sub(r"[\[\]]", "", text)  # KJV italics brackets
+        text = text.replace("\u00ad", "")  # soft hyphens break word search
         text = collapse(text)
         if text:
             verses[(codes[m.group(1)], int(m.group(2)), int(m.group(3)))] = text
@@ -562,6 +585,8 @@ def chapter_counts(verses):
 
 
 def build(offline, openscriptures=True):
+    global OFFLINE
+    OFFLINE = offline
     os.makedirs(ASSETS, exist_ok=True)
     os.makedirs(REPORTS, exist_ok=True)
 
@@ -581,8 +606,14 @@ def build(offline, openscriptures=True):
 
     abbr = load_or_create_abbreviations(book_meta)
     mg_counts_map = chapter_counts(mg)
-    mg_counts = {b: [mg_counts_map[b][c] for c in sorted(mg_counts_map[b])] for b in range(1, 67)}
+    # Keep the 66-book canon only. néo-Crampon also carries the Greek additions to
+    # Esther (11-16) and Daniel 13-14 (Susanna, Bel), which are left out. Other
+    # chapter-count differences (Malachi 4, Joel 4...) are versification, not extra text.
+    DEUTERO_CHAPTERS = {"ncl_fr": {(17, c) for c in range(11, 17)} | {(27, 13), (27, 14)}}
+    for tid, drop in DEUTERO_CHAPTERS.items():
+        texts[tid] = {k: t for k, t in texts[tid].items() if (k[0], k[1]) not in drop}
 
+    mg_counts = {b: [mg_counts_map[b][c] for c in sorted(mg_counts_map[b])] for b in range(1, 67)}
     books = []
     for b in range(1, 67):
         meta = book_meta[b]
@@ -643,8 +674,11 @@ def build(offline, openscriptures=True):
     for sort, (tid, num, lang, short, name, style, kind, src) in enumerate(TRANSLATIONS):
         lic = lic_by_src[src]
         notes = None
-        if tid == "sbl_fr":
-            notes = "Draft translation still being proofread by its publisher (eBible.org)."
+        if tid == "ncl_fr":
+            notes = ("Adapted for this app under CC BY-SA 4.0: deuterocanonical books, notes and formatting "
+                     "left out; the text itself is unchanged.")
+        if tid == "tdx":
+            notes = "Tandroy dialect of southern Madagascar. Draft version published by its translator."
         if tid == "darby_fr":
             notes = "Old Testament verse numbers follow the Hebrew Bible in places."
         if tid == "mg1865":
