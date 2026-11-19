@@ -74,7 +74,7 @@ Download the APK from the repository's **Releases** page (each version has its o
 
 ## Building
 
-Requirements: JDK 17 or newer, the Android SDK (platform 35, build-tools 35), and Python 3.9 or newer.
+Requirements: JDK 17 or newer, the Android SDK (platform 35, build-tools 35), and Python 3.9 or newer with Pillow (`pip install -r tools/requirements.txt`).
 
 ```bash
 python3 tools/build_data.py          # downloads the sources once (cached in tools/.cache), builds the databases
