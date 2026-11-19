@@ -76,6 +76,7 @@ Every source passes an automatic licence check before it is used; see [docs/data
 | 12 | Backup and restore reproduce data exactly | `DataAcceptanceTest.task12_backupRoundTrip` |
 | 13 | Study pipeline: 2 Tim 2:25 → *acknowledging* = G1922 ἐπίγνωσις; gap report | `DataAcceptanceTest.task13_studyData`, [docs/reports/lexicon_gaps.md](docs/reports/lexicon_gaps.md) |
 | 14 | α panel, entry, Found N verses → Malagasy text with Back to my place | `UiAcceptanceTest.studyPanel` |
+| — | Malagasy interface (switch, live change, kept after restart) | `UiAcceptanceTest.malagasyInterface` |
 | 15 | Offline, dark mode, size report | No network permission at all; [docs/size-report.md](docs/size-report.md) |
 
 **Not verified here:** no Android emulator could run in the build environment (no hardware virtualisation). The UI scenarios run under Robolectric on the JVM, not on a phone, and touch-target size and low-end-device performance still need a check on a real device.
@@ -86,16 +87,16 @@ Every source passes an automatic licence check before it is used; see [docs/data
 * **Add panel also stays open after Add**, showing "Added: …", so several verses can be captured in a row.
 * **Swipe while away from the list.** When the reader is away from the current list item, the first swipe returns to it instead of skipping an item.
 * **Selecting text.** Tapping a verse (text or number) selects it; adjacent verses merge. "Select words" picks a character range inside one verse. With α on, the verse number opens the study panel instead.
-* **Interface language.** English and French are provided and follow the phone's language. All strings are in resource files, so a Malagasy interface is a translation of one file (`res/values-mg/strings.xml`).
+* **Interface language.** Malagasy, French and English. Chosen in Settings → *Interface language* (default: same as the phone), applied immediately and remembered; few phones offer Malagasy as a system language, so the choice lives in the app. The Malagasy wording (`res/values-mg/strings.xml`) is a draft to be reviewed by a native speaker; for example *History* is *Novakiana* to avoid a clash with the book *Tantara*.
 * **Reading in French or English.** The service list and notes use Malagasy verse numbers. Other translations are shown with their own numbering, which differs in some chapters, mainly Darby in the Old Testament. Character-level highlights apply to the Malagasy text only.
-* **Hebrew lemmas.** The public-domain Strong's Hebrew dictionary has transliterations only, so Hebrew words show as transliteration (for example *'elohiym*), not Hebrew script. The CC-BY-SA Open Scriptures dictionary would add Hebrew script and 31 Greek entries missing from the public-domain source. It is supported but **off until you approve its licence**: `python3 tools/build_data.py --fill-from-openscriptures`.
+* **Lexicon sources.** Base: the public-domain CrossWire Strong's dictionaries. On top: the Open Scriptures dictionaries (CC-BY-SA, approved by the user), which add Hebrew-script lemmas (אֱלֹהִים) and the 31 Greek entries missing from the base. Every tagged Strong's number now has an entry. The attribution is shown on the About screen; the build checks that the source still states CC-BY-SA. `--no-openscriptures` builds with public-domain data only.
 * **Part of speech.** Strong's dictionaries have no part-of-speech field. It is filled only where Strong's own wording states it (about 13% of entries), never guessed.
+* **Licence note.** Because part of the lexicon is CC-BY-SA, a redistributed adaptation of that lexicon data must keep the same licence and attribution. This concerns the data only, not the app's code or the public-domain Bible texts.
 
 ## Open points for the user
 
 1. **Psalm numbering.** The Malagasy 1865 source numbers psalm titles as verse 1 (German versification). So Salamo 3 has 9 verses, and Salamo 3:2 is KJV Psalm 3:1. Please check this against the printed Baiboly used in church. Your example `Sal 1: 3-4; 3: 8-12` is parsed correctly (book carried over after `;`), but Salamo 3:12 does not exist, so the entry is rejected, as the brief requires.
 2. **Unconfirmed abbreviations**: [docs/abbreviations-review.md](docs/abbreviations-review.md).
-3. **Verse numbering.** 85 chapters differ between the Malagasy text and the KJV with no evidence-based mapping. In those chapters the study panel shows a warning. See [docs/reports/verse_map.md](docs/reports/verse_map.md).
-4. **Open Scriptures CC-BY-SA lexicon** (see above): approve or decline.
+3. **Malagasy interface wording**: please review `app/src/main/res/values-mg/strings.xml`.
+4. **Verse numbering.** 85 chapters differ between the Malagasy text and the KJV with no evidence-based mapping. In those chapters the study panel shows a warning. See [docs/reports/verse_map.md](docs/reports/verse_map.md).
 5. **Sainte Bible libre** is marked by its publisher as a draft still being proofread. Keep it, or replace it?
-6. **Interface language**: should a Malagasy interface be added?

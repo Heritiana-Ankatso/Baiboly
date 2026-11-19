@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Baiboly</string>
+    <string name="app_name" translatable="false">Baiboly</string>
 
     <!-- Top bar -->
     <string name="menu">Menu</string>
@@ -114,8 +114,8 @@
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    <string name="sample_text">Fa toy izao no nitiavan’ Andriamanitra izao tontolo izao…</string>
-    <string name="interface_language">Interface language: follows the phone (English or French). On Android 13+ it can be set per app in the system settings.</string>
+    <string name="sample_text" translatable="false">Fa toy izao no nitiavan’ Andriamanitra izao tontolo izao…</string>
+    <string name="interface_language">Interface language</string>
 
     <!-- Backup -->
     <string name="backup_intro">Save lists, notes, highlights and history to one file, or restore them from a file. Nothing leaves the phone unless you move the file yourself.</string>
@@ -146,4 +146,14 @@
     <string name="back">Back</string>
     <string name="no_entry">No dictionary entry for %1$s.</string>
     <string name="opened_in_malagasy">Opened in the Malagasy text</string>
+    <string name="language_system">Same as the phone</string>
+    <string name="style_classic">Classic church translation</string>
+    <string name="style_literal">Word-for-word, close to the original</string>
+    <string name="style_faithful_modern">Modern English, close to the original</string>
+    <string name="style_accessible">Modern, easy to read</string>
+    <string name="style_simplified">Very simple vocabulary (850 basic words)</string>
+    <string name="note_mg1865">Psalm titles are numbered as verse 1 in this source.</string>
+    <string name="note_darby_fr">Old Testament verse numbers follow the Hebrew Bible in places.</string>
+    <string name="note_sbl_fr">Draft translation still being proofread by its publisher.</string>
+    <string name="about_tools">Versification tables: PySword 0.2.8 (MIT licence). App code: Kotlin, Jetpack Compose (Apache 2.0).</string>
 </resources>

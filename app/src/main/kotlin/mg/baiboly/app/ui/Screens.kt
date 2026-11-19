@@ -424,7 +424,7 @@ fun SavedListsScreen(vm: AppViewModel) {
 @Composable
 fun SettingsScreen(vm: AppViewModel) {
     SubScreen(vm, stringResource(R.string.settings)) { padding ->
-        Column(Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(16.dp)) {
             Text(stringResource(R.string.text_size), style = MaterialTheme.typography.titleMedium)
             Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12)
             Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * 1.5f).sp, fontFamily = FontFamily.Serif)
@@ -443,7 +443,7 @@ fun SettingsScreen(vm: AppViewModel) {
                     Column {
                         Text("${t.name} (${t.shortName})")
                         Text(
-                            t.styleNote + (t.notes?.let { " · $it" } ?: ""),
+                            styleNote(t) + (translationNote(t)?.let { " · $it" } ?: ""),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -456,12 +456,23 @@ fun SettingsScreen(vm: AppViewModel) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),
             )
-            Text(
-                stringResource(R.string.interface_language),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 16.dp),
-            )
+            Text(stringResource(R.string.interface_language), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+            mg.baiboly.app.UiLanguage.choices.forEach { lang ->
+                val label = when (lang) {
+                    "" -> stringResource(R.string.language_system)
+                    "mg" -> "Malagasy"
+                    "fr" -> "Français"
+                    else -> "English"
+                }
+                val choose = { if (vm.uiLanguage != lang) vm.chooseUiLanguage(lang) }
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(onClick = choose).testTag("ui-lang:$lang"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = vm.uiLanguage == lang, onClick = choose)
+                    Text(label)
+                }
+            }
         }
     }
 }
@@ -517,7 +528,7 @@ fun AboutScreen(vm: AppViewModel) {
                     Text("${t.name} (${t.shortName})", fontWeight = FontWeight.SemiBold)
                     Text(t.licence, style = MaterialTheme.typography.bodySmall)
                     Text(t.source, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    t.notes?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    translationNote(t)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
             }
             Text(stringResource(R.string.sources_licences), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
@@ -533,7 +544,7 @@ fun AboutScreen(vm: AppViewModel) {
                 }
             }
             Text(
-                "Versification tables: PySword 0.2.8 (MIT licence). App code: Kotlin, Jetpack Compose (Apache 2.0).",
+                stringResource(R.string.about_tools),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 12.dp),

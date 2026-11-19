@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollToKey
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.swipeLeft
@@ -85,6 +86,7 @@ class UiAcceptanceTest {
     /** Waits for the first chapter, then starts from a new, empty list. */
     private fun ready() {
         waitFor { vm.ready && vm.chapter != null }
+        if (vm.uiLanguage != "") vm.chooseUiLanguage("") // the English labels below
         if (!vm.list.isEmpty) {
             val old = vm.list.id
             vm.newList()
@@ -253,5 +255,26 @@ class UiAcceptanceTest {
         waitFor { vm.notes.isNotEmpty() }
         rule.onNodeWithText("Jehovah no Mpiandry ahy").tap()
         waitFor { Passage(19, 23, 1, 1).at() && vm.chapter?.book == 19 && vm.screen == Screen.Main }
+    }
+
+    /** Malagasy interface: chosen in Settings, applied at once and kept after a restart. */
+    @Test fun malagasyInterface() {
+        ready()
+        vm.screen = Screen.Settings
+        rule.waitForIdle()
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("ui-lang:mg"))
+        tag("ui-lang:mg").tap()
+        waitFor { runCatching { rule.onNodeWithText("Fiteny ampiasaina").assertExists(); true }.getOrDefault(false) }
+        assertEquals("mg", vm.uiLanguage)
+        vm.screen = Screen.Main
+        rule.waitForIdle()
+        rule.onNodeWithText("Hijery").assertExists()          // Browse
+        rule.onNodeWithText("Hanomboka lisitra").assertExists() // Start a list
+        assertTrue(vm.str(R.string.default_list_title, "x").startsWith("Fotoam-pivavahana"))
+        // after closing and reopening the app
+        rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
+        rule.activityRule.scenario.recreate()
+        waitFor { vm.ready && vm.chapter != null }
+        rule.onNodeWithText("Hijery").assertExists()
     }
 }

@@ -4,15 +4,15 @@ Release build (`./gradlew :app:assembleRelease`, R8 minified, resources shrunk),
 
 | Part | In the APK (compressed) | On the device once unpacked |
 |---|---|---|
-| **Whole release APK** | **40.5 MB** | |
+| **Whole release APK** | **40.6 MB** | |
 | App code (`classes.dex`) | 1.1 MB | |
 | `bible.db`: catalogue + Malagasy 1865 + search index | 4.2 MB | 13.7 MB |
 | 7 other reading texts (`text-*.db`), about 4 MB each | 29.5 MB | 12–13.5 MB each |
-| **Study data (`study.db`)** | **5.4 MB** | **15.4 MB** |
+| **Study data (`study.db`)** | **5.5 MB** | **15.5 MB** |
 
-What the study data adds: **5.4 MB to the APK** and 15.4 MB on the device, once the
+What the study data adds: **5.5 MB to the APK** and 15.5 MB on the device, once the
 α panel is first used. Inside `study.db`: `kjv_word` (348,884 tagged words),
-`strongs_verse` (310,076 rows), `lexicon` (14,341 entries) and `verse_map`.
+`strongs_verse` (310,076 rows), `lexicon` (14,375 entries: public-domain CrossWire base plus Open Scriptures Hebrew lemmas and missing entries) and `verse_map`.
 
 Notes
 

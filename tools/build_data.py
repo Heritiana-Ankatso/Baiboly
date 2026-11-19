@@ -49,7 +49,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 3
+DATA_VERSION = 4
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -451,14 +451,16 @@ OPENSCRIPTURES = "https://raw.githubusercontent.com/openscriptures/strongs/maste
 
 
 def fill_from_openscriptures(lexicon, offline):
-    """OPT-IN (--fill-from-openscriptures). Open Scriptures' JSON Strong's
-    dictionaries are CC-BY-SA, not public domain, so they are only used when
-    the user has approved that licence. They add Hebrew-script lemmas and the
-    Greek entries missing from the CrossWire module."""
+    """Open Scriptures' JSON Strong's dictionaries (CC-BY-SA, approved by the
+    user on 2026-11-19). The public-domain CrossWire entries stay the base;
+    Open Scriptures adds Hebrew-script lemmas and the Greek entries missing
+    from the CrossWire module. Disable with --no-openscriptures."""
     added = 0
     for lang in ("hebrew", "greek"):
         path = fetch(OPENSCRIPTURES.format(lang), f"openscriptures-{lang}.js", offline)
         s = open(path, encoding="utf-8").read()
+        if "CC-BY-SA" not in s[:2000]:
+            sys.exit(f"LICENCE CHECK FAILED: Open Scriptures {lang} header no longer states CC-BY-SA")
         data = json.loads(s[s.index("{"):s.rindex("}") + 1])
         for sid, e in data.items():
             sid = sid[0] + str(int(sid[1:]))
@@ -477,7 +479,7 @@ def fill_from_openscriptures(lexicon, offline):
                 added += 1
     LICENCES.append(("openscriptures-strongs", "Strong's Hebrew and Greek dictionaries (JSON)",
                      "Open Scriptures strongs", OPENSCRIPTURES.format("{hebrew,greek}"),
-                     "CC-BY-SA (Open Scriptures); used with the user's approval", "https://github.com/openscriptures/strongs"))
+                     "CC-BY-SA (Open Scriptures, as stated in the file header); attribution: Open Scriptures, derived from Strong's 1890/1894 dictionaries", "https://github.com/openscriptures/strongs"))
     return added
 
 
@@ -559,7 +561,7 @@ def chapter_counts(verses):
     return counts
 
 
-def build(offline, openscriptures=False):
+def build(offline, openscriptures=True):
     os.makedirs(ASSETS, exist_ok=True)
     os.makedirs(REPORTS, exist_ok=True)
 
@@ -799,8 +801,9 @@ def write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map):
         f.write(f"* Tagged numbers without a lexicon entry: {len(missing)}\n")
         f.write(f"* Entries without an explicit part of speech in Strong's wording: {no_pos} "
                 "(the field is left empty rather than guessed)\n")
-        f.write(f"* Hebrew entries without Hebrew-script lemma: {no_lemma_h} (the public-domain CrossWire "
-                "Hebrew dictionary carries a transliteration only; see docs/data-licences.md)\n\n")
+        f.write(f"* Hebrew entries without Hebrew-script lemma: {no_lemma_h}\n")
+        f.write("* Base: public-domain CrossWire Strong's dictionaries; Hebrew-script lemmas and missing entries "
+                "from Open Scriptures (CC-BY-SA), see docs/data-licences.md\n\n")
         if missing:
             f.write("| Strong's | Occurrences in KJV |\n|---|---|\n")
             for s in missing:
@@ -827,7 +830,7 @@ def write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--offline", action="store_true")
-    ap.add_argument("--fill-from-openscriptures", action="store_true",
-                    help="also use the CC-BY-SA Open Scriptures dictionaries (needs the user's approval)")
+    ap.add_argument("--no-openscriptures", action="store_true",
+                    help="public-domain sources only (skip the CC-BY-SA Open Scriptures dictionaries)")
     a = ap.parse_args()
-    build(a.offline, a.fill_from_openscriptures)
+    build(a.offline, not a.no_openscriptures)

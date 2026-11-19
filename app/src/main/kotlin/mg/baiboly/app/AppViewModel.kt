@@ -130,10 +130,22 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }.getOrNull()
     }
 
+    /** A string in the interface language chosen in the app (not only the phone's). */
+    fun str(id: Int, vararg args: Any): String = UiLanguage.wrap(getApplication()).getString(id, *args)
+
+    var uiLanguage by mutableStateOf(prefs.getString(UiLanguage.KEY, "") ?: "")
+        private set
+
+    /** Saves the interface language; the UI switches at once. */
+    fun chooseUiLanguage(lang: String) {
+        uiLanguage = lang
+        prefs.edit().putString(UiLanguage.KEY, lang).commit()
+    }
+
     private fun today(): String = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(Date())
 
     private fun defaultTitle(): String =
-        getApplication<Application>().getString(R.string.default_list_title, today())
+        str(R.string.default_list_title, today())
 
     private fun persistState() {
         val f = location.focus
@@ -335,7 +347,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun duplicateSavedList(id: Long, title: String) {
         viewModelScope.launch {
-            withContext(io) { user.duplicateList(id, getApplication<Application>().getString(R.string.copy_suffix, title), today()) }
+            withContext(io) { user.duplicateList(id, str(R.string.copy_suffix, title), today()) }
             refreshSavedLists()
         }
     }
@@ -502,7 +514,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     app.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(json.toString(1).toByteArray()) }
                 }
             }
-            message = ok.fold({ app.getString(R.string.backup_saved) }, { app.getString(R.string.backup_failed, it.message ?: "") })
+            message = ok.fold({ str(R.string.backup_saved) }, { str(R.string.backup_failed, it.message ?: "") })
         }
     }
 
@@ -518,8 +530,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             result.onSuccess { state ->
                 restoreAppState(state)
                 reloadFromPrefs()
-                message = app.getString(R.string.backup_restored)
-            }.onFailure { message = app.getString(R.string.backup_failed, it.message ?: "") }
+                message = str(R.string.backup_restored)
+            }.onFailure { message = str(R.string.backup_failed, it.message ?: "") }
         }
     }
 

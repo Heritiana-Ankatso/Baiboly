@@ -8,14 +8,31 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
 import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.Screen
+import mg.baiboly.app.UiLanguage
 
 @Composable
 fun BaibolyApp(vm: AppViewModel) {
+    // The interface language is applied live: the whole UI (dialogs and sheets
+    // included) reads its strings through this context.
+    val base = LocalContext.current
+    val localized = remember(vm.uiLanguage) { UiLanguage.wrap(base, vm.uiLanguage) }
+    CompositionLocalProvider(
+        LocalContext provides localized,
+        LocalConfiguration provides localized.resources.configuration,
+    ) { AppContent(vm) }
+}
+
+@Composable
+private fun AppContent(vm: AppViewModel) {
     BaibolyTheme(vm.theme) {
         Silent.Provide {
             Surface(Modifier.fillMaxSize()) {

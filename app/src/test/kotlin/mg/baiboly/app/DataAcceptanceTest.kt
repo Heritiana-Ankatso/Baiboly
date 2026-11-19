@@ -56,6 +56,9 @@ class DataAcceptanceTest {
         assertTrue(e.definition!!.contains("recognition"))
         assertTrue(study.verseCount("G1922") > 10)
         assertTrue(study.versesWith("G1922").contains(VerseRef(55, 2, 25)))
+        // Open Scriptures (approved CC-BY-SA): Hebrew script and the Greek gaps
+        assertEquals("אֱלֹהִים", study.entry("H430")!!.lemma)
+        assertEquals("ἑαυτοῦ", study.entry("G1438")!!.lemma)
         // Psalm 3: Malagasy verse 2 is KJV verse 1 (the title is Malagasy verse 1)
         assertEquals(VerseRef(19, 3, 1), study.verse(VerseRef(19, 3, 2)).kjv)
     }

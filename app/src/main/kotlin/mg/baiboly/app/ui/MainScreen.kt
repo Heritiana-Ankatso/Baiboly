@@ -286,8 +286,7 @@ private fun ReaderTopBar(vm: AppViewModel, openMenu: () -> Unit) {
                     .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
                     .clickable {
                         vm.toggleStudyMode()
-                        vm.message = vm.getApplication<android.app.Application>()
-                            .getString(if (!on) R.string.study_mode_on else R.string.study_mode_off)
+                        vm.message = vm.str(if (!on) R.string.study_mode_on else R.string.study_mode_off)
                     },
                 contentAlignment = Alignment.Center,
             ) {
@@ -325,7 +324,7 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
                                 t.name,
                                 fontWeight = if (t.id == vm.translationId) FontWeight.Bold else FontWeight.Normal,
                             )
-                            Text(t.styleNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(styleNote(t), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     },
                     leadingIcon = { Text(t.shortName, style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(52.dp)) },

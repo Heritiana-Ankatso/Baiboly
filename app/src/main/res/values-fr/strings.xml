@@ -101,7 +101,7 @@
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
-    <string name="interface_language">Langue de l’interface : celle du téléphone (anglais ou français). Sous Android 13+, elle peut être choisie par application dans les réglages du système.</string>
+    <string name="interface_language">Langue de l’interface</string>
 
     <string name="backup_intro">Enregistrez listes, notes, surlignages et historique dans un fichier, ou restaurez-les depuis un fichier. Rien ne quitte le téléphone sauf si vous déplacez le fichier vous-même.</string>
     <string name="export_backup">Exporter une sauvegarde</string>
@@ -129,4 +129,14 @@
     <string name="back">Retour</string>
     <string name="no_entry">Aucune entrée de dictionnaire pour %1$s.</string>
     <string name="opened_in_malagasy">Ouvert dans le texte malgache</string>
+    <string name="language_system">Comme le téléphone</string>
+    <string name="style_classic">Traduction d’Église classique</string>
+    <string name="style_literal">Mot à mot, proche de l’original</string>
+    <string name="style_faithful_modern">Anglais moderne, proche de l’original</string>
+    <string name="style_accessible">Moderne, facile à lire</string>
+    <string name="style_simplified">Vocabulaire très simple (850 mots de base)</string>
+    <string name="note_mg1865">Dans cette source, les titres des psaumes sont numérotés verset 1.</string>
+    <string name="note_darby_fr">Dans l’Ancien Testament, la numérotation suit par endroits la Bible hébraïque.</string>
+    <string name="note_sbl_fr">Traduction encore en cours de relecture par son éditeur.</string>
+    <string name="about_tools">Tables de versification : PySword 0.2.8 (licence MIT). Code de l’application : Kotlin, Jetpack Compose (Apache 2.0).</string>
 </resources>

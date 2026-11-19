@@ -15,5 +15,6 @@ Every source below passed the automatic licence check in `tools/build_data.py` (
 | eBible.org eng-kjv2006 (USFM) | King James Version with Strong's numbers | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-kjv2006_usfm.zip |  |
 | CrossWire SWORD module StrongsGreek | Strong's Greek Bible Dictionary | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/StrongsGreek.zip | http://www.bf.org/ |
 | CrossWire SWORD module StrongsHebrew | Strong's Hebrew Bible Dictionary | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/StrongsHebrew.zip | http://www.bf.org/ |
+| Open Scriptures strongs | Strong's Hebrew and Greek dictionaries (JSON) | CC-BY-SA (Open Scriptures, as stated in the file header); attribution: Open Scriptures, derived from Strong's 1890/1894 dictionaries | https://raw.githubusercontent.com/openscriptures/strongs/master/{hebrew,greek}/strongs-{hebrew,greek}-dictionary.js | https://github.com/openscriptures/strongs |
 
 Tools: versification tables from PySword 0.2.8 (MIT licence), `tools/vendor/sword_canons.py`.

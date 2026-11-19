@@ -189,7 +189,7 @@ private fun FoundPage(vm: AppViewModel, strongs: String, onOpen: (VerseRef) -> U
                     Text(p.shortLabel(), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     Text(text, maxLines = 2, overflow = TextOverflow.Ellipsis, fontFamily = FontFamily.Serif, fontStyle = FontStyle.Normal)
                 }
-                IconButton(onClick = { vm.addToList(listOf(p)); vm.message = vm.getApplication<android.app.Application>().getString(R.string.added_x, p.shortLabel()) }) {
+                IconButton(onClick = { vm.addToList(listOf(p)); vm.message = vm.str(R.string.added_x, p.shortLabel()) }) {
                     Icon(Icons.Filled.Add, stringResource(R.string.add_to_list))
                 }
             }
