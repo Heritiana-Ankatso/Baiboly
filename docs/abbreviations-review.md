@@ -6,6 +6,8 @@ The parser accepts, for every book, its abbreviation, any extra spelling listed 
 
 **Ambiguous on purpose:** *Fil* could be Filipiana or Filemona, so the app asks which one (use *Flp* or *Flm*). *Mpit* is Mpitoriteny and *Mpits* Mpitsara, as in the dictionary list.
 
+Books 67–73 are the deuterocanonical books of Catholic Bibles; their Malagasy names follow the Malagasy Catholic Bible's book list, and their abbreviations are proposals for you to review.
+
 To change one: edit `tools/abbreviations.tsv` and rebuild with `python3 tools/build_data.py`.
 
 | # | Book | Abbreviation | Also accepted | Status | Source |
@@ -76,3 +78,10 @@ To change one: edit `tools/abbreviations.tsv` and rebuild with `python3 tools/bu
 | 64 | 3 Jaona | Jao |  | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
 | 65 | Joda | Joda | Jod, Jud | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
 | 66 | Apokalypsy | Apok | Apo, Apokalipsy | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
+| 67 | Tobia | Tob | Tôbia, Tobita | proposed, to review | Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed |
+| 68 | Jodita | Jdt | Jiodita | proposed, to review | Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed |
+| 69 | 1 Makabeo | Mak |  | proposed, to review | Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed |
+| 70 | 2 Makabeo | Mak |  | proposed, to review | Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed |
+| 71 | Fahendrena | Fah |  | proposed, to review | Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed |
+| 72 | Eklesiastika | Ekl | Sir, Sirasida, Ekleziastika | proposed, to review | Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed |
+| 73 | Baroka | Bar |  | proposed, to review | Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed |

@@ -5,6 +5,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performSemanticsAction
@@ -86,7 +87,7 @@ class UiAcceptanceTest {
     /** Waits for the first chapter, then starts from a new, empty list. */
     private fun ready() {
         waitFor { vm.ready && vm.chapter != null }
-        if (vm.uiLanguage != "") vm.chooseUiLanguage("") // the English labels below
+        if (vm.uiLanguage != "en") vm.chooseUiLanguage("en") // the English labels below
         if (!vm.list.isEmpty) {
             val old = vm.list.id
             vm.newList()
@@ -101,7 +102,7 @@ class UiAcceptanceTest {
     @Test fun serviceDryRun() {
         ready()
         assertTrue(vm.list.isEmpty)
-        rule.onNodeWithText("Start a list").tap()
+        rule.onNodeWithText("Start a list", substring = true).tap()
 
         // Task 6: a verse in four taps in keypad mode: book, chapter chip, verse chip, Add.
         tag("book-grid").performScrollToKey(43) // scrolling the book grid is not a tap
@@ -262,14 +263,14 @@ class UiAcceptanceTest {
         ready()
         vm.screen = Screen.Settings
         rule.waitForIdle()
-        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("ui-lang:mg"))
-        tag("ui-lang:mg").tap()
-        waitFor { runCatching { rule.onNodeWithText("Fiteny ampiasaina").assertExists(); true }.getOrDefault(false) }
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-ui-lang:mg"))
+        tag("settings-ui-lang:mg").tap()
+        waitFor { rule.onAllNodesWithText("Fiteny").fetchSemanticsNodes().isNotEmpty() }
         assertEquals("mg", vm.uiLanguage)
         vm.screen = Screen.Main
         rule.waitForIdle()
         rule.onNodeWithText("Hijery").assertExists()          // Browse
-        rule.onNodeWithText("Hanomboka lisitra").assertExists() // Start a list
+        rule.onNodeWithText("Hanomboka lisitra", substring = true).assertExists() // Start a list
         assertTrue(vm.str(R.string.default_list_title, "x").startsWith("Fotoam-pivavahana"))
         // after closing and reopening the app
         rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
@@ -283,7 +284,7 @@ class UiAcceptanceTest {
         ready()
         assertEquals("mg1865", vm.defaultTranslationId)
         tag("reader").assertExists()
-        rule.onNodeWithText("MG1865 ▾").tap()      // the reading-text menu under the title
+        rule.onNodeWithText("MG1865  ▾").tap()     // the reading-text menu under the title
         tag("default:lsg1910").tap()               // one tap: default Bible
         waitFor { vm.defaultTranslationId == "lsg1910" && vm.translationId == "lsg1910" && vm.chapter?.translation == "lsg1910" }
         // switching the text for a while does not change the default

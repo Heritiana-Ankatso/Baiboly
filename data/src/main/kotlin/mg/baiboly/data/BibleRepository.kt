@@ -15,6 +15,8 @@ data class Translation(
     val source: String,
     val notes: String?,
     val file: String,
+    /** Catholic Bible: has the deuterocanonical books (Tobit, Judith, 1-2 Maccabees, Wisdom, Sirach, Baruch). */
+    val catholic: Boolean,
 )
 
 data class VerseText(val verse: Int, val text: String)
@@ -42,7 +44,7 @@ class BibleRepository(private val dbs: AssetDatabases) {
 
     val translations: List<Translation> by lazy {
         dbs.get(CATALOGUE).rawQuery(
-            "SELECT id,num,lang,short_name,name,style,style_note,licence,source,notes,file FROM translation ORDER BY sort",
+            "SELECT id,num,lang,short_name,name,style,style_note,licence,source,notes,file,catholic FROM translation ORDER BY sort",
             null,
         ).use { c ->
             buildList {
@@ -50,6 +52,7 @@ class BibleRepository(private val dbs: AssetDatabases) {
                     Translation(
                         c.getString(0), c.getInt(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5),
                         c.getString(6) ?: "", c.getString(7), c.getString(8), c.getString(9), c.getString(10),
+                        c.getInt(11) != 0,
                     )
                 )
             }

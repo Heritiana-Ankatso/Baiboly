@@ -24,5 +24,8 @@ fun translationNote(t: Translation): String? = when (t.id) {
     "darby_fr" -> stringResource(R.string.note_darby_fr)
     "ncl_fr" -> stringResource(R.string.note_ncl_fr)
     "tdx" -> stringResource(R.string.note_tdx)
+    "crampon" -> stringResource(R.string.note_crampon)
+    "webc" -> stringResource(R.string.note_webc)
+    "dra" -> stringResource(R.string.note_dra)
     else -> t.notes
 }

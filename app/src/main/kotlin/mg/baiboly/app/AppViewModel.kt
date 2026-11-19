@@ -202,10 +202,22 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private var loadJob: Job? = null
 
     private fun loadChapter() {
-        val tid = translationId
+        var tid = translationId
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
-            val counts = withContext(io) { bible.chapterCounts(tid) }
+            var counts = withContext(io) { bible.chapterCounts(tid) }
+            if (counts.isNotEmpty() && location.book !in counts) {
+                // e.g. Tobit while reading a 66-book Bible: show it in a Catholic Bible,
+                // in the same language when there is one, and say so.
+                val current = bible.translation(tid)
+                val other = translations.filter { it.catholic }.let { cs -> cs.firstOrNull { it.lang == current.lang } ?: cs.firstOrNull() }
+                if (other != null) {
+                    tid = other.id
+                    translationId = other.id
+                    counts = withContext(io) { bible.chapterCounts(other.id) }
+                    message = str(R.string.shown_in, other.name)
+                }
+            }
             chapterCounts = counts
             // e.g. Malachi 4 exists in the KJV numbering but not in the Malagasy one
             val max = counts[location.book] ?: Canon.chapterCount(location.book)
@@ -258,26 +270,19 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun openChapter(book: Int, chapter: Int) = openPassage(Passage(book, chapter))
 
-    /** Next chapter through the whole Bible, in the current text's own chapter numbering. */
+    /** Next chapter in reading order (Catholic order when the text has the deuterocanonical books). */
     fun nextChapter() {
-        val (b, c) = location.book to location.chapter
-        val next = when {
-            c < chapterCount(b) -> b to c + 1
-            b < Canon.BOOK_COUNT -> b + 1 to 1
-            else -> return
-        }
-        go(ReaderLocation(next.first, next.second, null), null)
+        Canon.nextChapter(location.book, location.chapter, chapterCounts.ifEmpty { null })
+            ?.let { (b, c) -> go(ReaderLocation(b, c, null), null) }
     }
 
     fun previousChapter() {
-        val (b, c) = location.book to location.chapter
-        val prev = when {
-            c > 1 -> b to c - 1
-            b > 1 -> b - 1 to chapterCount(b - 1)
-            else -> return
-        }
-        go(ReaderLocation(prev.first, prev.second, null), null)
+        Canon.previousChapter(location.book, location.chapter, chapterCounts.ifEmpty { null })
+            ?.let { (b, c) -> go(ReaderLocation(b, c, null), null) }
     }
+
+    /** Books in the text being read, in reading order (66, or 73 for a Catholic Bible). */
+    val availableBooks: List<Int> get() = Canon.order(chapterCounts.keys.ifEmpty { null })
 
     /** True when the reader is not showing the current list item: show Back to my place. */
     val isAway: Boolean

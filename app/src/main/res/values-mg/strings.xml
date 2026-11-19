@@ -4,8 +4,8 @@
     <string name="menu">Menio</string>
     <string name="search">Hitady</string>
     <string name="study_mode">Fandalinana ny teny tany am-boalohany (α)</string>
-    <string name="study_mode_on">α mandeha: tsindrio ny laharan’ny andininy hianarana azy</string>
-    <string name="study_mode_off">α tsy mandeha</string>
+    <string name="study_mode_on">%1$s mandeha: tsindrio ny laharan’ny andininy hianarana ny teny tany am-boalohany</string>
+    <string name="study_mode_off">%1$s tsy mandeha</string>
     <string name="choose_translation">Dikan-teny vakiana</string>
 
     <string name="start_list">Hanomboka lisitra</string>
@@ -102,7 +102,7 @@
     <string name="theme_system">Araka ny finday</string>
     <string name="theme_light">Mazava</string>
     <string name="theme_dark">Maizina</string>
-    <string name="interface_language">Fiteny ampiasaina</string>
+    <string name="interface_language">Fiteny</string>
     <string name="language_system">Araka ny finday</string>
 
     <string name="style_classic">Dikan-teny mahazatra ampiasain’ny fiangonana</string>
@@ -126,7 +126,7 @@
     <string name="reading_texts">Dikan-teny vakiana</string>
     <string name="study_data">Angona fandalinana</string>
     <string name="version_x">Versiona %1$s</string>
-    <string name="about_tools">Tabilaon’ny laharan’ny andininy: PySword 0.2.8 (fahazoan-dalana MIT). Kaodin’ny fampiharana: Kotlin, Jetpack Compose (Apache 2.0).</string>
+    <string name="about_tools">Tabilaon’ny laharan’ny andininy: PySword 0.2.8 (fahazoan-dalana MIT). Endri-tsoratra: Gentium Book Plus (© SIL International) sy Cormorant SC (© the Cormorant Project Authors), SIL Open Font License 1.1, ao amin’ny fampiharana ny lahatsoratry ny fahazoan-dalana (assets/fonts). Kaody: Kotlin, Jetpack Compose (Apache 2.0).</string>
 
     <string name="study_title">Teny tany am-boalohany · %1$s</string>
     <string name="study_kjv_note">Manaraka ny fanondroana ao amin’ny King James Version (KJV %1$s) ireo teny ireo, ka mety tsy mifanandrify tsara amin’ny teny malagasy.</string>
@@ -145,6 +145,13 @@
     <string name="set_default">Ataovy Baiboly fampiasa matetika</string>
     <string name="default_set">%1$s no Baiboly fampiasanao matetika izao</string>
     <string name="style_regional">Fitenim-paritra (Tandroy-Mahafaly), mbola drafitra</string>
-    <string name="note_ncl_fr">Nalaina araka ny fahazoan-dalana CC BY-SA 4.0: tsy nampidirina ireo boky deoterokanonika, fanamarihana ary fandaminana; tsy niova ny soratra.</string>
+    <string name="note_ncl_fr">Baiboly katolika (boky 73). Nalaina araka ny fahazoan-dalana CC BY-SA 4.0: tsy nampidirina ny fanamarihana sy ny fandaminana; tsy niova ny soratra.</string>
     <string name="note_tdx">Fitenim-paritra tandroy any atsimon’i Madagasikara. Drafitra navoakan’ny mpandika azy.</string>
+    <string name="catholic_tag">Katolika</string>
+    <string name="deuterocanonical">Boky deoterokanonika (Baiboly katolika)</string>
+    <string name="shown_in">Aseho ao amin’ny %1$s: ao amin’ny Baiboly katolika ihany no misy ity boky ity</string>
+    <string name="note_crampon">Baiboly katolika (boky 73) nadikan’i Augustin Crampon, navoaka tamin’ny 1923.</string>
+    <string name="note_webc">Baiboly katolika (boky 73); Estera sy Daniela araka ny endriny grika.</string>
+    <string name="note_dra">Baiboly katolika (boky 73). Araka ny Vulgata ny laharan’ny salamo: ny salamo 22 eto dia salamo 23 any amin’ny hafa.</string>
+    <string name="theme_device_short">Finday</string>
 </resources>

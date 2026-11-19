@@ -13,11 +13,22 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 | Malagasy | Saontsin’ Añahare (Tandroy) | Regional dialect of southern Madagascar, draft | CC BY-SA 4.0 |
 | French | Louis Segond 1910 | Classic church translation | Public domain |
 | French | Bible J.N. Darby | Word-for-word, close to the original | Public domain |
-| French | Sainte Bible néo-Crampon Libre | Modern French, close to the original | CC BY-SA 4.0 |
+| French | Sainte Bible néo-Crampon Libre ✝ | Modern French, close to the original | CC BY-SA 4.0 |
+| French | Bible Crampon 1923 ✝ | Classic Catholic translation | Public domain |
 | English | King James Version | Word-for-word, classic | Public domain |
 | English | Berean Standard Bible | Modern, close to the original | Public domain |
 | English | World English Bible | Modern, easy to read | Public domain |
 | English | Bible in Basic English | Very simple vocabulary | Public domain |
+| English | World English Bible, Catholic Edition ✝ | Modern, easy to read | Public domain |
+| English | Douay-Rheims 1899 ✝ | Classic Catholic translation (Psalms numbered as in the Vulgate) | Public domain |
+
+✝ Catholic Bibles (73 books): they include Tobit, Judith, 1–2 Maccabees, Wisdom, Sirach, Baruch and the Greek parts of Esther and Daniel, in Catholic order. A free Malagasy Catholic Bible could not be found: the 1938 text has no stated free licence, so it is not included.
+
+**Design.** Vellum and ink by day, warm black and gilt by night; Gentium Book Plus for the text and Cormorant SC small capitals for titles (both SIL Open Font License); chapter openings with a rubricated initial and a gilt fleuron. Screenshots: [docs/screenshots](docs/screenshots) (regenerate with `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*'`).
+
+**Settings at hand.** Theme (light / dark / device) and language (MG / FR / EN) are one tap each, at the top of the side menu and of Settings.
+
+**Study symbol.** The study button shows **א** (Aleph) in books written in Hebrew or Aramaic (the Old Testament) and **α** in books that come down to us in Greek (New Testament and the deuterocanonical books).
 
 The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the reading-text menu (tap the title) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
 

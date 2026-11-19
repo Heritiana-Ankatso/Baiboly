@@ -119,7 +119,13 @@ class ReferenceParserTest {
     }
 
     @Test fun canon() {
-        assertEquals(66, Canon.books.size)
+        assertEquals(73, Canon.books.size)
+        assertEquals(66, Canon.books.count { !it.isDeuterocanonical })
+        // Catholic reading order: Nehemiah -> Tobit; Protestant: Nehemiah -> Esther
+        val catholic = (1..73).associateWith { Canon.chapterCount(it) }
+        assertEquals(67 to 1, Canon.nextChapter(16, 13, catholic))
+        assertEquals(17 to 1, Canon.nextChapter(16, 13, (1..66).associateWith { Canon.chapterCount(it) }))
+        assertEquals(25 to 5, Canon.previousChapter(73, 1, catholic))
         assertEquals(21, Canon.chapterCount(43))
         assertEquals(36, Canon.verseCount(43, 3))
         assertEquals(1 to 2, Canon.nextChapter(1, 1))
@@ -142,5 +148,16 @@ class ReferenceParserTest {
         // "Fil" could be Filipiana or Filemona: the parser asks instead of guessing
         val e = assertIs<ParseError.AmbiguousBook>(ReferenceParser.parse("Fil 4:13").error)
         assertEquals(setOf(50, 57), e.candidates.toSet())
+    }
+
+    @Test fun deuterocanonicalBooks() {
+        assertEquals(listOf(Passage(67, 1, 1, 1)), ok("Tob 1:1"))
+        assertEquals(listOf(Passage(68, 8, 1, 3)), ok("Jdt 8:1-3"))
+        assertEquals(listOf(Passage(70, 7, 1, 1)), ok("2 Mak 7:1"))
+        assertEquals(listOf(Passage(71, 3, 1, 1)), ok("Fahendrena 3:1"))
+        assertEquals(listOf(Passage(72, 1, 1, 1)), ok("Sir 1:1"))
+        assertEquals(listOf(Passage(73, 3, 9, 9)), ok("Baroka 3:9"))
+        assertEquals(listOf(Passage(71, 3, 1, 1)), ok("Sagesse 3:1"))
+        assertIs<ParseError.AmbiguousBook>(ReferenceParser.parse("Mak 1:1").error) // needs 1 or 2
     }
 }

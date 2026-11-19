@@ -49,7 +49,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 5
+DATA_VERSION = 6
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -62,11 +62,31 @@ TRANSLATIONS = [
     ("lsg1910", 2, "fr", "LSG", "Louis Segond 1910", "classic", "ebible", "fraLSG"),
     ("darby_fr", 3, "fr", "JND", "Bible J.N. Darby (français)", "literal", "ebible", "frajnd"),
     ("ncl_fr", 9, "fr", "NCL", "Sainte Bible néo-Crampon Libre", "faithful-modern", "ebible", "francl"),
+    ("crampon", 11, "fr", "CRA", "Bible Crampon 1923", "classic", "crosswire", "FreCrampon"),
     ("kjv", 5, "en", "KJV", "King James Version", "literal", "ebible", "eng-kjv2006"),
     ("bsb", 6, "en", "BSB", "Berean Standard Bible", "faithful-modern", "ebible", "engbsb"),
     ("web", 7, "en", "WEB", "World English Bible", "accessible", "ebible", "eng-web"),
     ("bbe", 8, "en", "BBE", "Bible in Basic English", "simplified", "ebible", "engBBE"),
+    ("webc", 12, "en", "WEBC", "World English Bible, Catholic Edition", "accessible", "ebible", "eng-web-c"),
+    ("dra", 13, "en", "DRA", "Douay-Rheims 1899", "classic", "ebible", "engDRA"),
 ]
+
+# Catholic Bibles: they keep the deuterocanonical books (ids 67-73) and the
+# Greek additions to Esther and Daniel. All other texts keep the 66 books.
+CATHOLIC = {"ncl_fr", "crampon", "webc", "dra"}
+
+# Deuterocanonical books, numbered after the 66: 67 Tobit, 68 Judith,
+# 69 1 Maccabees, 70 2 Maccabees, 71 Wisdom, 72 Sirach, 73 Baruch.
+DEUTERO = [  # (id, osis, Malagasy (Catholic usage), French, English, vpl code)
+    (67, "Tob", "Tobia", "Tobie", "Tobit", "TOB"),
+    (68, "Jdt", "Jodita", "Judith", "Judith", "JDT"),
+    (69, "1Macc", "1 Makabeo", "1 Maccabées", "1 Maccabees", "1MA"),
+    (70, "2Macc", "2 Makabeo", "2 Maccabées", "2 Maccabees", "2MA"),
+    (71, "Wis", "Fahendrena", "Sagesse", "Wisdom", "WIS"),
+    (72, "Sir", "Eklesiastika", "Siracide", "Sirach", "SIR"),
+    (73, "Bar", "Baroka", "Baruch", "Baruch", "BAR"),
+]
+BOOK_COUNT = 73
 
 # eBible texts that are not public domain but whose open licence the user has
 # accepted. The licence text on the publisher's copyright page is checked at
@@ -171,11 +191,10 @@ class ZText:
     def iterate(self):
         """Yields (book 1..66, chapter, verse, raw) where verse 0 is a heading
         entry (book or chapter intro)."""
-        book_no = 0
         for t in ("ot", "nt"):
             i = 2
-            for (_name, _osis, counts) in self.canon[t]:
-                book_no += 1
+            for (_name, osis, counts) in self.canon[t]:
+                book_no = OSIS_IDS[osis]
                 yield book_no, 0, 0, self._entry(t, i)
                 i += 1
                 for ch, n in enumerate(counts, start=1):
@@ -184,6 +203,11 @@ class ZText:
                     for v in range(1, n + 1):
                         yield book_no, ch, v, self._entry(t, i)
                         i += 1
+
+
+# OSIS book id -> app book id (1..66 in Protestant order, then 67..73)
+OSIS_IDS = {b[1]: i + 1 for i, b in enumerate(CANONS["german"]["ot"] + CANONS["german"]["nt"])}
+OSIS_IDS.update({d[1]: d[0] for d in DEUTERO})
 
 
 def read_zld(zf, base):
@@ -316,14 +340,41 @@ def load_mg1865(offline):
     return verses, headings, book_meta, canonical_titles
 
 
+def load_crosswire_text(mod, offline):
+    """A CrossWire zText Bible other than the Malagasy one (e.g. Crampon 1923)."""
+    path = fetch(CROSSWIRE.format(mod), mod + ".zip", offline)
+    zf = zipfile.ZipFile(path)
+    conf = conf_of(zf)
+    check_crosswire(mod, conf)
+    v11n = conf.get("Versification", "KJV").lower()
+    zt = ZText(zf, conf["DataPath"], CANONS[v11n])
+    verses, headings, pending = {}, [], []
+    for book, ch, v, raw in zt.iterate():
+        if v == 0:
+            if ch > 0:
+                pending.extend(clean_osis(raw)[1])
+            continue
+        text, hs, _ = clean_osis(raw)
+        for h in pending + hs:
+            headings.append((book, ch, v, h))
+        pending = []
+        if text:
+            verses[(book, ch, v)] = text
+    return verses, headings
+
+
 # ---------------------------------------------------------------------------
 # eBible VPL texts
 # ---------------------------------------------------------------------------
-def load_vpl(tid, offline):
+def load_vpl(tid, offline, catholic=False):
     path = fetch(EBIBLE.format(tid + "_vpl.zip"), tid + "_vpl.zip", offline)
     zf = zipfile.ZipFile(path)
     name = [n for n in zf.namelist() if n.endswith("_vpl.txt")][0]
     codes = {c: i + 1 for i, c in enumerate(VPL_CODES)}
+    if catholic:
+        codes.update({d[5]: d[0] for d in DEUTERO})
+        # editions that give Esther and Daniel in their Greek form (with the additions)
+        codes.update({"ESG": 17, "DAG": 27, "DNG": 27})
     verses = {}
     for line in zf.read(name).decode("utf-8-sig").splitlines():
         m = re.match(r"^(\S+) (\d+):(\d+) ?(.*)$", line)
@@ -332,6 +383,7 @@ def load_vpl(tid, offline):
         text = m.group(4)
         text = re.sub(r"[\[\]]", "", text)  # KJV italics brackets
         text = text.replace("\u00ad", "")  # soft hyphens break word search
+        text = text.replace("¶", "")  # KJV paragraph marks
         text = collapse(text)
         if text:
             verses[(codes[m.group(1)], int(m.group(2)), int(m.group(3)))] = text
@@ -565,7 +617,7 @@ def write_canon_kt(books, mg_counts):
     lines.append("")
     lines.append("    /** Verses per chapter in the Malagasy 1865 numbering, one string per book. */")
     lines.append("    val verseCounts: List<IntArray> = listOf(")
-    for b in range(1, 67):
+    for b in range(1, BOOK_COUNT + 1):
         lines.append("        intArrayOf(" + ", ".join(str(n) for n in mg_counts[b]) + "),")
     lines.append("    )")
     lines.append("}")
@@ -598,24 +650,41 @@ def build(offline, openscriptures=True):
     print("Malagasy 1865")
     mg, mg_headings, book_meta, canonical_titles = load_mg1865(offline)
     texts = {"mg1865": mg}
+    headings_of = {"mg1865": mg_headings}
     for tid, num, lang, short, name, style, kind, src in TRANSLATIONS:
         if kind == "ebible":
             print(tid)
             check_ebible(src, catalogue)
-            texts[tid] = load_vpl(src, offline)
+            texts[tid] = load_vpl(src, offline, catholic=tid in CATHOLIC)
+        elif kind == "crosswire" and tid != "mg1865":
+            print(tid)
+            texts[tid], headings_of[tid] = load_crosswire_text(src, offline)
 
     abbr = load_or_create_abbreviations(book_meta)
     mg_counts_map = chapter_counts(mg)
-    # Keep the 66-book canon only. néo-Crampon also carries the Greek additions to
-    # Esther (11-16) and Daniel 13-14 (Susanna, Bel), which are left out. Other
-    # chapter-count differences (Malachi 4, Joel 4...) are versification, not extra text.
-    DEUTERO_CHAPTERS = {"ncl_fr": {(17, c) for c in range(11, 17)} | {(27, 13), (27, 14)}}
-    for tid, drop in DEUTERO_CHAPTERS.items():
-        texts[tid] = {k: t for k, t in texts[tid].items() if (k[0], k[1]) not in drop}
+    # Only the Catholic texts keep books 67-73; chapter-count differences elsewhere
+    # (Malachi 4, Joel 4, Greek Esther 11-16, Daniel 13-14) are each text's own numbering.
+    for tid in texts:
+        if tid not in CATHOLIC:
+            texts[tid] = {k: t for k, t in texts[tid].items() if k[0] <= 66}
 
-    mg_counts = {b: [mg_counts_map[b][c] for c in sorted(mg_counts_map[b])] for b in range(1, 67)}
+    # Reference verse counts for the parser: Malagasy 1865 for the 66 books, the
+    # World English Bible Catholic Edition for the deuterocanonical books.
+    webc_counts = chapter_counts(texts["webc"])
+    for d in DEUTERO:
+        mg_counts_map[d[0]] = webc_counts[d[0]]
+    mg_counts = {b: [mg_counts_map[b][c] for c in sorted(mg_counts_map[b])] for b in range(1, BOOK_COUNT + 1)}
+    deutero = {d[0]: d for d in DEUTERO}
     books = []
-    for b in range(1, 67):
+    for b in range(1, BOOK_COUNT + 1):
+        if b in deutero:
+            d = deutero[b]
+            a = abbr[b]
+            aliases = [x for x in (a.get("aliases") or "").split("|") if x]
+            books.append(dict(id=b, osis=d[1], name_mg=a["name_mg"], abbr_mg=a["abbr_mg"],
+                              confirmed=a["status"] == "confirmed", aliases=aliases,
+                              name_fr=d[3], name_en=d[4], chapters=len(mg_counts[b])))
+            continue
         meta = book_meta[b]
         osis = CANONS["german"]["ot" if b <= 39 else "nt"][(b - 1) if b <= 39 else (b - 40)][1]
         a = abbr[b]
@@ -659,7 +728,7 @@ def build(offline, openscriptures=True):
         CREATE TABLE translation(id TEXT PRIMARY KEY, num INTEGER NOT NULL UNIQUE, lang TEXT NOT NULL,
             short_name TEXT NOT NULL, name TEXT NOT NULL, style TEXT NOT NULL, style_note TEXT,
             licence TEXT NOT NULL, source TEXT NOT NULL, notes TEXT, sort INTEGER NOT NULL,
-            file TEXT NOT NULL, fts_prebuilt INTEGER NOT NULL);
+            file TEXT NOT NULL, fts_prebuilt INTEGER NOT NULL, catholic INTEGER NOT NULL);
         CREATE TABLE book(id INTEGER PRIMARY KEY, osis TEXT NOT NULL, name_mg TEXT NOT NULL, abbr_mg TEXT NOT NULL,
             abbr_confirmed INTEGER NOT NULL, name_fr TEXT NOT NULL, name_en TEXT NOT NULL, chapters INTEGER NOT NULL);
     """)
@@ -675,8 +744,13 @@ def build(offline, openscriptures=True):
         lic = lic_by_src[src]
         notes = None
         if tid == "ncl_fr":
-            notes = ("Adapted for this app under CC BY-SA 4.0: deuterocanonical books, notes and formatting "
-                     "left out; the text itself is unchanged.")
+            notes = "Catholic Bible (73 books). Adapted under CC BY-SA 4.0: notes and formatting left out; the text itself is unchanged."
+        if tid == "crampon":
+            notes = "Catholic Bible (73 books), canon Augustin Crampon, 1923 edition."
+        if tid == "webc":
+            notes = "Catholic Bible (73 books); Esther and Daniel in their Greek form."
+        if tid == "dra":
+            notes = "Catholic Bible (73 books). Psalms numbered as in the Vulgate: Psalm 22 here is Psalm 23 elsewhere."
         if tid == "tdx":
             notes = "Tandroy dialect of southern Madagascar. Draft version published by its translator."
         if tid == "darby_fr":
@@ -685,8 +759,9 @@ def build(offline, openscriptures=True):
             notes = "Psalm titles are numbered as verse 1 in this source (German versification)."
         primary = tid == "mg1865"
         fname = "bible.db" if primary else f"text-{tid}.db"
-        db.execute("INSERT INTO translation VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                   (tid, num, lang, short, name, style, STYLE_NOTE[style], lic[4], lic[3], notes, sort, fname, 1))
+        db.execute("INSERT INTO translation VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                   (tid, num, lang, short, name, style, STYLE_NOTE[style], lic[4], lic[3], notes, sort, fname, 1,
+                    int(tid in CATHOLIC)))
         if primary:
             tdb = db
         else:
@@ -700,12 +775,13 @@ def build(offline, openscriptures=True):
         tdb.executemany("INSERT INTO verse VALUES(?,?,?,?,?,?,?)", rows)
         tdb.executemany("INSERT INTO verse_fts(docid, text_norm) VALUES(?,?)", [(r[0], r[6]) for r in rows])
         tdb.execute("INSERT INTO verse_fts(verse_fts) VALUES('optimize')")
-        if primary:
-            seq = {}
-            for (b, c, v, h) in mg_headings:
-                k = (b, c, v)
-                seq[k] = seq.get(k, 0) + 1
-                tdb.execute("INSERT INTO heading VALUES('mg1865',?,?,?,?,?)", (b, c, v, seq[k], h))
+        seq = {}
+        for (b, c, v, h) in headings_of.get(tid, []):
+            if (b, c, v) not in texts[tid]:
+                continue
+            k = (b, c, v)
+            seq[k] = seq.get(k, 0) + 1
+            tdb.execute("INSERT INTO heading VALUES(?,?,?,?,?,?)", (tid, b, c, v, seq[k], h))
         cc = chapter_counts(texts[tid])
         tdb.executemany("INSERT INTO chapter_info VALUES(?,?,?,?)",
                         [(tid, b, c, n) for b in cc for c, n in cc[b].items()])

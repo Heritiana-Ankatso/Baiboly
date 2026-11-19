@@ -90,7 +90,7 @@ fun BrowseSheet(vm: AppViewModel, onDismiss: () -> Unit) {
             val b = book
             val c = chapter
             when {
-                b == null -> BookGrid(lang) { book = it }
+                b == null -> BookGrid(vm.availableBooks) { book = it }
                 c == null -> ChapterGrid(vm.chapterCount(b)) { chapter = it; selected = emptySet() }
                 else -> {
                     var verses by remember(b, c, vm.translationId) { mutableStateOf<List<VerseText>>(emptyList()) }
@@ -123,7 +123,7 @@ fun BrowseSheet(vm: AppViewModel, onDismiss: () -> Unit) {
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.width(36.dp),
                                 )
-                                Text(v.text, fontFamily = FontFamily.Serif)
+                                Text(v.text, fontFamily = TextSerif)
                             }
                         }
                     }
@@ -166,7 +166,8 @@ private fun Crumb(label: String, enabled: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun BookGrid(lang: String, onBook: (Int) -> Unit) {
+fun BookGrid(available: List<Int>, onBook: (Int) -> Unit) {
+    val books = available.map { Canon.book(it) }
     LazyVerticalGrid(
         modifier = Modifier.testTag("browse-books"),
         columns = GridCells.Adaptive(76.dp),
@@ -175,9 +176,11 @@ fun BookGrid(lang: String, onBook: (Int) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) { SectionLabel(stringResource(R.string.old_testament)) }
-        items(Canon.books.filter { it.isOldTestament }, key = { it.id }) { b -> Key(b.shortLabel, Modifier.testTag("browse-book:${b.id}"), tonal = false) { onBook(b.id) } }
+        items(books.filter { it.isOldTestament }, key = { it.id }) { b ->
+            Key(b.shortLabel + if (b.isDeuterocanonical) " ✦" else "", Modifier.testTag("browse-book:${b.id}"), tonal = false) { onBook(b.id) }
+        }
         item(span = { GridItemSpan(maxLineSpan) }) { SectionLabel(stringResource(R.string.new_testament)) }
-        items(Canon.books.filter { !it.isOldTestament }, key = { it.id }) { b -> Key(b.shortLabel, Modifier.testTag("browse-book:${b.id}"), tonal = true) { onBook(b.id) } }
+        items(books.filter { !it.isOldTestament }, key = { it.id }) { b -> Key(b.shortLabel, Modifier.testTag("browse-book:${b.id}"), tonal = true) { onBook(b.id) } }
     }
 }
 

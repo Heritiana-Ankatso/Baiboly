@@ -8,7 +8,7 @@ import mg.baiboly.core.bible.Canon
  */
 data class Passage(val book: Int, val chapter: Int, val verseStart: Int = 0, val verseEnd: Int = verseStart) {
     init {
-        require(book in 1..66) { "book $book" }
+        require(book in 1..Canon.BOOK_COUNT) { "book $book" }
         require(verseStart >= 0 && verseEnd >= verseStart) { "range $verseStart-$verseEnd" }
     }
 

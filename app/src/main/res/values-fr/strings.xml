@@ -3,8 +3,8 @@
     <string name="menu">Menu</string>
     <string name="search">Rechercher</string>
     <string name="study_mode">Étude des langues originales (α)</string>
-    <string name="study_mode_on">α activé : touchez un numéro de verset pour l’étudier</string>
-    <string name="study_mode_off">α désactivé</string>
+    <string name="study_mode_on">%1$s activé : touchez un numéro de verset pour étudier ses mots d’origine</string>
+    <string name="study_mode_off">%1$s désactivé</string>
     <string name="choose_translation">Texte de lecture</string>
 
     <string name="start_list">Commencer une liste</string>
@@ -101,7 +101,7 @@
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
-    <string name="interface_language">Langue de l’interface</string>
+    <string name="interface_language">Langue</string>
 
     <string name="backup_intro">Enregistrez listes, notes, surlignages et historique dans un fichier, ou restaurez-les depuis un fichier. Rien ne quitte le téléphone sauf si vous déplacez le fichier vous-même.</string>
     <string name="export_backup">Exporter une sauvegarde</string>
@@ -137,12 +137,19 @@
     <string name="style_simplified">Vocabulaire très simple (850 mots de base)</string>
     <string name="note_mg1865">Dans cette source, les titres des psaumes sont numérotés verset 1.</string>
     <string name="note_darby_fr">Dans l’Ancien Testament, la numérotation suit par endroits la Bible hébraïque.</string>
-    <string name="about_tools">Tables de versification : PySword 0.2.8 (licence MIT). Code de l’application : Kotlin, Jetpack Compose (Apache 2.0).</string>
+    <string name="about_tools">Tables de versification : PySword 0.2.8 (licence MIT). Polices : Gentium Book Plus (© SIL International) et Cormorant SC (© the Cormorant Project Authors), SIL Open Font License 1.1, textes de licence dans l’application (assets/fonts). Code : Kotlin, Jetpack Compose (Apache 2.0).</string>
     <string name="default_bible">Bible par défaut</string>
     <string name="default_bible_hint">La Bible avec laquelle l’application s’ouvre. Vous pouvez aussi toucher ☆ dans le menu des textes (touchez le titre en haut).</string>
     <string name="set_default">Choisir comme Bible par défaut</string>
     <string name="default_set">%1$s est maintenant votre Bible par défaut</string>
     <string name="style_regional">Malgache régional (tandroy-mahafaly), version provisoire</string>
-    <string name="note_ncl_fr">Adaptée sous licence CC BY-SA 4.0 : livres deutérocanoniques, notes et mise en forme non repris ; le texte lui-même est inchangé.</string>
+    <string name="note_ncl_fr">Bible catholique (73 livres). Adaptée sous licence CC BY-SA 4.0 : notes et mise en forme non reprises ; le texte lui-même est inchangé.</string>
     <string name="note_tdx">Dialecte tandroy du sud de Madagascar. Version provisoire publiée par son traducteur.</string>
+    <string name="catholic_tag">Catholique</string>
+    <string name="deuterocanonical">Livre deutérocanonique (Bibles catholiques)</string>
+    <string name="shown_in">Affiché dans %1$s : ce livre n’est que dans les Bibles catholiques</string>
+    <string name="note_crampon">Bible catholique (73 livres) du chanoine Augustin Crampon, édition de 1923.</string>
+    <string name="note_webc">Bible catholique (73 livres) ; Esther et Daniel dans leur forme grecque.</string>
+    <string name="note_dra">Bible catholique (73 livres). Psaumes numérotés selon la Vulgate : le psaume 22 ici est le psaume 23 ailleurs.</string>
+    <string name="theme_device_short">Appareil</string>
 </resources>

@@ -35,7 +35,7 @@ class FreshInstallTest {
         assertEquals("mg1865", vm.defaultTranslationId)
         assertEquals("mg1865", vm.translationId)
         rule.onNodeWithText("Hijery").assertExists()            // Browse
-        rule.onNodeWithText("Hanomboka lisitra").assertExists() // Start a list
+        rule.onNodeWithText("Hanomboka lisitra", substring = true).assertExists() // Start a list
     }
 
     /** Regression: opening Fitahirizana (Backup) in Malagasy crashed (file picker could not find the activity). */

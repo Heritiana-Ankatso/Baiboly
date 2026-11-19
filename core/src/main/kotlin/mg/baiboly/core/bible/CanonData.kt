@@ -70,6 +70,13 @@ internal object CanonData {
         BookInfo(64, "3John", "3 Jaona", "Jao", false, listOf(), "3 Jean", "3 John"),
         BookInfo(65, "Jude", "Joda", "Joda", false, listOf("Jod", "Jud"), "Jude", "Jude"),
         BookInfo(66, "Rev", "Apokalypsy", "Apok", false, listOf("Apo", "Apokalipsy"), "Apocalypse", "Revelation"),
+        BookInfo(67, "Tob", "Tobia", "Tob", false, listOf("Tôbia", "Tobita"), "Tobie", "Tobit"),
+        BookInfo(68, "Jdt", "Jodita", "Jdt", false, listOf("Jiodita"), "Judith", "Judith"),
+        BookInfo(69, "1Macc", "1 Makabeo", "Mak", false, listOf(), "1 Maccabées", "1 Maccabees"),
+        BookInfo(70, "2Macc", "2 Makabeo", "Mak", false, listOf(), "2 Maccabées", "2 Maccabees"),
+        BookInfo(71, "Wis", "Fahendrena", "Fah", false, listOf(), "Sagesse", "Wisdom"),
+        BookInfo(72, "Sir", "Eklesiastika", "Ekl", false, listOf("Sir", "Sirasida", "Ekleziastika"), "Siracide", "Sirach"),
+        BookInfo(73, "Bar", "Baroka", "Bar", false, listOf(), "Baruch", "Baruch"),
     )
 
     /** Verses per chapter in the Malagasy 1865 numbering, one string per book. */
@@ -140,5 +147,12 @@ internal object CanonData {
         intArrayOf(15),
         intArrayOf(25),
         intArrayOf(20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 17, 18, 20, 8, 21, 18, 24, 21, 15, 27, 21),
+        intArrayOf(22, 14, 17, 21, 22, 17, 18, 21, 6, 12, 19, 22, 18, 15),
+        intArrayOf(16, 28, 10, 15, 24, 21, 32, 36, 14, 23, 23, 20, 20, 19, 13, 25),
+        intArrayOf(64, 70, 60, 61, 68, 63, 50, 32, 73, 89, 74, 53, 53, 49, 41, 24),
+        intArrayOf(36, 32, 40, 50, 27, 31, 42, 36, 29, 38, 38, 45, 26, 46, 39),
+        intArrayOf(16, 24, 19, 20, 23, 25, 30, 21, 18, 21, 26, 27, 19, 31, 19, 29, 21, 25, 22),
+        intArrayOf(30, 18, 31, 31, 15, 37, 36, 19, 18, 31, 34, 18, 26, 27, 20, 30, 32, 33, 30, 31, 28, 27, 27, 34, 26, 29, 30, 26, 28, 25, 31, 24, 33, 26, 20, 26, 31, 34, 35, 30, 24, 25, 33, 23, 26, 20, 25, 25, 16, 29, 30),
+        intArrayOf(22, 35, 37, 37, 9, 73),
     )
 }

@@ -20,7 +20,14 @@ data class BookInfo(
     /** Leading book number (1 Samoela -> 1), or null. */
     val number: Int? = Regex("^([1-3])\\s").find(nameMg)?.groupValues?.get(1)?.toInt()
 
-    val isOldTestament: Boolean get() = id <= 39
+    /** Tobit, Judith, 1-2 Maccabees, Wisdom, Sirach, Baruch: only in Catholic Bibles. */
+    val isDeuterocanonical: Boolean get() = id >= 67
+
+    /** Written in Hebrew or Aramaic (the deuterocanonical books come down to us in Greek). */
+    val isOldTestament: Boolean get() = id <= 39 || isDeuterocanonical
+
+    /** Hebrew/Aramaic original (study symbol א) rather than Greek (α). */
+    val isHebrewOriginal: Boolean get() = id <= 39
 
     /** Short label used on chips: "Jao", "2 Tim". */
     val shortLabel: String

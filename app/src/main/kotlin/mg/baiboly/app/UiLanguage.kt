@@ -16,7 +16,7 @@ object UiLanguage {
 
     /** Malagasy unless the user chooses otherwise ("" = same as the phone). */
     const val DEFAULT = "mg"
-    val choices = listOf("", "mg", "fr", "en")
+    val choices = listOf("mg", "fr", "en")
 
     fun current(context: Context): String =
         context.getSharedPreferences("app_state", Context.MODE_PRIVATE).getString(KEY, DEFAULT) ?: DEFAULT

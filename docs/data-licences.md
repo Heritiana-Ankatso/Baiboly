@@ -9,10 +9,13 @@ Every source below passed the automatic licence check in `tools/build_data.py` (
 | eBible.org fraLSG | Louis Segond 1910 | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/fraLSG_vpl.zip | http://ebible.org/fraLSG/ |
 | eBible.org frajnd | Bible J.N. Darby | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/frajnd_vpl.zip | http://ebible.org/frajnd/ |
 | eBible.org francl | Sainte Bible néo-Crampon Libre | CC BY-SA 4.0, © 2022 Fraternité de Tibériade (licence text checked on the publisher's copyright page) | https://ebible.org/Scriptures/francl_vpl.zip | http://eBible.org/francl/ |
+| CrossWire SWORD module FreCrampon | La Bible Augustin Crampon 1923 | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/FreCrampon.zip | https://fr.wikisource.org/wiki/Bible_Crampon_1923 |
 | eBible.org eng-kjv2006 | King James (Authorized) Version | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-kjv2006_vpl.zip | http://ebible.org/eng-kjv2006/ |
 | eBible.org engbsb | Berean Standard Bible | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/engbsb_vpl.zip | http://ebible.org/engbsb/ |
 | eBible.org eng-web | World English Bible Classic | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-web_vpl.zip | http://ebible.org/eng-web/ |
 | eBible.org engBBE | Bible in Basic English | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/engBBE_vpl.zip | http://ebible.org/engBBE/ |
+| eBible.org eng-web-c | World English Bible (Catholic) | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-web-c_vpl.zip | http://ebible.org/eng-web-c/ |
+| eBible.org engDRA | Douay-Rheims 1899 | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/engDRA_vpl.zip | http://ebible.org/engDRA/ |
 | eBible.org eng-kjv2006 (USFM) | King James Version with Strong's numbers | Public Domain (eBible.org catalogue + about page) | https://ebible.org/Scriptures/eng-kjv2006_usfm.zip |  |
 | CrossWire SWORD module StrongsGreek | Strong's Greek Bible Dictionary | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/StrongsGreek.zip | http://www.bf.org/ |
 | CrossWire SWORD module StrongsHebrew | Strong's Hebrew Bible Dictionary | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/StrongsHebrew.zip | http://www.bf.org/ |

@@ -46,6 +46,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.border
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -260,11 +262,12 @@ fun Key(
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
+    val gold = LocalOrnament.current.gold
     val bg = when {
         primary && enabled -> MaterialTheme.colorScheme.primary
         primary -> MaterialTheme.colorScheme.surfaceVariant
         tonal -> MaterialTheme.colorScheme.secondaryContainer
-        else -> MaterialTheme.colorScheme.surfaceContainerHigh
+        else -> MaterialTheme.colorScheme.surfaceContainerLowest
     }
     val fg = when {
         primary && enabled -> MaterialTheme.colorScheme.onPrimary
@@ -277,13 +280,14 @@ fun Key(
             .heightIn(min = 52.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(bg)
+            .border(1.dp, if (primary) Color.Transparent else gold.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
             .then(
                 if (enabled) Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick, onClickLabel = contentDescription)
                 else Modifier
             ),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = fg, fontSize = 20.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, maxLines = 1)
+        Text(label, color = fg, fontFamily = TitleSerif, fontSize = 21.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, maxLines = 1)
     }
 }
 

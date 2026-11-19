@@ -82,7 +82,11 @@ fun StudySheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismiss:
                         }
                     }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
                 }
-                Text(stringResource(R.string.study_title, ref.longLabel()), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    studySymbol(book) + "  " + stringResource(R.string.study_title, ref.longLabel()),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = LocalOrnament.current.rubric,
+                )
             }
             when (val p = page) {
                 StudyPage.Words -> WordsPage(vm, book, chapter, verse) { page = StudyPage.Entry(it) }
@@ -132,7 +136,7 @@ private fun WordsPage(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onW
                             )
                         }
                         val head = listOfNotNull(w.lemma, w.translit?.let { if (w.lemma != null) "($it)" else it }).joinToString(" ")
-                        if (head.isNotEmpty()) Text(head, fontFamily = FontFamily.Serif, fontSize = 17.sp)
+                        if (head.isNotEmpty()) Text(head, fontFamily = TextSerif, fontSize = 17.sp)
                     }
                 }
             }
@@ -149,7 +153,7 @@ private fun EntryPage(vm: AppViewModel, strongs: String, onFound: () -> Unit) {
         if (e == null) {
             Text(stringResource(R.string.no_entry, strongs))
         } else {
-            Text(e.lemma ?: e.translit ?: strongs, fontFamily = FontFamily.Serif, fontSize = 30.sp)
+            Text(e.lemma ?: e.translit ?: strongs, fontFamily = TextSerif, fontSize = 30.sp)
             Text(
                 listOfNotNull(e.translit.takeIf { e.lemma != null }, e.pron?.let { "[$it]" }, strongs).joinToString(" · "),
                 style = MaterialTheme.typography.titleSmall,
@@ -187,7 +191,7 @@ private fun FoundPage(vm: AppViewModel, strongs: String, onOpen: (VerseRef) -> U
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f).clickable { onOpen(r) }.testTag("found:${r.book}-${r.chapter}-${r.verse}").padding(vertical = 8.dp)) {
                     Text(p.shortLabel(), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    Text(text, maxLines = 2, overflow = TextOverflow.Ellipsis, fontFamily = FontFamily.Serif, fontStyle = FontStyle.Normal)
+                    Text(text, maxLines = 2, overflow = TextOverflow.Ellipsis, fontFamily = TextSerif, fontStyle = FontStyle.Normal)
                 }
                 IconButton(onClick = { vm.addToList(listOf(p)); vm.message = vm.str(R.string.added_x, p.shortLabel()) }) {
                     Icon(Icons.Filled.Add, stringResource(R.string.add_to_list))

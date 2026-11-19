@@ -55,6 +55,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -88,45 +93,68 @@ fun SideMenu(vm: AppViewModel, close: () -> Unit) {
     var openTestaments by remember { mutableStateOf(setOf(true, false)) } // true = OT, false = NT
     var openBook by remember { mutableStateOf<Int?>(null) }
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
-    ModalDrawerSheet(Modifier.width(320.dp)) {
-        LazyColumn(Modifier.testTag("menu-list"), contentPadding = PaddingValues(vertical = 12.dp)) {
+    val ornament = LocalOrnament.current
+    // Books of the text being read, in its order: a Catholic Bible shows Tobit after Nehemiah, etc.
+    val books = vm.availableBooks.map { Canon.book(it) }
+    ModalDrawerSheet(Modifier.width(320.dp), drawerContainerColor = MaterialTheme.colorScheme.surface) {
+        LazyColumn(Modifier.testTag("menu-list"), contentPadding = PaddingValues(bottom = 16.dp)) {
             item {
-                Text(
-                    stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontFamily = FontFamily.Serif,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-                )
-                Text(
-                    stringResource(R.string.books_of_bible),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp),
-                )
+                Column(Modifier.fillMaxWidth().padding(top = 28.dp, bottom = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("✠", color = ornament.gold, fontSize = 22.sp)
+                    Text(
+                        stringResource(R.string.app_name).uppercase(),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = ornament.rubric,
+                        letterSpacing = 6.sp,
+                    )
+                    Fleuron(symbol = "❦")
+                    Text(
+                        "“Fanilon’ ny tongotro Sy fanazavana ny lalako ny teninao.”",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 28.dp),
+                    )
+                    Text("Salamo 119: 105", style = MaterialTheme.typography.labelSmall, color = ornament.gold, letterSpacing = 1.5.sp,
+                        modifier = Modifier.padding(top = 4.dp))
+                }
+                QuickSettings(vm, "menu")
+                GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+                SectionTitle(stringResource(R.string.books_of_bible))
             }
             for (ot in listOf(true, false)) {
                 item(key = "t$ot") {
                     MenuRow(
                         stringResource(if (ot) R.string.old_testament else R.string.new_testament),
                         expanded = ot in openTestaments,
+                        heading = true,
                     ) { openTestaments = if (ot in openTestaments) openTestaments - ot else openTestaments + ot; openBook = null }
                 }
                 if (ot in openTestaments) {
-                    items(Canon.books.filter { it.isOldTestament == ot }, key = { "b${it.id}" }) { b ->
+                    items(books.filter { it.isOldTestament == ot }, key = { "b${it.id}" }) { b ->
                         Column {
-                            MenuRow(b.name(lang), indent = 16.dp, expanded = openBook == b.id, tag = "menu-book:${b.id}") {
-                                openBook = if (openBook == b.id) null else b.id
-                            }
+                            MenuRow(
+                                b.name(lang) + if (b.isDeuterocanonical) "  ✦" else "",
+                                indent = 16.dp, expanded = openBook == b.id, tag = "menu-book:${b.id}",
+                            ) { openBook = if (openBook == b.id) null else b.id }
                             if (openBook == b.id) {
                                 ChapterChips(vm.chapterCount(b.id)) { c -> vm.openChapter(b.id, c); close() }
                             }
                         }
                     }
+                    if (ot && books.any { it.isDeuterocanonical }) item(key = "dc-note") {
+                        Text(
+                            "✦ " + stringResource(R.string.deuterocanonical),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 40.dp, top = 2.dp, bottom = 6.dp),
+                        )
+                    }
                 }
             }
             item {
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 10.dp))
                 val entries = listOf(
                     R.string.history to Screen.History,
                     R.string.notes to Screen.Notes,
@@ -138,7 +166,7 @@ fun SideMenu(vm: AppViewModel, close: () -> Unit) {
                 )
                 entries.forEach { (label, screen) ->
                     NavigationDrawerItem(
-                        label = { Text(stringResource(label)) },
+                        label = { Text(stringResource(label), style = MaterialTheme.typography.titleMedium) },
                         selected = false,
                         onClick = {
                             when (screen) {
@@ -160,13 +188,94 @@ fun SideMenu(vm: AppViewModel, close: () -> Unit) {
 }
 
 @Composable
-private fun MenuRow(label: String, indent: androidx.compose.ui.unit.Dp = 0.dp, expanded: Boolean, tag: String = "", onClick: () -> Unit) {
+private fun SectionTitle(text: String) {
+    Text(
+        text.uppercase(),
+        style = MaterialTheme.typography.labelMedium,
+        color = LocalOrnament.current.gold,
+        letterSpacing = 2.5.sp,
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+    )
+}
+
+/** Theme and language, one tap each: in the menu and at the top of Settings. */
+@Composable
+fun QuickSettings(vm: AppViewModel, where: String) {
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        ChoiceRow(
+            label = stringResource(R.string.theme),
+            options = listOf(
+                ThemeMode.Light to "☀  " + stringResource(R.string.theme_light),
+                ThemeMode.Dark to "☾  " + stringResource(R.string.theme_dark),
+                ThemeMode.System to "◐  " + stringResource(R.string.theme_device_short),
+            ),
+            selected = vm.theme,
+            tag = "$where-theme",
+        ) { vm.changeTheme(it) }
+        ChoiceRow(
+            label = stringResource(R.string.interface_language),
+            options = listOf("mg" to "MG", "fr" to "FR", "en" to "EN"),
+            selected = vm.uiLanguage,
+            tag = "$where-ui-lang",
+        ) { vm.chooseUiLanguage(it) }
+    }
+}
+
+/** A row of mutually exclusive choices, engraved style: gilt outline, oxblood when chosen. */
+@Composable
+fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, tag: String, onSelect: (T) -> Unit) {
+    val gold = LocalOrnament.current.gold
+    Column {
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.sp)
+        Row(
+            Modifier.fillMaxWidth().padding(top = 4.dp).border(1.dp, gold.copy(alpha = 0.8f), RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)),
+        ) {
+            options.forEachIndexed { i, (value, text) ->
+                val on = value == selected
+                Box(
+                    Modifier.weight(1f).heightIn(min = 44.dp)
+                        .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
+                        .clickable { onSelect(value) }
+                        .testTag("$tag:$value"),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                    )
+                }
+                if (i < options.lastIndex) Box(Modifier.width(1.dp).heightIn(min = 44.dp).background(gold.copy(alpha = 0.5f)))
+            }
+        }
+    }
+}
+
+@Composable
+private fun MenuRow(
+    label: String,
+    indent: androidx.compose.ui.unit.Dp = 0.dp,
+    expanded: Boolean,
+    tag: String = "",
+    heading: Boolean = false,
+    onClick: () -> Unit,
+) {
     Row(
         Modifier.testTag(tag).fillMaxWidth().heightIn(min = 48.dp).clickable(onClick = onClick).padding(start = 24.dp + indent, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, modifier = Modifier.weight(1f), fontWeight = if (expanded) FontWeight.Bold else FontWeight.Normal)
-        Icon(if (expanded) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+        Text(
+            label,
+            modifier = Modifier.weight(1f),
+            style = if (heading) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyLarge,
+            color = if (heading) LocalOrnament.current.rubric else MaterialTheme.colorScheme.onSurface,
+            fontWeight = if (expanded && !heading) FontWeight.Bold else null,
+        )
+        Icon(
+            if (expanded) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight, null,
+            tint = LocalOrnament.current.gold,
+        )
     }
 }
 
@@ -376,7 +485,7 @@ fun SearchScreen(vm: AppViewModel) {
                         }.padding(horizontal = 16.dp, vertical = 10.dp),
                     ) {
                         Text(p.longLabel(lang), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                        Text(annotated, fontFamily = FontFamily.Serif)
+                        Text(annotated, fontFamily = TextSerif)
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                 }
@@ -424,62 +533,56 @@ fun SavedListsScreen(vm: AppViewModel) {
 @Composable
 fun SettingsScreen(vm: AppViewModel) {
     SubScreen(vm, stringResource(R.string.settings)) { padding ->
-        Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(16.dp)) {
-            Text(stringResource(R.string.text_size), style = MaterialTheme.typography.titleMedium)
-            Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12)
-            Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * 1.5f).sp, fontFamily = FontFamily.Serif)
-            Spacer(Modifier.heightIn(min = 16.dp))
-            Text(stringResource(R.string.theme), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
-            listOf(ThemeMode.System to R.string.theme_system, ThemeMode.Light to R.string.theme_light, ThemeMode.Dark to R.string.theme_dark).forEach { (m, label) ->
-                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.changeTheme(m) }, verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(selected = vm.theme == m, onClick = { vm.changeTheme(m) })
-                    Text(stringResource(label))
-                }
+        Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
+            // Theme (light / dark / device) and interface language (MG / FR / EN) first.
+            QuickSettings(vm, "settings")
+            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                Text(stringResource(R.string.text_size), style = MaterialTheme.typography.titleMedium)
+                Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12)
+                Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * 1.55f).sp, fontFamily = TextSerif)
             }
-            Text(stringResource(R.string.default_bible), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
-            Text(
-                stringResource(R.string.default_bible_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            vm.translations.forEach { t ->
-                Row(
-                    Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setDefaultTranslation(t.id) }.testTag("settings-default:${t.id}"),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    RadioButton(selected = vm.defaultTranslationId == t.id, onClick = { vm.setDefaultTranslation(t.id) })
-                    Column {
-                        Text("${t.name} (${t.shortName})")
-                        Text(
-                            styleNote(t) + (translationNote(t)?.let { " · $it" } ?: ""),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                Text(stringResource(R.string.default_bible), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.default_bible_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
+                vm.translations.groupBy { it.lang }.forEach { (lang, ts) ->
+                    Text(
+                        (langName[lang] ?: lang).uppercase(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = LocalOrnament.current.gold,
+                        letterSpacing = 2.sp,
+                        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+                    )
+                    ts.forEach { t ->
+                        Row(
+                            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setDefaultTranslation(t.id) }.testTag("settings-default:${t.id}"),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = vm.defaultTranslationId == t.id, onClick = { vm.setDefaultTranslation(t.id) })
+                            Column {
+                                Text("${t.name} (${t.shortName})", style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    styleNote(t) + (if (t.catholic) " · " + stringResource(R.string.catholic_tag) else "") +
+                                        (translationNote(t)?.let { " · $it" } ?: ""),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
                     }
                 }
-            }
-            Text(
-                stringResource(R.string.translation_note_numbering),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
-            )
-            Text(stringResource(R.string.interface_language), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
-            mg.baiboly.app.UiLanguage.choices.forEach { lang ->
-                val label = when (lang) {
-                    "" -> stringResource(R.string.language_system)
-                    "mg" -> "Malagasy"
-                    "fr" -> "Français"
-                    else -> "English"
-                }
-                val choose = { if (vm.uiLanguage != lang) vm.chooseUiLanguage(lang) }
-                Row(
-                    Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(onClick = choose).testTag("ui-lang:$lang"),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    RadioButton(selected = vm.uiLanguage == lang, onClick = choose)
-                    Text(label)
-                }
+                Text(
+                    stringResource(R.string.translation_note_numbering),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
+                )
             }
         }
     }
@@ -527,7 +630,7 @@ fun AboutScreen(vm: AppViewModel) {
     val version = remember { runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull() ?: "" }
     SubScreen(vm, stringResource(R.string.about)) { padding ->
         Column(Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
-            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium, fontFamily = FontFamily.Serif)
+            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium, fontFamily = TextSerif)
             Text(stringResource(R.string.version_x, version), color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(stringResource(R.string.about_text), modifier = Modifier.padding(vertical = 12.dp))
             Text(stringResource(R.string.reading_texts), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))

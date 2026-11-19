@@ -24,7 +24,7 @@ class DataAcceptanceTest {
     private val bible = BibleRepository(dbs)
 
     @Test fun task2_textPipeline() {
-        assertEquals(66, Canon.books.size)
+        assertEquals(73, Canon.books.size) // 66 + 7 deuterocanonical
         val jn = bible.verses("mg1865", 43, 3, 16, 16).single()
         assertTrue(jn.text.startsWith("Fa toy izao no nitiavan’ Andriamanitra izao tontolo izao"), jn.text)
         val ps1 = bible.chapter("mg1865", 19, 1)
@@ -34,7 +34,15 @@ class DataAcceptanceTest {
         for (t in bible.translations) {
             assertTrue(bible.verses(t.id, 43, 3, 16, 16).single().text.isNotBlank(), t.id)
         }
-        assertEquals(9, bible.translations.size)
+        assertEquals(12, bible.translations.size)
+        // Catholic Bibles: 73 books, deuterocanonical books readable
+        assertEquals(setOf("ncl_fr", "crampon", "webc", "dra"), bible.translations.filter { it.catholic }.map { it.id }.toSet())
+        for (id in listOf("ncl_fr", "crampon", "webc", "dra")) {
+            assertEquals(73, bible.chapterCounts(id).size, id)
+            assertTrue(bible.verses(id, 67, 1, 1, 1).single().text.isNotBlank(), "$id Tobit 1:1")
+        }
+        assertEquals(66, bible.chapterCounts("kjv").size)
+        assertTrue(bible.verses("kjv", 43, 3, 16, 16).single().text.startsWith("For God so loved"), "no ¶ marks")
         assertEquals(listOf("mg1865", "tdx"), bible.translations.filter { it.lang == "mg" }.map { it.id })
         assertTrue(bible.translations.none { it.id == "sbl_fr" })
         assertTrue(bible.verses("ncl_fr", 43, 3, 16, 16).single().text.contains("Dieu a tellement aimé le monde"))
@@ -42,8 +50,9 @@ class DataAcceptanceTest {
         assertEquals(4, bible.chapterCounts("kjv")[39])
         assertEquals(3, bible.chapterCounts("mg1865")[39])
         assertEquals(6, bible.chapter("kjv", 39, 4).verses.size)
-        // néo-Crampon: Greek additions to Esther left out (10 chapters, as in the 66-book canon)
-        assertEquals(10, bible.chapterCounts("ncl_fr")[17])
+        // Catholic Esther keeps the Greek additions (16 chapters); 66-book Bibles have 10
+        assertEquals(16, bible.chapterCounts("ncl_fr")[17])
+        assertEquals(10, bible.chapterCounts("lsg1910")[17])
         // no soft hyphens left in the Tandroy text
         assertTrue(bible.verses("tdx", 43, 3, 16, 16).single().text.none { it == '\u00ad' })
         assertEquals(setOf("mg", "fr", "en"), bible.translations.map { it.lang }.toSet())

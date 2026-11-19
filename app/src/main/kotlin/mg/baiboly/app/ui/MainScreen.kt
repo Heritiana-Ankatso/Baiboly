@@ -60,7 +60,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -75,6 +76,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -187,24 +190,21 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
                     },
                     onNoteTap = { n -> noteDraft = NoteDraft(n.passage, n.text, n.id) },
                 )
-                SmallFloatingActionButton(
-                    onClick = { vm.previousChapter() },
-                    modifier = Modifier.align(Alignment.BottomStart).padding(12.dp).size(48.dp).testTag("prev-chapter"),
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter)) }
-                SmallFloatingActionButton(
-                    onClick = { vm.nextChapter() },
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp).size(48.dp).testTag("next-chapter"),
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter)) }
+                ChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter),
+                    Modifier.align(Alignment.BottomStart).padding(14.dp).testTag("prev-chapter")) { vm.previousChapter() }
+                ChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter),
+                    Modifier.align(Alignment.BottomEnd).padding(14.dp).testTag("next-chapter")) { vm.nextChapter() }
                 if (vm.isAway) {
                     ExtendedFloatingActionButton(
                         onClick = { vm.backToMyPlace() },
-                        modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp).heightIn(min = 48.dp).testTag("back-to-place"),
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 74.dp).heightIn(min = 48.dp).testTag("back-to-place"),
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     ) {
-                        Text(stringResource(R.string.back_to_my_place) + " · " + (vm.list.currentItem?.passage?.shortLabel() ?: ""))
+                        Text(
+                            stringResource(R.string.back_to_my_place) + "  ·  " + (vm.list.currentItem?.passage?.shortLabel() ?: ""),
+                            style = MaterialTheme.typography.labelLarge,
+                        )
                     }
                 }
             }
@@ -262,47 +262,64 @@ private fun ReaderTopBar(vm: AppViewModel, openMenu: () -> Unit) {
     val focus = vm.location.focus
     val title = if (focus != null && !focus.isWholeChapter && focus.book == vm.location.book && focus.chapter == vm.location.chapter)
         focus.longLabel(lang) else Canon.book(vm.location.book).name(lang) + " " + vm.location.chapter
-    TopAppBar(
-        navigationIcon = { IconButton(onClick = openMenu) { Icon(Icons.Filled.Menu, stringResource(R.string.menu)) } },
-        title = {
-            Box {
-                Column(
-                    Modifier.clip(RoundedCornerShape(8.dp)).clickable { menu = true }.padding(horizontal = 4.dp, vertical = 2.dp)
-                ) {
-                    Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleLarge)
-                    Text(
-                        (t?.shortName ?: "") + " ▾",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+    val gold = LocalOrnament.current.gold
+    Column {
+        CenterAlignedTopAppBar(
+            navigationIcon = { IconButton(onClick = openMenu) { Icon(Icons.Filled.Menu, stringResource(R.string.menu)) } },
+            title = {
+                Box {
+                    Column(
+                        Modifier.clip(RoundedCornerShape(8.dp)).clickable { menu = true }.padding(horizontal = 8.dp, vertical = 2.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleLarge)
+                        Text(
+                            (t?.shortName ?: "") + "  ▾",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = gold,
+                            letterSpacing = 2.sp,
+                        )
+                    }
+                    TranslationMenu(vm, menu, onDismiss = { menu = false })
                 }
-                TranslationMenu(vm, menu, onDismiss = { menu = false })
-            }
-        },
-        actions = {
-            val on = vm.studyMode
-            Box(
-                Modifier.size(48.dp).testTag("alpha").clip(CircleShape)
-                    .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
-                    .clickable {
-                        vm.toggleStudyMode()
-                        vm.message = vm.str(if (!on) R.string.study_mode_on else R.string.study_mode_off)
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    "α",
-                    fontSize = 24.sp,
-                    fontFamily = FontFamily.Serif,
-                    color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            IconButton(onClick = { vm.search(vm.searchQuery, vm.translationId); vm.screen = Screen.Search }) {
-                Icon(Icons.Filled.Search, stringResource(R.string.search))
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
-    )
+            },
+            actions = {
+                StudyButton(vm)
+                IconButton(onClick = { vm.search(vm.searchQuery, vm.translationId); vm.screen = Screen.Search }) {
+                    Icon(Icons.Filled.Search, stringResource(R.string.search))
+                }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+        )
+        GoldRule()
+    }
+}
+
+/** Study symbol: Aleph for the Old Testament (Hebrew and Aramaic), alpha otherwise (Greek). */
+fun studySymbol(book: Int): String = if (Canon.book(book).isHebrewOriginal) "א" else "α"
+
+@Composable
+private fun StudyButton(vm: AppViewModel) {
+    val on = vm.studyMode
+    val symbol = studySymbol(vm.location.book)
+    val gold = LocalOrnament.current.gold
+    Box(
+        Modifier.size(48.dp).testTag("alpha").padding(6.dp).clip(CircleShape)
+            .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
+            .border(1.dp, if (on) Color.Transparent else gold, CircleShape)
+            .clickable {
+                vm.toggleStudyMode()
+                vm.message = if (!on) vm.str(R.string.study_mode_on, symbol) else vm.str(R.string.study_mode_off, symbol)
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            symbol,
+            fontSize = 20.sp,
+            fontFamily = if (symbol == "α") TextSerif else FontFamily.Default,
+            color = if (on) MaterialTheme.colorScheme.onPrimary else gold,
+        )
+    }
 }
 
 @Composable
@@ -313,7 +330,8 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
             Text(
                 langName[lang] ?: lang,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = LocalOrnament.current.gold,
+                letterSpacing = 2.sp,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
             )
             ts.forEach { t ->
@@ -324,7 +342,11 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
                                 t.name,
                                 fontWeight = if (t.id == vm.translationId) FontWeight.Bold else FontWeight.Normal,
                             )
-                            Text(styleNote(t), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                styleNote(t) + if (t.catholic) " · " + stringResource(R.string.catholic_tag) else "",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     },
                     leadingIcon = { Text(t.shortName, style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(52.dp)) },
@@ -367,12 +389,14 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
         // Collapsed to a small handle so reading stays uncluttered.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             TextButton(onClick = onStartList, modifier = Modifier.heightIn(min = 48.dp)) {
-                Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.start_list))
+                Text(
+                    "✚  " + stringResource(R.string.start_list),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    letterSpacing = 1.5.sp,
+                )
             }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
         return
     }
     val state = rememberLazyListState()
@@ -380,7 +404,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
     var menuFor by remember { mutableStateOf<Int?>(null) }
     var listMenu by remember { mutableStateOf(false) }
     var rename by remember { mutableStateOf(false) }
-    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainerLow), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         LazyRow(
             state = state,
             modifier = Modifier.weight(1f),
@@ -392,17 +416,17 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
                 Box {
                     Surface(
                         shape = RoundedCornerShape(24.dp),
-                        color = if (current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        color = if (current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                         contentColor = if (current) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .heightIn(min = 48.dp)
-                            .then(if (current) Modifier else Modifier.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f), RoundedCornerShape(24.dp)))
+                            .then(if (current) Modifier else Modifier.border(1.dp, LocalOrnament.current.gold.copy(alpha = 0.7f), RoundedCornerShape(24.dp)))
                             .clip(RoundedCornerShape(24.dp))
                             .combinedClickable(onClick = { vm.selectItem(i) }, onLongClick = { menuFor = i })
                             .testTag("chip:$i"),
                     ) {
                         Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(item.passage.shortLabel(), fontWeight = if (current) FontWeight.Bold else FontWeight.Medium)
+                            Text(item.passage.shortLabel(), style = MaterialTheme.typography.bodyLarge, fontWeight = if (current) FontWeight.Bold else FontWeight.Normal)
                             if (item.isSide) {
                                 Spacer(Modifier.width(6.dp))
                                 Text(
@@ -410,7 +434,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
                                     style = MaterialTheme.typography.labelSmall,
                                     modifier = Modifier
                                         .background(
-                                            if (current) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.tertiaryContainer,
+                                            if (current) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.secondaryContainer,
                                             RoundedCornerShape(6.dp),
                                         )
                                         .padding(horizontal = 5.dp, vertical = 1.dp),
@@ -447,7 +471,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
             }
         }
     }
-    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+    GoldRule(Modifier.padding(horizontal = 24.dp))
     if (rename) {
         var text by remember { mutableStateOf(list.title) }
         AlertDialog(
@@ -463,7 +487,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
 // ---------------------------------------------------------------- reader
 
 private sealed interface ReaderRow {
-    data class Title(val text: String) : ReaderRow
+    data class Title(val book: String, val chapter: Int) : ReaderRow
     data class Heading(val text: String) : ReaderRow
     data class Verse(val verse: Int, val text: String) : ReaderRow
 }
@@ -481,7 +505,7 @@ private fun Reader(
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
     val rows = remember(ch, lang) {
         if (ch == null) emptyList() else buildList {
-            add(ReaderRow.Title(Canon.book(ch.book).name(lang) + " " + ch.chapter))
+            add(ReaderRow.Title(Canon.book(ch.book).name(lang), ch.chapter))
             for (v in ch.verses) {
                 ch.headings[v.verse]?.forEach { add(ReaderRow.Heading(it)) }
                 add(ReaderRow.Verse(v.verse, v.text))
@@ -524,23 +548,18 @@ private fun Reader(
                     onHorizontalDrag = { change, dx -> total += dx; change.consume() },
                 )
             },
-        contentPadding = PaddingValues(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+        contentPadding = PaddingValues(start = 4.dp, end = 18.dp, top = 4.dp, bottom = 104.dp),
     ) {
         items(rows.size, key = { i -> rows[i].let { r -> if (r is ReaderRow.Verse) "v${r.verse}" else "r$i" } }) { i ->
             when (val r = rows[i]) {
-                is ReaderRow.Title -> Text(
-                    r.text,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontFamily = FontFamily.Serif,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 12.dp, top = 8.dp, bottom = 8.dp),
-                )
+                is ReaderRow.Title -> ChapterHeader(r.book, r.chapter)
                 is ReaderRow.Heading -> Text(
                     r.text,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 52.dp, top = 14.dp, bottom = 4.dp),
+                    color = LocalOrnament.current.rubric,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(start = 40.dp, end = 28.dp, top = 18.dp, bottom = 6.dp),
                 )
                 is ReaderRow.Verse -> VerseRow(
                     verse = r.verse,
@@ -576,20 +595,25 @@ private fun VerseRow(
     onNumberTap: () -> Unit,
     onNoteTap: (Note) -> Unit,
 ) {
+    val ornament = LocalOrnament.current
     val bg = when {
         selected -> MaterialTheme.colorScheme.secondaryContainer
-        focused -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
+        focused -> ornament.focusWash
         else -> Color.Transparent
     }
     val dark = MaterialTheme.colorScheme.background.luminanceApprox() < 0.5f
-    val annotated = remember(text, highlights, dark) {
+    val annotated = remember(text, highlights, dark, verse, textSize, ornament) {
         buildAnnotatedString {
             append(text)
             for ((s, e, colour) in highlights) {
-                val c = Color(colour).copy(alpha = if (dark) 0.38f else 0.55f)
+                val c = Color(colour).copy(alpha = if (dark) 0.34f else 0.55f)
                 val start = (s ?: 0).coerceIn(0, text.length)
                 val end = (e ?: text.length).coerceIn(start, text.length)
                 addStyle(SpanStyle(background = c), start, end)
+            }
+            // A rubricated initial opens each chapter, as in old Bibles.
+            if (verse == 1 && text.isNotEmpty() && text[0].isLetter()) {
+                addStyle(SpanStyle(fontFamily = TitleSerif, fontWeight = FontWeight.Bold, fontSize = (textSize * 1.9f).sp, color = ornament.rubric), 0, 1)
             }
         }
     }
@@ -599,8 +623,12 @@ private fun VerseRow(
             .height(IntrinsicSize.Min)
             .heightIn(min = 48.dp)
             .padding(vertical = 1.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(bg),
+            .clip(RoundedCornerShape(6.dp))
+            .background(bg)
+            .drawBehind {
+                // gilt rule in the margin beside the passage being read
+                if (focused) drawRect(ornament.gold, size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height))
+            },
     ) {
         Box(
             Modifier
@@ -608,36 +636,49 @@ private fun VerseRow(
                 .fillMaxHeight()
                 .clickable(onClick = onNumberTap)
                 .testTag("vnum:$verse")
-                .padding(top = 6.dp, end = 4.dp),
+                .padding(top = (textSize * 0.42f).dp, end = 6.dp),
             contentAlignment = Alignment.TopEnd,
         ) {
             Text(
                 "$verse",
-                fontSize = (textSize * 0.68f).sp,
+                fontSize = (textSize * 0.72f).sp,
+                fontFamily = TitleSerif,
                 fontWeight = FontWeight.Bold,
-                color = if (studyMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = ornament.gold,
                 modifier = if (studyMode) Modifier
-                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp))
-                    .padding(horizontal = 4.dp) else Modifier,
+                    .border(1.dp, ornament.gold, RoundedCornerShape(5.dp))
+                    .padding(horizontal = 5.dp) else Modifier,
             )
         }
         Text(
             annotated,
             fontSize = textSize.sp,
-            lineHeight = (textSize * 1.5f).sp,
-            fontFamily = FontFamily.Serif,
+            lineHeight = (textSize * 1.55f).sp,
+            fontFamily = TextSerif,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .weight(1f)
                 .clickable(onClick = onTap)
                 .testTag("verse:$verse")
-                .padding(start = 6.dp, top = 6.dp, bottom = 6.dp, end = 4.dp),
+                .padding(start = 4.dp, top = 6.dp, bottom = 6.dp, end = 4.dp),
         )
         if (note != null) {
             Box(
                 Modifier.size(48.dp).clickable { onNoteTap(note) },
                 contentAlignment = Alignment.Center,
-            ) { Icon(Icons.Filled.Create, stringResource(R.string.notes), tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(20.dp)) }
+            ) { Icon(Icons.Filled.Create, stringResource(R.string.notes), tint = ornament.gold, modifier = Modifier.size(20.dp)) }
         }
+    }
+}
+
+/** Chapter opening: book name in spaced small capitals, a large numeral, a gilt fleuron. */
+@Composable
+private fun ChapterHeader(book: String, chapter: Int) {
+    val ornament = LocalOrnament.current
+    Column(Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 10.dp, start = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(book.uppercase(), style = MaterialTheme.typography.titleMedium, color = ornament.gold, letterSpacing = 4.sp, textAlign = TextAlign.Center)
+        Text("$chapter", fontFamily = TitleSerif, fontWeight = FontWeight.SemiBold, fontSize = 52.sp, lineHeight = 56.sp, color = ornament.rubric)
+        Fleuron()
     }
 }
 
@@ -645,20 +686,41 @@ private fun Color.luminanceApprox(): Float = 0.2126f * red + 0.7152f * green + 0
 
 // ---------------------------------------------------------------- bottom bars
 
+/** Round chapter button: vellum disc with a gilt edge. */
+@Composable
+private fun ChapterButton(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, modifier: Modifier, onClick: () -> Unit) {
+    val gold = LocalOrnament.current.gold
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = gold,
+        border = androidx.compose.foundation.BorderStroke(1.dp, gold),
+        shadowElevation = 3.dp,
+        modifier = modifier.size(48.dp),
+    ) { Box(contentAlignment = Alignment.Center) { Icon(icon, label) } }
+}
+
 @Composable
 private fun ActionBar(onAdd: () -> Unit, onBrowse: () -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 2.dp) {
-        Row(
-            Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Button(onClick = onAdd, modifier = Modifier.weight(1f).height(56.dp)) {
-                Icon(Icons.Filled.Add, null)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.add), style = MaterialTheme.typography.titleMedium)
-            }
-            FilledTonalButton(onClick = onBrowse, modifier = Modifier.weight(1f).height(56.dp)) {
-                Text(stringResource(R.string.browse), style = MaterialTheme.typography.titleMedium)
+    Surface(color = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
+            GoldRule()
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Button(onClick = onAdd, modifier = Modifier.weight(1f).height(54.dp), shape = RoundedCornerShape(27.dp)) {
+                    Text("✚  " + stringResource(R.string.add), style = MaterialTheme.typography.titleMedium)
+                }
+                OutlinedButton(
+                    onClick = onBrowse,
+                    modifier = Modifier.weight(1f).height(54.dp),
+                    shape = RoundedCornerShape(27.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, LocalOrnament.current.gold),
+                ) {
+                    Text(stringResource(R.string.browse), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                }
             }
         }
     }
@@ -778,7 +840,7 @@ private fun WordSelectDialog(
                     onValueChange = { value = it.copy(text = text) },
                     readOnly = true,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface, fontFamily = FontFamily.Serif, fontSize = 20.sp, lineHeight = 30.sp,
+                        color = MaterialTheme.colorScheme.onSurface, fontFamily = TextSerif, fontSize = 20.sp, lineHeight = 30.sp,
                     ),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 )
