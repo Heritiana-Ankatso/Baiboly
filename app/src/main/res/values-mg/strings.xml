@@ -227,4 +227,6 @@
     <string name="protestant">Protestanta</string>
     <string name="catholic">Katolika</string>
     <string name="tradition_hint">Ny Katolika dia manampy ireo boky deoterokanonika (Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika, Baroka) sy ny dikan-teny katolika.</string>
+    <string name="nav_search">Hitady</string>
+    <string name="nav_dictionary">Rakibolana</string>
 </resources>

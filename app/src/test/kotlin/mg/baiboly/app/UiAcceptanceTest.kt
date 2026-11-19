@@ -88,6 +88,10 @@ class UiAcceptanceTest {
     private fun ready() {
         waitFor { vm.ready && vm.chapter != null }
         if (vm.uiLanguage != "en") vm.chooseUiLanguage("en") // the English labels below
+        // saved settings can outlive a test: start each one from the defaults
+        if (vm.mode != AppMode.Casual) vm.changeMode(AppMode.Casual)
+        if (vm.tradition != Tradition.Protestant) vm.changeTradition(Tradition.Protestant)
+        vm.screen = Screen.Main
         if (!vm.list.isEmpty) {
             val old = vm.list.id
             vm.newList()
@@ -238,6 +242,7 @@ class UiAcceptanceTest {
         ready()
         tag("chapter-title").tap()      // the chapter title opens the books page
         waitFor { vm.screen == Screen.Books }
+        tag("testament:0").tap()        // Old Testament
         tag("books").performScrollToKey(19) // scrolling, not a tap
         tag("book-item:19").tap()       // Salamo
         tag("chapters").assertExists()
@@ -281,15 +286,14 @@ class UiAcceptanceTest {
         waitFor { rule.onAllNodesWithText("Fiteny").fetchSemanticsNodes().isNotEmpty() }
         assertEquals("mg", vm.uiLanguage)
         vm.screen = Screen.Main
-        rule.waitForIdle()
-        rule.onNodeWithText("Vakio").assertExists()           // Read tab
+        waitFor { rule.onAllNodesWithText("Vakio").fetchSemanticsNodes().isNotEmpty() } // Read tab
         rule.onNodeWithText("Tahiry").assertExists()          // Library tab
         assertTrue(vm.str(R.string.default_list_title, "x").startsWith("Fotoam-pivavahana"))
         // after closing and reopening the app
         rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
         rule.activityRule.scenario.recreate()
         waitFor { vm.ready && vm.chapter != null }
-        rule.onNodeWithText("Vakio").assertExists()
+        waitFor { rule.onAllNodesWithText("Vakio").fetchSemanticsNodes().isNotEmpty() }
     }
 
     /** The default Bible is set with one tap on its star; it is what the app opens with. */
@@ -349,6 +353,8 @@ class UiAcceptanceTest {
         rule.waitForIdle()
         tag("listen").assertDoesNotExist()
         tag("nav:Lists").assertExists()
+        vm.openChapter(19, 23)
+        waitFor { vm.chapter?.book == 19 && runCatching { tag("verse:1").assertExists(); true }.getOrDefault(false) }
         tag("verse:1").tap()
         tag("action:To list").assertExists()
     }

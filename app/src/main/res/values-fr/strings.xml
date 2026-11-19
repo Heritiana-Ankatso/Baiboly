@@ -207,7 +207,7 @@
     <string name="mode_study_desc">Mots originaux, renvois, dictionnaires et cartes.</string>
     <string name="choose_mode">Choisir un mode</string>
     <string name="nav_read">Lire</string>
-    <string name="nav_library">Bibliothèque</string>
+    <string name="nav_library">Carnet</string>
     <string name="nav_service">Culte</string>
     <string name="nav_lists">Listes</string>
     <string name="original_words">Mots originaux</string>
@@ -225,4 +225,6 @@
     <string name="protestant">Protestante</string>
     <string name="catholic">Catholique</string>
     <string name="tradition_hint">Catholique ajoute les livres deutérocanoniques (Tobie, Judith, Maccabées, Sagesse, Siracide, Baruch) et les traductions catholiques.</string>
+    <string name="nav_search">Chercher</string>
+    <string name="nav_dictionary">Lexique</string>
 </resources>

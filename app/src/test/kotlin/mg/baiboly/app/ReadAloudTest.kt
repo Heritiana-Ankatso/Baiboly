@@ -43,7 +43,7 @@ class ReadAloudTest {
         shadowOf(tts).onInitListener.onInit(TextToSpeech.SUCCESS)
         // The simulated engine finishes each verse at once, so the service reads on by itself:
         // verse 16, then 17, ... to the end of the chapter, then on into chapter 4.
-        idle { ReadAloud.state.value.chapter == 4 }
+        idle { ReadAloud.state.value.let { it.book > 43 || it.chapter >= 4 } }
         val spoken = shadowOf(tts).spokenTextList
         assertTrue(spoken[0].startsWith("For God so loved the world"), spoken[0])
         assertTrue(spoken[1].startsWith("For God sent not his Son"), spoken[1])
@@ -51,8 +51,8 @@ class ReadAloudTest {
         assertTrue(spoken[21].startsWith("When therefore the Lord knew"), spoken[21]) // John 4:1
         val s = ReadAloud.state.value
         assertTrue(s.active)
-        assertEquals(43, s.book)
-        assertEquals(4, s.chapter)
+        // the simulated engine is instant, so it may already be further on
+        assertTrue(s.book > 43 || (s.book == 43 && s.chapter >= 4), "${s.book}:${s.chapter}")
 
         // pause / resume / stop from the notification or the reading bar
         controller.withIntent(Intent(app, ReadAloudService::class.java).setAction(ReadAloud.ACTION_PAUSE)).startCommand(0, 2)

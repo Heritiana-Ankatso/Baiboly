@@ -217,7 +217,8 @@ fun MainScreen(vm: AppViewModel) {
                     Modifier.align(Alignment.BottomStart).padding(14.dp).testTag("prev-chapter")) { vm.previousChapter() }
                 ChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter),
                     Modifier.align(Alignment.BottomEnd).padding(14.dp).testTag("next-chapter")) { vm.nextChapter() }
-                if (church && vm.isAway) {
+                // Church, and Study after a jump (Found N verses): one tap back to the list passage.
+                if ((church || vm.mode == AppMode.Study) && vm.isAway) {
                     ExtendedFloatingActionButton(
                         onClick = { vm.backToMyPlace() },
                         icon = { Icon(Icons.AutoMirrored.Outlined.Undo, null) },
@@ -296,7 +297,7 @@ private fun ReaderTopBar(vm: AppViewModel) {
     val gold = LocalOrnament.current.gold
     Column {
         TopAppBar(
-            navigationIcon = { ModeBadge(vm) },
+            navigationIcon = { ModeBadge(vm, compact = true) },
             title = {
                 Row(
                     Modifier.clip(RoundedCornerShape(8.dp)).clickable { vm.screen = Screen.Books }

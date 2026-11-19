@@ -98,7 +98,7 @@ fun AppMode.accent(): Color = when (this) {
 
 /** The mode badge, top left of every main page: icon and name; tap to change mode. */
 @Composable
-fun ModeBadge(vm: AppViewModel) {
+fun ModeBadge(vm: AppViewModel, compact: Boolean = false) {
     var open by remember { mutableStateOf(false) }
     Surface(
         onClick = { open = true },
@@ -108,9 +108,12 @@ fun ModeBadge(vm: AppViewModel) {
         modifier = Modifier.padding(start = 8.dp).heightIn(min = 40.dp).testTag("mode-badge"),
     ) {
         Row(Modifier.padding(start = 10.dp, end = 4.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(vm.mode.icon(), null, tint = vm.mode.accent(), modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(vm.mode.label(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface)
+            Icon(vm.mode.icon(), if (compact) vm.mode.label() else null, tint = vm.mode.accent(), modifier = Modifier.size(20.dp))
+            // compact (reader): the title needs the room, so icon only; the name stays for screen readers
+            if (!compact) {
+                Spacer(Modifier.width(6.dp))
+                Text(vm.mode.label(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface)
+            }
             Icon(Icons.Filled.ArrowDropDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         }
     }
@@ -155,7 +158,7 @@ private data class Destination(val screen: Screen, val icon: ImageVector, val la
 private fun destinations(mode: AppMode): List<Destination> = when (mode) {
     AppMode.Casual -> listOf(
         Destination(Screen.Main, Icons.Outlined.AutoStories, R.string.nav_read),
-        Destination(Screen.Search, Icons.Outlined.Search, R.string.search),
+        Destination(Screen.Search, Icons.Outlined.Search, R.string.nav_search),
         Destination(Screen.Library, Icons.Outlined.Bookmarks, R.string.nav_library),
     )
     AppMode.Church -> listOf(
@@ -165,8 +168,8 @@ private fun destinations(mode: AppMode): List<Destination> = when (mode) {
     )
     AppMode.Study -> listOf(
         Destination(Screen.Main, Icons.Outlined.AutoStories, R.string.nav_read),
-        Destination(Screen.Search, Icons.Outlined.Search, R.string.search),
-        Destination(Screen.Dictionary, Icons.Outlined.Translate, R.string.dictionary),
+        Destination(Screen.Search, Icons.Outlined.Search, R.string.nav_search),
+        Destination(Screen.Dictionary, Icons.Outlined.Translate, R.string.nav_dictionary),
         Destination(Screen.Map, Icons.Outlined.Map, R.string.map),
         Destination(Screen.Library, Icons.Outlined.Bookmarks, R.string.nav_library),
     )
@@ -194,7 +197,13 @@ fun AppNavigationBar(vm: AppViewModel) {
                     vm.screen = d.screen
                 },
                 icon = { Icon(d.icon, null) },
-                label = { Text(stringResource(d.label), maxLines = 1) },
+                // five tabs in Study mode: a smaller label so none is cut
+                label = {
+                    Text(
+                        stringResource(d.label), maxLines = 1, softWrap = false,
+                        style = if (items.size > 3) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
+                    )
+                },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = vm.mode.accent(),
                     selectedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -250,8 +259,8 @@ fun BooksScreen(vm: AppViewModel) {
                 val books = vm.availableBooks.map { Canon.book(it) }
                 var testament by remember { mutableIntStateOf(if (Canon.book(vm.location.book).isOldTestament) 0 else 1) }
                 TabRow(selectedTabIndex = testament, containerColor = MaterialTheme.colorScheme.surface) {
-                    Tab(selected = testament == 0, onClick = { testament = 0 }, text = { Text(stringResource(R.string.old_testament)) })
-                    Tab(selected = testament == 1, onClick = { testament = 1 }, text = { Text(stringResource(R.string.new_testament)) })
+                    Tab(selected = testament == 0, onClick = { testament = 0 }, text = { Text(stringResource(R.string.old_testament)) }, modifier = Modifier.testTag("testament:0"))
+                    Tab(selected = testament == 1, onClick = { testament = 1 }, text = { Text(stringResource(R.string.new_testament)) }, modifier = Modifier.testTag("testament:1"))
                 }
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(150.dp),

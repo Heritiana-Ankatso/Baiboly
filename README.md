@@ -35,7 +35,7 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 
 ✝ Catholic Bibles (73 books): they include Tobit, Judith, 1–2 Maccabees, Wisdom, Sirach, Baruch and the Greek parts of Esther and Daniel, in Catholic order. A free Malagasy Catholic Bible could not be found: the 1938 text has no stated free licence, so it is not included.
 
-**Design.** Vellum and ink by day, warm black and gilt by night; Gentium Book Plus for the text and Cormorant SC small capitals for titles (both SIL Open Font License); chapter openings with a rubricated initial and a gilt fleuron. Screenshots: [docs/screenshots](docs/screenshots) (regenerate with `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*'`).
+**Design.** Vellum and ink by day, warm black and gilt by night; Gentium Book Plus for the text and Cormorant SC small capitals for titles (both SIL Open Font License); chapter openings with a rubricated initial and a gilt fleuron. Screenshots: [docs/screenshots](docs/screenshots) (01 Casual, 03 Church, 07 Study, 04 Settings, 06 Books, 10 Library; regenerate with `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*'`).
 
 **Settings** (gear icon), grouped with icons: Mode; Appearance (theme light / dark / device, language MG / FR / EN, text size); Default Bible; Reading aloud; Backup; About. **Advanced** (collapsed) holds the **Tradition** choice: *Protestant* (default: 66 books, Catholic translations hidden) or *Catholic* (adds the Catholic translations and the deuterocanonical books).
 

@@ -242,4 +242,6 @@
     <string name="protestant">Protestant</string>
     <string name="catholic">Catholic</string>
     <string name="tradition_hint">Catholic adds the deuterocanonical books (Tobit, Judith, Maccabees, Wisdom, Sirach, Baruch) and the Catholic translations.</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_dictionary">Dictionary</string>
 </resources>
