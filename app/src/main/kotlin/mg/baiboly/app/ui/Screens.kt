@@ -63,6 +63,14 @@ import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.ExpandLess
 import mg.baiboly.app.AppMode
 import mg.baiboly.app.Tradition
+import mg.baiboly.app.Palette
+import mg.baiboly.app.TextFont
+import mg.baiboly.app.LineSpacing
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -119,32 +127,70 @@ fun QuickSettings(vm: AppViewModel, where: String) {
     }
 }
 
-/** A row of mutually exclusive choices, engraved style: gilt outline, oxblood when chosen. */
+/**
+ * A row of mutually exclusive choices, in the theme's form: engraved
+ * segments (Manuscript), separate pills (Modern), underlined words (Page),
+ * coloured blocks (Glass).
+ */
 @Composable
 fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, tag: String, onSelect: (T) -> Unit) {
-    val gold = LocalOrnament.current.gold
+    val style = LocalStyle.current
+    val scheme = MaterialTheme.colorScheme
     Column {
-        if (label.isNotEmpty()) Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Row(
-            Modifier.fillMaxWidth().padding(top = 4.dp).border(1.dp, gold.copy(alpha = 0.8f), RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)),
-        ) {
-            options.forEachIndexed { i, (value, text) ->
-                val on = value == selected
-                Box(
-                    Modifier.weight(1f).heightIn(min = 44.dp)
-                        .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
-                        .clickable { onSelect(value) }
-                        .testTag("$tag:$value"),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                    )
+        if (label.isNotEmpty()) Text(label, style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant)
+        when (style) {
+            mg.baiboly.app.Style.Manuscript -> {
+                val gold = LocalOrnament.current.gold
+                Row(Modifier.fillMaxWidth().padding(top = 4.dp).border(1.dp, gold.copy(alpha = 0.8f), RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp))) {
+                    options.forEach { (value, text) ->
+                        val on = value == selected
+                        Box(
+                            Modifier.weight(1f).heightIn(min = 44.dp).background(if (on) scheme.primary else Color.Transparent)
+                                .clickable { onSelect(value) }.testTag("$tag:$value"),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(text, style = MaterialTheme.typography.labelMedium, color = if (on) scheme.onPrimary else scheme.onSurface, maxLines = 1)
+                        }
+                    }
                 }
-                if (i < options.lastIndex) Box(Modifier.width(1.dp).heightIn(min = 44.dp).background(gold.copy(alpha = 0.5f)))
+            }
+            mg.baiboly.app.Style.Modern -> Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                options.forEach { (value, text) ->
+                    val on = value == selected
+                    Box(
+                        Modifier.weight(1f).heightIn(min = 44.dp).clip(CircleShape).background(if (on) scheme.primary else scheme.surfaceContainerHighest)
+                            .clickable { onSelect(value) }.testTag("$tag:$value"),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(text, style = MaterialTheme.typography.labelLarge, color = if (on) scheme.onPrimary else scheme.onSurface, maxLines = 1)
+                    }
+                }
+            }
+            mg.baiboly.app.Style.Page -> Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+                options.forEach { (value, text) ->
+                    val on = value == selected
+                    Column(
+                        Modifier.weight(1f).heightIn(min = 44.dp).clickable { onSelect(value) }.testTag("$tag:$value"),
+                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom,
+                    ) {
+                        Text(text, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.Normal),
+                            color = if (on) scheme.onSurface else scheme.onSurfaceVariant, maxLines = 1, modifier = Modifier.padding(vertical = 8.dp))
+                        Box(Modifier.fillMaxWidth().height(if (on) 2.dp else 0.5.dp).background(if (on) scheme.primary else scheme.outlineVariant))
+                    }
+                }
+            }
+            mg.baiboly.app.Style.Glass -> Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                options.forEach { (value, text) ->
+                    val on = value == selected
+                    Box(
+                        Modifier.weight(1f).heightIn(min = 46.dp).clip(MaterialTheme.shapes.small)
+                            .background(if (on) scheme.primary else scheme.primaryContainer.copy(alpha = 0.55f))
+                            .clickable { onSelect(value) }.testTag("$tag:$value"),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(text, style = MaterialTheme.typography.labelMedium, color = if (on) scheme.onPrimary else scheme.onPrimaryContainer, maxLines = 1)
+                    }
+                }
             }
         }
     }
@@ -166,6 +212,7 @@ private fun SubScreen(
     vm: AppViewModel,
     title: String,
     actions: @Composable () -> Unit = {},
+    onBack: (() -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val snackbar = remember { SnackbarHostState() }
@@ -179,14 +226,8 @@ private fun SubScreen(
     }
     Scaffold(
         topBar = {
-            if (isTopLevel(vm.mode, vm.screen)) MainTopBar(vm, title, actions)
-            else TopAppBar(
-                title = { Text(title) },
-                navigationIcon = {
-                    IconButton(onClick = { vm.screen = Screen.Main }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
-                },
-                actions = { actions() },
-            )
+            if (onBack == null && isTopLevel(vm.style, vm.mode, vm.screen)) MainTopBar(vm, title, actions)
+            else StyledSubBar(title, onBack = onBack ?: { vm.screen = backTarget(vm) }, actions = actions)
         },
         snackbarHost = { SnackbarHost(snackbar) },
         content = content,
@@ -404,12 +445,17 @@ fun SavedListsScreen(vm: AppViewModel) {
 
 // ---------------------------------------------------------------- settings
 
+/** A group of settings: shown inline (Manuscript, Modern, Page) or as its own page (Glass). */
+private class SettingsGroup(val key: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val title: String, val content: @Composable () -> Unit)
+
 @Composable
 fun SettingsScreen(vm: AppViewModel) {
+    val style = LocalStyle.current
     var advanced by remember { mutableStateOf(false) }
-    SubScreen(vm, stringResource(R.string.settings)) { padding ->
-        Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
-            SettingsSection(Icons.Outlined.Tune, stringResource(R.string.mode)) {
+    var open by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) }
+    val groups = listOf(
+        SettingsGroup("mode", Icons.Outlined.Tune, stringResource(R.string.mode)) {
+            Column(Modifier.padding(horizontal = 20.dp)) {
                 ChoiceRow(
                     label = "",
                     options = AppMode.entries.map { it to it.label() },
@@ -417,89 +463,276 @@ fun SettingsScreen(vm: AppViewModel) {
                     tag = "settings-mode",
                 ) { vm.changeMode(it); vm.screen = Screen.Settings }
             }
-            SettingsSection(Icons.Outlined.Palette, stringResource(R.string.appearance)) {
-                QuickSettings(vm, "settings")
-                Text(stringResource(R.string.text_size), style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 8.dp))
-                Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12,
-                    modifier = Modifier.padding(horizontal = 20.dp))
-                Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * 1.55f).sp,
-                    fontFamily = TextSerif, modifier = Modifier.padding(horizontal = 20.dp))
-            }
-            SettingsSection(Icons.Outlined.AutoStories, stringResource(R.string.default_bible)) {
-                Column(Modifier.padding(horizontal = 20.dp)) {
-                    Text(stringResource(R.string.default_bible_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
-                    vm.visibleTranslations.groupBy { it.lang }.forEach { (lang, ts) ->
-                        Text(langName[lang] ?: lang, style = MaterialTheme.typography.titleSmall, color = LocalOrnament.current.gold,
-                            modifier = Modifier.padding(top = 12.dp, bottom = 2.dp))
-                        ts.forEach { t ->
-                            Row(
-                                Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setDefaultTranslation(t.id) }.testTag("settings-default:${t.id}"),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                RadioButton(selected = vm.defaultTranslationId == t.id, onClick = { vm.setDefaultTranslation(t.id) })
-                                Column {
-                                    Text("${t.name} (${t.shortName})", style = MaterialTheme.typography.bodyLarge)
-                                    Text(
-                                        listOfNotNull(styleNote(t), translationNote(t)).joinToString(". "),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
-                        }
+        },
+        SettingsGroup("look", Icons.Outlined.Palette, stringResource(R.string.appearance)) { AppearanceSettings(vm) },
+        SettingsGroup("bible", Icons.Outlined.AutoStories, stringResource(R.string.default_bible)) { DefaultBibleSettings(vm) },
+        SettingsGroup("audio", Icons.Outlined.Headphones, stringResource(R.string.read_aloud)) { ReadAloudSettings(vm) },
+    )
+    val traditionContent: @Composable () -> Unit = {
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+            ChoiceRow(
+                label = stringResource(R.string.tradition),
+                options = listOf(Tradition.Protestant to stringResource(R.string.protestant), Tradition.Catholic to stringResource(R.string.catholic)),
+                selected = vm.tradition,
+                tag = "settings-tradition",
+            ) { vm.changeTradition(it) }
+            Text(stringResource(R.string.tradition_hint), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 6.dp))
+        }
+    }
+
+    if (style == mg.baiboly.app.Style.Glass) {
+        // Glass: a page of categories; each opens its own page
+        val current = open
+        androidx.activity.compose.BackHandler(enabled = current != null) { open = null }
+        val title = when (current) {
+            null -> stringResource(R.string.settings)
+            "advanced" -> stringResource(R.string.advanced)
+            else -> groups.first { it.key == current }.title
+        }
+        SubScreen(vm, title, onBack = if (current != null) ({ open = null }) else null) { padding ->
+            Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 12.dp)) {
+                when (current) {
+                    null -> {
+                        groups.forEach { g -> SettingsLink(g.icon, g.title, "settings-cat:${g.key}") { open = g.key } }
+                        SettingsLink(Icons.Outlined.SettingsBackupRestore, stringResource(R.string.backup), "settings-backup") { vm.screen = Screen.Backup }
+                        SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
+                        SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { open = "advanced" }
                     }
+                    "advanced" -> traditionContent()
+                    else -> groups.first { it.key == current }.content()
                 }
             }
-            SettingsSection(Icons.Outlined.Headphones, stringResource(R.string.read_aloud)) { ReadAloudSettings(vm) }
+        }
+        return
+    }
+
+    SubScreen(vm, stringResource(R.string.settings)) { padding ->
+        Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
+            groups.forEach { g -> SettingsSection(g.icon, g.title) { g.content() } }
             SettingsLink(Icons.Outlined.SettingsBackupRestore, stringResource(R.string.backup), "settings-backup") { vm.screen = Screen.Backup }
             SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
             // Rarely changed: kept out of the way.
-            SettingsLink(Icons.Outlined.ExpandMore.takeIf { !advanced } ?: Icons.Outlined.ExpandLess, stringResource(R.string.advanced), "settings-advanced") {
+            SettingsLink(if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, stringResource(R.string.advanced), "settings-advanced") {
                 advanced = !advanced
             }
-            if (advanced) {
-                Column(Modifier.padding(bottom = 16.dp)) {
-                    ChoiceRow(
-                        label = stringResource(R.string.tradition),
-                        options = listOf(Tradition.Protestant to stringResource(R.string.protestant), Tradition.Catholic to stringResource(R.string.catholic)),
-                        selected = vm.tradition,
-                        tag = "settings-tradition",
-                    ) { vm.changeTradition(it) }
-                    Text(stringResource(R.string.tradition_hint), style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+            if (advanced) traditionContent()
+            Spacer(Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun AppearanceSettings(vm: AppViewModel) {
+    Column {
+        Text(stringResource(R.string.style), style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 4.dp))
+        StylePicker(vm)
+        QuickSettings(vm, "settings")
+        PalettePicker(vm)
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ChoiceRow(
+                label = stringResource(R.string.text_font),
+                options = listOf(
+                    TextFont.Classic to stringResource(R.string.font_classic),
+                    TextFont.Modern to stringResource(R.string.font_modern),
+                    TextFont.Sans to stringResource(R.string.font_sans),
+                ),
+                selected = vm.textFont, tag = "settings-font",
+            ) { vm.changeTextFont(it) }
+            ChoiceRow(
+                label = stringResource(R.string.titles),
+                options = listOf(true to stringResource(R.string.titles_engraved), false to stringResource(R.string.titles_plain)),
+                selected = vm.engravedTitles, tag = "settings-titles",
+            ) { vm.changeEngravedTitles(it) }
+            ChoiceRow(
+                label = stringResource(R.string.line_spacing),
+                options = listOf(
+                    LineSpacing.Compact to stringResource(R.string.spacing_compact),
+                    LineSpacing.Normal to stringResource(R.string.spacing_normal),
+                    LineSpacing.Airy to stringResource(R.string.spacing_airy),
+                ),
+                selected = vm.lineSpacing, tag = "settings-spacing",
+            ) { vm.changeLineSpacing(it) }
+        }
+        Text(stringResource(R.string.text_size), style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 8.dp))
+        Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12,
+            modifier = Modifier.padding(horizontal = 20.dp))
+        Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * LocalReading.current.lineSpacing).sp,
+            fontFamily = TextSerif, modifier = Modifier.padding(horizontal = 20.dp))
+        TextButton(onClick = { vm.resetAppearance() }, modifier = Modifier.padding(start = 12.dp, top = 4.dp).testTag("settings-reset-look")) {
+            Text(stringResource(R.string.reset_appearance))
+        }
+    }
+}
+
+@Composable
+private fun DefaultBibleSettings(vm: AppViewModel) {
+    Column(Modifier.padding(horizontal = 20.dp)) {
+        Text(stringResource(R.string.default_bible_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
+        vm.visibleTranslations.groupBy { it.lang }.forEach { (lang, ts) ->
+            Text(langName[lang] ?: lang, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.padding(top = 12.dp, bottom = 2.dp))
+            ts.forEach { t ->
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setDefaultTranslation(t.id) }.testTag("settings-default:${t.id}"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = vm.defaultTranslationId == t.id, onClick = { vm.setDefaultTranslation(t.id) })
+                    Column {
+                        Text("${t.name} (${t.shortName})", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            listOfNotNull(styleNote(t), translationNote(t)).joinToString(". "),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-/** A titled group of settings with its icon. */
+/**
+ * Colour themes as small pages: each swatch shows the theme's paper, its
+ * accent and its gilt, in the day or night version currently shown.
+ */
 @Composable
-private fun SettingsSection(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, content: @Composable () -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-        Row(Modifier.padding(horizontal = 20.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
-            Spacer(Modifier.width(12.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium)
+private fun PalettePicker(vm: AppViewModel) {
+    val dark = isDark(vm.theme)
+    Text(stringResource(R.string.colours), style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 4.dp))
+    Row(
+        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp).testTag("palettes"),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        vm.style.palettes.forEach { p ->
+            val (bg, accent, gold) = paletteSwatch(p, dark)
+            val on = p == vm.palette
+            Column(
+                Modifier.width(76.dp).clip(RoundedCornerShape(12.dp)).clickable { vm.changePalette(p) }.testTag("palette:${p.name}"),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(
+                    Modifier.size(width = 64.dp, height = 84.dp)
+                        .border(if (on) 2.5.dp else 1.dp, if (on) MaterialTheme.colorScheme.primary else gold.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
+                        .padding(3.dp).clip(RoundedCornerShape(8.dp)).background(bg),
+                ) {
+                    // a tiny page: a capital in the accent colour, three lines of text, a gilt rule
+                    Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(accent))
+                        Box(Modifier.fillMaxWidth().height(2.dp).background(gold))
+                        repeat(3) { i ->
+                            Box(Modifier.fillMaxWidth(if (i == 2) 0.6f else 1f).height(3.dp).clip(RoundedCornerShape(2.dp)).background(accent.copy(alpha = 0.35f)))
+                        }
+                    }
+                    if (on) Icon(Icons.Filled.Check, null, tint = accent, modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp).size(18.dp))
+                }
+                Text(p.label(), style = MaterialTheme.typography.labelSmall, maxLines = 1, modifier = Modifier.padding(top = 4.dp, bottom = 2.dp))
+            }
         }
-        content()
-        GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
     }
 }
 
-/** A row that opens another page. */
+@Composable
+fun Palette.label(): String = stringResource(
+    when (this) {
+        Palette.Vellum -> R.string.palette_vellum
+        Palette.Lapis -> R.string.palette_lapis
+        Palette.Olive -> R.string.palette_olive
+        Palette.Purple -> R.string.palette_purple
+        Palette.Sepia -> R.string.palette_sepia
+        Palette.Paper -> R.string.palette_paper
+        Palette.Slate -> R.string.palette_slate
+    },
+)
+
+/** A titled group of settings, in the theme's form. */
+@Composable
+private fun SettingsSection(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, content: @Composable () -> Unit) {
+    when (LocalStyle.current) {
+        mg.baiboly.app.Style.Manuscript -> Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            Row(Modifier.padding(horizontal = 20.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, null, tint = LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(12.dp))
+                Text(title, style = MaterialTheme.typography.titleMedium)
+            }
+            content()
+            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+        }
+        // Modern: each group on its own rounded card
+        mg.baiboly.app.Style.Modern -> Surface(
+            color = MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.extraLarge,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+        ) {
+            Column(Modifier.padding(vertical = 14.dp)) {
+                Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer), contentAlignment = Alignment.Center) {
+                        Icon(icon, null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                }
+                Spacer(Modifier.height(4.dp))
+                content()
+            }
+        }
+        // Page: a small heading, the settings, a hairline
+        mg.baiboly.app.Style.Page -> Column(Modifier.fillMaxWidth()) {
+            Text(title.uppercase(), style = MaterialTheme.typography.labelMedium, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 6.dp))
+            content()
+            HorizontalDivider(Modifier.padding(top = 14.dp), color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+        }
+        mg.baiboly.app.Style.Glass -> Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) { content() }
+    }
+}
+
+/** A row that opens another page (or a group), in the theme's form. */
 @Composable
 private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, tag: String, onClick: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onClick).testTag(tag).padding(horizontal = 20.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(icon, null, tint = LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
-        Spacer(Modifier.width(12.dp))
-        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+    when (LocalStyle.current) {
+        mg.baiboly.app.Style.Glass -> Surface(
+            onClick = onClick, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).testTag(tag),
+        ) {
+            Row(Modifier.heightIn(min = 64.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(40.dp).clip(MaterialTheme.shapes.small).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
+                    Icon(icon, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(22.dp))
+                }
+                Spacer(Modifier.width(14.dp))
+                Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        mg.baiboly.app.Style.Modern -> Surface(
+            onClick = onClick, shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).testTag(tag),
+        ) {
+            Row(Modifier.heightIn(min = 60.dp).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer), contentAlignment = Alignment.Center) {
+                    Icon(icon, null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), modifier = Modifier.weight(1f))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        else -> {
+            val page = LocalStyle.current == mg.baiboly.app.Style.Page
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onClick).testTag(tag).padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(icon, null, tint = if (page) MaterialTheme.colorScheme.onSurfaceVariant else LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(if (page) 18.dp else 12.dp))
+                Text(title, style = if (page) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (page) HorizontalDivider(Modifier.padding(start = 60.dp), color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+        }
     }
 }
 

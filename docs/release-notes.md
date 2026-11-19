@@ -3,6 +3,7 @@
 **Install:** download the APK below and open it on the phone (allow installing from this source when asked).
 Updates install over the app and keep your lists, notes, highlights and settings.
 
+* Four themes, each a complete design: **Manuscript**, **Modern**, **Page** (like an e-reader, everything in one menu) and **Stained glass**; plus colour variants, typeface, titles and line spacing (Settings › Appearance).
 * Three modes, one tap on the badge at the top left: **Casual** for everyday reading, **Church** (silent, screen kept on, previous / next passage of your service list), **Study** (original words, cross-references, dictionary, map).
 * Simpler navigation: tabs at the bottom, the chapter title opens the books, the gear opens Settings, standard icons throughout.
 * A new look: vellum and ink by day, warm black and gold by night; theme and language (MG, FR, EN) in Settings.

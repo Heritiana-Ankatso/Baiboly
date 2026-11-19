@@ -37,6 +37,19 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 
 **Design.** Vellum and ink by day, warm black and gilt by night; Gentium Book Plus for the text and Cormorant SC small capitals for titles (both SIL Open Font License); chapter openings with a rubricated initial and a gilt fleuron. Screenshots: [docs/screenshots](docs/screenshots) (01 Casual, 03 Church, 07 Study, 04 Settings, 06 Books, 10 Library; regenerate with `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*'`).
 
+**Themes.** Four complete designs, chosen in Settings › Appearance › Theme; each has its own colours, type, navigation, controls and layout of actions and settings:
+
+| | Manuscript (default) | Modern | Page | Stained glass |
+|---|---|---|---|---|
+| Colours | Vellum · Purple · Olive | Slate · Paper | Sepia · Paper (true black at night) | Lapis · Purple · Olive |
+| Type | Gentium, engraved small capitals | Phone's sans-serif, plain titles | Phone's serif, plain | Gentium, engraved |
+| Navigation | Bottom tab bar | Floating capsule | No bars: ☰ opens one grouped menu (Bible · Study tools · My library · App) | Coloured header with tabs |
+| Chapters | Gilt discs over the text | Floating ‹ › pill | Links after the last verse | Bottom bar ‹ chapter › |
+| Verse actions | Bottom bar, icon + label | Floating dark toolbar | Top action bar | Panel of large tiles |
+| Settings | Sections with gilt rules | Rounded card per group | Flat list with hairlines | Categories, each on its own page |
+
+Within a theme, the reader can also change the colour variant, the Bible typeface (classic Gentium / modern serif / sans-serif), engraved or plain titles, line spacing and text size; *Restore the original look* undoes it all.
+
 **Settings** (gear icon), grouped with icons: Mode; Appearance (theme light / dark / device, language MG / FR / EN, text size); Default Bible; Reading aloud; Backup; About. **Advanced** (collapsed) holds the **Tradition** choice: *Protestant* (default: 66 books, Catholic translations hidden) or *Catholic* (adds the Catholic translations and the deuterocanonical books).
 
 **Study tools (all offline).**

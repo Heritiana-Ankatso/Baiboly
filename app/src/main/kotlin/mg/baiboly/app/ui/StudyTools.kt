@@ -154,7 +154,7 @@ fun DictionaryScreen(vm: AppViewModel) {
     }
     Scaffold(
         topBar = {
-            if (open == null && isTopLevel(vm.mode, vm.screen)) MainTopBar(vm, stringResource(R.string.dictionary))
+            if (open == null && isTopLevel(vm.style, vm.mode, vm.screen)) MainTopBar(vm, stringResource(R.string.dictionary))
             else TopAppBar(
                 title = { Text(open?.lowercase()?.replaceFirstChar { it.titlecase() } ?: stringResource(R.string.dictionary), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
@@ -361,6 +361,7 @@ private fun MapCanvas(
     selected: Place?,
     onSelect: (Place?) -> Unit,
 ) {
+    val labelFamily = TitleSerif
     val dark = MaterialTheme.colorScheme.background.red < 0.5f
     val sea = if (dark) Color(0xFF16222A) else Color(0xFFD9E4E4)
     val land = if (dark) Color(0xFF2A241D) else Color(0xFFEDE3CC)
@@ -456,7 +457,7 @@ private fun MapCanvas(
             val o = toScreen(p.lon.toFloat(), p.lat.toFloat())
             val label = measurer.measure(
                 p.name,
-                TextStyle(fontFamily = TitleSerif, fontWeight = if (imp) FontWeight.Bold else FontWeight.SemiBold,
+                TextStyle(fontFamily = labelFamily, fontWeight = if (imp) FontWeight.Bold else FontWeight.SemiBold,
                     fontSize = if (imp) 15.sp else 12.sp, color = if (imp) ornament.rubric else ink),
             )
             var rect = androidx.compose.ui.geometry.Rect(o.x + big + 3, o.y - label.size.height / 2f, o.x + big + 3 + label.size.width, o.y + label.size.height / 2f)

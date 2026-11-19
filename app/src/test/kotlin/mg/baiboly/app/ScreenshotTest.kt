@@ -121,4 +121,29 @@ class ScreenshotTest {
         vm.screen = Screen.Main
         settle()
     }
+
+    /** One reader, one selection and one Settings page per theme (light), and the reader at night. */
+    @Test fun themes() {
+        settle { vm.ready && vm.chapter != null }
+        vm.chooseUiLanguage("en")
+        for ((i, st) in Style.entries.withIndex()) {
+            vm.changeStyle(st)
+            vm.screen = Screen.Main
+            open(Passage(23, 40))
+            shot("t${i + 1}a-${st.name.lowercase()}-reader")
+            vm.screen = Screen.Settings
+            settle()
+            shot("t${i + 1}b-${st.name.lowercase()}-settings")
+            vm.screen = if (st == Style.Page) Screen.Menu else Screen.Library
+            settle()
+            shot("t${i + 1}c-${st.name.lowercase()}-${if (st == Style.Page) "menu" else "library"}")
+            vm.changeTheme(ThemeMode.Dark)
+            vm.screen = Screen.Main
+            settle()
+            shot("t${i + 1}d-${st.name.lowercase()}-night")
+            vm.changeTheme(ThemeMode.Light)
+        }
+        vm.changeStyle(Style.Manuscript)
+        settle()
+    }
 }

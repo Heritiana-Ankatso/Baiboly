@@ -30,11 +30,11 @@ fun BaibolyApp(vm: AppViewModel) {
 
 @Composable
 private fun AppContent(vm: AppViewModel) {
-    BaibolyTheme(vm.theme) {
+    BaibolyTheme(vm.theme, vm.style, vm.palette, vm.textFont, vm.engravedTitles, vm.lineSpacing) {
         Silent.Provide {
             Surface(Modifier.fillMaxSize()) {
-                // Back always leads home to the reader; from the reader it leaves the app.
-                BackHandler(enabled = vm.screen != Screen.Main) { vm.screen = Screen.Main }
+                // Back leads home to the reader (Page: to its menu first); from the reader it leaves the app.
+                BackHandler(enabled = vm.screen != Screen.Main) { vm.screen = backTarget(vm) }
                 Column(Modifier.fillMaxSize()) {
                     Box(Modifier.weight(1f).fillMaxWidth()) {
                         when (vm.screen) {
@@ -51,12 +51,20 @@ private fun AppContent(vm: AppViewModel) {
                             Screen.Map -> MapScreen(vm)
                             Screen.Books -> BooksScreen(vm)
                             Screen.Library -> LibraryScreen(vm)
+                            Screen.Menu -> PageMenuScreen(vm)
                         }
                     }
                     // the mode's main pages, one tap away
-                    if (isTopLevel(vm.mode, vm.screen) && !vm.selectionActive) AppNavigationBar(vm)
+                    if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive) StyledNavigation(vm)
                 }
             }
         }
     }
+}
+
+/** Where Back goes: the reader, or in the Page theme the menu the page was opened from. */
+fun backTarget(vm: AppViewModel): Screen = when {
+    vm.screen == Screen.Main || vm.screen == Screen.Menu -> Screen.Main
+    vm.style == mg.baiboly.app.Style.Page && vm.screen != Screen.Books -> Screen.Menu
+    else -> Screen.Main
 }

@@ -100,21 +100,29 @@ fun AppMode.accent(): Color = when (this) {
 @Composable
 fun ModeBadge(vm: AppViewModel, compact: Boolean = false) {
     var open by remember { mutableStateOf(false) }
+    val style = LocalStyle.current
+    val content = androidx.compose.material3.LocalContentColor.current
     Surface(
         onClick = { open = true },
         shape = RoundedCornerShape(20.dp),
-        color = Color.Transparent,
-        border = BorderStroke(1.dp, vm.mode.accent().copy(alpha = 0.7f)),
+        // Manuscript: a gilt-edged pill; Modern: a tonal chip; Glass: drawn in the header's colour
+        color = if (style == mg.baiboly.app.Style.Modern) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+        contentColor = if (style == mg.baiboly.app.Style.Glass) content else MaterialTheme.colorScheme.onSurface,
+        border = when (style) {
+            mg.baiboly.app.Style.Modern -> null
+            mg.baiboly.app.Style.Glass -> BorderStroke(1.dp, content.copy(alpha = 0.6f))
+            else -> BorderStroke(1.dp, vm.mode.accent().copy(alpha = 0.7f))
+        },
         modifier = Modifier.padding(start = 8.dp).heightIn(min = 40.dp).testTag("mode-badge"),
     ) {
         Row(Modifier.padding(start = 10.dp, end = 4.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(vm.mode.icon(), if (compact) vm.mode.label() else null, tint = vm.mode.accent(), modifier = Modifier.size(20.dp))
+            Icon(vm.mode.icon(), if (compact) vm.mode.label() else null, tint = if (style == mg.baiboly.app.Style.Glass) content else vm.mode.accent(), modifier = Modifier.size(20.dp))
             // compact (reader): the title needs the room, so icon only; the name stays for screen readers
             if (!compact) {
                 Spacer(Modifier.width(6.dp))
-                Text(vm.mode.label(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface)
+                Text(vm.mode.label(), style = MaterialTheme.typography.labelLarge)
             }
-            Icon(Icons.Filled.ArrowDropDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            Icon(Icons.Filled.ArrowDropDown, null, tint = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
         }
     }
     if (open) ModeSheet(vm) { open = false }
@@ -153,9 +161,9 @@ fun ModeSheet(vm: AppViewModel, onDismiss: () -> Unit) {
 
 // ---------------------------------------------------------------- bottom navigation
 
-private data class Destination(val screen: Screen, val icon: ImageVector, val label: Int)
+internal data class Destination(val screen: Screen, val icon: ImageVector, val label: Int)
 
-private fun destinations(mode: AppMode): List<Destination> = when (mode) {
+internal fun destinations(mode: AppMode): List<Destination> = when (mode) {
     AppMode.Casual -> listOf(
         Destination(Screen.Main, Icons.Outlined.AutoStories, R.string.nav_read),
         Destination(Screen.Search, Icons.Outlined.Search, R.string.nav_search),
@@ -176,7 +184,11 @@ private fun destinations(mode: AppMode): List<Destination> = when (mode) {
 }
 
 /** Main pages of the current mode; the others are reached from them. */
-fun isTopLevel(mode: AppMode, screen: Screen): Boolean = destinations(mode).any { it.screen == screen } || screen == Screen.Books
+fun isTopLevel(style: mg.baiboly.app.Style, mode: AppMode, screen: Screen): Boolean = when (style) {
+    // Page has no bars: only the reader and its menu are main pages
+    mg.baiboly.app.Style.Page -> screen == Screen.Main || screen == Screen.Menu
+    else -> destinations(mode).any { it.screen == screen } || screen == Screen.Books
+}
 
 @Composable
 fun AppNavigationBar(vm: AppViewModel) {
@@ -186,16 +198,7 @@ fun AppNavigationBar(vm: AppViewModel) {
             val selected = vm.screen == d.screen
             NavigationBarItem(
                 selected = selected,
-                onClick = {
-                    if (d.screen == Screen.Map) vm.mapForChapter = true
-                    when (d.screen) {
-                        Screen.Library -> { vm.refreshNotes(); vm.refreshHighlights(); vm.refreshHistory(); vm.refreshSavedLists() }
-                        Screen.Lists -> vm.refreshSavedLists()
-                        Screen.Search -> vm.search(vm.searchQuery, vm.translationId)
-                        else -> Unit
-                    }
-                    vm.screen = d.screen
-                },
+                onClick = { navigateTo(vm, d.screen) },
                 icon = { Icon(d.icon, null) },
                 // five tabs in Study mode: a smaller label so none is cut
                 label = {
@@ -227,15 +230,7 @@ fun SettingsButton(vm: AppViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopBar(vm: AppViewModel, title: String, actions: @Composable () -> Unit = {}) {
-    Column {
-        TopAppBar(
-            navigationIcon = { ModeBadge(vm) },
-            title = { Text(title, maxLines = 1, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 6.dp)) },
-            actions = { actions(); SettingsButton(vm) },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
-        )
-        GoldRule()
-    }
+    StyledTopBar(vm, title, actions = actions)
 }
 
 // ---------------------------------------------------------------- books
@@ -316,7 +311,7 @@ fun LibraryScreen(vm: AppViewModel) {
     var tab by remember { mutableIntStateOf(0) }
     Scaffold(topBar = { MainTopBar(vm, stringResource(R.string.nav_library)) }) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
-            TabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.surface) {
+            androidx.compose.material3.ScrollableTabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.surface, edgePadding = 8.dp) {
                 listOf(R.string.notes, R.string.highlights, R.string.history, R.string.nav_lists).forEachIndexed { i, label ->
                     Tab(selected = tab == i, onClick = { tab = i }, text = { Text(stringResource(label), maxLines = 1) },
                         modifier = Modifier.testTag("library-tab:$i"))

@@ -89,6 +89,7 @@ class UiAcceptanceTest {
         waitFor { vm.ready && vm.chapter != null }
         if (vm.uiLanguage != "en") vm.chooseUiLanguage("en") // the English labels below
         // saved settings can outlive a test: start each one from the defaults
+        if (vm.style != Style.Manuscript) vm.changeStyle(Style.Manuscript)
         if (vm.mode != AppMode.Casual) vm.changeMode(AppMode.Casual)
         if (vm.tradition != Tradition.Protestant) vm.changeTradition(Tradition.Protestant)
         vm.screen = Screen.Main
@@ -357,5 +358,41 @@ class UiAcceptanceTest {
         waitFor { vm.chapter?.book == 19 && runCatching { tag("verse:1").assertExists(); true }.getOrDefault(false) }
         tag("verse:1").tap()
         tag("action:To list").assertExists()
+    }
+
+    /** Every theme is a whole design: each can still reach a chapter, the verse actions and Settings. */
+    @Test fun everyThemeWorks() {
+        ready()
+        for (st in Style.entries) {
+            vm.changeStyle(st)
+            vm.screen = Screen.Main
+            vm.openChapter(19, 23)
+            waitFor { vm.chapter?.book == 19 && vm.chapter?.chapter == 23 }
+            rule.waitForIdle()
+            assertEquals(st.palettes.first(), vm.palette)
+            tag("chapter-title").assertExists()
+            // next chapter: Page puts the link after the last verse
+            if (st == Style.Page) tag("reader").performScrollToKey("footer")
+            tag("next-chapter").tap()
+            waitFor { vm.chapter?.chapter == 24 }
+            // verse actions
+            tag("reader").performScrollToKey("v1")
+            tag("verse:1").tap()
+            tag("action:Note").assertExists()
+            tag("verse:1").tap()
+            rule.waitForIdle()
+            // settings: the gear, or in Page the menu
+            if (st == Style.Page) {
+                tag("menu").tap()
+                waitFor { vm.screen == Screen.Menu }
+                tag("menu-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("nav:Settings"))
+                tag("nav:Settings").tap()
+            } else tag("settings").tap()
+            waitFor { vm.screen == Screen.Settings }
+            tag("settings-list").assertExists()
+            tag("settings-advanced").assertExists()
+            vm.screen = Screen.Main
+            rule.waitForIdle()
+        }
     }
 }

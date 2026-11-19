@@ -43,7 +43,7 @@ import java.util.Locale
 /** Where the reader is: the chapter shown and the verses to scroll to and mark. */
 data class ReaderLocation(val book: Int, val chapter: Int, val focus: Passage?)
 
-enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup, Dictionary, Map, Books, Library }
+enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup, Dictionary, Map, Books, Library, Menu }
 
 /**
  * How the app is used right now. Each mode has its own navigation:
@@ -57,6 +57,25 @@ enum class AppMode { Casual, Church, Study }
 enum class Tradition { Protestant, Catholic }
 
 enum class ThemeMode { System, Light, Dark }
+
+/** Colour themes, each with a day and a night version. Stored by name, so the order may change. */
+enum class Palette { Vellum, Lapis, Olive, Purple, Sepia, Paper, Slate }
+
+/**
+ * Themes: each is a whole design of its own (layout, navigation, controls,
+ * how actions and settings are grouped), with the colours that suit it.
+ */
+enum class Style(val palettes: List<Palette>, val font: TextFont, val engraved: Boolean) {
+    Manuscript(listOf(Palette.Vellum, Palette.Purple, Palette.Olive), TextFont.Classic, true),
+    Modern(listOf(Palette.Slate, Palette.Paper), TextFont.Sans, false),
+    Page(listOf(Palette.Sepia, Palette.Paper), TextFont.Modern, false),
+    Glass(listOf(Palette.Lapis, Palette.Purple, Palette.Olive), TextFont.Classic, true),
+}
+
+/** Typeface for the Bible text: Gentium (bundled), the phone's serif, or the phone's sans-serif. */
+enum class TextFont { Classic, Modern, Sans }
+
+enum class LineSpacing { Compact, Normal, Airy }
 
 /**
  * App state. The service list, the reader position and the settings are
@@ -90,6 +109,36 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var theme by mutableStateOf(ThemeMode.entries[prefs.getInt("theme", 0)])
         private set
+    var style by mutableStateOf(enumPref("style", Style.Manuscript))
+        private set
+    var palette by mutableStateOf(enumPref("palette", Palette.Vellum))
+        private set
+    var textFont by mutableStateOf(enumPref("text_font", TextFont.Classic))
+        private set
+    var engravedTitles by mutableStateOf(prefs.getBoolean("engraved_titles", true))
+        private set
+    var lineSpacing by mutableStateOf(enumPref("line_spacing", LineSpacing.Normal))
+        private set
+
+    private inline fun <reified E : Enum<E>> enumPref(key: String, default: E): E =
+        prefs.getString(key, null)?.let { n -> enumValues<E>().firstOrNull { it.name == n } } ?: default
+
+    /** A new theme brings its own colours and type; the reader can then adjust them. */
+    fun changeStyle(st: Style) {
+        style = st
+        prefs.edit().putString("style", st.name).apply()
+        changePalette(st.palettes.first()); changeTextFont(st.font); changeEngravedTitles(st.engraved)
+    }
+
+    fun changePalette(p: Palette) { palette = p; prefs.edit().putString("palette", p.name).apply() }
+    fun changeTextFont(f: TextFont) { textFont = f; prefs.edit().putString("text_font", f.name).apply() }
+    fun changeEngravedTitles(on: Boolean) { engravedTitles = on; prefs.edit().putBoolean("engraved_titles", on).apply() }
+    fun changeLineSpacing(l: LineSpacing) { lineSpacing = l; prefs.edit().putString("line_spacing", l.name).apply() }
+
+    /** Back to the look the app ships with (text size included). */
+    fun resetAppearance() {
+        changeStyle(Style.Manuscript); changeLineSpacing(LineSpacing.Normal); changeTextSize(20f)
+    }
     var mode by mutableStateOf(AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)])
         private set
 
@@ -726,6 +775,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         uiLanguage = prefs.getString(UiLanguage.KEY, UiLanguage.DEFAULT) ?: UiLanguage.DEFAULT
         textSize = prefs.getFloat("text_size", 20f)
         theme = ThemeMode.entries[prefs.getInt("theme", 0).coerceIn(0, 2)]
+        style = enumPref("style", Style.Manuscript)
+        palette = enumPref("palette", Palette.Vellum)
+        textFont = enumPref("text_font", TextFont.Classic)
+        engravedTitles = prefs.getBoolean("engraved_titles", true)
+        lineSpacing = enumPref("line_spacing", LineSpacing.Normal)
         mode = AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)]
         val newTitle = defaultTitle()
         val (l, rec, usage) = withContext(io) {

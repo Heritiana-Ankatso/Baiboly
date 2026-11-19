@@ -98,7 +98,7 @@
     <string name="results_limited">Valiny %1$d mahery (ny %1$d voalohany no aseho)</string>
     <string name="no_results">Tsy nisy hita.</string>
 
-    <string name="theme">Endrika</string>
+    <string name="theme">Andro sy alina</string>
     <string name="theme_system">Araka ny finday</string>
     <string name="theme_light">Mazava</string>
     <string name="theme_dark">Maizina</string>
@@ -190,6 +190,7 @@
     <string name="whats_new_ok">Amena</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
+        <item>Modely efatra, samy manana ny endriny manokana: Sora-tanana, Maoderina, Pejy (toy ny famakiana boky elektronika) ary Fitaratra miloko. Azo safidiana koa ny loko, ny soratra, ny lohateny ary ny elanelan’andalana (Fikirana › Endrika).</item>
         <item>Fomba telo, tsindrio ny marika eo ambony ankavia: Tsotra ho an’ny famakiana isan’andro, Fiangonana (mangina, andalan-tsoratra teo aloha/manaraka ao amin’ny lisitrao), Fianarana (teny am-boalohany, andinin-teny mifandray, rakibolana, sarintany).</item>
         <item>Fivezivezena tsotra kokoa: tabilao eo ambany, ny lohatenin’ny toko no manokatra ny boky, ny kodiarana no manokatra ny fikirana.</item>
         <item>Endrika vaovao: taratasy sy ranomainty amin’ny andro, mainty mafana sy volamena amin’ny alina; endrika sy fiteny (MG, FR, EN) ao amin’ny fikirana.</item>
@@ -229,4 +230,37 @@
     <string name="tradition_hint">Ny Katolika dia manampy ireo boky deoterokanonika (Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika, Baroka) sy ny dikan-teny katolika.</string>
     <string name="nav_search">Hitady</string>
     <string name="nav_dictionary">Rakibolana</string>
+    <string name="colours">Loko</string>
+    <string name="palette_vellum">Volamena</string>
+    <string name="palette_lapis">Manga</string>
+    <string name="palette_olive">Maitso</string>
+    <string name="palette_purple">Volomparasy</string>
+    <string name="palette_sepia">Volontany</string>
+    <string name="palette_paper">Fotsy</string>
+    <string name="text_font">Soratry ny Baiboly</string>
+    <string name="font_classic">Klasika</string>
+    <string name="font_modern">Maoderina</string>
+    <string name="font_sans">Tsotra</string>
+    <string name="titles">Lohateny</string>
+    <string name="titles_engraved">Voasokitra</string>
+    <string name="titles_plain">Tsotra</string>
+    <string name="line_spacing">Elanelan’andalana</string>
+    <string name="spacing_compact">Kely</string>
+    <string name="spacing_normal">Antonony</string>
+    <string name="spacing_airy">Malalaka</string>
+    <string name="reset_appearance">Averina ilay endrika voalohany</string>
+    <string name="style">Modely</string>
+    <string name="style_manuscript">Sora-tanana</string>
+    <string name="style_modern">Maoderina</string>
+    <string name="style_page">Pejy</string>
+    <string name="style_glass">Fitaratra miloko</string>
+    <string name="style_manuscript_desc">Taratasy, volamena ary litera kely, toy ny Baiboly taloha. Tabilao eo ambany.</string>
+    <string name="style_modern_desc">Madio sy mazava: lohateny matevina, endrika boribory, bara sy fitaovana mitsingevana.</string>
+    <string name="style_page_desc">Ny soratra ihany, toy ny famakiana boky elektronika. Ny sisa rehetra ao anaty menio iray (☰).</string>
+    <string name="style_glass_desc">Loko mamirapiratra: lohany miloko misy tabilao, karatra lehibe, bokotra toko eo ambany.</string>
+    <string name="group_bible">Baiboly</string>
+    <string name="group_study">Fitaovana fianarana</string>
+    <string name="group_saved">Tahiriko</string>
+    <string name="group_app">Rindranasa</string>
+    <string name="palette_slate">Vato</string>
 </resources>

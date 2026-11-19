@@ -110,7 +110,7 @@
     <string name="no_results">No results.</string>
 
     <!-- Settings -->
-    <string name="theme">Theme</string>
+    <string name="theme">Day and night</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
@@ -205,6 +205,7 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Updates install over the app and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
+        <item>Four themes, each a complete design of its own: Manuscript, Modern, Page (like an e-reader) and Stained glass. Choose colours, typeface, titles and line spacing too (Settings › Appearance).</item>
         <item>Three modes, one tap on the badge at the top left: Casual for everyday reading, Church (silent, previous/next passage of your service list), Study (original words, cross-references, dictionary, map).</item>
         <item>Simpler navigation: tabs at the bottom, the chapter title opens the books, the gear opens Settings.</item>
         <item>A new look: vellum and ink by day, warm black and gold by night; theme and language (MG, FR, EN) in Settings.</item>
@@ -244,4 +245,37 @@
     <string name="tradition_hint">Catholic adds the deuterocanonical books (Tobit, Judith, Maccabees, Wisdom, Sirach, Baruch) and the Catholic translations.</string>
     <string name="nav_search">Search</string>
     <string name="nav_dictionary">Dictionary</string>
+    <string name="colours">Colours</string>
+    <string name="palette_vellum">Vellum</string>
+    <string name="palette_lapis">Lapis</string>
+    <string name="palette_olive">Olive</string>
+    <string name="palette_purple">Purple</string>
+    <string name="palette_sepia">Sepia</string>
+    <string name="palette_paper">Paper</string>
+    <string name="text_font">Bible text</string>
+    <string name="font_classic">Classic</string>
+    <string name="font_modern">Modern</string>
+    <string name="font_sans">Sans-serif</string>
+    <string name="titles">Titles</string>
+    <string name="titles_engraved">Engraved</string>
+    <string name="titles_plain">Plain</string>
+    <string name="line_spacing">Line spacing</string>
+    <string name="spacing_compact">Compact</string>
+    <string name="spacing_normal">Normal</string>
+    <string name="spacing_airy">Airy</string>
+    <string name="reset_appearance">Restore the original look</string>
+    <string name="style">Theme</string>
+    <string name="style_manuscript">Manuscript</string>
+    <string name="style_modern">Modern</string>
+    <string name="style_page">Page</string>
+    <string name="style_glass">Stained glass</string>
+    <string name="style_manuscript_desc">Vellum, gilt and small capitals, like an old Bible. Tabs at the bottom.</string>
+    <string name="style_modern_desc">Clean and bright: bold titles, rounded shapes, a floating bar and floating tools.</string>
+    <string name="style_page_desc">Nothing but the text, like an e-reader. Everything else is in one menu (☰).</string>
+    <string name="style_glass_desc">Bold colour: a coloured header with tabs, large tiles, chapter buttons at the foot.</string>
+    <string name="group_bible">Bible</string>
+    <string name="group_study">Study tools</string>
+    <string name="group_saved">My library</string>
+    <string name="group_app">App</string>
+    <string name="palette_slate">Slate</string>
 </resources>

@@ -97,7 +97,7 @@
     <string name="results_limited">%1$d+ résultats (les %1$d premiers affichés)</string>
     <string name="no_results">Aucun résultat.</string>
 
-    <string name="theme">Thème</string>
+    <string name="theme">Jour et nuit</string>
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
@@ -188,6 +188,7 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
+        <item>Quatre thèmes, chacun une conception complète : Manuscrit, Moderne, Page (comme une liseuse) et Vitrail. Choisissez aussi couleurs, police, titres et interligne (Réglages › Apparence).</item>
         <item>Trois modes, d’un geste sur l’insigne en haut à gauche : Quotidien pour la lecture de tous les jours, Église (silencieux, passage précédent/suivant de votre liste du culte), Étude (mots originaux, renvois, dictionnaire, carte).</item>
         <item>Navigation simplifiée : onglets en bas, le titre du chapitre ouvre les livres, la roue dentée ouvre les réglages.</item>
         <item>Une nouvelle apparence : vélin et encre le jour, noir chaud et or la nuit ; thème et langue (MG, FR, EN) dans les réglages.</item>
@@ -227,4 +228,37 @@
     <string name="tradition_hint">Catholique ajoute les livres deutérocanoniques (Tobie, Judith, Maccabées, Sagesse, Siracide, Baruch) et les traductions catholiques.</string>
     <string name="nav_search">Chercher</string>
     <string name="nav_dictionary">Lexique</string>
+    <string name="colours">Couleurs</string>
+    <string name="palette_vellum">Vélin</string>
+    <string name="palette_lapis">Lapis</string>
+    <string name="palette_olive">Olivier</string>
+    <string name="palette_purple">Pourpre</string>
+    <string name="palette_sepia">Sépia</string>
+    <string name="palette_paper">Papier</string>
+    <string name="text_font">Texte biblique</string>
+    <string name="font_classic">Classique</string>
+    <string name="font_modern">Moderne</string>
+    <string name="font_sans">Sans empattement</string>
+    <string name="titles">Titres</string>
+    <string name="titles_engraved">Gravés</string>
+    <string name="titles_plain">Simples</string>
+    <string name="line_spacing">Interligne</string>
+    <string name="spacing_compact">Serré</string>
+    <string name="spacing_normal">Normal</string>
+    <string name="spacing_airy">Aéré</string>
+    <string name="reset_appearance">Rétablir l’apparence d’origine</string>
+    <string name="style">Thème</string>
+    <string name="style_manuscript">Manuscrit</string>
+    <string name="style_modern">Moderne</string>
+    <string name="style_page">Page</string>
+    <string name="style_glass">Vitrail</string>
+    <string name="style_manuscript_desc">Vélin, dorure et petites capitales, comme une Bible ancienne. Onglets en bas.</string>
+    <string name="style_modern_desc">Net et lumineux : titres affirmés, formes arrondies, barre et outils flottants.</string>
+    <string name="style_page_desc">Rien que le texte, comme une liseuse. Tout le reste est dans un seul menu (☰).</string>
+    <string name="style_glass_desc">Couleurs franches : en-tête coloré à onglets, grandes tuiles, boutons de chapitre en bas.</string>
+    <string name="group_bible">Bible</string>
+    <string name="group_study">Outils d’étude</string>
+    <string name="group_saved">Ma bibliothèque</string>
+    <string name="group_app">Application</string>
+    <string name="palette_slate">Ardoise</string>
 </resources>

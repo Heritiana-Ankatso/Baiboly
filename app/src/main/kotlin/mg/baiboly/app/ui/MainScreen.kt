@@ -112,6 +112,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import mg.baiboly.app.AppViewModel
+import mg.baiboly.app.Style
 import mg.baiboly.app.R
 import mg.baiboly.app.Screen
 import mg.baiboly.core.bible.Canon
@@ -160,41 +161,49 @@ fun MainScreen(vm: AppViewModel) {
     fun selectedPassages(): List<Passage> =
         ReferenceParser.mergeRanges(selected.sorted().map { it..it }).map { Passage(loc.book, loc.chapter, it.first, it.last) }
 
+    val style = LocalStyle.current
+    val pageStyle = style == Style.Page
+    // Page shows the verse actions as its top bar; the other themes at the foot
+    val selectionBar: @Composable () -> Unit = {
+        SelectionBar(
+                        vm = vm,
+                        count = selected.size,
+                        hasHighlight = vm.chapterHighlights.any { h -> selected.any { h.passage.contains(it) } },
+                        onCopy = {
+                            val ps = selectedPassages()
+                            scope.launch {
+                                val body = ps.map { vm.versesText(it) }.joinToString(" ")
+                                val ref = Passage.describe(ps, translation?.lang ?: "mg")
+                                clipboard.setText(AnnotatedString("$body\n— $ref (${translation?.shortName ?: ""})"))
+                                vm.message = ctx.getString(R.string.copied)
+                                selected = emptySet()
+                            }
+                        },
+                        onNote = {
+                            val ps = selectedPassages()
+                            val p = Passage(loc.book, loc.chapter, ps.first().verseStart, ps.last().verseEnd)
+                            noteDraft = NoteDraft(p, "")
+                        },
+                        onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
+                        onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
+                        onWords = if (selected.size == 1) ({ wordsVerse = selected.first() }) else null,
+                        onCrossRefs = if (selected.size == 1 && vm.mode == AppMode.Study) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
+                        onListen = if (vm.readAloudEnabled && !church) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
+                        onAddToList = if (church) ({ vm.addToList(selectedPassages()); selected = emptySet() }) else null,
+                        onClear = { selected = emptySet() },
+                    )
+    }
+
     Scaffold(
-        topBar = { ReaderTopBar(vm) },
+        topBar = { if (pageStyle && selected.isNotEmpty()) selectionBar() else ReaderTopBar(vm) },
         bottomBar = {
             if (selected.isNotEmpty()) {
-                SelectionBar(
-                    vm = vm,
-                    count = selected.size,
-                    hasHighlight = vm.chapterHighlights.any { h -> selected.any { h.passage.contains(it) } },
-                    onCopy = {
-                        val ps = selectedPassages()
-                        scope.launch {
-                            val body = ps.map { vm.versesText(it) }.joinToString(" ")
-                            val ref = Passage.describe(ps, translation?.lang ?: "mg")
-                            clipboard.setText(AnnotatedString("$body\n— $ref (${translation?.shortName ?: ""})"))
-                            vm.message = ctx.getString(R.string.copied)
-                            selected = emptySet()
-                        }
-                    },
-                    onNote = {
-                        val ps = selectedPassages()
-                        val p = Passage(loc.book, loc.chapter, ps.first().verseStart, ps.last().verseEnd)
-                        noteDraft = NoteDraft(p, "")
-                    },
-                    onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
-                    onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
-                    onWords = if (selected.size == 1) ({ wordsVerse = selected.first() }) else null,
-                    onCrossRefs = if (selected.size == 1 && vm.mode == AppMode.Study) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
-                    onListen = if (vm.readAloudEnabled && !church) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
-                    onAddToList = if (church) ({ vm.addToList(selectedPassages()); selected = emptySet() }) else null,
-                    onClear = { selected = emptySet() },
-                )
+                if (!pageStyle) selectionBar()
             } else {
                 Column {
                     if (!church) ReadingBar(vm)
                     if (church) ServiceBar(vm, onAdd = { showAdd = true })
+                    if (style == Style.Glass && !church) ChapterBottomBar(vm, readerTitle(vm))
                 }
             }
         },
@@ -213,10 +222,7 @@ fun MainScreen(vm: AppViewModel) {
                     },
                     onNoteTap = { n -> noteDraft = NoteDraft(n.passage, n.text, n.id) },
                 )
-                ChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter),
-                    Modifier.align(Alignment.BottomStart).padding(14.dp).testTag("prev-chapter")) { vm.previousChapter() }
-                ChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter),
-                    Modifier.align(Alignment.BottomEnd).padding(14.dp).testTag("next-chapter")) { vm.nextChapter() }
+                ChapterOverlay(vm)
                 // Church, and Study after a jump (Found N verses): one tap back to the list passage.
                 if ((church || vm.mode == AppMode.Study) && vm.isAway) {
                     ExtendedFloatingActionButton(
@@ -285,55 +291,33 @@ fun MainScreen(vm: AppViewModel) {
  * Reader top bar: mode badge; the chapter as title (tap: Books); the reading
  * text (tap: choose, ☆ default); Listen when reading aloud is on; Settings.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+/** The chapter (or the passage being read) as the reader's title. */
+@Composable
+fun readerTitle(vm: AppViewModel): String {
+    val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
+    val focus = vm.location.focus
+    return if (focus != null && !focus.isWholeChapter && focus.book == vm.location.book && focus.chapter == vm.location.chapter)
+        focus.longLabel(lang) else Canon.book(vm.location.book).name(lang) + " " + vm.location.chapter
+}
+
 @Composable
 private fun ReaderTopBar(vm: AppViewModel) {
     var menu by remember { mutableStateOf(false) }
     val t = vm.translations.firstOrNull { it.id == vm.translationId }
-    val lang = t?.lang ?: "mg"
-    val focus = vm.location.focus
-    val title = if (focus != null && !focus.isWholeChapter && focus.book == vm.location.book && focus.chapter == vm.location.chapter)
-        focus.longLabel(lang) else Canon.book(vm.location.book).name(lang) + " " + vm.location.chapter
-    val gold = LocalOrnament.current.gold
-    Column {
-        TopAppBar(
-            navigationIcon = { ModeBadge(vm, compact = true) },
-            title = {
-                Row(
-                    Modifier.clip(RoundedCornerShape(8.dp)).clickable { vm.screen = Screen.Books }
-                        .padding(horizontal = 6.dp, vertical = 4.dp).testTag("chapter-title"),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.weight(1f, fill = false))
-                    Icon(Icons.Filled.ArrowDropDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+    StyledTopBar(
+        vm, readerTitle(vm), titleTag = "chapter-title", onTitle = { vm.screen = Screen.Books },
+        actions = {
+            Box {
+                TranslationChip(t?.shortName ?: "") { menu = true }
+                TranslationMenu(vm, menu, onDismiss = { menu = false })
+            }
+            if (vm.readAloudEnabled && vm.mode != AppMode.Church) {
+                IconButton(onClick = { vm.startReading() }, modifier = Modifier.testTag("listen")) {
+                    Icon(Icons.Outlined.Headphones, stringResource(R.string.listen))
                 }
-            },
-            actions = {
-                Box {
-                    Surface(
-                        onClick = { menu = true },
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color.Transparent,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, gold.copy(alpha = 0.6f)),
-                        modifier = Modifier.padding(horizontal = 2.dp).heightIn(min = 36.dp).testTag("translation"),
-                    ) {
-                        Text(t?.shortName ?: "", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp))
-                    }
-                    TranslationMenu(vm, menu, onDismiss = { menu = false })
-                }
-                if (vm.readAloudEnabled && vm.mode != AppMode.Church) {
-                    IconButton(onClick = { vm.startReading() }, modifier = Modifier.testTag("listen")) {
-                        Icon(Icons.Outlined.Headphones, stringResource(R.string.listen))
-                    }
-                }
-                SettingsButton(vm)
-            },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
-        )
-        GoldRule()
-    }
+            }
+        },
+    )
 }
 
 /**
@@ -580,6 +564,7 @@ private fun Reader(
     onNoteTap: (Note) -> Unit,
 ) {
     val ch = vm.chapter
+    val pageStyle = LocalStyle.current == Style.Page
     val state = rememberLazyListState()
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
     val rows = remember(ch, lang) {
@@ -636,11 +621,11 @@ private fun Reader(
                     onHorizontalDrag = { change, dx -> total += dx; change.consume() },
                 )
             },
-        contentPadding = PaddingValues(start = 4.dp, end = 18.dp, top = 4.dp, bottom = 104.dp),
+        contentPadding = PaddingValues(start = 4.dp, end = 18.dp, top = 4.dp, bottom = if (pageStyle) 24.dp else 104.dp),
     ) {
         items(rows.size, key = { i -> rows[i].let { r -> if (r is ReaderRow.Verse) "v${r.verse}" else "r$i" } }) { i ->
             when (val r = rows[i]) {
-                is ReaderRow.Title -> ChapterHeader(r.book, r.chapter)
+                is ReaderRow.Title -> StyledChapterHeader(r.book, r.chapter)
                 is ReaderRow.Heading -> Text(
                     r.text,
                     style = MaterialTheme.typography.bodyLarge,
@@ -666,6 +651,7 @@ private fun Reader(
                 )
             }
         }
+        if (pageStyle) item(key = "footer") { ChapterFooterLinks(vm) }
     }
 }
 
@@ -690,7 +676,9 @@ private fun VerseRow(
         else -> Color.Transparent
     }
     val dark = MaterialTheme.colorScheme.background.luminanceApprox() < 0.5f
-    val annotated = remember(text, highlights, dark, verse, textSize, ornament) {
+    val titleFamily = TitleSerif
+    val initial = dropCaps()
+    val annotated = remember(text, highlights, dark, verse, textSize, ornament, titleFamily, initial) {
         buildAnnotatedString {
             append(text)
             for ((s, e, colour) in highlights) {
@@ -700,8 +688,8 @@ private fun VerseRow(
                 addStyle(SpanStyle(background = c), start, end)
             }
             // A rubricated initial opens each chapter, as in old Bibles.
-            if (verse == 1 && text.isNotEmpty() && text[0].isLetter()) {
-                addStyle(SpanStyle(fontFamily = TitleSerif, fontWeight = FontWeight.Bold, fontSize = (textSize * 1.9f).sp, color = ornament.rubric), 0, 1)
+            if (initial && verse == 1 && text.isNotEmpty() && text[0].isLetter()) {
+                addStyle(SpanStyle(fontFamily = titleFamily, fontWeight = FontWeight.Bold, fontSize = (textSize * 1.9f).sp, color = ornament.rubric), 0, 1)
             }
         }
     }
@@ -741,7 +729,7 @@ private fun VerseRow(
         Text(
             annotated,
             fontSize = textSize.sp,
-            lineHeight = (textSize * 1.55f).sp,
+            lineHeight = (textSize * LocalReading.current.lineSpacing).sp,
             fontFamily = TextSerif,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
@@ -759,35 +747,9 @@ private fun VerseRow(
     }
 }
 
-/** Chapter opening: book name in spaced small capitals, a large numeral, a gilt fleuron. */
-@Composable
-private fun ChapterHeader(book: String, chapter: Int) {
-    val ornament = LocalOrnament.current
-    Column(Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 10.dp, start = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(book.uppercase(), style = MaterialTheme.typography.titleMedium, color = ornament.gold, letterSpacing = 4.sp, textAlign = TextAlign.Center)
-        Text("$chapter", fontFamily = TitleSerif, fontWeight = FontWeight.SemiBold, fontSize = 52.sp, lineHeight = 56.sp, color = ornament.rubric)
-        Fleuron()
-    }
-}
-
 private fun Color.luminanceApprox(): Float = 0.2126f * red + 0.7152f * green + 0.0722f * blue
 
 // ---------------------------------------------------------------- bottom bars
-
-/** Round chapter button: vellum disc with a gilt edge. */
-@Composable
-private fun ChapterButton(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, modifier: Modifier, onClick: () -> Unit) {
-    val gold = LocalOrnament.current.gold
-    Surface(
-        onClick = onClick,
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = gold,
-        border = androidx.compose.foundation.BorderStroke(1.dp, gold),
-        shadowElevation = 3.dp,
-        modifier = modifier.size(48.dp),
-    ) { Box(contentAlignment = Alignment.Center) { Icon(icon, label) } }
-}
 
 /** Actions on the selected verses: icon and short label each, one row, no scrolling. */
 @Composable
@@ -806,51 +768,37 @@ private fun SelectionBar(
     onClear: () -> Unit,
 ) {
     var colours by remember { mutableStateOf(false) }
-    Surface(color = MaterialTheme.colorScheme.surface) {
-        Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
-            GoldRule()
-            Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
-                Text(stringResource(R.string.n_selected, "$count"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-            }
-            if (colours) {
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    HighlightColours.forEachIndexed { i, c ->
-                        Box(Modifier.size(44.dp).testTag("swatch:$i").clip(CircleShape).background(Color(c)).clickable { colours = false; onHighlight(c) })
-                    }
-                    if (hasHighlight) TextButton(onClick = { colours = false; onRemoveHighlight() }, modifier = Modifier.heightIn(min = 48.dp)) {
-                        Text(stringResource(R.string.remove_highlight))
-                    }
+    val actions = buildList {
+        add(VerseAction(Icons.Outlined.ContentCopy, stringResource(R.string.copy), onCopy))
+        add(VerseAction(Icons.Outlined.EditNote, stringResource(R.string.note_action), onNote))
+        add(VerseAction(Icons.Outlined.BorderColor, stringResource(R.string.highlight)) { colours = !colours })
+        if (onCrossRefs != null) add(VerseAction(Icons.Outlined.Link, stringResource(R.string.references_action), onCrossRefs))
+        if (onAddToList != null) add(VerseAction(Icons.AutoMirrored.Outlined.PlaylistAdd, stringResource(R.string.add_to_list_short), onAddToList))
+        if (onListen != null) add(VerseAction(Icons.Outlined.Headphones, stringResource(R.string.listen), onListen))
+        if (onWords != null) add(VerseAction(Icons.Outlined.FormatQuote, stringResource(R.string.words_action), onWords))
+    }
+    StyledSelectionActions(
+        count = count,
+        actions = actions,
+        colours = colours,
+        swatches = {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HighlightColours.forEachIndexed { i, c ->
+                    Box(Modifier.size(44.dp).testTag("swatch:$i").clip(CircleShape).background(Color(c)).clickable { colours = false; onHighlight(c) })
+                }
+                if (hasHighlight) TextButton(onClick = { colours = false; onRemoveHighlight() }, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.remove_highlight), color = androidx.compose.material3.LocalContentColor.current)
                 }
             }
-            Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                ActionItem(Icons.Outlined.ContentCopy, stringResource(R.string.copy), onCopy)
-                ActionItem(Icons.Outlined.EditNote, stringResource(R.string.note_action), onNote)
-                ActionItem(Icons.Outlined.BorderColor, stringResource(R.string.highlight)) { colours = !colours }
-                if (onCrossRefs != null) ActionItem(Icons.Outlined.Link, stringResource(R.string.references_action), onCrossRefs)
-                if (onAddToList != null) ActionItem(Icons.AutoMirrored.Outlined.PlaylistAdd, stringResource(R.string.add_to_list_short), onAddToList)
-                if (onListen != null) ActionItem(Icons.Outlined.Headphones, stringResource(R.string.listen), onListen)
-                if (onWords != null) ActionItem(Icons.Outlined.FormatQuote, stringResource(R.string.words_action), onWords)
-            }
-        }
-    }
+        },
+        onClear = onClear,
+    )
 }
 
-@Composable
-private fun ActionItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
-    Column(
-        Modifier.clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).widthIn(min = 56.dp).padding(horizontal = 6.dp, vertical = 6.dp)
-            .testTag("action:$label"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-        Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
-    }
-}
 
 // ---------------------------------------------------------------- dialogs
 
