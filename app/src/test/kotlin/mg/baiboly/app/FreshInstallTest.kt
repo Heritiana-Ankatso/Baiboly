@@ -2,6 +2,7 @@ package mg.baiboly.app
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
@@ -35,5 +36,29 @@ class FreshInstallTest {
         assertEquals("mg1865", vm.translationId)
         rule.onNodeWithText("Hijery").assertExists()            // Browse
         rule.onNodeWithText("Hanomboka lisitra").assertExists() // Start a list
+    }
+
+    /** Regression: opening Fitahirizana (Backup) in Malagasy crashed (file picker could not find the activity). */
+    @Test fun backupScreenInMalagasy() {
+        val vm = ViewModelProvider(rule.activity)[AppViewModel::class.java]
+        for (i in 0 until 300) {
+            if (vm.ready && vm.chapter != null) break
+            ShadowLooper.idleMainLooper()
+            rule.mainClock.advanceTimeByFrame()
+            Thread.sleep(50)
+        }
+        assertEquals("mg", vm.uiLanguage)
+        vm.screen = Screen.Backup
+        rule.waitForIdle()
+        rule.onNodeWithText("Fitahirizana").assertExists()
+        // both buttons start the system file picker
+        rule.onNodeWithText("Hitahiry ao anaty rakitra").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        rule.waitForIdle()
+        rule.onNodeWithText("Hamerina avy amin’ny rakitra").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        rule.waitForIdle()
+        // the other screens that use the activity: Settings, About
+        vm.screen = Screen.Settings; rule.waitForIdle()
+        vm.screen = Screen.About; rule.waitForIdle()
+        rule.onNodeWithText("Mombamomba").assertExists()
     }
 }
