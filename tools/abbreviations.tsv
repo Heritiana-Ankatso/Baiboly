@@ -1,0 +1,77 @@
+# Malagasy book abbreviations (the parser also accepts any unambiguous start of the name).
+# status: confirmed = the user's own; sourced = seen in published Malagasy usage; source-text = from the 1865 source file.
+# aliases: extra spellings separated by '|' (accents and case are ignored).
+book	name_mg	abbr_mg	status	source	aliases
+1	Genesisy	Gen	sourced	Malagasy Bible dictionary (malagasyword.org) list, quoted in search results	
+2	Eksodosy	Eks	sourced	Malagasy Bible dictionary (malagasyword.org) list, quoted in search results	
+3	Levitikosy	Lev	source-text	Malagasy 1865 source (toc3), matches common usage	
+4	Nomery	Nom	source-text	Malagasy 1865 source (toc3), matches common usage	
+5	Deotoronomia	Deot	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt	Deo|Deoteronomia
+6	Josoa	Jos	source-text	Malagasy 1865 source (toc3), matches common usage	
+7	Mpitsara	Mpits	source-text	Malagasy 1865 source (toc3), matches common usage; distinct from Mpit (Mpitoriteny)	
+8	Rota	Rota	source-text	Malagasy 1865 source (toc3), matches common usage	
+9	1 Samoela	Sam	source-text	Malagasy 1865 source (toc3), matches common usage	
+10	2 Samoela	Sam	source-text	Malagasy 1865 source (toc3), matches common usage	
+11	1 Mpanjaka	Mpan	source-text	Malagasy 1865 source (toc3), matches common usage	Mpanj
+12	2 Mpanjaka	Mpan	source-text	Malagasy 1865 source (toc3), matches common usage	Mpanj
+13	1 Tantara	Tant	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt	Tan
+14	2 Tantara	Tant	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt	Tan
+15	Ezra	Ezra	source-text	Malagasy 1865 source (toc3), matches common usage	
+16	Nehemia	Neh	source-text	Malagasy 1865 source (toc3), matches common usage	
+17	Estera	Est	source-text	Malagasy 1865 source (toc3), matches common usage	
+18	Joba	Joba	source-text	Malagasy 1865 source (toc3), matches common usage	Job
+19	Salamo	Sal	confirmed	user example	
+20	Ohabolana	Oha	source-text	Malagasy 1865 source (toc3), matches common usage	
+21	Mpitoriteny	Mpit	sourced	Malagasy Bible dictionary list (malagasyword.org / mondemalgache.org), via search-result excerpt; distinct from Mpits (Mpitsara)	Mpito
+22	Tonon-kiran’ i Solomona	Ton	source-text	Malagasy 1865 source (toc3), matches common usage	Tonon-kira|Tononkira|Tonon-kiran’i Solomona
+23	Isaia	Isa	source-text	Malagasy 1865 source (toc3), matches common usage	
+24	Jeremia	Jer	source-text	Malagasy 1865 source (toc3), matches common usage	
+25	Fitomaniana	Fit	source-text	Malagasy 1865 source (toc3), matches common usage	
+26	Ezekiela	Ezek	source-text	Malagasy 1865 source (toc3), matches common usage	
+27	Daniela	Dan	source-text	Malagasy 1865 source (toc3), matches common usage	
+28	Hosea	Hos	source-text	Malagasy 1865 source (toc3), matches common usage	
+29	Joela	Joe	source-text	Malagasy 1865 source (toc3), matches common usage	Joela
+30	Amosa	Amo	source-text	Malagasy 1865 source (toc3), matches common usage	Amosa|Am
+31	Obadia	Oba	source-text	Malagasy 1865 source (toc3), matches common usage	Obad
+32	Jona	Jona	source-text	Malagasy 1865 source (toc3), matches common usage	
+33	Mika	Mik	source-text	Malagasy 1865 source (toc3), matches common usage	
+34	Nahoma	Nah	source-text	Malagasy 1865 source (toc3), matches common usage	
+35	Habakoka	Hab	source-text	Malagasy 1865 source (toc3), matches common usage	
+36	Zefania	Zef	source-text	Malagasy 1865 source (toc3), matches common usage	
+37	Hagay	Hag	source-text	Malagasy 1865 source (toc3), matches common usage	
+38	Zakaria	Zak	source-text	Malagasy 1865 source (toc3), matches common usage	
+39	Malakia	Mal	source-text	Malagasy 1865 source (toc3), matches common usage	
+40	Matio	Mat	source-text	Malagasy 1865 source (toc3), matches common usage	
+41	Marka	Mar	source-text	Malagasy 1865 source (toc3), matches common usage	
+42	Lioka	Lio	source-text	Malagasy 1865 source (toc3), matches common usage	
+43	Jaona	Jao	confirmed	user example	
+44	Asan’ ny Apostoly	Asan	source-text	Malagasy 1865 source (toc3), matches common usage	Asan’ny Apostoly
+45	Romana	Rom	source-text	Malagasy 1865 source (toc3), matches common usage	
+46	1 Korintiana	Kor	source-text	Malagasy 1865 source (toc3), matches common usage	
+47	2 Korintiana	Kor	source-text	Malagasy 1865 source (toc3), matches common usage	
+48	Galatiana	Gal	source-text	Malagasy 1865 source (toc3), matches common usage	
+49	Efesiana	Efe	confirmed	user example	
+50	Filipiana	Flp	source-text	Malagasy 1865 source (toc3), matches common usage	
+51	Kolosiana	Kol	source-text	Malagasy 1865 source (toc3), matches common usage	
+52	1 Tesaloniana	Tes	source-text	Malagasy 1865 source (toc3), matches common usage	
+53	2 Tesaloniana	Tes	source-text	Malagasy 1865 source (toc3), matches common usage	
+54	1 Timoty	Tim	confirmed	user example	
+55	2 Timoty	Tim	confirmed	user example	
+56	Titosy	Tit	source-text	Malagasy 1865 source (toc3), matches common usage	Titosy
+57	Filemona	Flm	source-text	Malagasy 1865 source (toc3), matches common usage	Filem|Filemona
+58	Hebreo	Heb	source-text	Malagasy 1865 source (toc3), matches common usage	Hebreo
+59	Jakoba	Jak	source-text	Malagasy 1865 source (toc3), matches common usage	
+60	1 Petera	Pet	source-text	Malagasy 1865 source (toc3), matches common usage	
+61	2 Petera	Pet	source-text	Malagasy 1865 source (toc3), matches common usage	
+62	1 Jaona	Jao	source-text	Malagasy 1865 source (toc3), matches common usage	
+63	2 Jaona	Jao	source-text	Malagasy 1865 source (toc3), matches common usage	
+64	3 Jaona	Jao	source-text	Malagasy 1865 source (toc3), matches common usage	
+65	Joda	Joda	source-text	Malagasy 1865 source (toc3), matches common usage	Jod|Jud
+66	Apokalypsy	Apok	source-text	Malagasy 1865 source (toc3), matches common usage	Apo|Apokalipsy
+67	Tobia	Tob	unconfirmed	Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed	Tôbia|Tobita
+68	Jodita	Jdt	unconfirmed	Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed	Jiodita
+69	1 Makabeo	Mak	unconfirmed	Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed	
+70	2 Makabeo	Mak	unconfirmed	Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed	
+71	Fahendrena	Fah	unconfirmed	Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed	
+72	Eklesiastika	Ekl	unconfirmed	Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed	Sir|Sirasida|Ekleziastika
+73	Baroka	Bar	unconfirmed	Malagasy Catholic book name (baiboly.katolika.org list, via search); abbreviation proposed, to be reviewed	

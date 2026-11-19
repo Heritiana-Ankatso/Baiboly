@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Baiboly" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#FFFBF7</item>
+        <item name="android:statusBarColor">#FFFBF7</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Silent: no system click sounds or haptics on the app's views. -->
+        <item name="android:soundEffectsEnabled">false</item>
+        <item name="android:hapticFeedbackEnabled">false</item>
+    </style>
+</resources>

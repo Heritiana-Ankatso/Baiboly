@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Malagasy interface. Draft wording: to be reviewed by a native speaker. -->
+<resources>
+    <string name="menu">Menio</string>
+    <string name="search">Hitady</string>
+    <string name="study_mode">Fandalinana ny teny tany am-boalohany (α)</string>
+    <string name="study_mode_on">%1$s mandeha: tsindrio ny laharan’ny andininy hianarana ny teny tany am-boalohany</string>
+    <string name="study_mode_off">%1$s tsy mandeha</string>
+    <string name="choose_translation">Dikan-teny vakiana</string>
+
+    <string name="start_list">Hanomboka lisitra</string>
+    <string name="side_tag">fanampiny</string>
+    <string name="mark_side">Asio marika ho andininy fanampiny</string>
+    <string name="unmark_side">Esory ny marika fanampiny</string>
+    <string name="move_earlier">Afindra aloha</string>
+    <string name="move_later">Afindra aoriana</string>
+    <string name="delete">Fafao</string>
+    <string name="list_menu">Safidy momba ny lisitra</string>
+    <string name="new_list">Lisitra vaovao</string>
+    <string name="saved_lists">Lisitra voatahiry</string>
+    <string name="rename_list">Ovay ny anaran’ny lisitra</string>
+    <string name="list_title">Lohatenin’ny lisitra</string>
+    <string name="default_list_title">Fotoam-pivavahana %1$s</string>
+
+    <string name="previous_chapter">Toko teo aloha</string>
+    <string name="next_chapter">Toko manaraka</string>
+    <string name="back_to_my_place">Hiverina amin’ny toerako</string>
+    <string name="text_size">Haben’ny soratra</string>
+    <string name="chapter_label">%1$s %2$d</string>
+    <string name="loading">Andraso kely…</string>
+    <string name="translation_note_numbering">Manaraka ity dikan-teny ity ny laharan’ny andininy, ka mety ho samy hafa kely amin’ny Baiboly malagasy.</string>
+
+    <string name="add">Ampio</string>
+    <string name="browse">Hijery</string>
+    <string name="done">Vita</string>
+    <string name="cancel">Foano</string>
+    <string name="close">Akatona</string>
+    <string name="save">Tehirizo</string>
+    <string name="ok">Eny</string>
+
+    <string name="add_verses">Hanampy andininy</string>
+    <string name="keypad">Isa</string>
+    <string name="keyboard">Klavie</string>
+    <string name="entry_hint">oh. Jao 3: 16 na Efe 2: 4, 8-9</string>
+    <string name="backspace">Fafao ny litera farany</string>
+    <string name="clear">Fafao daholo</string>
+    <string name="added_x">Tafiditra: %1$s</string>
+    <string name="preview_x">→ %1$s</string>
+    <string name="err_unknown_book">Boky tsy fantatra: « %1$s »</string>
+    <string name="err_ambiguous_book">« %1$s » dia mety ho: %2$s</string>
+    <string name="err_missing_book">Atombohy amin’ny anaran’ny boky</string>
+    <string name="err_chapter_range">%3$d no isan’ny toko ao amin’ny %1$s (fa tsy %2$d)</string>
+    <string name="err_verse_range">%4$d no isan’ny andininy ao amin’ny %1$s %2$d (fa tsy %3$d)</string>
+    <string name="err_reversed">Mivadika ny %1$d-%2$d</string>
+    <string name="err_syntax">Tsy azo vakiana: « %1$s »</string>
+    <string name="recent">Vao haingana</string>
+
+    <string name="old_testament">Testamenta Taloha</string>
+    <string name="new_testament">Testamenta Vaovao</string>
+    <string name="books">Boky</string>
+    <string name="add_to_list">Ampidiro ao amin’ny lisitra</string>
+    <string name="open_without_adding">Sokafy fotsiny</string>
+    <string name="select_verses_hint">Tsindrio ireo andininy tianao hofidiana</string>
+    <string name="whole_chapter">Toko iray manontolo</string>
+
+    <string name="books_of_bible">Bokin’ny Baiboly</string>
+    <string name="history">Novakiana</string>
+    <string name="notes">Fanamarihana</string>
+    <string name="highlights">Voaloko</string>
+    <string name="backup">Fitahirizana</string>
+    <string name="settings">Fikirana</string>
+    <string name="about">Mombamomba</string>
+
+    <string name="copy">Adikao</string>
+    <string name="add_note">Fanamarihana</string>
+    <string name="highlight">Lokoy</string>
+    <string name="select_words">Hifidy teny</string>
+    <string name="copied">Voadika</string>
+    <string name="note_hint">Ny fanamarihanao</string>
+    <string name="edit_note">Ovay</string>
+    <string name="remove_highlight">Esory ny loko</string>
+    <string name="select_words_hint">Sintony ireo tondro mba hifidianana ny teny, dia safidio izay hatao.</string>
+    <string name="n_selected">%1$s voafidy</string>
+
+    <string name="empty_history">Mbola tsy nisy andalan-teny novakiana.</string>
+    <string name="empty_notes">Mbola tsy misy fanamarihana. Tsindrio ny andininy iray, dia « Fanamarihana ».</string>
+    <string name="empty_highlights">Mbola tsy misy voaloko. Tsindrio ny andininy iray, dia « Lokoy ».</string>
+    <string name="clear_history">Fafao ny novakiana</string>
+    <string name="open">Sokafy</string>
+    <string name="duplicate">Dika mitovy</string>
+    <string name="items_count">%1$d andalana</string>
+    <string name="current_list">ampiasaina izao</string>
+    <string name="copy_suffix">%1$s (dika)</string>
+
+    <string name="search_hint">Hitady ao amin’ny soratra (tsy voatery ny tsindrim-peo)</string>
+    <string name="search_in">Hitady ao amin’ny %1$s</string>
+    <string name="results_count">Valiny %1$d</string>
+    <string name="results_limited">Valiny %1$d mahery (ny %1$d voalohany no aseho)</string>
+    <string name="no_results">Tsy nisy hita.</string>
+
+    <string name="theme">Andro sy alina</string>
+    <string name="theme_system">Araka ny finday</string>
+    <string name="theme_light">Mazava</string>
+    <string name="theme_dark">Maizina</string>
+    <string name="interface_language">Fiteny</string>
+    <string name="language_system">Araka ny finday</string>
+
+    <string name="style_classic">Dikan-teny mahazatra ampiasain’ny fiangonana</string>
+    <string name="style_literal">Adika teny isan-teny, akaiky ny soratra tany am-boalohany</string>
+    <string name="style_faithful_modern">Fiteny ankehitriny, akaiky ny soratra tany am-boalohany</string>
+    <string name="style_accessible">Fiteny ankehitriny, mora vakiana</string>
+    <string name="style_simplified">Voambolana tsotra dia tsotra (teny fototra 850)</string>
+    <string name="note_mg1865">Ao amin’ity loharano ity, andininy 1 ny lohatenin’ny salamo.</string>
+    <string name="note_darby_fr">Ao amin’ny Testamenta Taloha, manaraka ny Baiboly hebreo indraindray ny laharan’ny andininy.</string>
+
+    <string name="backup_intro">Tehirizo ao anaty rakitra iray ny lisitra, ny fanamarihana, ny voaloko ary ny novakiana, na avereno avy amin’ny rakitra iray. Tsy misy mivoaka ny finday raha tsy ianao no mamindra ilay rakitra.</string>
+    <string name="export_backup">Hitahiry ao anaty rakitra</string>
+    <string name="import_backup">Hamerina avy amin’ny rakitra</string>
+    <string name="import_confirm">Hosoloina amin’ny ao anatin’ilay rakitra avokoa ny lisitra, ny fanamarihana, ny voaloko ary ny novakiana misy ankehitriny. Hotohizana ve?</string>
+    <string name="backup_saved">Voatahiry.</string>
+    <string name="backup_restored">Naverina ny tahiry.</string>
+    <string name="backup_failed">Tsy voavaky ity rakitra ity: %1$s</string>
+
+    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Tsy mamoaka feo, tsy mila kaonty, ary tsy mifandray amin’ny aterineto mihitsy.</string>
+    <string name="sources_licences">Soratra, angona ary fahazoan-dalana</string>
+    <string name="reading_texts">Dikan-teny vakiana</string>
+    <string name="study_data">Angona fandalinana</string>
+    <string name="version_x">Versiona %1$s</string>
+    <string name="about_tools">Tabilaon’ny laharan’ny andininy: PySword 0.2.8 (fahazoan-dalana MIT). Endri-tsoratra: Gentium Book Plus (© SIL International) sy Cormorant SC (© the Cormorant Project Authors), SIL Open Font License 1.1, ao amin’ny fampiharana ny lahatsoratry ny fahazoan-dalana (assets/fonts). Kaody: Kotlin, Jetpack Compose (Apache 2.0).</string>
+
+    <string name="study_title">Teny tany am-boalohany · %1$s</string>
+    <string name="study_kjv_note">Manaraka ny fanondroana ao amin’ny King James Version (KJV %1$s) ireo teny ireo, ka mety tsy mifanandrify tsara amin’ny teny malagasy.</string>
+    <string name="study_numbering_warning">Samy hafa ny laharan’ny andininy ato amin’ity toko ity, ka tsy azo antoka hoe iza no andininy KJV mifanaraka aminy.</string>
+    <string name="study_no_words">Tsy misy teny voamarika amin’ity andininy ity.</string>
+    <string name="found_n_verses">Andininy %1$d no hita</string>
+    <string name="part_of_speech">Karazan-teny</string>
+    <string name="definition">Dikany (amin’ny teny anglisy)</string>
+    <string name="kjv_usage">Fandikana azy ao amin’ny KJV</string>
+    <string name="pronunciation">Fanononana</string>
+    <string name="back">Hiverina</string>
+    <string name="no_entry">Tsy misy ao amin’ny rakibolana ny %1$s.</string>
+    <string name="opened_in_malagasy">Nosokafana tamin’ny Baiboly malagasy</string>
+    <string name="default_bible">Baiboly fampiasa matetika</string>
+    <string name="default_bible_hint">Ny Baiboly isokafan’ny fampiharana. Azonao tsindriana koa ny ☆ ao amin’ny lisitry ny dikan-teny (tsindrio ny lohateny eo ambony).</string>
+    <string name="set_default">Ataovy Baiboly fampiasa matetika</string>
+    <string name="default_set">%1$s no Baiboly fampiasanao matetika izao</string>
+    <string name="style_regional">Fitenim-paritra (Tandroy-Mahafaly), mbola drafitra</string>
+    <string name="note_ncl_fr">Baiboly katolika (boky 73). Nalaina araka ny fahazoan-dalana CC BY-SA 4.0: tsy nampidirina ny fanamarihana sy ny fandaminana; tsy niova ny soratra.</string>
+    <string name="note_tdx">Fitenim-paritra tandroy any atsimon’i Madagasikara. Drafitra navoakan’ny mpandika azy.</string>
+    <string name="catholic_tag">Katolika</string>
+    <string name="deuterocanonical">Boky deoterokanonika (Baiboly katolika)</string>
+    <string name="shown_in">Aseho ao amin’ny %1$s: ao amin’ny Baiboly katolika ihany no misy ity boky ity</string>
+    <string name="note_crampon">Baiboly katolika (boky 73) nadikan’i Augustin Crampon, navoaka tamin’ny 1923.</string>
+    <string name="note_webc">Baiboly katolika (boky 73); Estera sy Daniela araka ny endriny grika.</string>
+    <string name="note_dra">Baiboly katolika (boky 73). Araka ny Vulgata ny laharan’ny salamo: ny salamo 22 eto dia salamo 23 any amin’ny hafa.</string>
+    <string name="theme_device_short">Finday</string>
+    <string name="more">Hafa koa</string>
+    <string name="listen">Henoina</string>
+    <string name="listen_from_here">Henoina hatreto</string>
+    <string name="read_aloud">Famakiana mafy</string>
+    <string name="read_aloud_hint">Tsy mandeha raha tsy alefanao. Rehefa alefa, ny « Henoina » dia mamaky ny toko amin’ny feon’ny finday amin’ny fitenin’ilay soratra, na dia maty aza ny efijery.</string>
+    <string name="reading_speed">Hafainganan’ny famakiana</string>
+    <string name="malagasy_voice_note">Ny feo amin’ny fitenin’ny soratra ihany no mamaky azy. Mbola tsy manana feo malagasy ny ankamaroan’ny finday, ka ny soratra malagasy dia tsy ho azo vakiana mafy raha tsy misy feo malagasy apetraka. Ny feo frantsay sy anglisy amin’ny finday no mamaky ny soratra frantsay sy anglisy.</string>
+    <string name="tts_unavailable">Tsy manana motera famakiana feo ny finday. Apetraho iray (oh. Speech Services by Google) ao amin’ny fikirana.</string>
+    <string name="pause">Ajanony kely</string>
+    <string name="resume">Tohizo</string>
+    <string name="stop">Ajanony</string>
+    <string name="previous_verse">Andininy teo aloha</string>
+    <string name="next_verse">Andininy manaraka</string>
+    <string name="cross_references">Fifandraisan-teny</string>
+    <string name="tsk_credit">Treasury of Scripture Knowledge (an’ny besinimaro)</string>
+    <string name="no_cross_references">Tsy misy fifandraisan-teny amin’ity andininy ity.</string>
+    <string name="dictionary">Rakibolana</string>
+    <string name="dictionary_search_hint">Hitady teny na lohahevitra</string>
+    <string name="dict_easton">Rakibolana (EN)</string>
+    <string name="dict_nave">Lohahevitra (EN)</string>
+    <string name="dict_martin">Glossaire (FR)</string>
+    <string name="map">Sarintany</string>
+    <string name="places_this_chapter">Toerana ato amin’ity toko ity</string>
+    <string name="places_in">Toerana · %1$s</string>
+    <string name="no_places_in_chapter">Tsy misy toerana voatonona ato amin’ity toko ity.</string>
+    <string name="place_certain">toerana fantatra tsara</string>
+    <string name="place_likely">toerana azo inoana</string>
+    <string name="place_uncertain">toerana tsy azo antoka</string>
+    <string name="voice_missing">Tsy misy feo %1$s ao amin’ity finday ity, ka tsy azo vakiana mafy ity soratra ity. Azo ampiana feo ao amin’ny fikirana famakiana feo amin’ny finday.</string>
+    <string name="lang_malagasy">malagasy</string>
+    <string name="lang_french">frantsay</string>
+    <string name="lang_english">anglisy</string>
+    <string name="whats_new">Vaovao</string>
+    <string name="whats_new_ok">Amena</string>
+    <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
+    <string-array name="whats_new_items">
+        <item>Modely efatra, samy manana ny endriny manokana: Sora-tanana, Maoderina, Pejy (toy ny famakiana boky elektronika) ary Fitaratra miloko. Azo safidiana koa ny loko, ny soratra, ny lohateny ary ny elanelan’andalana (Fikirana › Endrika).</item>
+        <item>Fomba telo, tsindrio ny marika eo ambony ankavia: Tsotra ho an’ny famakiana isan’andro, Fiangonana (mangina, andalan-tsoratra teo aloha/manaraka ao amin’ny lisitrao), Fianarana (teny am-boalohany, andinin-teny mifandray, rakibolana, sarintany).</item>
+        <item>Fivezivezena tsotra kokoa: tabilao eo ambany, ny lohatenin’ny toko no manokatra ny boky, ny kodiarana no manokatra ny fikirana.</item>
+        <item>Endrika vaovao: taratasy sy ranomainty amin’ny andro, mainty mafana sy volamena amin’ny alina; endrika sy fiteny (MG, FR, EN) ao amin’ny fikirana.</item>
+        <item>Literal Standard Version (anglisy).</item>
+        <item>Andinin-teny mifandray ho an’ny andininy tsirairay (Treasury of Scripture Knowledge).</item>
+        <item>Rakibolana sy lohahevitra ara-Baiboly (anglisy) ary glossaire Martin (frantsay).</item>
+        <item>Sarintany: anarana vitsy kokoa indray mandeha (miseho rehefa ahitsy ny tanàna kely), tetiandro manomboka amin’ny Razambe ka hatramin’ny Fiangonana voalohany miaraka amin’ny sisintany tamin’izany, lalana, endriky ny tany ary sisintany ankehitriny.</item>
+        <item>Famakiana mafy, na dia maty aza ny efijery (alefaso ao amin’ny fikirana). Ny feo amin’ny fitenin’ny soratra ihany no mamaky azy.</item>
+        <item>Baiboly katolika misy an’i Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika ary Baroka: Fikirana › Safidy hafa › Fiangonana sy boky.</item>
+    </string-array>
+    <string name="mode">Fomba fampiasana</string>
+    <string name="mode_casual">Tsotra</string>
+    <string name="mode_church">Fiangonana</string>
+    <string name="mode_study">Fianarana</string>
+    <string name="mode_casual_desc">Famakiana mora: ny soratra, ny fikarohana ary ny naotinao.</string>
+    <string name="mode_church_desc">Mangina. Ny lisitry ny fotoam-pivavahana, tsindry iray dia mifindra andalan-tsoratra.</string>
+    <string name="mode_study_desc">Teny tany am-boalohany, andinin-teny mifandray, rakibolana ary sarintany.</string>
+    <string name="choose_mode">Safidio ny fomba</string>
+    <string name="nav_read">Vakio</string>
+    <string name="nav_library">Tahiry</string>
+    <string name="nav_service">Fivavahana</string>
+    <string name="nav_lists">Lisitra</string>
+    <string name="original_words">Teny am-boalohany</string>
+    <string name="add_passages">Hanampy andalan-tsoratra</string>
+    <string name="previous_item">Teo aloha</string>
+    <string name="next_item">Manaraka</string>
+    <string name="note_action">Naoty</string>
+    <string name="references_action">Mifandray</string>
+    <string name="add_to_list_short">Ho lisitra</string>
+    <string name="words_action">Teny</string>
+    <string name="all_places">Toerana rehetra</string>
+    <string name="appearance">Endrika</string>
+    <string name="advanced">Safidy hafa</string>
+    <string name="tradition">Fiangonana sy boky</string>
+    <string name="protestant">Protestanta</string>
+    <string name="catholic">Katolika</string>
+    <string name="tradition_hint">Ny Katolika dia manampy ireo boky deoterokanonika (Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika, Baroka) sy ny dikan-teny katolika.</string>
+    <string name="nav_search">Hitady</string>
+    <string name="nav_dictionary">Rakibolana</string>
+    <string name="colours">Loko</string>
+    <string name="palette_vellum">Volamena</string>
+    <string name="palette_lapis">Manga</string>
+    <string name="palette_olive">Maitso</string>
+    <string name="palette_purple">Volomparasy</string>
+    <string name="palette_sepia">Volontany</string>
+    <string name="palette_paper">Fotsy</string>
+    <string name="text_font">Soratry ny Baiboly</string>
+    <string name="font_classic">Klasika</string>
+    <string name="font_modern">Maoderina</string>
+    <string name="font_sans">Tsotra</string>
+    <string name="titles">Lohateny</string>
+    <string name="titles_engraved">Voasokitra</string>
+    <string name="titles_plain">Tsotra</string>
+    <string name="line_spacing">Elanelan’andalana</string>
+    <string name="spacing_compact">Kely</string>
+    <string name="spacing_normal">Antonony</string>
+    <string name="spacing_airy">Malalaka</string>
+    <string name="reset_appearance">Averina ilay endrika voalohany</string>
+    <string name="style">Modely</string>
+    <string name="style_manuscript">Sora-tanana</string>
+    <string name="style_modern">Maoderina</string>
+    <string name="style_page">Pejy</string>
+    <string name="style_glass">Fitaratra miloko</string>
+    <string name="style_manuscript_desc">Taratasy, volamena ary litera kely, toy ny Baiboly taloha. Tabilao eo ambany.</string>
+    <string name="style_modern_desc">Madio sy mazava: lohateny matevina, endrika boribory, bara sy fitaovana mitsingevana.</string>
+    <string name="style_page_desc">Ny soratra ihany, toy ny famakiana boky elektronika. Ny sisa rehetra ao anaty menio iray (☰).</string>
+    <string name="style_glass_desc">Loko mamirapiratra: lohany miloko misy tabilao, karatra lehibe, bokotra toko eo ambany.</string>
+    <string name="group_bible">Baiboly</string>
+    <string name="group_study">Fitaovana fianarana</string>
+    <string name="group_saved">Tahiriko</string>
+    <string name="group_app">Rindranasa</string>
+    <string name="palette_slate">Vato</string>
+    <string name="map_layers">Sosona amin’ny sarintany</string>
+    <string name="map_ancient">Tontolo fahiny</string>
+    <string name="map_terrain">Endriky ny tany</string>
+    <string name="map_today">Sisintany ankehitriny</string>
+    <string name="map_roads">Lalana</string>
+    <string name="map_realms">Sisintany tamin’izany</string>
+    <string name="period_all">Vanim-potoana rehetra</string>
+    <string name="place_mentions">andininy %1$d</string>
+    <string name="period_patriarchs">Razambe</string>
+    <string name="dates_patriarchs">t. 2000–1700 talohan’i J.K.</string>
+    <string name="period_exodus">Fivoahana sy efitra</string>
+    <string name="dates_exodus">t. 1450 na 1250 talohan’i J.K.</string>
+    <string name="period_conquest">Fandresena sy mpitsara</string>
+    <string name="dates_conquest">t. 1400–1050 talohan’i J.K.</string>
+    <string name="period_kingdom">Fanjakana tokana</string>
+    <string name="dates_kingdom">t. 1050–930 talohan’i J.K.</string>
+    <string name="period_divided">Isiraely sy Joda</string>
+    <string name="dates_divided">930–586 talohan’i J.K.</string>
+    <string name="period_exile">Sesitany sy fiverenana</string>
+    <string name="dates_exile">586–400 talohan’i J.K.</string>
+    <string name="period_between">Anelanelan’ny Testamenta</string>
+    <string name="dates_between">400–4 talohan’i J.K.</string>
+    <string name="period_jesus">Fiainan’i Jesosy</string>
+    <string name="dates_jesus">t. 4 talohan’i J.K. – 30 taorian’i J.K.</string>
+    <string name="period_church">Fiangonana voalohany</string>
+    <string name="dates_church">30–100 taorian’i J.K.</string>
+    <string name="realm_persia">Fanjakana persiana</string>
+    <string name="realm_hasmonean">Fanjakana hasmoneana (t. 140–37 talohan’i J.K.)</string>
+    <string name="realm_herod">Fanjakan’i Heroda Lehibe</string>
+    <string name="realm_rome">Faritany romana (t. 200 taorian’i J.K.)</string>
+</resources>

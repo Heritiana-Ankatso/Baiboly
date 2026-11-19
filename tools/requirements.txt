@@ -1,0 +1,2 @@
+# Python packages for tools/build_data.py (the map relief is cut with Pillow)
+Pillow==12.3.0
