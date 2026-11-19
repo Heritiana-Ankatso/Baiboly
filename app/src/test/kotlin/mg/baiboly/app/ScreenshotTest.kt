@@ -61,20 +61,22 @@ class ScreenshotTest {
 
     @Test fun screens() {
         settle { vm.ready && vm.chapter != null }
-        // a small service list, reading the current item
-        vm.addToList(listOf(Passage(43, 3, 16, 16), Passage(49, 2, 8, 9), Passage(19, 23)))
-        settle { vm.chapter?.book == 43 }
-        vm.toggleSide(1)
-        settle()
-        shot("01-reader-light-mg")
+        // Casual mode: reading, with the bottom navigation
+        open(Passage(43, 3))
+        shot("01-reader-casual-mg")
 
         vm.changeTheme(ThemeMode.Dark)
         settle()
         shot("02-reader-dark-mg")
-
         vm.changeTheme(ThemeMode.Light)
-        open(Passage(19, 23))
-        shot("03-psalm-23-light")
+
+        // Church mode: a small service list, previous/next passage bar
+        vm.changeMode(AppMode.Church)
+        vm.addToList(listOf(Passage(43, 3, 16, 16), Passage(49, 2, 8, 9), Passage(19, 23)))
+        settle { vm.chapter?.book == 43 }
+        vm.toggleSide(1)
+        settle()
+        shot("03-church-service-mg")
 
         vm.screen = Screen.Settings
         settle()
@@ -83,30 +85,39 @@ class ScreenshotTest {
         settle()
 
         // Catholic Bible: Tobit in the World English Bible, Catholic Edition
+        vm.changeMode(AppMode.Casual)
+        vm.changeTradition(Tradition.Catholic)
         vm.chooseUiLanguage("en")
         vm.setTranslation("webc")
         open(Passage(67, 1))
         shot("05-tobit-catholic-en")
 
-        // α / א: an Old Testament chapter with study mode on
+        vm.screen = Screen.Books
+        settle()
+        shot("06-books-en")
+        vm.screen = Screen.Main
+        settle()
+
+        // Study mode: an Old Testament chapter (א), map, dictionary
         vm.chooseUiLanguage("fr")
         vm.setTranslation("lsg1910")
+        vm.changeMode(AppMode.Study)
         open(Passage(1, 1))
-        if (!vm.studyMode) vm.toggleStudyMode()
-        settle()
-        shot("06-genesis-aleph-fr")
+        shot("07-study-genesis-fr")
 
-        // study tools: map of Exodus 14, dictionary, cross-references, reading bar
         vm.chooseUiLanguage("mg")
         vm.setTranslation("mg1865")
         open(Passage(2, 14))
         vm.mapForChapter = true
         vm.screen = Screen.Map
         pump(4000)
-        shot("07-map-exodus-14")
+        shot("08-map-exodus-14")
         vm.screen = Screen.Dictionary
         pump(2500)
-        shot("08-dictionary")
+        shot("09-dictionary")
+        vm.screen = Screen.Library
+        settle()
+        shot("10-library")
         vm.screen = Screen.Main
         settle()
     }

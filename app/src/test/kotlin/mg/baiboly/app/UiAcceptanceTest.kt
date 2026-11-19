@@ -102,6 +102,10 @@ class UiAcceptanceTest {
     @Test fun serviceDryRun() {
         ready()
         assertTrue(vm.list.isEmpty)
+        // Church mode: the service list, its strip and the previous/next bar.
+        tag("mode-badge").tap()
+        tag("mode:Church").tap()
+        waitFor { vm.mode == AppMode.Church }
         rule.onNodeWithText("Start a list", substring = true).tap()
 
         // Task 6: a verse in four taps in keypad mode: book, chapter chip, verse chip, Add.
@@ -159,8 +163,14 @@ class UiAcceptanceTest {
         tag("back-to-place").tap()
         waitFor { Passage(49, 2, 8, 9).at() && !vm.isAway }
 
-        // Task 7: Browse -> Open without adding -> Back to my place in one tap.
-        rule.onNodeWithText("Browse").tap()
+        // Service bar: next passage in one tap.
+        tag("service-next").tap()
+        waitFor { vm.list.current == 3 }
+        tag("service-prev").tap()
+        waitFor { vm.list.current == 2 && Passage(49, 2, 8, 9).at() }
+
+        // Task 7: Books tab -> Open without adding -> Back to my place in one tap.
+        tag("nav:Books").tap()
         tag("browse-books").performScrollToKey(45)
         tag("browse-book:45").tap()
         tag("browse-chapter:5").tap()
@@ -205,8 +215,9 @@ class UiAcceptanceTest {
         vm.openChapter(55, 2)
         waitFor { vm.chapter?.book == 55 && vm.chapter?.chapter == 2 }
         rule.waitForIdle()
-        tag("alpha").tap()
-        assertTrue(vm.studyMode)
+        tag("mode-badge").tap()
+        tag("mode:Study").tap()
+        waitFor { vm.studyMode }
         tag("reader").performScrollToKey("v25")
         tag("vnum:25").tap()
         waitFor { runCatching { tag("word:G1922").assertExists(); true }.getOrDefault(false) }
@@ -222,25 +233,26 @@ class UiAcceptanceTest {
         tag("back-to-place").assertExists()
     }
 
-    /** Tasks 10–11: three taps to a chapter from the menu; notes and highlights survive a restart. */
+    /** Tasks 10–11: three taps to a chapter from the title; notes and highlights survive a restart. */
     @Test fun menuNotesHighlights() {
         ready()
-        rule.onNodeWithContentDescription("Menu").tap()
-        rule.waitForIdle()
-        tag("menu-list").performScrollToKey("b19") // scrolling, not a tap
-        tag("menu-book:19").tap()       // Salamo (testaments start expanded)
-        tag("menu-chapter:23").tap()
+        tag("chapter-title").tap()      // the chapter title opens the books page
+        waitFor { vm.screen == Screen.Books }
+        tag("books").performScrollToKey(19) // scrolling, not a tap
+        tag("book-item:19").tap()       // Salamo
+        tag("chapters").assertExists()
+        tag("browse-chapter:23").tap()
         waitFor { vm.chapter?.book == 19 && vm.chapter?.chapter == 23 }
 
         // Selection action "Add note": the dialog's text entry is driven through the
         // ViewModel because a focused field never lets Compose report idle under Robolectric.
         tag("verse:1").tap()
-        rule.onNodeWithText("Add note").assertExists()
+        tag("action:Note").assertExists()
         tag("verse:1").tap() // unselect
         vm.addNote(Passage(19, 23, 1, 1), "Jehovah no Mpiandry ahy")
         tag("verse:2").tap()
         tag("verse:3").tap()
-        rule.onNodeWithText("Highlight").tap()
+        tag("action:Highlight").tap()
         tag("swatch:0").tap()
         rule.waitForIdle()
 
@@ -252,7 +264,8 @@ class UiAcceptanceTest {
         vm.openChapter(1, 1)
         waitFor { vm.chapter?.book == 1 }
         vm.refreshNotes()
-        vm.screen = Screen.Notes
+        tag("nav:Library").tap()
+        tag("library-tab:0").tap()       // Notes
         waitFor { vm.notes.isNotEmpty() }
         rule.onNodeWithText("Jehovah no Mpiandry ahy").tap()
         waitFor { Passage(19, 23, 1, 1).at() && vm.chapter?.book == 19 && vm.screen == Screen.Main }
@@ -269,14 +282,14 @@ class UiAcceptanceTest {
         assertEquals("mg", vm.uiLanguage)
         vm.screen = Screen.Main
         rule.waitForIdle()
-        rule.onNodeWithText("Hijery").assertExists()          // Browse
-        rule.onNodeWithText("Hanomboka lisitra", substring = true).assertExists() // Start a list
+        rule.onNodeWithText("Vakio").assertExists()           // Read tab
+        rule.onNodeWithText("Tahiry").assertExists()          // Library tab
         assertTrue(vm.str(R.string.default_list_title, "x").startsWith("Fotoam-pivavahana"))
         // after closing and reopening the app
         rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
         rule.activityRule.scenario.recreate()
         waitFor { vm.ready && vm.chapter != null }
-        rule.onNodeWithText("Hijery").assertExists()
+        rule.onNodeWithText("Vakio").assertExists()
     }
 
     /** The default Bible is set with one tap on its star; it is what the app opens with. */
@@ -284,7 +297,7 @@ class UiAcceptanceTest {
         ready()
         assertEquals("mg1865", vm.defaultTranslationId)
         tag("reader").assertExists()
-        rule.onNodeWithText("MG1865  ▾").tap()     // the reading-text menu under the title
+        tag("translation").tap()                   // the reading-text chip in the top bar
         tag("default:lsg1910").tap()               // one tap: default Bible
         waitFor { vm.defaultTranslationId == "lsg1910" && vm.translationId == "lsg1910" && vm.chapter?.translation == "lsg1910" }
         // switching the text for a while does not change the default
@@ -300,5 +313,43 @@ class UiAcceptanceTest {
         rule.activityRule.scenario.recreate()
         waitFor { vm !== old && vm.ready && vm.chapter != null }
         assertEquals("lsg1910", vm.translationId)
+    }
+
+    /** The Catholic/Protestant choice sits under Settings > Advanced and filters texts and books. */
+    @Test fun traditionInAdvancedSettings() {
+        ready()
+        assertEquals(Tradition.Protestant, vm.tradition)
+        assertTrue(vm.visibleTranslations.none { it.catholic })
+        assertTrue(vm.availableBooks.none { it > 66 })
+        tag("settings").tap()
+        waitFor { vm.screen == Screen.Settings }
+        tag("settings-tradition:Catholic").assertDoesNotExist() // hidden until Advanced is opened
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-advanced"))
+        tag("settings-advanced").tap()
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-tradition:Catholic"))
+        tag("settings-tradition:Catholic").tap()
+        waitFor { vm.tradition == Tradition.Catholic }
+        assertTrue(vm.visibleTranslations.any { it.id == "crampon" })
+        vm.setTranslation("crampon")
+        waitFor { vm.chapter?.translation == "crampon" }
+        assertTrue(vm.availableBooks.any { it > 66 }, "Catholic text shows the deuterocanonical books")
+        // back to Protestant: the Catholic text is left for a Protestant one
+        vm.changeTradition(Tradition.Protestant)
+        waitFor { vm.chapter?.translation != "crampon" && vm.chapter != null }
+        assertFalse(vm.translations.first { it.id == vm.translationId }.catholic)
+    }
+
+    /** Church mode is silent: no Listen button, and the selection offers "To list". */
+    @Test fun churchModeIsSilent() {
+        ready()
+        vm.enableReadAloud(true)
+        rule.waitForIdle()
+        tag("listen").assertExists()
+        vm.changeMode(AppMode.Church)
+        rule.waitForIdle()
+        tag("listen").assertDoesNotExist()
+        tag("nav:Lists").assertExists()
+        tag("verse:1").tap()
+        tag("action:To list").assertExists()
     }
 }

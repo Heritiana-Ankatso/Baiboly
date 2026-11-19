@@ -92,48 +92,38 @@ import kotlin.math.min
 // ---------------------------------------------------------------- cross-references
 
 /** Treasury of Scripture Knowledge references for one verse, grouped by keyword. */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CrossRefSheet(vm: AppViewModel, verse: Int, onDismiss: () -> Unit) {
-    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var groups by remember { mutableStateOf<List<CrossRefGroup>?>(null) }
-    var lines by remember { mutableStateOf<Map<Passage, String>>(emptyMap()) }
+fun CrossRefContent(vm: AppViewModel, verse: Int, onDismiss: () -> Unit) {
+    var groups by remember(verse) { mutableStateOf<List<CrossRefGroup>?>(null) }
+    var lines by remember(verse) { mutableStateOf<Map<Passage, String>>(emptyMap()) }
     LaunchedEffect(verse) {
         val g = vm.crossRefs(verse)
         groups = g
         lines = g.flatMap { it.refs }.distinct().take(120).associateWith { vm.verseLine(it) }
     }
-    val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
     val ornament = LocalOrnament.current
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(0.85f).navigationBarsPadding().padding(horizontal = 16.dp)) {
-            Text(
-                stringResource(R.string.cross_references) + " · " + Passage(vm.location.book, vm.location.chapter, verse, verse).longLabel(lang),
-                style = MaterialTheme.typography.titleMedium, color = ornament.rubric,
-            )
-            Text(stringResource(R.string.tsk_credit), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            GoldRule(Modifier.padding(vertical = 8.dp))
-            val g = groups
-            when {
-                g == null -> Text(stringResource(R.string.loading))
-                g.isEmpty() -> Text(stringResource(R.string.no_cross_references))
-                else -> LazyColumn(Modifier.testTag("xrefs")) {
-                    g.forEach { group ->
-                        item {
-                            Text(
-                                group.keyword.ifBlank { "—" },
-                                style = MaterialTheme.typography.labelLarge, color = ornament.gold, letterSpacing = 1.sp,
-                                modifier = Modifier.padding(top = 10.dp, bottom = 2.dp),
-                            )
-                        }
-                        items(group.refs) { p ->
-                            Column(
-                                Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.openPassage(p); onDismiss() }
-                                    .testTag("xref:${p.book}-${p.chapter}-${p.verseStart}").padding(vertical = 6.dp),
-                            ) {
-                                Text(p.shortLabel(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = ornament.rubric)
-                                lines[p]?.let { Text(it, style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = TextOverflow.Ellipsis) }
-                            }
+    Column(Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.tsk_credit), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        val g = groups
+        when {
+            g == null -> Text(stringResource(R.string.loading))
+            g.isEmpty() -> Text(stringResource(R.string.no_cross_references), modifier = Modifier.padding(top = 12.dp))
+            else -> LazyColumn(Modifier.testTag("xrefs")) {
+                g.forEach { group ->
+                    item {
+                        Text(
+                            group.keyword.ifBlank { "—" },
+                            style = MaterialTheme.typography.titleSmall, color = ornament.gold,
+                            modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+                        )
+                    }
+                    items(group.refs) { p ->
+                        Column(
+                            Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.openPassage(p); onDismiss() }
+                                .testTag("xref:${p.book}-${p.chapter}-${p.verseStart}").padding(vertical = 6.dp),
+                        ) {
+                            Text(p.shortLabel(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = ornament.rubric)
+                            lines[p]?.let { Text(it, style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = TextOverflow.Ellipsis) }
                         }
                     }
                 }
@@ -164,8 +154,9 @@ fun DictionaryScreen(vm: AppViewModel) {
     }
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(open ?: stringResource(R.string.dictionary), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            if (open == null && isTopLevel(vm.mode, vm.screen)) MainTopBar(vm, stringResource(R.string.dictionary))
+            else TopAppBar(
+                title = { Text(open?.lowercase()?.replaceFirstChar { it.titlecase() } ?: stringResource(R.string.dictionary), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(onClick = {
                         if (open != null) { open = history.lastOrNull(); history = history.dropLast(1) } else vm.screen = Screen.Main
@@ -294,20 +285,24 @@ fun MapScreen(vm: AppViewModel) {
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
     val chapterMode = vm.mapForChapter && chapterPlaces.isNotEmpty()
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        if (vm.mapForChapter) stringResource(R.string.places_in, mg.baiboly.core.bible.Canon.book(vm.location.book).name(lang) + " " + vm.location.chapter)
-                        else stringResource(R.string.map),
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    )
-                },
-                navigationIcon = { IconButton(onClick = { vm.screen = Screen.Main }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) } },
-            )
-        },
+        topBar = { MainTopBar(vm, stringResource(R.string.map)) },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
+            // places of the chapter being read, or every place
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = vm.mapForChapter,
+                    onClick = { vm.mapForChapter = true },
+                    label = { Text(mg.baiboly.core.bible.Canon.book(vm.location.book).name(lang) + " " + vm.location.chapter) },
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("map-chapter"),
+                )
+                FilterChip(
+                    selected = !vm.mapForChapter,
+                    onClick = { vm.mapForChapter = false },
+                    label = { Text(stringResource(R.string.all_places)) },
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("map-all"),
+                )
+            }
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (map != null) MapCanvas(map, all, chapterPlaces.map { it.id }.toSet(), chapterMode, selected) { selected = it }
                 Text(

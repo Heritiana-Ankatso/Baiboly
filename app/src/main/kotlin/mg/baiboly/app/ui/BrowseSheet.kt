@@ -64,14 +64,26 @@ import mg.baiboly.data.VerseText
 @Composable
 fun BrowseSheet(vm: AppViewModel, onDismiss: () -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+        BrowseContent(vm, Modifier.fillMaxWidth().fillMaxHeight(0.72f).navigationBarsPadding(), onDone = onDismiss)
+    }
+}
+
+/**
+ * Book grid -> chapter grid -> verse list with text. Tapped verses are
+ * selected, adjacent ones merge into a range; Add to list keeps the view
+ * open for the next passage, Open without adding goes to the reader.
+ */
+@Composable
+fun BrowseContent(vm: AppViewModel, modifier: Modifier, onDone: (() -> Unit)?) {
     var book by remember { mutableStateOf<Int?>(null) }
     var chapter by remember { mutableStateOf<Int?>(null) }
     var selected by remember { mutableStateOf(setOf<Int>()) }
     val ctx = LocalContext.current
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
-
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(0.72f).navigationBarsPadding()) {
+    val onDismiss = { onDone?.invoke() ?: Unit; vm.screen = mg.baiboly.app.Screen.Main }
+    run {
+        Column(modifier) {
             // breadcrumb
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Crumb(stringResource(R.string.books), book != null) { book = null; chapter = null; selected = emptySet() }
@@ -84,7 +96,7 @@ fun BrowseSheet(vm: AppViewModel, onDismiss: () -> Unit) {
                     Crumb("$c", false) {}
                 }
                 Box(Modifier.weight(1f))
-                TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.done)) }
+                if (onDone != null) TextButton(onClick = onDone, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.done)) }
             }
             HorizontalDivider()
             val b = book

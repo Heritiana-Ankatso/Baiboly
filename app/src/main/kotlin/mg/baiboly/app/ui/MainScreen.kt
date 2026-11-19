@@ -59,6 +59,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.OutlinedButton
@@ -72,6 +73,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.automirrored.outlined.Undo
+import androidx.compose.material.icons.outlined.Headphones
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.BorderColor
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.FormatQuote
+import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.IconButtonDefaults
+import mg.baiboly.app.AppMode
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -113,7 +126,7 @@ private data class NoteDraft(val passage: Passage, val initial: String, val note
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
+fun MainScreen(vm: AppViewModel) {
     var showAdd by remember { mutableStateOf(false) }
     var showBrowse by remember { mutableStateOf(false) }
     var studyVerse by remember { mutableStateOf<Int?>(null) }
@@ -126,13 +139,17 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
 
-    // Keep the screen awake while the main screen is open (brief section 5).
+    // Church mode keeps the screen awake for the whole service.
     val view = LocalView.current
-    DisposableEffect(Unit) {
-        view.keepScreenOn = true
+    val church = vm.mode == AppMode.Church
+    DisposableEffect(church) {
+        view.keepScreenOn = church
         onDispose { view.keepScreenOn = false }
     }
     LaunchedEffect(vm.location.book, vm.location.chapter, vm.translationId) { selected = emptySet() }
+    // the selection actions take the place of the navigation bar
+    LaunchedEffect(selected.isNotEmpty()) { vm.selectionActive = selected.isNotEmpty() }
+    DisposableEffect(Unit) { onDispose { vm.selectionActive = false } }
     LaunchedEffect(vm.message) {
         vm.message?.let { snackbar.showSnackbar(it); vm.message = null }
     }
@@ -144,7 +161,7 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
         ReferenceParser.mergeRanges(selected.sorted().map { it..it }).map { Passage(loc.book, loc.chapter, it.first, it.last) }
 
     Scaffold(
-        topBar = { ReaderTopBar(vm, openMenu) },
+        topBar = { ReaderTopBar(vm) },
         bottomBar = {
             if (selected.isNotEmpty()) {
                 SelectionBar(
@@ -169,29 +186,29 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
                     onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
                     onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
                     onWords = if (selected.size == 1) ({ wordsVerse = selected.first() }) else null,
-                    onCrossRefs = if (selected.size == 1) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
-                    onListen = if (vm.readAloudEnabled) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
-                    onAddToList = { vm.addToList(selectedPassages()); selected = emptySet() },
+                    onCrossRefs = if (selected.size == 1 && vm.mode == AppMode.Study) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
+                    onListen = if (vm.readAloudEnabled && !church) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
+                    onAddToList = if (church) ({ vm.addToList(selectedPassages()); selected = emptySet() }) else null,
                     onClear = { selected = emptySet() },
                 )
             } else {
                 Column {
-                    ReadingBar(vm)
-                    ActionBar(onAdd = { showAdd = true }, onBrowse = { showBrowse = true })
+                    if (!church) ReadingBar(vm)
+                    if (church) ServiceBar(vm, onAdd = { showAdd = true })
                 }
             }
         },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
-            ListStrip(vm, onStartList = { showAdd = true })
+            if (church) ListStrip(vm, onStartList = { showAdd = true })
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 Reader(
                     vm = vm,
                     selected = selected,
                     onVerseTap = { v -> selected = if (v in selected) selected - v else selected + v },
                     onNumberTap = { v ->
-                        if (vm.studyMode) studyVerse = v
+                        if (vm.mode == AppMode.Study) studyVerse = v
                         else selected = if (v in selected) selected - v else selected + v
                     },
                     onNoteTap = { n -> noteDraft = NoteDraft(n.passage, n.text, n.id) },
@@ -200,18 +217,20 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
                     Modifier.align(Alignment.BottomStart).padding(14.dp).testTag("prev-chapter")) { vm.previousChapter() }
                 ChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter),
                     Modifier.align(Alignment.BottomEnd).padding(14.dp).testTag("next-chapter")) { vm.nextChapter() }
-                if (vm.isAway) {
+                if (church && vm.isAway) {
                     ExtendedFloatingActionButton(
                         onClick = { vm.backToMyPlace() },
+                        icon = { Icon(Icons.AutoMirrored.Outlined.Undo, null) },
+                        text = {
+                            Text(
+                                stringResource(R.string.back_to_my_place) + "  " + (vm.list.currentItem?.passage?.shortLabel() ?: ""),
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        },
                         modifier = Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 74.dp).heightIn(min = 48.dp).testTag("back-to-place"),
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ) {
-                        Text(
-                            stringResource(R.string.back_to_my_place) + "  ·  " + (vm.list.currentItem?.passage?.shortLabel() ?: ""),
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                    }
+                    )
                 }
             }
         }
@@ -219,8 +238,8 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
 
     if (showAdd) AddPanel(vm, onDismiss = { showAdd = false })
     if (showBrowse) BrowseSheet(vm, onDismiss = { showBrowse = false })
-    studyVerse?.let { v -> StudySheet(vm, loc.book, loc.chapter, v, onDismiss = { studyVerse = null }) }
-    xrefVerse?.let { v -> CrossRefSheet(vm, v, onDismiss = { xrefVerse = null }) }
+    studyVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, onDismiss = { studyVerse = null }) }
+    xrefVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, startOnCrossRefs = true, onDismiss = { xrefVerse = null }) }
     if (vm.showWhatsNew) WhatsNewSheet(vm.versionName, onDismiss = { vm.dismissWhatsNew() })
     noteDraft?.let { d ->
         NoteDialog(
@@ -261,9 +280,13 @@ fun MainScreen(vm: AppViewModel, openMenu: () -> Unit) {
 
 // ---------------------------------------------------------------- top bar
 
+/**
+ * Reader top bar: mode badge; the chapter as title (tap: Books); the reading
+ * text (tap: choose, ☆ default); Listen when reading aloud is on; Settings.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ReaderTopBar(vm: AppViewModel, openMenu: () -> Unit) {
+private fun ReaderTopBar(vm: AppViewModel) {
     var menu by remember { mutableStateOf(false) }
     val t = vm.translations.firstOrNull { it.id == vm.translationId }
     val lang = t?.lang ?: "mg"
@@ -272,63 +295,105 @@ private fun ReaderTopBar(vm: AppViewModel, openMenu: () -> Unit) {
         focus.longLabel(lang) else Canon.book(vm.location.book).name(lang) + " " + vm.location.chapter
     val gold = LocalOrnament.current.gold
     Column {
-        CenterAlignedTopAppBar(
-            navigationIcon = { IconButton(onClick = openMenu) { Icon(Icons.Filled.Menu, stringResource(R.string.menu)) } },
+        TopAppBar(
+            navigationIcon = { ModeBadge(vm) },
             title = {
-                Box {
-                    Column(
-                        Modifier.clip(RoundedCornerShape(8.dp)).clickable { menu = true }.padding(horizontal = 8.dp, vertical = 2.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleLarge)
-                        Text(
-                            (t?.shortName ?: "") + "  ▾",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = gold,
-                            letterSpacing = 2.sp,
-                        )
-                    }
-                    TranslationMenu(vm, menu, onDismiss = { menu = false })
+                Row(
+                    Modifier.clip(RoundedCornerShape(8.dp)).clickable { vm.screen = Screen.Books }
+                        .padding(horizontal = 6.dp, vertical = 4.dp).testTag("chapter-title"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f, fill = false))
+                    Icon(Icons.Filled.ArrowDropDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
             actions = {
-                StudyButton(vm)
-                IconButton(onClick = { vm.search(vm.searchQuery, vm.translationId); vm.screen = Screen.Search }) {
-                    Icon(Icons.Filled.Search, stringResource(R.string.search))
+                Box {
+                    Surface(
+                        onClick = { menu = true },
+                        shape = RoundedCornerShape(8.dp),
+                        color = Color.Transparent,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, gold.copy(alpha = 0.6f)),
+                        modifier = Modifier.padding(horizontal = 2.dp).heightIn(min = 36.dp).testTag("translation"),
+                    ) {
+                        Text(t?.shortName ?: "", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp))
+                    }
+                    TranslationMenu(vm, menu, onDismiss = { menu = false })
                 }
-                ReaderMoreMenu(vm)
+                if (vm.readAloudEnabled && vm.mode != AppMode.Church) {
+                    IconButton(onClick = { vm.startReading() }, modifier = Modifier.testTag("listen")) {
+                        Icon(Icons.Outlined.Headphones, stringResource(R.string.listen))
+                    }
+                }
+                SettingsButton(vm)
             },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
         )
         GoldRule()
     }
 }
 
-/** Listen, places of this chapter, dictionary. */
+/**
+ * Church mode: move between the announced passages with two large buttons
+ * (previous / next) and add a passage in the middle.
+ */
 @Composable
-private fun ReaderMoreMenu(vm: AppViewModel) {
-    var open by remember { mutableStateOf(false) }
-    Box {
-        IconButton(onClick = { open = true }, modifier = Modifier.testTag("more")) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more)) }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            if (vm.readAloudEnabled) DropdownMenuItem(
-                text = { Text(stringResource(R.string.listen)) },
-                leadingIcon = { Text("🕮", color = LocalOrnament.current.gold) },
-                onClick = { open = false; vm.startReading() },
-                modifier = Modifier.testTag("menu-listen"),
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.places_this_chapter)) },
-                leadingIcon = { Text("⌖", color = LocalOrnament.current.gold, fontSize = 18.sp) },
-                onClick = { open = false; vm.mapForChapter = true; vm.screen = Screen.Map },
-                modifier = Modifier.testTag("menu-map"),
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.dictionary)) },
-                leadingIcon = { Text("❦", color = LocalOrnament.current.gold) },
-                onClick = { open = false; vm.screen = Screen.Dictionary },
-            )
+private fun ServiceBar(vm: AppViewModel, onAdd: () -> Unit) {
+    val list = vm.list
+    Surface(color = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth()) {
+            GoldRule()
+            if (list.isEmpty) {
+                Button(
+                    onClick = onAdd,
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp).heightIn(min = 56.dp).testTag("service-add"),
+                ) {
+                    Icon(Icons.Filled.Add, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.add_passages), style = MaterialTheme.typography.titleMedium)
+                }
+                return@Column
+            }
+            Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                val prev = list.items.getOrNull(list.current - 1)
+                val next = list.items.getOrNull(list.current + 1)
+                ServiceStep(prev?.passage?.shortLabel(), forward = false, modifier = Modifier.weight(1f).testTag("service-prev")) {
+                    vm.selectItem(list.current - 1)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 6.dp)) {
+                    FilledIconButton(
+                        onClick = onAdd,
+                        modifier = Modifier.size(52.dp).testTag("service-add"),
+                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    ) { Icon(Icons.Filled.Add, stringResource(R.string.add)) }
+                    Text("${list.current + 1} / ${list.items.size}", style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.gold)
+                }
+                ServiceStep(next?.passage?.shortLabel(), forward = true, modifier = Modifier.weight(1f).testTag("service-next")) {
+                    vm.selectItem(list.current + 1)
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun ServiceStep(label: String?, forward: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    val enabled = label != null
+    OutlinedButton(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(28.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, LocalOrnament.current.gold.copy(alpha = if (enabled) 0.8f else 0.3f)),
+        contentPadding = PaddingValues(horizontal = 10.dp),
+        modifier = modifier.heightIn(min = 56.dp),
+    ) {
+        if (!forward) Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_item))
+        Text(label ?: "—", style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f, fill = false))
+        if (forward) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_item))
     }
 }
 
@@ -336,34 +401,10 @@ private fun ReaderMoreMenu(vm: AppViewModel) {
 fun studySymbol(book: Int): String = if (Canon.book(book).isHebrewOriginal) "א" else "α"
 
 @Composable
-private fun StudyButton(vm: AppViewModel) {
-    val on = vm.studyMode
-    val symbol = studySymbol(vm.location.book)
-    val gold = LocalOrnament.current.gold
-    Box(
-        Modifier.size(48.dp).testTag("alpha").padding(6.dp).clip(CircleShape)
-            .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
-            .border(1.dp, if (on) Color.Transparent else gold, CircleShape)
-            .clickable {
-                vm.toggleStudyMode()
-                vm.message = if (!on) vm.str(R.string.study_mode_on, symbol) else vm.str(R.string.study_mode_off, symbol)
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            symbol,
-            fontSize = 20.sp,
-            fontFamily = if (symbol == "α") TextSerif else FontFamily.Default,
-            color = if (on) MaterialTheme.colorScheme.onPrimary else gold,
-        )
-    }
-}
-
-@Composable
 fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
-        vm.translations.groupBy { it.lang }.forEach { (lang, ts) ->
+        vm.visibleTranslations.groupBy { it.lang }.forEach { (lang, ts) ->
             Text(
                 langName[lang] ?: lang,
                 style = MaterialTheme.typography.labelLarge,
@@ -747,31 +788,7 @@ private fun ChapterButton(icon: androidx.compose.ui.graphics.vector.ImageVector,
     ) { Box(contentAlignment = Alignment.Center) { Icon(icon, label) } }
 }
 
-@Composable
-private fun ActionBar(onAdd: () -> Unit, onBrowse: () -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surface) {
-        Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
-            GoldRule()
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Button(onClick = onAdd, modifier = Modifier.weight(1f).height(54.dp), shape = RoundedCornerShape(27.dp)) {
-                    Text("✚  " + stringResource(R.string.add), style = MaterialTheme.typography.titleMedium)
-                }
-                OutlinedButton(
-                    onClick = onBrowse,
-                    modifier = Modifier.weight(1f).height(54.dp),
-                    shape = RoundedCornerShape(27.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, LocalOrnament.current.gold),
-                ) {
-                    Text(stringResource(R.string.browse), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                }
-            }
-        }
-    }
-}
-
+/** Actions on the selected verses: icon and short label each, one row, no scrolling. */
 @Composable
 private fun SelectionBar(
     vm: AppViewModel,
@@ -784,53 +801,54 @@ private fun SelectionBar(
     onWords: (() -> Unit)?,
     onCrossRefs: (() -> Unit)?,
     onListen: (() -> Unit)?,
-    onAddToList: () -> Unit,
+    onAddToList: (() -> Unit)?,
     onClear: () -> Unit,
 ) {
     var colours by remember { mutableStateOf(false) }
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 2.dp) {
+    Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
+            GoldRule()
+            Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
+                Text(stringResource(R.string.n_selected, "$count"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            }
             if (colours) {
                 Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     HighlightColours.forEachIndexed { i, c ->
-                        Box(
-                            Modifier.size(48.dp).testTag("swatch:$i").clip(CircleShape).background(Color(c)).clickable { colours = false; onHighlight(c) },
-                        )
+                        Box(Modifier.size(44.dp).testTag("swatch:$i").clip(CircleShape).background(Color(c)).clickable { colours = false; onHighlight(c) })
                     }
                     if (hasHighlight) TextButton(onClick = { colours = false; onRemoveHighlight() }, modifier = Modifier.heightIn(min = 48.dp)) {
                         Text(stringResource(R.string.remove_highlight))
                     }
                 }
             }
-            Row(
-                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 4.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
-                Text(
-                    stringResource(R.string.n_selected, "$count"),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(end = 4.dp),
-                )
-                BarButton(stringResource(R.string.copy), onCopy)
-                BarButton(stringResource(R.string.add_note), onNote)
-                BarButton(stringResource(R.string.highlight)) { colours = !colours }
-                if (onCrossRefs != null) BarButton(stringResource(R.string.cross_references), onCrossRefs)
-                if (onListen != null) BarButton(stringResource(R.string.listen_from_here), onListen)
-                if (onWords != null) BarButton(stringResource(R.string.select_words), onWords)
-                BarButton(stringResource(R.string.add_to_list), onAddToList)
+            Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                ActionItem(Icons.Outlined.ContentCopy, stringResource(R.string.copy), onCopy)
+                ActionItem(Icons.Outlined.EditNote, stringResource(R.string.note_action), onNote)
+                ActionItem(Icons.Outlined.BorderColor, stringResource(R.string.highlight)) { colours = !colours }
+                if (onCrossRefs != null) ActionItem(Icons.Outlined.Link, stringResource(R.string.references_action), onCrossRefs)
+                if (onAddToList != null) ActionItem(Icons.AutoMirrored.Outlined.PlaylistAdd, stringResource(R.string.add_to_list_short), onAddToList)
+                if (onListen != null) ActionItem(Icons.Outlined.Headphones, stringResource(R.string.listen), onListen)
+                if (onWords != null) ActionItem(Icons.Outlined.FormatQuote, stringResource(R.string.words_action), onWords)
             }
         }
     }
 }
 
 @Composable
-private fun BarButton(label: String, onClick: () -> Unit) {
-    TextButton(onClick = onClick, modifier = Modifier.heightIn(min = 48.dp)) { Text(label) }
+private fun ActionItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    Column(
+        Modifier.clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).widthIn(min = 56.dp).padding(horizontal = 6.dp, vertical = 6.dp)
+            .testTag("action:$label"),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+        Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+    }
 }
 
 // ---------------------------------------------------------------- dialogs

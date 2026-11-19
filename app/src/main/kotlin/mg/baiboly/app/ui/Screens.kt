@@ -53,6 +53,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.Headphones
+import androidx.compose.material.icons.outlined.SettingsBackupRestore
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.ExpandLess
+import mg.baiboly.app.AppMode
+import mg.baiboly.app.Tradition
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,121 +96,6 @@ import java.util.Date
 
 // ---------------------------------------------------------------- side menu
 
-@Composable
-fun SideMenu(vm: AppViewModel, close: () -> Unit) {
-    // Both testaments start expanded (each collapsible), so any chapter is three taps away:
-    // menu button, book, chapter.
-    var openTestaments by remember { mutableStateOf(setOf(true, false)) } // true = OT, false = NT
-    var openBook by remember { mutableStateOf<Int?>(null) }
-    val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
-    val ornament = LocalOrnament.current
-    // Books of the text being read, in its order: a Catholic Bible shows Tobit after Nehemiah, etc.
-    val books = vm.availableBooks.map { Canon.book(it) }
-    ModalDrawerSheet(Modifier.width(320.dp), drawerContainerColor = MaterialTheme.colorScheme.surface) {
-        LazyColumn(Modifier.testTag("menu-list"), contentPadding = PaddingValues(bottom = 16.dp)) {
-            item {
-                Column(Modifier.fillMaxWidth().padding(top = 28.dp, bottom = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("✠", color = ornament.gold, fontSize = 22.sp)
-                    Text(
-                        stringResource(R.string.app_name).uppercase(),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = ornament.rubric,
-                        letterSpacing = 6.sp,
-                    )
-                    Fleuron(symbol = "❦")
-                    Text(
-                        "“Fanilon’ ny tongotro Sy fanazavana ny lalako ny teninao.”",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontStyle = FontStyle.Italic,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 28.dp),
-                    )
-                    Text("Salamo 119: 105", style = MaterialTheme.typography.labelSmall, color = ornament.gold, letterSpacing = 1.5.sp,
-                        modifier = Modifier.padding(top = 4.dp))
-                }
-                QuickSettings(vm, "menu")
-                GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
-                SectionTitle(stringResource(R.string.books_of_bible))
-            }
-            for (ot in listOf(true, false)) {
-                item(key = "t$ot") {
-                    MenuRow(
-                        stringResource(if (ot) R.string.old_testament else R.string.new_testament),
-                        expanded = ot in openTestaments,
-                        heading = true,
-                    ) { openTestaments = if (ot in openTestaments) openTestaments - ot else openTestaments + ot; openBook = null }
-                }
-                if (ot in openTestaments) {
-                    items(books.filter { it.isOldTestament == ot }, key = { "b${it.id}" }) { b ->
-                        Column {
-                            MenuRow(
-                                b.name(lang) + if (b.isDeuterocanonical) "  ✦" else "",
-                                indent = 16.dp, expanded = openBook == b.id, tag = "menu-book:${b.id}",
-                            ) { openBook = if (openBook == b.id) null else b.id }
-                            if (openBook == b.id) {
-                                ChapterChips(vm.chapterCount(b.id)) { c -> vm.openChapter(b.id, c); close() }
-                            }
-                        }
-                    }
-                    if (ot && books.any { it.isDeuterocanonical }) item(key = "dc-note") {
-                        Text(
-                            "✦ " + stringResource(R.string.deuterocanonical),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 40.dp, top = 2.dp, bottom = 6.dp),
-                        )
-                    }
-                }
-            }
-            item {
-                GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 10.dp))
-                val entries = listOf(
-                    R.string.dictionary to Screen.Dictionary,
-                    R.string.map to Screen.Map,
-                    R.string.history to Screen.History,
-                    R.string.notes to Screen.Notes,
-                    R.string.highlights to Screen.Highlights,
-                    R.string.saved_lists to Screen.Lists,
-                    R.string.backup to Screen.Backup,
-                    R.string.settings to Screen.Settings,
-                    R.string.about to Screen.About,
-                )
-                entries.forEach { (label, screen) ->
-                    NavigationDrawerItem(
-                        label = { Text(stringResource(label), style = MaterialTheme.typography.titleMedium) },
-                        selected = false,
-                        onClick = {
-                            when (screen) {
-                                Screen.History -> vm.refreshHistory()
-                                Screen.Notes -> vm.refreshNotes()
-                                Screen.Highlights -> vm.refreshHighlights()
-                                Screen.Lists -> vm.refreshSavedLists()
-                                else -> Unit
-                            }
-                            if (screen == Screen.Map) vm.mapForChapter = false
-                            vm.screen = screen
-                            close()
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SectionTitle(text: String) {
-    Text(
-        text.uppercase(),
-        style = MaterialTheme.typography.labelMedium,
-        color = LocalOrnament.current.gold,
-        letterSpacing = 2.5.sp,
-        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-    )
-}
-
 /** Theme and language, one tap each: in the menu and at the top of Settings. */
 @Composable
 fun QuickSettings(vm: AppViewModel, where: String) {
@@ -229,7 +124,7 @@ fun QuickSettings(vm: AppViewModel, where: String) {
 fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, tag: String, onSelect: (T) -> Unit) {
     val gold = LocalOrnament.current.gold
     Column {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.sp)
+        if (label.isNotEmpty()) Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(
             Modifier.fillMaxWidth().padding(top = 4.dp).border(1.dp, gold.copy(alpha = 0.8f), RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)),
         ) {
@@ -255,48 +150,16 @@ fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, ta
     }
 }
 
-@Composable
-private fun MenuRow(
-    label: String,
-    indent: androidx.compose.ui.unit.Dp = 0.dp,
-    expanded: Boolean,
-    tag: String = "",
-    heading: Boolean = false,
-    onClick: () -> Unit,
-) {
-    Row(
-        Modifier.testTag(tag).fillMaxWidth().heightIn(min = 48.dp).clickable(onClick = onClick).padding(start = 24.dp + indent, end = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            label,
-            modifier = Modifier.weight(1f),
-            style = if (heading) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyLarge,
-            color = if (heading) LocalOrnament.current.rubric else MaterialTheme.colorScheme.onSurface,
-            fontWeight = if (expanded && !heading) FontWeight.Bold else null,
-        )
-        Icon(
-            if (expanded) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight, null,
-            tint = LocalOrnament.current.gold,
-        )
-    }
-}
-
-/** Chapter numbers in rows of six, so any chapter is three taps from the menu button. */
-@Composable
-private fun ChapterChips(chapters: Int, onChapter: (Int) -> Unit) {
-    val n = chapters
-    Column(Modifier.padding(start = 36.dp, end = 12.dp, bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        (1..n).chunked(5).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                row.forEach { c -> Key("$c", Modifier.width(48.dp).testTag("menu-chapter:$c")) { onChapter(c) } }
-            }
-        }
-    }
-}
-
 // ---------------------------------------------------------------- common scaffold
 
+/** True when a screen is shown inside another one (Library tabs): no top bar of its own. */
+val LocalEmbedded = androidx.compose.runtime.staticCompositionLocalOf { false }
+
+/**
+ * Frame of a secondary page. Main pages of the current mode get the mode
+ * badge and the Settings gear; other pages a back arrow; embedded pages
+ * (inside Library) only their content.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SubScreen(
@@ -307,9 +170,17 @@ private fun SubScreen(
 ) {
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(vm.message) { vm.message?.let { snackbar.showSnackbar(it); vm.message = null } }
+    if (LocalEmbedded.current) {
+        Box(Modifier.fillMaxSize()) {
+            content(PaddingValues(0.dp))
+            Row(Modifier.align(Alignment.BottomEnd).padding(8.dp)) { actions() }
+        }
+        return
+    }
     Scaffold(
         topBar = {
-            TopAppBar(
+            if (isTopLevel(vm.mode, vm.screen)) MainTopBar(vm, title, actions)
+            else TopAppBar(
                 title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = { vm.screen = Screen.Main }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
@@ -442,7 +313,7 @@ fun SearchScreen(vm: AppViewModel) {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).focusRequester(focus),
             )
             LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                items(vm.translations, key = { it.id }) { t ->
+                items(vm.visibleTranslations, key = { it.id }) { t ->
                     FilterChip(
                         selected = t.id == vm.searchTranslation,
                         onClick = { vm.search(vm.searchQuery, t.id) },
@@ -535,61 +406,100 @@ fun SavedListsScreen(vm: AppViewModel) {
 
 @Composable
 fun SettingsScreen(vm: AppViewModel) {
+    var advanced by remember { mutableStateOf(false) }
     SubScreen(vm, stringResource(R.string.settings)) { padding ->
         Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
-            // Theme (light / dark / device) and interface language (MG / FR / EN) first.
-            QuickSettings(vm, "settings")
-            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
-            Column(Modifier.padding(horizontal = 20.dp)) {
-                Text(stringResource(R.string.text_size), style = MaterialTheme.typography.titleMedium)
-                Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12)
-                Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * 1.55f).sp, fontFamily = TextSerif)
+            SettingsSection(Icons.Outlined.Tune, stringResource(R.string.mode)) {
+                ChoiceRow(
+                    label = "",
+                    options = AppMode.entries.map { it to it.label() },
+                    selected = vm.mode,
+                    tag = "settings-mode",
+                ) { vm.changeMode(it); vm.screen = Screen.Settings }
             }
-            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
-            ReadAloudSettings(vm)
-            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
-            Column(Modifier.padding(horizontal = 20.dp)) {
-                Text(stringResource(R.string.default_bible), style = MaterialTheme.typography.titleMedium)
-                Text(
-                    stringResource(R.string.default_bible_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
-                vm.translations.groupBy { it.lang }.forEach { (lang, ts) ->
-                    Text(
-                        (langName[lang] ?: lang).uppercase(),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = LocalOrnament.current.gold,
-                        letterSpacing = 2.sp,
-                        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
-                    )
-                    ts.forEach { t ->
-                        Row(
-                            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setDefaultTranslation(t.id) }.testTag("settings-default:${t.id}"),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = vm.defaultTranslationId == t.id, onClick = { vm.setDefaultTranslation(t.id) })
-                            Column {
-                                Text("${t.name} (${t.shortName})", style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    styleNote(t) + (if (t.catholic) " · " + stringResource(R.string.catholic_tag) else "") +
-                                        (translationNote(t)?.let { " · $it" } ?: ""),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+            SettingsSection(Icons.Outlined.Palette, stringResource(R.string.appearance)) {
+                QuickSettings(vm, "settings")
+                Text(stringResource(R.string.text_size), style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 8.dp))
+                Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12,
+                    modifier = Modifier.padding(horizontal = 20.dp))
+                Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * 1.55f).sp,
+                    fontFamily = TextSerif, modifier = Modifier.padding(horizontal = 20.dp))
+            }
+            SettingsSection(Icons.Outlined.AutoStories, stringResource(R.string.default_bible)) {
+                Column(Modifier.padding(horizontal = 20.dp)) {
+                    Text(stringResource(R.string.default_bible_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
+                    vm.visibleTranslations.groupBy { it.lang }.forEach { (lang, ts) ->
+                        Text(langName[lang] ?: lang, style = MaterialTheme.typography.titleSmall, color = LocalOrnament.current.gold,
+                            modifier = Modifier.padding(top = 12.dp, bottom = 2.dp))
+                        ts.forEach { t ->
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.setDefaultTranslation(t.id) }.testTag("settings-default:${t.id}"),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                RadioButton(selected = vm.defaultTranslationId == t.id, onClick = { vm.setDefaultTranslation(t.id) })
+                                Column {
+                                    Text("${t.name} (${t.shortName})", style = MaterialTheme.typography.bodyLarge)
+                                    Text(
+                                        listOfNotNull(styleNote(t), translationNote(t)).joinToString(". "),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                         }
                     }
                 }
-                Text(
-                    stringResource(R.string.translation_note_numbering),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
-                )
+            }
+            SettingsSection(Icons.Outlined.Headphones, stringResource(R.string.read_aloud)) { ReadAloudSettings(vm) }
+            SettingsLink(Icons.Outlined.SettingsBackupRestore, stringResource(R.string.backup), "settings-backup") { vm.screen = Screen.Backup }
+            SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
+            // Rarely changed: kept out of the way.
+            SettingsLink(Icons.Outlined.ExpandMore.takeIf { !advanced } ?: Icons.Outlined.ExpandLess, stringResource(R.string.advanced), "settings-advanced") {
+                advanced = !advanced
+            }
+            if (advanced) {
+                Column(Modifier.padding(bottom = 16.dp)) {
+                    ChoiceRow(
+                        label = stringResource(R.string.tradition),
+                        options = listOf(Tradition.Protestant to stringResource(R.string.protestant), Tradition.Catholic to stringResource(R.string.catholic)),
+                        selected = vm.tradition,
+                        tag = "settings-tradition",
+                    ) { vm.changeTradition(it) }
+                    Text(stringResource(R.string.tradition_hint), style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+                }
             }
         }
+    }
+}
+
+/** A titled group of settings with its icon. */
+@Composable
+private fun SettingsSection(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, content: @Composable () -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Row(Modifier.padding(horizontal = 20.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, tint = LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.width(12.dp))
+            Text(title, style = MaterialTheme.typography.titleMedium)
+        }
+        content()
+        GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+    }
+}
+
+/** A row that opens another page. */
+@Composable
+private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, tag: String, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onClick).testTag(tag).padding(horizontal = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(icon, null, tint = LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
+        Spacer(Modifier.width(12.dp))
+        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

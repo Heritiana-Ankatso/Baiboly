@@ -35,8 +35,8 @@ class FreshInstallTest {
         assertEquals(false, vm.showWhatsNew, "no \"What's new\" on a first install")
         assertEquals("mg1865", vm.defaultTranslationId)
         assertEquals("mg1865", vm.translationId)
-        rule.onNodeWithText("Hijery").assertExists()            // Browse
-        rule.onNodeWithText("Hanomboka lisitra", substring = true).assertExists() // Start a list
+        rule.onNodeWithText("Vakio").assertExists()             // Read tab
+        rule.onNodeWithText("Tahiry").assertExists()            // Library tab
     }
 
     /** Regression: opening Fitahirizana (Backup) in Malagasy crashed (file picker could not find the activity). */

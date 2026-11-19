@@ -190,14 +190,41 @@
     <string name="whats_new_ok">Amena</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Endrika vaovao: taratasy sy ranomainty amin’ny andro, mainty mafana sy volamena amin’ny alina.</item>
-        <item>Endrika sy fiteny (malagasy, frantsay, anglisy) azo ovaina avy hatrany ao amin’ny menio sy ny fikirana.</item>
-        <item>Baiboly katolika: Crampon 1923, néo-Crampon Libre, World English Bible katolika, Douay-Rheims — miaraka amin’i Tobia, Jodita, Makabeo, Fahendrena, Eklesiastika ary Baroka.</item>
+        <item>Fomba telo, tsindrio ny marika eo ambony ankavia: Tsotra ho an’ny famakiana isan’andro, Fiangonana (mangina, andalan-tsoratra teo aloha/manaraka ao amin’ny lisitrao), Fianarana (teny am-boalohany, andinin-teny mifandray, rakibolana, sarintany).</item>
+        <item>Fivezivezena tsotra kokoa: tabilao eo ambany, ny lohatenin’ny toko no manokatra ny boky, ny kodiarana no manokatra ny fikirana.</item>
+        <item>Endrika vaovao: taratasy sy ranomainty amin’ny andro, mainty mafana sy volamena amin’ny alina; endrika sy fiteny (MG, FR, EN) ao amin’ny fikirana.</item>
         <item>Literal Standard Version (anglisy).</item>
-        <item>Fifandraisan-teny ho an’ny andininy tsirairay (Treasury of Scripture Knowledge).</item>
+        <item>Andinin-teny mifandray ho an’ny andininy tsirairay (Treasury of Scripture Knowledge).</item>
         <item>Rakibolana sy lohahevitra ara-Baiboly (anglisy) ary glossaire Martin (frantsay).</item>
         <item>Sarintanin’ny toerana ao amin’ny Baiboly, miaraka amin’ny toerana ao amin’ny toko vakianao.</item>
         <item>Famakiana mafy, na dia maty aza ny efijery (alefaso ao amin’ny fikirana). Ny feo amin’ny fitenin’ny soratra ihany no mamaky azy.</item>
-        <item>Marika fandalinana: א ho an’ny Testamenta Taloha, α ho an’ny Vaovao.</item>
+        <item>Baiboly katolika misy an’i Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika ary Baroka: Fikirana › Safidy hafa › Fiangonana sy boky.</item>
     </string-array>
+    <string name="mode">Fomba fampiasana</string>
+    <string name="mode_casual">Tsotra</string>
+    <string name="mode_church">Fiangonana</string>
+    <string name="mode_study">Fianarana</string>
+    <string name="mode_casual_desc">Famakiana mora: ny soratra, ny fikarohana ary ny naotinao.</string>
+    <string name="mode_church_desc">Mangina. Ny lisitry ny fotoam-pivavahana, tsindry iray dia mifindra andalan-tsoratra.</string>
+    <string name="mode_study_desc">Teny tany am-boalohany, andinin-teny mifandray, rakibolana ary sarintany.</string>
+    <string name="choose_mode">Safidio ny fomba</string>
+    <string name="nav_read">Vakio</string>
+    <string name="nav_library">Tahiry</string>
+    <string name="nav_service">Fivavahana</string>
+    <string name="nav_lists">Lisitra</string>
+    <string name="original_words">Teny am-boalohany</string>
+    <string name="add_passages">Hanampy andalan-tsoratra</string>
+    <string name="previous_item">Teo aloha</string>
+    <string name="next_item">Manaraka</string>
+    <string name="note_action">Naoty</string>
+    <string name="references_action">Mifandray</string>
+    <string name="add_to_list_short">Ho lisitra</string>
+    <string name="words_action">Teny</string>
+    <string name="all_places">Toerana rehetra</string>
+    <string name="appearance">Endrika</string>
+    <string name="advanced">Safidy hafa</string>
+    <string name="tradition">Fiangonana sy boky</string>
+    <string name="protestant">Protestanta</string>
+    <string name="catholic">Katolika</string>
+    <string name="tradition_hint">Ny Katolika dia manampy ireo boky deoterokanonika (Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika, Baroka) sy ny dikan-teny katolika.</string>
 </resources>

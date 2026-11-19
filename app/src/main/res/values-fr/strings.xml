@@ -188,14 +188,41 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Une nouvelle apparence : vélin et encre le jour, noir chaud et or la nuit.</item>
-        <item>Thème et langue (malgache, français, anglais) à portée de doigt dans le menu et les réglages.</item>
-        <item>Bibles catholiques : Crampon 1923, néo-Crampon Libre, World English Bible édition catholique, Douay-Rheims — avec Tobie, Judith, Maccabées, Sagesse, Siracide et Baruch.</item>
+        <item>Trois modes, d’un geste sur l’insigne en haut à gauche : Quotidien pour la lecture de tous les jours, Église (silencieux, passage précédent/suivant de votre liste du culte), Étude (mots originaux, renvois, dictionnaire, carte).</item>
+        <item>Navigation simplifiée : onglets en bas, le titre du chapitre ouvre les livres, la roue dentée ouvre les réglages.</item>
+        <item>Une nouvelle apparence : vélin et encre le jour, noir chaud et or la nuit ; thème et langue (MG, FR, EN) dans les réglages.</item>
         <item>Literal Standard Version (anglais).</item>
         <item>Références croisées pour chaque verset (Treasury of Scripture Knowledge).</item>
         <item>Dictionnaire biblique et thèmes (anglais) et glossaire Martin (français).</item>
         <item>Carte des lieux bibliques, avec les lieux du chapitre que vous lisez.</item>
         <item>Lecture à voix haute, même écran éteint (à activer dans les réglages). Chaque texte n’est lu qu’avec une voix de sa langue.</item>
-        <item>Symbole d’étude : א pour l’Ancien Testament, α pour le Nouveau.</item>
+        <item>Bibles catholiques avec Tobie, Judith, Maccabées, Sagesse, Siracide et Baruch : Réglages › Avancé › Tradition.</item>
     </string-array>
+    <string name="mode">Mode</string>
+    <string name="mode_casual">Quotidien</string>
+    <string name="mode_church">Église</string>
+    <string name="mode_study">Étude</string>
+    <string name="mode_casual_desc">Lecture simple : le texte, la recherche et vos notes.</string>
+    <string name="mode_church_desc">Silencieux. Votre liste du culte, d’un passage à l’autre en un geste.</string>
+    <string name="mode_study_desc">Mots originaux, renvois, dictionnaires et cartes.</string>
+    <string name="choose_mode">Choisir un mode</string>
+    <string name="nav_read">Lire</string>
+    <string name="nav_library">Bibliothèque</string>
+    <string name="nav_service">Culte</string>
+    <string name="nav_lists">Listes</string>
+    <string name="original_words">Mots originaux</string>
+    <string name="add_passages">Ajouter des passages</string>
+    <string name="previous_item">Passage précédent</string>
+    <string name="next_item">Passage suivant</string>
+    <string name="note_action">Note</string>
+    <string name="references_action">Renvois</string>
+    <string name="add_to_list_short">À la liste</string>
+    <string name="words_action">Mots</string>
+    <string name="all_places">Tous les lieux</string>
+    <string name="appearance">Apparence</string>
+    <string name="advanced">Avancé</string>
+    <string name="tradition">Tradition</string>
+    <string name="protestant">Protestante</string>
+    <string name="catholic">Catholique</string>
+    <string name="tradition_hint">Catholique ajoute les livres deutérocanoniques (Tobie, Judith, Maccabées, Sagesse, Siracide, Baruch) et les traductions catholiques.</string>
 </resources>

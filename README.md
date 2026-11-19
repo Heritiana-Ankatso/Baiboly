@@ -3,7 +3,17 @@
 A free, offline, silent Malagasy Bible for Android, built for two uses of the same text:
 
 * **Church services.** Capture the verses the preacher announces as a short list, then move between them.
-* **Reading and study.** Read chapter by chapter, keep notes and highlights, and look at the Greek and Hebrew words behind a verse (α mode).
+* **Reading and study.** Read chapter by chapter, keep notes and highlights, and look at the Greek and Hebrew words behind a verse.
+
+**Three modes** (tap the badge at the top left of every main page):
+
+| Mode | For | Bottom tabs | What changes |
+|---|---|---|---|
+| **Casual** (*Tsotra*) | Everyday reading | Read · Search · Library | Plain reading; Listen button if reading aloud is on |
+| **Church** (*Fiangonana*) | The service | Service · Books · Lists | Silent (no Listen), screen kept on; service list strip, large *previous / next passage* bar, *Back to my place*; selected verses go *To list* |
+| **Study** (*Fianarana*) | Study | Read · Search · Dictionary · Map · Library | Tapping a verse number opens the original words (א / α) and the cross-references; *References* in the selection bar |
+
+**Navigation.** Standard Android patterns: a bottom navigation bar for the main pages, the chapter title opens the books (Old / New Testament tabs, then a chapter grid), the translation chip switches text, the gear opens Settings. *Library* gathers Notes, Highlights, History and Lists in tabs. Selecting verses replaces the tabs with an icon action bar (Copy, Note, Highlight, …).
 
 **Reading texts:**
 
@@ -27,17 +37,17 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 
 **Design.** Vellum and ink by day, warm black and gilt by night; Gentium Book Plus for the text and Cormorant SC small capitals for titles (both SIL Open Font License); chapter openings with a rubricated initial and a gilt fleuron. Screenshots: [docs/screenshots](docs/screenshots) (regenerate with `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*'`).
 
-**Settings at hand.** Theme (light / dark / device) and language (MG / FR / EN) are one tap each, at the top of the side menu and of Settings.
+**Settings** (gear icon), grouped with icons: Mode; Appearance (theme light / dark / device, language MG / FR / EN, text size); Default Bible; Reading aloud; Backup; About. **Advanced** (collapsed) holds the **Tradition** choice: *Protestant* (default: 66 books, Catholic translations hidden) or *Catholic* (adds the Catholic translations and the deuterocanonical books).
 
 **Study tools (all offline).**
-* **Cross-references** for any verse (select it, then *Cross-references*): the Treasury of Scripture Knowledge, public domain, in Malagasy 1865 numbering.
-* **Dictionary and topics** (side menu or ⋮): Easton's Bible Dictionary and Nave's Topical Bible (English, public domain) and the Glossaire de la Bible Martin (French, ~1,000 older Bible words, free with credit to biblemartin.com). Bible references in entries open the verse. No free Malagasy Bible dictionary was found; the French Westphal dictionary is licensed only for CrossWire's own format.
-* **Map** (side menu, or ⋮ › *Places in this chapter*): 1,300 Bible places from OpenBible.info (CC BY 4.0) on an offline map of the Bible lands drawn from Natural Earth (public domain); tap a place for its verses. Place names are in English.
-* **Reading aloud** (off by default; switch on in Settings): ⋮ › *Listen* or *Listen from here* reads with the phone's text-to-speech voice, verse by verse and on into the next chapter, also with the screen off, with controls in the notification and on the lock screen. Phones have no Malagasy voice yet, so Malagasy is read with a French voice. This is the only part of the app allowed to use audio (a reviewed exception in `tools/check_silence.sh`).
+* **Cross-references** for any verse (Study mode: tap the verse number, or select the verse and tap *References*): the Treasury of Scripture Knowledge, public domain, in Malagasy 1865 numbering.
+* **Dictionary and topics** (Study mode, *Dictionary* tab): Easton's Bible Dictionary and Nave's Topical Bible (English, public domain) and the Glossaire de la Bible Martin (French, ~1,000 older Bible words, free with credit to biblemartin.com). Bible references in entries open the verse. No free Malagasy Bible dictionary was found; the French Westphal dictionary is licensed only for CrossWire's own format.
+* **Map** (Study mode, *Map* tab; *This chapter* / *All places*): 1,300 Bible places from OpenBible.info (CC BY 4.0) on an offline map of the Bible lands drawn from Natural Earth (public domain); tap a place for its verses. Place names are in English.
+* **Reading aloud** (off by default; switch on in Settings): the headphones button in the top bar (Casual and Study modes) reads with the phone's text-to-speech voice, verse by verse and on into the next chapter, also with the screen off, with controls in the notification and on the lock screen. Each text is read only with a voice in its own language; phones have no Malagasy voice yet, so Malagasy text is not read aloud. This is the only part of the app allowed to use audio (a reviewed exception in `tools/check_silence.sh`).
 
-**Study symbol.** The study button shows **א** (Aleph) in books written in Hebrew or Aramaic (the Old Testament) and **α** in books that come down to us in Greek (New Testament and the deuterocanonical books).
+**Study symbol.** The study tab shows **א** (Aleph) in books written in Hebrew or Aramaic (the Old Testament) and **α** in books that come down to us in Greek (New Testament and the deuterocanonical books).
 
-The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the reading-text menu (tap the title) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
+The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the translation menu (the chip in the top bar) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
 
 The app has no INTERNET or VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
 
@@ -96,10 +106,11 @@ Every source passes an automatic licence check before it is used; see [docs/data
 | 2 | Text pipeline | `DataAcceptanceTest.task2_textPipeline`: Jaona 3:16, Salamo 1, 66 books, every translation |
 | 3 | Parser | `ReferenceParserTest` (15 tests) |
 | 4–9 | Reader, list strip, Add (4 taps), Browse and Back to my place, persistence, five-verse dry run | `UiAcceptanceTest.serviceDryRun` |
-| 10 | Menu (3 taps), History, search (`masina` → `masìna`) | `UiAcceptanceTest.menuNotesHighlights`, `DataAcceptanceTest.task10_searchIgnoresAccents` |
+| 10 | Chapter in 3 taps (title › book › chapter), History, search (`masina` → `masìna`) | `UiAcceptanceTest.menuNotesHighlights`, `DataAcceptanceTest.task10_searchIgnoresAccents` |
 | 11 | Notes and highlights survive restart; tapping an entry opens it | `UiAcceptanceTest.menuNotesHighlights` |
 | 12 | Backup and restore reproduce data exactly | `DataAcceptanceTest.task12_backupRoundTrip` |
 | 13 | Study pipeline: 2 Tim 2:25 → *acknowledging* = G1922 ἐπίγνωσις; gap report | `DataAcceptanceTest.task13_studyData`, [docs/reports/lexicon_gaps.md](docs/reports/lexicon_gaps.md) |
+| — | Modes and Tradition: Church mode is silent; Catholic/Protestant under Settings › Advanced | `UiAcceptanceTest.churchModeIsSilent`, `UiAcceptanceTest.traditionInAdvancedSettings` |
 | 14 | α panel, entry, Found N verses → Malagasy text with Back to my place | `UiAcceptanceTest.studyPanel` |
 | — | Malagasy interface by default; switch, live change, kept after restart | `FreshInstallTest`, `UiAcceptanceTest.malagasyInterface` |
 | — | Default Bible in one tap; each text's own chapter numbering (KJV Malachi 4) | `UiAcceptanceTest.defaultBibleAndOwnChapterNumbering` |
@@ -109,10 +120,10 @@ Every source passes an automatic licence check before it is used; see [docs/data
 
 ## Decisions taken (the user can revisit them)
 
-* **Browse drawer stays open after Add to list**, with a Done button (the assumption in section 7).
+* **Browsing to add stays open after Add to list** (Church mode, *Books* tab), so several passages can be added in a row.
 * **Add panel also stays open after Add**, showing "Added: …", so several verses can be captured in a row.
 * **Swipe while away from the list.** When the reader is away from the current list item, the first swipe returns to it instead of skipping an item.
-* **Selecting text.** Tapping a verse (text or number) selects it; adjacent verses merge. "Select words" picks a character range inside one verse. With α on, the verse number opens the study panel instead.
+* **Selecting text.** Tapping a verse (text or number) selects it; adjacent verses merge. "Select words" picks a character range inside one verse. In Study mode the verse number opens the study panel instead.
 * **Interface language.** Malagasy by default; French, English or "same as the phone" in Settings → *Fiteny ampiasaina*, applied immediately and remembered; few phones offer Malagasy as a system language, so the choice lives in the app. The Malagasy wording (`res/values-mg/strings.xml`) is a draft to be reviewed by a native speaker; for example *History* is *Novakiana* to avoid a clash with the book *Tantara*.
 * **Psalm numbering (kept, as decided by the user).** Malagasy 1865 numbers psalm titles as verse 1, so Salamo 3 has 9 verses and Salamo 3:2 is KJV Psalm 3:1. The study panel maps this automatically.
 * **Default Bible vs. the text being read.** The default Bible is what the app opens with. Switching text from the title menu lasts until the app is closed; ☆/★ in that menu (or Settings) changes the default in one tap.

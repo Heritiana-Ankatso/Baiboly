@@ -43,7 +43,18 @@ import java.util.Locale
 /** Where the reader is: the chapter shown and the verses to scroll to and mark. */
 data class ReaderLocation(val book: Int, val chapter: Int, val focus: Passage?)
 
-enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup, Dictionary, Map }
+enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup, Dictionary, Map, Books, Library }
+
+/**
+ * How the app is used right now. Each mode has its own navigation:
+ * Casual reads and searches simply; Church is silent and moves between the
+ * announced passages; Study adds original words, cross-references,
+ * dictionaries and maps.
+ */
+enum class AppMode { Casual, Church, Study }
+
+/** Which Bibles the menus offer: Protestant (66 books) or also the Catholic Bibles (73). */
+enum class Tradition { Protestant, Catholic }
 
 enum class ThemeMode { System, Light, Dark }
 
@@ -79,8 +90,37 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var theme by mutableStateOf(ThemeMode.entries[prefs.getInt("theme", 0)])
         private set
-    var studyMode by mutableStateOf(prefs.getBoolean("alpha", false))
+    var mode by mutableStateOf(AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)])
         private set
+
+    var tradition by mutableStateOf(Tradition.entries[prefs.getInt("tradition", 0).coerceIn(0, 1)])
+        private set
+
+    /** Bibles offered in the menus for the chosen tradition. */
+    val visibleTranslations: List<Translation>
+        get() = if (tradition == Tradition.Catholic) translations else translations.filter { !it.catholic }
+
+    fun changeTradition(t: Tradition) {
+        tradition = t
+        prefs.edit().putInt("tradition", t.ordinal).apply()
+        if (t == Tradition.Protestant) {
+            val catholic = translations.filter { it.catholic }.map { it.id }.toSet()
+            if (defaultTranslationId in catholic) setDefaultTranslation(BibleRepository.PRIMARY)
+            if (translationId in catholic) setTranslation(defaultTranslationId)
+            if (searchTranslation in catholic) searchTranslation = defaultTranslationId
+        }
+    }
+
+    /** Original-language tools (verse number -> study panel) belong to Study mode. */
+    val studyMode: Boolean get() = mode == AppMode.Study
+
+    fun changeMode(m: AppMode) {
+        mode = m
+        prefs.edit().putInt("mode", m.ordinal).apply()
+        // Church mode is silent: no reading aloud.
+        if (m == AppMode.Church) stopReading()
+        screen = Screen.Main
+    }
     var translations by mutableStateOf<List<Translation>>(emptyList())
         private set
 
@@ -193,7 +233,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             .putString("default_translation", defaultTranslationId)
             .putFloat("text_size", textSize)
             .putInt("theme", theme.ordinal)
-            .putBoolean("alpha", studyMode)
             .putLong("list_id", list.id)
             .putInt("list_current", list.current)
             .putInt("loc_book", location.book)
@@ -309,7 +348,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Books in the text being read, in reading order (66, or 73 for a Catholic Bible). */
-    val availableBooks: List<Int> get() = Canon.order(chapterCounts.keys.ifEmpty { null })
+    val availableBooks: List<Int>
+        get() = Canon.order(chapterCounts.keys.ifEmpty { null })
+            .filter { tradition == Tradition.Catholic || !Canon.book(it).isDeuterocanonical }
 
     /** True when the reader is not showing the current list item: show Back to my place. */
     val isAway: Boolean
@@ -371,7 +412,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Starts reading the shown chapter aloud from [verse] (only ever on the user's tap). */
     fun startReading(verse: Int = location.focus?.takeIf { !it.isWholeChapter && it.book == location.book && it.chapter == location.chapter }?.verseStart ?: 1) {
-        if (!readAloudEnabled) return
+        if (!readAloudEnabled || mode == AppMode.Church) return
         ReadAloud.start(getApplication(), translationId, location.book, location.chapter, verse, readRate)
     }
 
@@ -421,12 +462,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (!prefs.contains("list_id")) prefs.edit().putLong("seen_version_code", versionCode).apply()
     }
 
+    /** Verses are selected in the reader: the selection actions replace the navigation bar. */
+    var selectionActive by mutableStateOf(false)
+
     /** Map opened from the reader shows this chapter's places; from the menu, all places. */
     var mapForChapter by mutableStateOf(false)
 
     fun toggleStudyMode() {
-        studyMode = !studyMode
-        persistState()
+        changeMode(if (studyMode) AppMode.Casual else AppMode.Study)
     }
 
     // ------------------------------------------------------------ service list
@@ -683,7 +726,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         uiLanguage = prefs.getString(UiLanguage.KEY, UiLanguage.DEFAULT) ?: UiLanguage.DEFAULT
         textSize = prefs.getFloat("text_size", 20f)
         theme = ThemeMode.entries[prefs.getInt("theme", 0).coerceIn(0, 2)]
-        studyMode = prefs.getBoolean("alpha", false)
+        mode = AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)]
         val newTitle = defaultTitle()
         val (l, rec, usage) = withContext(io) {
             val id = prefs.getLong("list_id", -1)

@@ -2,6 +2,7 @@ package mg.baiboly.app.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -19,6 +20,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -64,34 +67,67 @@ private sealed interface StudyPage {
  * number, their lexicon entries, and Found N verses. Verse numbers are
  * Malagasy 1865 numbers, mapped to the KJV numbering where they differ.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+/** Original words of a verse (KJV Strong's tagging), lexicon entries and Found N verses. */
 @Composable
-fun StudySheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismiss: () -> Unit) {
-    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var page by remember { mutableStateOf<StudyPage>(StudyPage.Words) }
-    val ref = Passage(book, chapter, verse, verse)
-
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(0.8f).navigationBarsPadding().padding(horizontal = 16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (page != StudyPage.Words) {
-                    IconButton(onClick = {
-                        page = when (val p = page) {
-                            is StudyPage.Found -> StudyPage.Entry(p.strongs)
-                            else -> StudyPage.Words
-                        }
-                    }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
+fun StudyContent(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismiss: () -> Unit) {
+    var page by remember(book, chapter, verse) { mutableStateOf<StudyPage>(StudyPage.Words) }
+    Column(Modifier.fillMaxWidth()) {
+        if (page != StudyPage.Words) {
+            IconButton(onClick = {
+                page = when (val p = page) {
+                    is StudyPage.Found -> StudyPage.Entry(p.strongs)
+                    else -> StudyPage.Words
                 }
-                Text(
-                    studySymbol(book) + "  " + stringResource(R.string.study_title, ref.longLabel()),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = LocalOrnament.current.rubric,
+            }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
+        }
+        when (val p = page) {
+            StudyPage.Words -> WordsPage(vm, book, chapter, verse) { page = StudyPage.Entry(it) }
+            is StudyPage.Entry -> EntryPage(vm, p.strongs) { page = StudyPage.Found(p.strongs) }
+            is StudyPage.Found -> FoundPage(vm, p.strongs, onOpen = { r -> vm.openInMalagasy(r); onDismiss() })
+        }
+    }
+}
+
+/**
+ * Study mode: tapping a verse number opens this panel. One tab for the
+ * original words (א for Hebrew/Aramaic books, α for Greek), one for the
+ * cross-references.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, startOnCrossRefs: Boolean = false, onDismiss: () -> Unit) {
+    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var tab by remember { mutableStateOf(if (startOnCrossRefs) 1 else 0) }
+    val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight(0.82f).navigationBarsPadding()) {
+            Text(
+                Passage(book, chapter, verse, verse).longLabel(lang),
+                style = MaterialTheme.typography.titleLarge,
+                color = LocalOrnament.current.rubric,
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+            androidx.compose.material3.TabRow(
+                selectedTabIndex = tab,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 4.dp),
+            ) {
+                androidx.compose.material3.Tab(
+                    selected = tab == 0, onClick = { tab = 0 },
+                    text = { Text(studySymbol(book) + "  " + stringResource(R.string.original_words)) },
+                    modifier = Modifier.testTag("tab-original"),
+                )
+                androidx.compose.material3.Tab(
+                    selected = tab == 1, onClick = { tab = 1 },
+                    icon = { Icon(androidx.compose.material.icons.Icons.Outlined.Link, null) },
+                    text = { Text(stringResource(R.string.cross_references)) },
+                    modifier = Modifier.testTag("tab-xrefs"),
                 )
             }
-            when (val p = page) {
-                StudyPage.Words -> WordsPage(vm, book, chapter, verse) { page = StudyPage.Entry(it) }
-                is StudyPage.Entry -> EntryPage(vm, p.strongs) { page = StudyPage.Found(p.strongs) }
-                is StudyPage.Found -> FoundPage(vm, p.strongs, onOpen = { r -> vm.openInMalagasy(r); onDismiss() })
+            Box(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 8.dp)) {
+                if (tab == 0) StudyContent(vm, book, chapter, verse, onDismiss)
+                else CrossRefContent(vm, verse, onDismiss)
             }
         }
     }

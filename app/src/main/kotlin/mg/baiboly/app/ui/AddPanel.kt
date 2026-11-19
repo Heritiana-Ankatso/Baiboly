@@ -101,7 +101,11 @@ fun AddPanel(vm: AppViewModel, onDismiss: () -> Unit) {
     var lastAdded by remember { mutableStateOf<String?>(null) }
     val result = remember(input) { ReferenceParser.parse(input) }
     val suggestions = remember(input, vm.recent, vm.bookUsage) { suggester.suggest(input, vm.recent, vm.bookUsage) }
-    val books = remember(vm.recent, vm.bookUsage) { suggester.rankBooks(vm.recent, vm.bookUsage) }
+    val catholic = vm.tradition == mg.baiboly.app.Tradition.Catholic
+    // Protestant: the deuterocanonical books stay out of the keypad.
+    val books = remember(vm.recent, vm.bookUsage, catholic) {
+        suggester.rankBooks(vm.recent, vm.bookUsage).filter { catholic || !it.isDeuterocanonical }
+    }
     val error = parseErrorText(result.error)
 
     fun submit() {
