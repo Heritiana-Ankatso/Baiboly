@@ -2,7 +2,9 @@
 <!--
   Works fully offline and silent (brief section 2). INTERNET is used only by the
   update check (Settings > Advanced: on the user's tap, or daily when they switch
-  it on; update/UpdateCheck.kt). No VIBRATE or network-state permission.
+  it on; update/UpdateCheck.kt) and by the in-app update, which downloads the new
+  version on the user's tap (update/UpdateInstaller.kt). No VIBRATE or
+  network-state permission.
   tools/check_silence.sh fails the build on any other network code or permission.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -14,7 +16,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Update check only (opt-in). -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- silence-check: allow (update check, update/UpdateCheck.kt) -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- silence-check: allow (update check and in-app update, update/) -->
+    <!-- In-app update: hands the downloaded APK to Android's installer (the user confirms). -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- Text-to-speech engines on the phone (Android 11+ package visibility). -->
     <queries>
@@ -36,6 +40,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,5 +56,9 @@
             android:name=".update.UpdateJob"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- The package installer's answer to an in-app update. -->
+        <receiver
+            android:name=".update.UpdateInstallReceiver"
+            android:exported="false" />
     </application>
 </manifest>

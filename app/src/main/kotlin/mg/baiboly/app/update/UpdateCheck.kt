@@ -1,4 +1,4 @@
-// network-check: allow-file (update check: the only network use; run by the user's tap, or daily when they switch it on)
+// network-check: allow-file (update check: run by the user's tap, or daily when they switch it on)
 package mg.baiboly.app.update
 
 import android.app.Notification
@@ -13,7 +13,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import mg.baiboly.app.R
 import mg.baiboly.app.UiLanguage
@@ -22,17 +21,27 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
-/** A published release: its version ("1.3.0") and the page to download it from. */
-data class Release(val version: String, val url: String)
+/**
+ * A published release: its version ("1.3.0"), its page, and the APK attached to
+ * it (with its SHA-256 file), which the app downloads and installs itself.
+ */
+data class Release(
+    val version: String,
+    val url: String,
+    val apkUrl: String? = null,
+    val sha256Url: String? = null,
+    /** Size of the APK in bytes (0 when unknown). */
+    val apkSize: Long = 0,
+)
 
 /**
- * Update check: the one place the app goes online. It asks GitHub for the
- * latest release and compares it with the installed version. Nothing else is
- * sent or received; no download happens in the app (the release page opens
- * in the browser).
+ * Update check: one of the two places the app goes online (the other is
+ * [UpdateInstaller], on the user's tap). It asks GitHub for the latest release
+ * and compares it with the installed version. Nothing about the reader is sent.
  *
  * Off by default. "Check now" runs on the user's tap; "Check automatically"
- * runs about once a day and shows a silent notification, once per new version.
+ * runs about once a day and shows a silent notification, once per new version;
+ * the notification opens the app's update settings, where it installs.
  */
 object UpdateCheck {
     const val RELEASES_PAGE = "https://github.com/Heritiana-Ankatso/Baiboly/releases"
@@ -45,6 +54,10 @@ object UpdateCheck {
     private const val NOTIFICATION_ID = 7
     private const val JOB_ID = 7001
     private val DAY = TimeUnit.DAYS.toMillis(1)
+
+    /** Intent extra: what to open when the app is started from a notification. */
+    const val EXTRA_OPEN = "mg.baiboly.app.open"
+    const val OPEN_UPDATES = "updates"
 
     private fun prefs(c: Context) = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -73,11 +86,24 @@ object UpdateCheck {
         return false
     }
 
-    /** Reads GitHub's "latest release" answer. */
+    /** Reads GitHub's "latest release" answer, with the APK and its checksum among the assets. */
     fun parseLatest(json: String): Release? = runCatching {
         val o = JSONObject(json)
         val tag = o.getString("tag_name")
-        Release(tag.removePrefix("v").removePrefix("V"), o.optString("html_url").ifBlank { RELEASES_PAGE })
+        var apk: String? = null
+        var sha: String? = null
+        var size = 0L
+        val assets = o.optJSONArray("assets")
+        if (assets != null) for (i in 0 until assets.length()) {
+            val a = assets.getJSONObject(i)
+            val name = a.optString("name")
+            val link = a.optString("browser_download_url").takeIf { it.startsWith("https://") } ?: continue
+            when {
+                name.endsWith(".apk.sha256") -> sha = link
+                name.endsWith(".apk") && apk == null -> { apk = link; size = a.optLong("size") }
+            }
+        }
+        Release(tag.removePrefix("v").removePrefix("V"), o.optString("html_url").ifBlank { RELEASES_PAGE }, apk, sha, size)
     }.getOrNull()
 
     /** Asks GitHub for the latest release (blocking: call it off the main thread). Null when offline or on error. */
@@ -128,7 +154,7 @@ object UpdateCheck {
         )
     }
 
-    /** A silent notification (low importance: no sound, no vibration); a tap opens the release page. */
+    /** A silent notification (low importance: no sound, no vibration); a tap opens the app's update settings. */
     private fun notify(c: Context, r: Release) {
         if (Build.VERSION.SDK_INT >= 33 &&
             c.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -141,7 +167,10 @@ object UpdateCheck {
             )
         }
         val open = PendingIntent.getActivity(
-            c, 1, Intent(Intent.ACTION_VIEW, Uri.parse(r.url)),
+            c, 1,
+            Intent(c, mg.baiboly.app.MainActivity::class.java)
+                .putExtra(EXTRA_OPEN, OPEN_UPDATES)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         @Suppress("DEPRECATION")

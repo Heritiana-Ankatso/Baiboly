@@ -28,8 +28,30 @@ fun BaibolyApp(vm: AppViewModel) {
         LocalContext provides localized,
         LocalConfiguration provides localized.resources.configuration,
         LocalUiContext provides localized,
-    ) { AppContent(vm) }
+    ) {
+        // Compact interface: everything drawn in dp (bars, buttons, spacing) a little smaller.
+        // The Bible text keeps the size chosen in Settings (its sp are scaled back up).
+        val d = androidx.compose.ui.platform.LocalDensity.current
+        val scale = vm.uiDensity.scale
+        CompositionLocalProvider(
+            androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(d.density * scale, d.fontScale),
+            LocalTextScale provides 1f / scale,
+        ) { AppContent(vm) }
+        // the screen stays awake while the app is in use (Settings › Appearance; always in Church mode)
+        val view = androidx.compose.ui.platform.LocalView.current
+        val awake = vm.keepScreenOn || vm.mode == mg.baiboly.app.AppMode.Church
+        androidx.compose.runtime.DisposableEffect(awake) {
+            view.keepScreenOn = awake
+            onDispose { view.keepScreenOn = false }
+        }
+    }
 }
+
+/**
+ * The Bible text's size is the reader's own choice: multiplied by this so the
+ * compact interface does not shrink it.
+ */
+val LocalTextScale = androidx.compose.runtime.staticCompositionLocalOf { 1f }
 
 @Composable
 private fun AppContent(vm: AppViewModel) {
@@ -57,8 +79,9 @@ private fun AppContent(vm: AppViewModel) {
                             Screen.Menu -> PageMenuScreen(vm)
                         }
                     }
-                    // the mode's main pages, one tap away
-                    if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive) StyledNavigation(vm)
+                    // the mode's main pages, one tap away (not over the full-screen map)
+                    val fullMap = vm.screen == Screen.Map && vm.mapFullscreen
+                    if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive && !fullMap) StyledNavigation(vm)
                 }
             }
         }

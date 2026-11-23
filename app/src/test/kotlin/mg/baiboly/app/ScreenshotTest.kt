@@ -199,5 +199,41 @@ class ScreenshotTest {
         click("map-layers")
         click("map-base:Ancient")
         shot("m6-ancient")
+        // regions drawn whole, journeys of the Bible
+        click("map-layers")
+        click("map-base:Terrain")
+        click("map-regions")
+        shot("m7-regions")
+        val edom = "region:" + vm.library.places.first { it.name == "Edom" }.id
+        rule.onNodeWithTag("regions-list").performScrollToNode(androidx.compose.ui.test.hasTestTag(edom))
+        click(edom)
+        pump(1500)
+        shot("m8-region-edom")
+        click("map-routes")
+        rule.onNodeWithTag("journeys-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("journey:paul2"))
+        click("journey:paul2")
+        pump(1500)
+        shot("m9-journey-paul")
+        // the units converter (Study mode, Dictionary page)
+        vm.dictionaryUnits = true
+        vm.screen = Screen.Dictionary
+        pump(1500)
+        shot("u1-units")
+    }
+
+    /** The compact reader, and a selected verse with its actions (Study first). */
+    @Test fun passageTools() {
+        settle { vm.ready && vm.chapter != null }
+        vm.chooseUiLanguage("en")
+        vm.changeMode(AppMode.Casual)
+        vm.setTranslation("mg1865")
+        vm.openPassage(mg.baiboly.core.ref.Passage(1, 6, 15, 15))
+        settle { vm.chapter?.book == 1 && vm.chapter?.chapter == 6 }
+        pump(1500)
+        shot("p0-reader-compact")
+        rule.onNodeWithTag("verse:15", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        pump(800)
+        shot("p1-selection-bar")
+        // the Study panel opens in a sheet (its own window, not in these screenshots): see UiAcceptanceTest.passageStudyTools
     }
 }

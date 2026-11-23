@@ -21,6 +21,7 @@ import mg.baiboly.core.ref.Passage
 import mg.baiboly.data.AssetDatabases
 import mg.baiboly.data.BibleRepository
 import mg.baiboly.data.ChapterText
+import mg.baiboly.data.DictSource
 import mg.baiboly.data.Highlight
 import mg.baiboly.data.LibraryRepository
 import mg.baiboly.app.audio.ReadAloud
@@ -52,6 +53,12 @@ enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, A
  * dictionaries and maps.
  */
 enum class AppMode { Casual, Church, Study }
+
+/** Size of the interface (bars, buttons, lists), not of the Bible text: Compact fits more on the screen. */
+enum class UiDensity(val scale: Float) { Compact(0.88f), Normal(1f) }
+
+/** Smallest Bible text size, in sp. */
+const val MIN_TEXT = 10f
 
 /** Which Bibles the menus offer: Protestant (66 books) or also the Catholic Bibles (73). */
 enum class Tradition { Protestant, Catholic }
@@ -92,6 +99,15 @@ enum class PageMargin { Narrow, Normal, Wide }
  * every change. All database work runs on one background thread.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
+/** Common words left out when looking for dictionary entries named in a verse. */
+private val STOP_WORDS = setOf(
+    "the", "and", "that", "this", "these", "those", "with", "unto", "upon", "into", "from", "for", "not", "but", "his", "her", "him",
+    "them", "they", "their", "thee", "thou", "thy", "thine", "you", "your", "shall", "will", "was", "were", "are", "have", "had", "hath",
+    "been", "which", "what", "when", "then", "there", "here", "all", "also", "said", "saith", "say", "came", "come", "went", "out", "one",
+    "les", "des", "une", "est", "que", "qui", "dans", "pour", "par", "sur", "avec", "ses", "son", "leur", "leurs", "vous", "nous", "ils",
+    "elle", "elles", "mais", "comme", "tout", "tous", "fut", "été", "sont", "était", "dit", "aux", "pas", "plus",
+)
+
 class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("app_state", Context.MODE_PRIVATE)
     private val dbs = AssetDatabases(app)
@@ -140,6 +156,24 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var pageMargin by mutableStateOf(enumPref("page_margin", PageMargin.Normal))
         private set
+
+    /** Interface size (Settings › Appearance); compact by default. */
+    var uiDensity by mutableStateOf(enumPref("ui_density", UiDensity.Compact))
+        private set
+
+    fun changeUiDensity(d: UiDensity) {
+        uiDensity = d
+        prefs.edit().putString("ui_density", d.name).apply()
+    }
+
+    /** The screen stays awake while the app is open (on by default; always in Church mode). */
+    var keepScreenOn by mutableStateOf(prefs.getBoolean("keep_screen_on", true))
+        private set
+
+    fun changeKeepScreenOn(on: Boolean) {
+        keepScreenOn = on
+        prefs.edit().putBoolean("keep_screen_on", on).apply()
+    }
 
     private inline fun <reified E : Enum<E>> enumPref(key: String, default: E): E =
         prefs.getString(key, null)?.let { n -> enumValues<E>().firstOrNull { it.name == n } } ?: default
@@ -466,7 +500,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun changeTextSize(sp: Float) {
-        textSize = sp.coerceIn(14f, 40f)
+        textSize = sp.coerceIn(MIN_TEXT, 40f)
         persistState()
     }
 
@@ -483,13 +517,21 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     // ------------------------------------------------------------ updates (the only network use)
 
-    /** Result of the last update check shown in Settings. */
+    /** Where the update stands, shown in Settings › Advanced › Updates. */
     sealed interface UpdateStatus {
         data object Idle : UpdateStatus
         data object Checking : UpdateStatus
         data object UpToDate : UpdateStatus
         data object Failed : UpdateStatus
         data class Available(val release: mg.baiboly.app.update.Release) : UpdateStatus
+        /** Downloading the new version; [progress] from 0 to 1 (negative while the size is unknown). */
+        data class Downloading(val release: mg.baiboly.app.update.Release, val progress: Float) : UpdateStatus
+        /** Android must first allow this app to install updates (once, in a system page). */
+        data class NeedsPermission(val release: mg.baiboly.app.update.Release, val apk: java.io.File) : UpdateStatus
+        /** Handed to Android's installer; its confirmation is shown over the app. */
+        data class Installing(val release: mg.baiboly.app.update.Release, val apk: java.io.File) : UpdateStatus
+        /** The download or the installation did not succeed; [reason] is a short technical cause. */
+        data class InstallFailed(val release: mg.baiboly.app.update.Release, val reason: String?, val apk: java.io.File? = null) : UpdateStatus
     }
 
     var updateStatus by mutableStateOf<UpdateStatus>(UpdateStatus.Idle)
@@ -506,7 +548,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /** "Check now": only ever on the user's tap. */
     fun checkForUpdates() {
-        if (updateStatus == UpdateStatus.Checking) return
+        if (updateStatus == UpdateStatus.Checking || updateStatus is UpdateStatus.Downloading) return
         updateStatus = UpdateStatus.Checking
         viewModelScope.launch {
             val r = withContext(Dispatchers.IO) { mg.baiboly.app.update.UpdateCheck.check(getApplication()) }
@@ -517,6 +559,75 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
+
+    private var downloadJob: Job? = null
+
+    /**
+     * "Download and install": downloads the new version inside the app, checks
+     * it, and hands it to Android's installer. Only ever on the user's tap.
+     */
+    fun downloadAndInstallUpdate(release: mg.baiboly.app.update.Release) {
+        if (downloadJob?.isActive == true) return
+        val app = getApplication<Application>()
+        updateStatus = UpdateStatus.Downloading(release, -1f)
+        downloadJob = viewModelScope.launch {
+            val apk = withContext(Dispatchers.IO) {
+                runCatching {
+                    mg.baiboly.app.update.UpdateInstaller.download(app, release) { p ->
+                        viewModelScope.launch(Dispatchers.Main) {
+                            if (updateStatus is UpdateStatus.Downloading) updateStatus = UpdateStatus.Downloading(release, p)
+                        }
+                    }
+                }
+            }
+            apk.fold(
+                onSuccess = { installUpdate(release, it) },
+                onFailure = { updateStatus = UpdateStatus.InstallFailed(release, it.message) },
+            )
+        }
+    }
+
+    /** Hands the downloaded file to Android, first asking for the install permission if needed. */
+    fun installUpdate(release: mg.baiboly.app.update.Release, apk: java.io.File) {
+        val app = getApplication<Application>()
+        if (!apk.exists()) { updateStatus = UpdateStatus.Available(release); return }
+        if (!mg.baiboly.app.update.UpdateInstaller.canInstall(app)) {
+            updateStatus = UpdateStatus.NeedsPermission(release, apk); return
+        }
+        updateStatus = UpdateStatus.Installing(release, apk)
+        viewModelScope.launch {
+            val r = withContext(Dispatchers.IO) { runCatching { mg.baiboly.app.update.UpdateInstaller.install(app, apk) } }
+            r.onFailure { updateStatus = UpdateStatus.InstallFailed(release, it.message, apk) }
+        }
+    }
+
+    /** "Try again" after a failure: installs the file already downloaded, or downloads it again. */
+    fun retryUpdate(s: UpdateStatus.InstallFailed) {
+        val apk = s.apk
+        if (apk != null && apk.exists()) installUpdate(s.release, apk) else downloadAndInstallUpdate(s.release)
+    }
+
+    fun cancelUpdateDownload() {
+        downloadJob?.cancel()
+        mg.baiboly.app.update.UpdateInstaller.clean(getApplication())
+        (updateStatus as? UpdateStatus.Downloading)?.let { updateStatus = UpdateStatus.Available(it.release) }
+    }
+
+    /** Back from the system page that allows installing: continue if it was allowed. */
+    fun onInstallPermissionResult() {
+        val s = updateStatus as? UpdateStatus.NeedsPermission ?: return
+        if (mg.baiboly.app.update.UpdateInstaller.canInstall(getApplication())) installUpdate(s.release, s.apk)
+    }
+
+    /** Started from the "new version" notification: open the update settings and look for it. */
+    fun openUpdates() {
+        screen = Screen.Settings
+        openUpdateSettings = true
+        if (updateStatus == UpdateStatus.Idle || updateStatus == UpdateStatus.UpToDate || updateStatus == UpdateStatus.Failed) checkForUpdates()
+    }
+
+    /** Settings shows Advanced › Updates unfolded (set when opened from the notification). */
+    var openUpdateSettings by mutableStateOf(false)
 
     /** When the app opens, with the switch on: re-arms the daily check and checks if a day has passed. */
     private fun autoCheckUpdates() {
@@ -530,7 +641,20 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     init {
+        // a downloaded APK is not kept from one run of the app to the next
+        mg.baiboly.app.update.UpdateInstaller.clean(app)
         autoCheckUpdates()
+        // the installer's answer (confirmation shown, refused, cancelled)
+        viewModelScope.launch {
+            mg.baiboly.app.update.UpdateInstaller.events.collect { e ->
+                val s = updateStatus as? UpdateStatus.Installing ?: return@collect
+                when (e) {
+                    // the downloaded file is kept, so trying again does not download it again
+                    is mg.baiboly.app.update.UpdateInstaller.Event.Failed -> updateStatus = UpdateStatus.InstallFailed(s.release, e.message, s.apk)
+                    else -> Unit
+                }
+            }
+        }
     }
 
     fun changeReadRate(rate: Float) {
@@ -552,7 +676,112 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     // ------------------------------------------------------------ library (cross-references, dictionaries, places)
 
-    suspend fun crossRefs(verse: Int) = withContext(io) { library.crossRefs(location.book, location.chapter, verse) }
+    /** Cross-references of a verse of the current text (the Treasury is in Malagasy 1865 numbering). */
+    suspend fun crossRefs(verse: Int) = withContext(io) {
+        val mg = toMalagasyNow(Passage(location.book, location.chapter, verse, verse))
+        library.crossRefs(mg.book, mg.chapter, mg.verseStart)
+    }
+
+    // ------------------------------------------------------------ passage tools (selected verses)
+
+    /** A passage of the current text in Malagasy 1865 numbering, which the study data uses. */
+    private fun toMalagasyNow(p: Passage): Passage {
+        if (translationId == BibleRepository.PRIMARY || p.isWholeChapter) return p
+        val a = study.kjvToMg(VerseRef(p.book, p.chapter, p.verseStart))
+        val b = study.kjvToMg(VerseRef(p.book, p.chapter, p.verseEnd))
+        return if (a.chapter == b.chapter) Passage(p.book, a.chapter, a.verse, maxOf(a.verse, b.verse)) else Passage(p.book, a.chapter, a.verse, a.verse)
+    }
+
+    suspend fun toMalagasy(p: Passage): Passage = withContext(io) { toMalagasyNow(p) }
+
+    /** The same passage in one translation. */
+    data class Compared(val translation: Translation, val passage: Passage, val text: String, val numberingMayDiffer: Boolean)
+
+    /**
+     * The passage in every Bible offered (for the chosen tradition): from the
+     * current text's numbering through the KJV numbering to each text's own.
+     */
+    suspend fun compareTranslations(p: Passage): List<Compared> = withContext(io) {
+        val fromMg = translationId == BibleRepository.PRIMARY
+        fun kjv(v: Int) = if (fromMg) study.mgToKjv(VerseRef(p.book, p.chapter, v)) else VerseRef(p.book, p.chapter, v)
+        val a = kjv(p.verseStart)
+        val b = kjv(p.verseEnd)
+        visibleTranslations.mapNotNull { t ->
+            val q = if (t.id == translationId) p else {
+                val (s, e) = if (t.id == BibleRepository.PRIMARY) study.kjvToMg(a) to study.kjvToMg(b) else a to b
+                runCatching { Passage(p.book, s.chapter, s.verse, if (e.chapter == s.chapter) maxOf(s.verse, e.verse) else s.verse) }.getOrNull()
+            } ?: return@mapNotNull null
+            val text = runCatching { bible.verses(t.id, q.book, q.chapter, q.verseStart, q.verseEnd) }.getOrDefault(emptyList())
+                .joinToString(" ") { if (q.verseStart != q.verseEnd) "${it.verse} ${it.text}" else it.text }
+            // the Douay-Rheims numbers the Psalms as the Vulgate does
+            if (text.isBlank()) null else Compared(t, q, text, t.id == "dra" && p.book == 19)
+        }
+    }
+
+    /** Opens the passage in another Bible. */
+    fun readIn(c: Compared) {
+        if (c.translation.id != translationId) { translationId = c.translation.id; chapter = null; persistState() }
+        openPassage(c.passage)
+    }
+
+    /** Places named in the passage. */
+    suspend fun placesInPassage(p: Passage) = withContext(io) {
+        val mg = toMalagasyNow(p)
+        library.placesInVerses(mg.book, mg.chapter, mg.verseStart, mg.verseEnd)
+    }
+
+    /** Dictionary entries named by words of the passage: Easton and Nave from the KJV, Martin from the Segond text. */
+    data class DictMatch(val source: DictSource, val keys: List<String>)
+
+    suspend fun passageDictionary(p: Passage): List<DictMatch> = withContext(io) {
+        val mg = toMalagasyNow(p)
+        val k1 = study.mgToKjv(VerseRef(mg.book, mg.chapter, mg.verseStart))
+        val k2 = study.mgToKjv(VerseRef(mg.book, mg.chapter, mg.verseEnd))
+        fun text(t: String) = runCatching {
+            bible.verses(t, k1.book, k1.chapter, k1.verse, if (k2.chapter == k1.chapter) maxOf(k1.verse, k2.verse) else k1.verse).joinToString(" ") { it.text }
+        }.getOrDefault("")
+        fun words(s: String) = Regex("[\\p{L}][\\p{L}’'-]*").findAll(s).map { it.value.trim('’', '\'', '-') }
+            .filter { it.length >= 3 && it.lowercase() !in STOP_WORDS }
+            .flatMap { w -> sequenceOf(w, w.removeSuffix("s"), w.removeSuffix("es")) }.toList()
+        val en = words(text("kjv"))
+        val fr = words(text("lsg1910"))
+        library.sources.mapNotNull { s ->
+            val keys = library.entriesNamed(s.id, if (s.lang == "fr") fr else en).take(40)
+            if (keys.isEmpty()) null else DictMatch(s, keys)
+        }
+    }
+
+    /** Texts of the passage in Malagasy, French and English, for finding the units it names. */
+    suspend fun passageTexts(p: Passage): Map<String, String> = withContext(io) {
+        val mg = toMalagasyNow(p)
+        val k1 = study.mgToKjv(VerseRef(mg.book, mg.chapter, mg.verseStart))
+        val k2 = study.mgToKjv(VerseRef(mg.book, mg.chapter, mg.verseEnd))
+        val end = if (k2.chapter == k1.chapter) maxOf(k1.verse, k2.verse) else k1.verse
+        fun t(id: String, b: Int, c: Int, v1: Int, v2: Int) = runCatching { bible.verses(id, b, c, v1, v2).joinToString(" ") { it.text } }.getOrDefault("")
+        mapOf(
+            "mg" to t(BibleRepository.PRIMARY, mg.book, mg.chapter, mg.verseStart, mg.verseEnd),
+            "fr" to t("lsg1910", k1.book, k1.chapter, k1.verse, end),
+            "en" to t("kjv", k1.book, k1.chapter, k1.verse, end),
+        )
+    }
+
+    /** A place to show when the map opens (from a passage). */
+    var mapFocus by mutableStateOf<String?>(null)
+
+    fun showOnMap(placeId: String) {
+        mapFocus = placeId
+        mapForChapter = false
+        screen = Screen.Map
+    }
+
+    /** A unit to start the converter from (from a passage). */
+    var unitsRequest by mutableStateOf<String?>(null)
+
+    fun openUnit(id: String) {
+        unitsRequest = id
+        dictionaryUnits = true
+        screen = Screen.Dictionary
+    }
 
     suspend fun verseLine(p: Passage): String = withContext(io) {
         bible.verses(translationId, p.book, p.chapter, p.verseStart, p.verseEnd).joinToString(" ") { it.text }
@@ -595,6 +824,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Map opened from the reader shows this chapter's places; from the menu, all places. */
     var mapForChapter by mutableStateOf(false)
+
+    /** The map fills the screen: no top bar, no navigation bar (on by default; remembered). */
+    var mapFullscreen by mutableStateOf(prefs.getBoolean("map_fullscreen", true))
+        private set
+
+    fun changeMapFullscreen(on: Boolean) {
+        mapFullscreen = on
+        prefs.edit().putBoolean("map_fullscreen", on).apply()
+    }
+
+    /** The Dictionary page shows the units converter instead of a dictionary. */
+    var dictionaryUnits by mutableStateOf(false)
 
     fun toggleStudyMode() {
         changeMode(if (studyMode) AppMode.Casual else AppMode.Study)
@@ -864,6 +1105,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         hyphenate = prefs.getBoolean("text_hyphenate", true)
         paragraphBreak = enumPref("paragraph_break", ParagraphBreak.Indent)
         pageMargin = enumPref("page_margin", PageMargin.Normal)
+        uiDensity = enumPref("ui_density", UiDensity.Compact)
+        keepScreenOn = prefs.getBoolean("keep_screen_on", true)
         mode = AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)]
         val newTitle = defaultTitle()
         val (l, rec, usage) = withContext(io) {

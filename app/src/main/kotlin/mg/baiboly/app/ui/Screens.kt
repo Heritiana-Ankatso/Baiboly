@@ -451,8 +451,12 @@ private class SettingsGroup(val key: String, val icon: androidx.compose.ui.graph
 @Composable
 fun SettingsScreen(vm: AppViewModel) {
     val style = LocalStyle.current
-    var advanced by remember { mutableStateOf(false) }
-    var open by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) }
+    // opened from the "new version" notification: straight to Advanced › Updates
+    var advanced by remember { mutableStateOf(vm.openUpdateSettings) }
+    var open by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(if (vm.openUpdateSettings) "advanced" else null) }
+    LaunchedEffect(vm.openUpdateSettings) {
+        if (vm.openUpdateSettings) { advanced = true; open = "advanced"; vm.openUpdateSettings = false }
+    }
     val groups = listOf(
         SettingsGroup("look", Icons.Outlined.Palette, stringResource(R.string.appearance)) { AppearanceSettings(vm) },
         SettingsGroup("bible", Icons.Outlined.AutoStories, stringResource(R.string.default_bible)) { DefaultBibleSettings(vm) },
@@ -555,10 +559,28 @@ private fun AppearanceSettings(vm: AppViewModel) {
         }
         Text(stringResource(R.string.text_size), style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 8.dp))
-        Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12,
-            modifier = Modifier.padding(horizontal = 20.dp))
-        Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * LocalReading.current.lineSpacing).sp,
+        Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = mg.baiboly.app.MIN_TEXT..40f, steps = 14,
+            modifier = Modifier.padding(horizontal = 20.dp).testTag("settings-text-size"))
+        val sample = vm.textSize * LocalTextScale.current
+        Text(stringResource(R.string.sample_text), fontSize = sample.sp, lineHeight = (sample * LocalReading.current.lineSpacing).sp,
             fontFamily = TextSerif, modifier = Modifier.padding(horizontal = 20.dp))
+        // the size of everything else: bars, buttons, lists
+        ChoiceRow(
+            label = stringResource(R.string.ui_density),
+            options = listOf(mg.baiboly.app.UiDensity.Compact to stringResource(R.string.ui_compact), mg.baiboly.app.UiDensity.Normal to stringResource(R.string.ui_normal)),
+            selected = vm.uiDensity, tag = "settings-density",
+        ) { vm.changeUiDensity(it) }
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.changeKeepScreenOn(!vm.keepScreenOn) }
+                .padding(horizontal = 20.dp).testTag("settings-keep-awake"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.keep_screen_on), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.keep_screen_on_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            androidx.compose.material3.Switch(checked = vm.keepScreenOn, onCheckedChange = null)
+        }
         TextButton(onClick = { vm.resetAppearance() }, modifier = Modifier.padding(start = 12.dp, top = 4.dp).testTag("settings-reset-look")) {
             Text(stringResource(R.string.reset_appearance))
         }
@@ -836,16 +858,67 @@ private fun UpdateSettings(vm: AppViewModel) {
             AppViewModel.UpdateStatus.UpToDate -> stringResource(R.string.update_up_to_date, vm.versionName)
             AppViewModel.UpdateStatus.Failed -> stringResource(R.string.update_failed)
             is AppViewModel.UpdateStatus.Available -> stringResource(R.string.update_available, status.release.version)
+            is AppViewModel.UpdateStatus.Downloading -> stringResource(R.string.update_downloading, status.release.version)
+            is AppViewModel.UpdateStatus.NeedsPermission -> stringResource(R.string.update_needs_permission)
+            is AppViewModel.UpdateStatus.Installing -> stringResource(R.string.update_installing, status.release.version)
+            is AppViewModel.UpdateStatus.InstallFailed -> stringResource(
+                if (status.reason == "checksum" || status.reason == "not this app" || status.reason == "not newer") R.string.update_bad_file
+                else if (status.apk != null) R.string.update_install_failed else R.string.update_download_failed,
+            )
             else -> null
         }
-        line?.let { Text(it, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 6.dp)) }
-        if (status is AppViewModel.UpdateStatus.Available) {
-            Button(
-                onClick = {
-                    runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(status.release.url))) }
-                },
-                modifier = Modifier.padding(top = 6.dp).heightIn(min = 48.dp),
-            ) { Text(stringResource(R.string.update_open_page)) }
+        line?.let { Text(it, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 6.dp).testTag("settings-update-status")) }
+        // the system page where Android lets this app install its updates (asked once)
+        val allowInstall = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { vm.onInstallPermissionResult() }
+        when (status) {
+            is AppViewModel.UpdateStatus.Available -> {
+                val rel = status.release
+                if (rel.apkUrl != null) {
+                    Button(
+                        onClick = { vm.downloadAndInstallUpdate(rel) },
+                        modifier = Modifier.padding(top = 6.dp).heightIn(min = 48.dp).testTag("settings-update-install"),
+                    ) {
+                        Text(
+                            if (rel.apkSize > 0) stringResource(R.string.update_install_size, "%.1f".format(rel.apkSize / 1_048_576.0))
+                            else stringResource(R.string.update_install),
+                        )
+                    }
+                } else {
+                    // a release without an APK attached: only its page can help
+                    Button(
+                        onClick = { runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(rel.url))) } },
+                        modifier = Modifier.padding(top = 6.dp).heightIn(min = 48.dp),
+                    ) { Text(stringResource(R.string.update_open_page)) }
+                }
+            }
+            is AppViewModel.UpdateStatus.Downloading -> {
+                if (status.progress < 0f) androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp))
+                else androidx.compose.material3.LinearProgressIndicator(
+                    progress = { status.progress },
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("settings-update-progress"),
+                )
+                if (status.progress >= 0f) Text("${(status.progress * 100).toInt()} %", style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                TextButton(onClick = { vm.cancelUpdateDownload() }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.cancel)) }
+            }
+            is AppViewModel.UpdateStatus.NeedsPermission -> {
+                Button(
+                    onClick = { runCatching { allowInstall.launch(mg.baiboly.app.update.UpdateInstaller.permissionIntent(ctx)) } },
+                    modifier = Modifier.padding(top = 6.dp).heightIn(min = 48.dp).testTag("settings-update-allow"),
+                ) { Text(stringResource(R.string.update_allow)) }
+            }
+            is AppViewModel.UpdateStatus.Installing -> {
+                androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp))
+                TextButton(onClick = { vm.installUpdate(status.release, status.apk) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.update_install_again))
+                }
+            }
+            is AppViewModel.UpdateStatus.InstallFailed -> {
+                Button(onClick = { vm.retryUpdate(status) }, modifier = Modifier.padding(top = 6.dp).heightIn(min = 48.dp).testTag("settings-update-retry")) {
+                    Text(stringResource(R.string.update_try_again))
+                }
+            }
+            else -> Unit
         }
         if (vm.updateLastCheck > 0) {
             Text(

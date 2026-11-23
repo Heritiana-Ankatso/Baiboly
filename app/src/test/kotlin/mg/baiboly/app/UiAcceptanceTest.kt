@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performSemanticsAction
@@ -502,5 +503,130 @@ class UiAcceptanceTest {
         tag("map-base:Today").assertExists()
         tag("map-base:Today").tap()
         tag("map").assertExists()
+    }
+
+    /** Map: full screen; search a place; a region drawn whole; a journey; a way between two places. */
+    @Test fun mapSearchRegionsAndRoutes() {
+        ready()
+        vm.changeMode(AppMode.Study)
+        tag("nav:Map").tap()
+        waitFor { vm.screen == Screen.Map }
+        // full screen by default: no navigation bar over the map; the button brings the bars back
+        assertTrue(vm.mapFullscreen)
+        tag("nav:Main").assertDoesNotExist()
+        tag("map-fullscreen").tap()
+        waitFor { !vm.mapFullscreen }
+        tag("nav:Main").assertExists()
+        tag("map-fullscreen").tap()
+        waitFor { vm.mapFullscreen }
+        // search: "galil" finds Galilee, a region drawn as an area
+        withManualClock {
+            tag("map-search").performSemanticsAction(SemanticsActions.RequestFocus)
+            tag("map-search").performSemanticsAction(SemanticsActions.SetText) { it(androidx.compose.ui.text.AnnotatedString("galil")) }
+            rule.mainClock.advanceTimeBy(500)
+            val galilee = vm.library.places.first { it.name == "Galilee 1" }
+            tag("map-hit:${galilee.id}").press()
+            rule.mainClock.advanceTimeBy(1_000)
+            tag("place-card").assertExists()
+            tag("region-note").assertExists()
+            // a way from Galilee… to Jerusalem
+            tag("route-from-here").press()
+            // the panel replaces the place card on the next frames
+            var tries = 0
+            while (rule.onAllNodesWithTag("routes-panel", useUnmergedTree = true).fetchSemanticsNodes().isEmpty() && tries++ < 50) {
+                rule.mainClock.advanceTimeBy(100)
+            }
+            tag("routes-panel").assertExists()
+            tag("route-to").press()
+            tag("map-search").performSemanticsAction(SemanticsActions.SetText) { it(androidx.compose.ui.text.AnnotatedString("jerusalem")) }
+            rule.mainClock.advanceTimeBy(500)
+            val jerusalem = vm.library.places.first { it.name == "Jerusalem" }
+            tag("map-hit:${jerusalem.id}").press()
+        }
+        waitFor { runCatching { tag("route-result").assertExists(); true }.getOrDefault(false) }
+        rule.onNodeWithText("km on the ancient roads", substring = true).assertExists()
+        // the journeys of the Bible
+        tag("routes-tab:journeys").tap()
+        tag("journeys-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("journey:paul1"))
+        tag("journey:paul1").tap()
+        rule.onNodeWithText("Paul’s first journey", substring = true).assertExists()
+        // the list of regions
+        tag("map-regions").tap()
+        tag("regions-panel").assertExists()
+    }
+
+    /** Study mode: the units converter, beside the dictionaries. */
+    @Test fun unitsConverter() {
+        ready()
+        vm.changeMode(AppMode.Study)
+        tag("nav:Dictionary").tap()
+        waitFor { vm.screen == Screen.Dictionary }
+        tag("dict-units").tap()
+        tag("units").assertExists()
+        // 1 cubit, read in every unit of length: a span is half a cubit
+        tag("unit-value:span").assertExists()
+        rule.onNodeWithTag("unit-value:span", useUnmergedTree = true).assert(hasText("2"))
+        // tap shekel in Weight: 20 gerahs (Ex 30:13)
+        tag("units-kind:Weight").tap()
+        rule.onNodeWithTag("unit-value:gerah", useUnmergedTree = true).assert(hasText("20"))
+        // money in days' wages
+        tag("units-kind:Money").tap()
+        tag("units-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("unit:talent_nt"))
+        tag("unit:talent_nt").tap() // the talent becomes the unit converted from, keeping the amount
+        withManualClock {
+            tag("units-amount").performSemanticsAction(SemanticsActions.SetText) { it(androidx.compose.ui.text.AnnotatedString("1")) }
+            rule.mainClock.advanceTimeBy(500)
+            rule.onNodeWithTag("units-modern", useUnmergedTree = true).assert(hasText("6,000", substring = true)) // Mt 18:24
+        }
+        // the hours of the day
+        tag("units-kind:Time").tap()
+        tag("units-time").assertExists()
+        // the verse of a unit opens the text
+        tag("units-kind:Length").tap()
+        tag("unit-ref:cubit").tap()
+        waitFor { vm.screen == Screen.Main && vm.location.book == 1 && vm.location.chapter == 6 }
+    }
+
+    /** A selected passage: the same verses in the other Bibles, original words, places, units, dictionary. */
+    @Test fun passageStudyTools() {
+        ready()
+        // compact interface, text down to 10, screen kept awake: the defaults
+        assertEquals(UiDensity.Compact, vm.uiDensity)
+        assertTrue(vm.keepScreenOn)
+        fun awake(v: android.view.View): Boolean = v.keepScreenOn || (v is android.view.ViewGroup && (0 until v.childCount).any { awake(v.getChildAt(it)) })
+        assertTrue(awake(rule.activity.window.decorView), "screen kept on")
+        vm.changeTextSize(8f)
+        assertEquals(MIN_TEXT, vm.textSize)
+        vm.changeTextSize(20f)
+        // Casual mode (not only Study): Genesis 6:15, the ark's measures
+        vm.setTranslation("mg1865")
+        vm.openPassage(Passage(1, 6, 15, 15))
+        waitFor { vm.chapter?.book == 1 && vm.chapter?.chapter == 6 }
+        tag("reader").performScrollToKey("v15")
+        tag("verse:15").tap()
+        tag("action:Study").tap()
+        tag("passage-tools").assertExists()
+        // other Bibles, matched to their numbering
+        waitFor { runCatching { tag("compare:kjv").assertExists(); true }.getOrDefault(false) }
+        assertTrue(rule.onAllNodesWithText("three hundred cubits", substring = true).fetchSemanticsNodes().isNotEmpty())
+        // the unit named in the verse, opened in the converter
+        waitFor { runCatching { tag("tab-units").assertExists(); true }.getOrDefault(false) }
+        tag("tab-units").tap()
+        tag("passage-unit:cubit").tap()
+        waitFor { vm.screen == Screen.Dictionary && vm.dictionaryUnits }
+        rule.onNodeWithTag("unit-value:cubit", useUnmergedTree = true).assert(hasText("1"))
+        // Acts 13:4: Seleucia and Cyprus, shown on the map
+        vm.openPassage(Passage(44, 13, 4, 4))
+        waitFor { vm.screen == Screen.Main && vm.chapter?.book == 44 && vm.chapter?.chapter == 13 }
+        tag("reader").performScrollToKey("v4")
+        tag("verse:4").tap()
+        tag("action:Study").tap()
+        tag("tab-original").tap()
+        waitFor { runCatching { tag("word:G4581").assertExists(); true }.getOrDefault(false) } // Σελεύκεια
+        waitFor { runCatching { tag("tab-places").assertExists(); true }.getOrDefault(false) }
+        tag("tab-places").tap()
+        val seleucia = vm.library.places.first { it.name == "Seleucia" }
+        tag("passage-place:${seleucia.id}").tap()
+        waitFor { vm.screen == Screen.Map }
     }
 }
