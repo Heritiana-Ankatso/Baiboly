@@ -462,4 +462,10 @@
     <string name="region_kind_relief">Mountains and valleys</string>
     <string name="region_kind_waters">Seas, rivers and islands</string>
     <string name="regions_count">%1$d of %2$d regions</string>
+    <!-- People: links the text does not support as family -->
+    <string name="rel_legal_father">Legal father (Luke 3:23)</string>
+    <string name="rel_legal_child">Son by law (Luke 3:23)</string>
+    <string name="note_son_of_god">Luke 3:38 calls Adam “the son of God”: he was created by God (Gen 2:7), not begotten. God is not shown as a parent in the family tree.</string>
+    <string name="note_virgin_birth">Conceived by the Holy Spirit and born of the virgin Mary (Matt 1:18–25; Luke 1:35). Joseph was his father in law, “as was supposed” (Luke 3:23); the genealogies of Matthew 1 and Luke 3 run through him.</string>
+    <string name="note_no_family">God is the Creator, not one of the families of the genealogies, so no family links are shown. Luke 3:38 calls Adam “the son of God” by creation.</string>
 </resources>

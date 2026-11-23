@@ -62,13 +62,27 @@ class HistoryToolsTest {
         settle { vm.ready }
         val h = vm.chronicle
         // B1: Abraham, his father Terah, Isaac among his children. The father line goes through Noah
-        // to Adam and, as in Luke 3:38 ("which was the son of Adam, which was the son of God"), to God.
+        // to Adam and stops there: Luke 3:38 calls Adam "the son of God" by creation, which a note says
+        // instead of a family link (God has none).
         val abraham = h.searchPeople("Abraham").first { it.name == "Abraham" }
         val rel = h.relatives(abraham.id)
         assertTrue(rel.any { it.kind == "father" && it.person.name == "Terah" })
         assertTrue(rel.any { it.kind == "child" && it.person.name == "Isaac" })
         val line = h.fatherLine(abraham.id).map { it.name }
-        assertTrue("Noah" in line && line.takeLast(2) == listOf("Adam", "God"), "father line: $line")
+        assertTrue("Noah" in line && line.last() == "Adam", "father line: $line")
+        assertEquals("son_of_god", h.fatherLine(abraham.id).last().note)
+        val god = h.searchPeople("God").first { it.name == "God" }
+        assertTrue(h.relatives(god.id).isEmpty(), "God shown with family links")
+        assertEquals("no_family", god.note)
+        // Jesus: Joseph is his legal father (Luke 3:23), and the line runs through him to David and Abraham
+        val jesus = h.searchPeople("Jesus Christ").first { it.name == "Jesus Christ" }
+        assertEquals("virgin_birth", jesus.note)
+        val jr = h.relatives(jesus.id)
+        assertTrue(jr.none { it.kind == "father" } && jr.any { it.kind == "legal_father" && it.person.name.startsWith("Joseph") }, "Jesus: $jr")
+        val jline = h.fatherLine(jesus.id).map { it.name }
+        assertTrue(jline.first().startsWith("Joseph") && jline.any { it.startsWith("David") } && "Abraham" in jline, "line of Jesus: $jline")
+        // "Also called" reads as a list
+        assertTrue(god.alsoCalled.startsWith("LORD, Lord, "), god.alsoCalled)
         assertTrue("Cainan (son of Arphaxad)" in line, "Luke 3:36 keeps the second Cainan: $line")
         // B2: Exodus year after Jones (1491 BC = astronomical -1490), in order
         assertEquals(-1490, h.timeline.first { it.title == "Exodus from Egypt" }.year)

@@ -19,9 +19,11 @@ data class Person(
     val mentions: Int,
     /** First verse naming the person (Malagasy numbering), if any. */
     val first: Passage?,
+    /** Key of a note for the person's page ("son_of_god", "virgin_birth", "no_family"), or "". */
+    val note: String = "",
 )
 
-/** father | mother | child | sibling | half_sibling | partner, seen from the person. */
+/** father | mother | child | sibling | half_sibling | partner | legal_father | legal_child, seen from the person. */
 data class Relative(val kind: String, val person: Person)
 
 /** An event of the timeline. [year] after Jones; [ussher] = the TSK marginal year of its first verse. */
@@ -59,7 +61,7 @@ data class Council(val id: String, val name: String, val place: String, val year
 class HistoryRepository(private val dbs: AssetDatabases) {
     private val db get() = dbs.get("library.db")
 
-    private val personCols = "id, name, also, gender, born, died, mentions, book, chapter, verse"
+    private val personCols = "id, name, also, gender, born, died, mentions, book, chapter, verse, note"
 
     private fun android.database.Cursor.passageAt(i: Int): Passage? =
         if (getInt(i) == 0) null else runCatching { Passage(getInt(i), getInt(i + 1), getInt(i + 2), getInt(i + 2)) }.getOrNull()
@@ -67,7 +69,7 @@ class HistoryRepository(private val dbs: AssetDatabases) {
     private fun android.database.Cursor.person(o: Int = 0) = Person(
         getInt(o), getString(o + 1), getString(o + 2), getString(o + 3),
         if (isNull(o + 4)) null else getInt(o + 4), if (isNull(o + 5)) null else getInt(o + 5),
-        getInt(o + 6), passageAt(o + 7),
+        getInt(o + 6), passageAt(o + 7), getString(o + 10),
     )
 
     private fun people(sql: String, args: Array<String>): List<Person> =
@@ -86,7 +88,7 @@ class HistoryRepository(private val dbs: AssetDatabases) {
     fun person(id: Int): Person? = people("SELECT $personCols FROM person WHERE id=?", arrayOf(id.toString())).firstOrNull()
 
     fun relatives(id: Int): List<Relative> = db.rawQuery(
-        "SELECT r.kind, p.id, p.name, p.also, p.gender, p.born, p.died, p.mentions, p.book, p.chapter, p.verse " +
+        "SELECT r.kind, p.id, p.name, p.also, p.gender, p.born, p.died, p.mentions, p.book, p.chapter, p.verse, p.note " +
             "FROM person_rel r JOIN person p ON p.id = r.other WHERE r.person=? ORDER BY p.born IS NULL, p.born, p.book, p.chapter, p.verse",
         arrayOf(id.toString()),
     ).use { c -> buildList { while (c.moveToNext()) add(Relative(c.getString(0), c.person(1))) } }
@@ -97,7 +99,8 @@ class HistoryRepository(private val dbs: AssetDatabases) {
         var cur = id
         val seen = mutableSetOf(id)
         while (out.size < max) {
-            val f = relatives(cur).firstOrNull { it.kind == "father" }?.person ?: break
+            // the legal father too: the genealogies of Jesus (Matt 1, Luke 3) run through Joseph
+            val f = relatives(cur).firstOrNull { it.kind == "father" || it.kind == "legal_father" }?.person ?: break
             if (!seen.add(f.id)) break
             out += f
             cur = f.id
@@ -112,7 +115,7 @@ class HistoryRepository(private val dbs: AssetDatabases) {
 
     /** People named in verses [from]..[to] of a chapter, the most named first. */
     fun peopleInVerses(book: Int, chapter: Int, from: Int, to: Int): List<Person> = people(
-        "SELECT DISTINCT p.id, p.name, p.also, p.gender, p.born, p.died, p.mentions, p.book, p.chapter, p.verse " +
+        "SELECT DISTINCT p.id, p.name, p.also, p.gender, p.born, p.died, p.mentions, p.book, p.chapter, p.verse, p.note " +
             "FROM person_verse v JOIN person p ON p.id = v.person WHERE v.book=? AND v.chapter=? AND v.verse BETWEEN ? AND ? ORDER BY p.mentions DESC",
         arrayOf(book.toString(), chapter.toString(), from.toString(), to.toString()),
     )
@@ -144,7 +147,7 @@ class HistoryRepository(private val dbs: AssetDatabases) {
     )
 
     fun eventPeople(eventId: Int): List<Person> = people(
-        "SELECT p.id, p.name, p.also, p.gender, p.born, p.died, p.mentions, p.book, p.chapter, p.verse " +
+        "SELECT p.id, p.name, p.also, p.gender, p.born, p.died, p.mentions, p.book, p.chapter, p.verse, p.note " +
             "FROM event_person e JOIN person p ON p.id = e.person WHERE e.event=? ORDER BY p.mentions DESC",
         arrayOf(eventId.toString()),
     )

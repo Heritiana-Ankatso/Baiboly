@@ -75,7 +75,7 @@ def load_people_events(people_path, events_path, verses_path, osis_ids, numberin
         pid = f["personID"]
         vs = verse_rows(f.get("verses"))
         first = vs[0][0] if vs else (0, 0, 0)
-        people.append((pid, f.get("displayTitle") or f["name"], f.get("alsoCalled") or "", (f.get("gender") or "")[:1],
+        people.append((pid, f.get("displayTitle") or f["name"], clean_also(f.get("alsoCalled")), (f.get("gender") or "")[:1],
                        year(f.get("birthYear")), year(f.get("deathYear")), len(vs), first[0], first[1], first[2]))
         for (b, c, v), _y in vs:
             pverses.append((pid, b, c, v))
@@ -85,6 +85,7 @@ def load_people_events(people_path, events_path, verses_path, osis_ids, numberin
                     k = {"children": "child", "siblings": "sibling", "partners": "partner",
                          "halfSiblingsSameFather": "half_sibling", "halfSiblingsSameMother": "half_sibling"}.get(kind, kind)
                     rels.append((pid, k, rec_to_pid[other]))
+    people, rels = apply_curation(people, rels)
     events, eppl, everses = [], [], []
     for r in raw_events:
         f = r["fields"]
@@ -107,6 +108,52 @@ def load_people_events(people_path, events_path, verses_path, osis_ids, numberin
         for (b, c, v), _y in vs:
             everses.append((eid, b, c, v))
     return people, sorted(set(rels)), pverses, events, sorted(set(eppl)), everses
+
+
+# ---------------------------------------------------------------- curation of family links
+
+# The source models God as a person whose "children" are Adam and Eve (from Luke 3:38), and gives
+# Joseph as the father of Jesus without qualification. Shown as family links, both say more than
+# the text: Adam is "the son of God" by creation (Gen 2:7), not by begetting, and Jesus was "(as was
+# supposed) the son of Joseph" (Luke 3:23), conceived of the Holy Spirit (Matt 1:18-25; Luke 1:35).
+DIVINE = {"God", "Holy Spirit"}           # no family links to or from these
+NOTES = {                                 # person name -> note key (texts in the app's strings)
+    "Adam": "son_of_god",
+    "Jesus Christ": "virgin_birth",
+    "God": "no_family",
+}
+LEGAL = ("Jesus Christ", "Joseph (Mary's Husband)")  # (child, legal father)
+
+
+def apply_curation(people, rels):
+    """Drops family links of God and the Holy Spirit, marks Joseph as legal father; adds note keys."""
+    by_name = {}
+    for p in people:
+        by_name.setdefault(p[1], p[0])
+    divine = {by_name[n] for n in DIVINE if n in by_name}
+    child, father = by_name.get(LEGAL[0]), by_name.get(LEGAL[1])
+    out = []
+    for a, kind, b in rels:
+        if a in divine or b in divine:
+            continue
+        if a == child and b == father and kind == "father":
+            kind = "legal_father"
+        elif a == father and b == child and kind == "child":
+            kind = "legal_child"
+        out.append((a, kind, b))
+    notes = {by_name[n]: k for n, k in NOTES.items() if n in by_name}
+    return [p + (notes.get(p[0], ""),) for p in people], sorted(set(out))
+
+
+def clean_also(also):
+    """'LORD,Lord,Father' -> 'LORD, Lord, Father' (no repeats, case kept)."""
+    seen, out = set(), []
+    for a in (also or "").split(","):
+        a = a.strip()
+        if a and a not in seen:
+            seen.add(a)
+            out.append(a)
+    return ", ".join(out)
 
 
 # ---------------------------------------------------------------- confessions and councils
@@ -287,9 +334,10 @@ def write_tables(db, people, rels, pverses, events, eppl, everses, docs, items, 
         -- Theographic Bible Metadata (CC BY-SA 4.0). Years are astronomical (1 BC = 0, 4004 BC = -4003).
         CREATE TABLE person(id INTEGER PRIMARY KEY, name TEXT NOT NULL, also TEXT NOT NULL, gender TEXT NOT NULL,
             born INTEGER, died INTEGER, mentions INTEGER NOT NULL, book INTEGER NOT NULL, chapter INTEGER NOT NULL,
-            verse INTEGER NOT NULL, name_norm TEXT NOT NULL);
+            verse INTEGER NOT NULL, note TEXT NOT NULL, name_norm TEXT NOT NULL);
         CREATE INDEX person_by_name ON person(name_norm);
-        -- kind: father | mother | child | sibling | half_sibling | partner (from the person's side)
+        -- note: key of a note shown on the person's page (tools/build_extras.py NOTES), or ''
+        -- kind: father | mother | child | sibling | half_sibling | partner | legal_father | legal_child
         CREATE TABLE person_rel(person INTEGER NOT NULL, kind TEXT NOT NULL, other INTEGER NOT NULL,
             PRIMARY KEY(person, kind, other)) WITHOUT ROWID;
         CREATE TABLE person_verse(person INTEGER NOT NULL, book INTEGER NOT NULL, chapter INTEGER NOT NULL,
@@ -316,7 +364,7 @@ def write_tables(db, people, rels, pverses, events, eppl, everses, docs, items, 
         CREATE TABLE council(id TEXT PRIMARY KEY, name TEXT NOT NULL, place TEXT NOT NULL, year TEXT NOT NULL,
             docs TEXT NOT NULL, sort INTEGER NOT NULL) WITHOUT ROWID;
     """)
-    db.executemany("INSERT INTO person VALUES(?,?,?,?,?,?,?,?,?,?,?)", [p + (norm(p[1]),) for p in people])
+    db.executemany("INSERT INTO person VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", [p + (norm(p[1]),) for p in people])
     db.executemany("INSERT OR IGNORE INTO person_rel VALUES(?,?,?)", rels)
     db.executemany("INSERT OR IGNORE INTO person_verse VALUES(?,?,?,?)", pverses)
     db.executemany("INSERT INTO event VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", events)

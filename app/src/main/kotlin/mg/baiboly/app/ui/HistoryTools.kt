@@ -86,7 +86,16 @@ private fun VerseChips(vm: AppViewModel, verses: List<Passage>, tag: String) {
 
 // ---------------------------------------------------------------- people
 
-private val RELATION_ORDER = listOf("father", "mother", "partner", "sibling", "half_sibling", "child")
+private val RELATION_ORDER = listOf("father", "legal_father", "mother", "partner", "sibling", "half_sibling", "child", "legal_child")
+
+/** A note for a person's page, where a family link would say more (or other) than the text. */
+@Composable
+private fun personNote(key: String): String? = when (key) {
+    "son_of_god" -> stringResource(R.string.note_son_of_god)
+    "virgin_birth" -> stringResource(R.string.note_virgin_birth)
+    "no_family" -> stringResource(R.string.note_no_family)
+    else -> null
+}
 
 @Composable
 private fun relationTitle(kind: String): String = when (kind) {
@@ -95,6 +104,8 @@ private fun relationTitle(kind: String): String = when (kind) {
     "partner" -> stringResource(R.string.rel_partners)
     "sibling" -> stringResource(R.string.rel_siblings)
     "half_sibling" -> stringResource(R.string.rel_half_siblings)
+    "legal_father" -> stringResource(R.string.rel_legal_father)
+    "legal_child" -> stringResource(R.string.rel_legal_child)
     else -> stringResource(R.string.rel_children)
 }
 
@@ -165,6 +176,10 @@ private fun PersonView(vm: AppViewModel, id: Int, modifier: Modifier, onPerson: 
         item {
             Text(p.name, style = MaterialTheme.typography.headlineSmall, color = ornament.rubric, modifier = Modifier.padding(top = 12.dp))
             if (p.alsoCalled.isNotEmpty()) Note(stringResource(R.string.also_called, p.alsoCalled))
+            personNote(p.note)?.let {
+                Text(it, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic,
+                    modifier = Modifier.padding(top = 6.dp).testTag("person-note"))
+            }
             val born = p.born?.let { yearLabel(it) }
             val died = p.died?.let { yearLabel(it) }
             if (born != null || died != null) {
@@ -187,6 +202,8 @@ private fun PersonView(vm: AppViewModel, id: Int, modifier: Modifier, onPerson: 
             }
             item {
                 Text("✠ " + p.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = ornament.rubric, modifier = Modifier.padding(vertical = 6.dp))
+                // the first ancestor's note (Adam: "the son of God" by creation, Luke 3:38)
+                line.last().note.let { k -> personNote(k)?.let { Note(line.last().name + ": " + it, Modifier.padding(bottom = 4.dp)) } }
                 Note(stringResource(R.string.genealogy_note))
             }
         }
