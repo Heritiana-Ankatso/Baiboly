@@ -188,10 +188,13 @@
     <string name="lang_english">anglisy</string>
     <string name="whats_new">Vaovao</string>
     <string name="whats_new_ok">Amena</string>
-    <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
+    <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Andininy mitohy: Fikirana › Endrika › Andininy › Mitohy dia mampiseho ny soratra ho fehintsoratra mitohy, toy ny Baiboly vita an-tsoratra, misy laharan’andininy kely. Mandeha toy ny teo aloha ny fanindriana andininy, ny fanamarihana ary ny voaloko.</item>
-        <item>Fandrafetana, ho an’ ny andininy mitohy: Fikirana › Safidy hafa › Fandrafetana. Soratra ankavia na feno, teny tapahina isaky ny vaninteny amin’ ny faran’ andalana (amin’ ny teny malagasy koa), fidirana na elanelana eo anelanelan’ ny fehintsoratra, ary sisiny tery, antonony na malalaka.</item>
+        <item>Mipetraka ao anatin’ny fampiharana ny fanavaozana: Fikirana › Safidy hafa › Fanavaozana › Alaivo ary apetraho. Indray mandeha monja i Android no mangataka alalana, avy eo manamafy ny fanavaozana; tsy misy misokatra ao amin’ny mpitety tranonkala.</item>
+        <item>Mameno ny efijery ny sarintany. Hitady toerana amin’ny anarany; ahalehibe na ahakely amin’ny bokotra + sy −, na tsindrio indroa.</item>
+        <item>Faritany manontolo: fanjakana, firenena ary faritany (Edoma, Moaba, Galilia, Samaria, Makedonia, Azia…), matroka kokoa izay tena nisy azy, mazava kokoa izay tsy azo antoka ny sisiny. Tsindrio ao anatin’ny faritany iray, na fidio ao amin’ny Faritany.</item>
+        <item>Lalana: dia 15 ao amin’ny Baiboly (Abrahama, ny Fivoahana, ny dian’i Paoly, ny dia nankany Roma…), ary ny lalana mampitohy toerana roa tianao amin’ny lalana fahiny, miaraka amin’ny halaviny sy ny andro an-tongotra.</item>
+        <item>Refy (fomba Fianarana, pejy Rakibolana): hakiho, sekely, efaha, bata, denaria sy ny sisa, avadika ho samy izy sy ho metatra, grama ary litatra, miaraka amin’ny andinin-teny misy ny refy tsirairay; ny ora amin’ny andro sy ny fiambenana amin’ny alina.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -312,8 +315,64 @@
     <string name="update_up_to_date">Ny versiona farany no anananao (%1$s).</string>
     <string name="update_failed">Tsy afaka nijery. Mifandray amin’ny aterineto ve ny finday?</string>
     <string name="update_available">Efa misy ny versiona %1$s</string>
-    <string name="update_tap_to_open">Tsindrio hanokafana ny pejy hakana azy.</string>
+    <string name="update_tap_to_open">Tsindrio hametrahana azy avy ao amin’ny fampiharana.</string>
     <string name="update_open_page">Sokafy ny pejy hakana azy</string>
     <string name="update_last_check">Fanamarinana farany: %1$s</string>
-    <string name="update_privacy">Ny fijerena fanavaozana ihany no mampiasa aterineto: manontany an’i GitHub ny laharan’ny versiona farany izy. Tsy misy mombamomba anao na ny famakianao alefa.</string>
+    <string name="update_privacy">Ny fanavaozana ihany no mampiasa aterineto: manontany an’i GitHub ny laharan’ny versiona farany ny fijerena, ary maka ny versiona vaovao avy ao amin’i GitHub ny fametrahana, rehefa tsindrianao. Tsy misy mombamomba anao na ny famakianao alefa.</string>
+    <string name="update_install">Alaivo ary apetraho</string>
+    <string name="update_install_size">Alaivo ary apetraho (%1$s Mo)</string>
+    <string name="update_downloading">Maka ny versiona %1$s…</string>
+    <string name="update_installing">Mametraka ny versiona %1$s: hamafiso ao amin’ny varavarankely misokatra.</string>
+    <string name="update_install_again">Asehoy indray ny fametrahana</string>
+    <string name="update_needs_permission">Mangataka aminao indray mandeha monja i Android mba hamela an’i Baiboly hametraka ny fanavaozany. Alefaso ny “Avelao avy amin’ity loharano ity”, dia miverena.</string>
+    <string name="update_allow">Avelao hametraka fanavaozana</string>
+    <string name="update_download_failed">Tapaka ny fakana. Mifandray amin’ny aterineto ve ny finday?</string>
+    <string name="update_install_failed">Tsy tafapetraka ny fanavaozana.</string>
+    <string name="update_bad_file">Tsy fanavaozana marina an’i Baiboly ny rakitra nalaina. Voafafa izy.</string>
+    <string name="update_try_again">Andramo indray</string>
+    <string name="units">Refy</string>
+    <string name="units_length">Halavana</string>
+    <string name="units_weight">Lanja</string>
+    <string name="units_dry">Fatra maina</string>
+    <string name="units_liquid">Fatra ranoka</string>
+    <string name="units_money">Vola</string>
+    <string name="units_time">Ora</string>
+    <string name="units_days_wages">≈ karama %1$s andro (karama iray andro ny denaria iray, Mat. 20:2)</string>
+    <string name="units_pick_hint">Soraty ny isa; tsindrio ny refy iray hanovana avy aminy. Manokatra ny soratra ny andinin-teny.</string>
+    <string name="units_note">Tombantombana ny sanda ankehitriny: niovaova arakaraka ny fotoana sy ny toerana ny lanja sy ny refy, ary tsy mitovy hevitra ny manam-pahaizana (hakiho ≈ 44,4 sm, sekely ≈ 11,4 g, efaha = bata ≈ 22 L). Ny fifandraisana misy “=” dia lazain’ny andinin-teny voatonona (gera 20 = sekely 1, Eks. 30:13); ny hafa dia tombantombana mahazatra. Sekely 60 ny manen’i Ezekiela (Ezek. 45:12); ny taloha matetika isaina ho 50.</string>
+    <string name="units_hours_title">Ora amin’ny andro</string>
+    <string name="units_hours_hint">Isaina hatramin’ny fiposahan’ny masoandro, tokony ho amin’ny 6 ora maraina: “ny ora fahatelo” dia tokony ho amin’ny 9 ora maraina. (Misy mamaky ny oran’i Jaona ho isaina hatramin’ny misasakalina.)</string>
+    <string name="units_hour_n">Ora faha-%1$d</string>
+    <string name="units_watches_title">Fiambenana amin’ny alina</string>
+    <string name="units_watches_hint">Ny fanisana romana ao amin’ny Filazantsara: fiambenana efatra hatramin’ny filentehan’ny masoandro, tokony ho amin’ny 6 ora hariva (Mar. 13:35). Telo no voatonona ao amin’ny Testamenta Taloha (Mpits. 7:19).</string>
+    <string name="units_watch_n">Fiambenana faha-%1$d</string>
+    <string name="map_search_hint">Hitady toerana</string>
+    <string name="map_regions">Faritany</string>
+    <string name="map_routes">Lalana</string>
+    <string name="map_journeys">Dia</string>
+    <string name="map_plan">Avy any… ho any…</string>
+    <string name="map_fullscreen">Efijery feno</string>
+    <string name="map_exit_fullscreen">Asehoy ny tsipika</string>
+    <string name="map_zoom_in">Ahalehibe</string>
+    <string name="map_zoom_out">Ahakely</string>
+    <string name="map_recenter">Amboary ny sarintany</string>
+    <string name="map_region_outlines">Sisin’ny faritany</string>
+    <string name="map_no_results">Tsy misy toerana mitondra izany anarana izany.</string>
+    <string name="regions_hint">Faritra voasoritr’i OpenBible.info: fanjakana, firenena, faritany. Tsindrio ny iray hahitana azy manontolo.</string>
+    <string name="region_outline_note">Voaloko eo amin’ny sarintany: matroka kokoa izay tena nisy ny faritany, mazava kokoa izay tsy azo antoka ny sisiny.</string>
+    <string name="route_from">Avy</string>
+    <string name="route_to">Ho any</string>
+    <string name="route_from_here">Lalana avy eto</string>
+    <string name="route_to_here">Ho eto</string>
+    <string name="route_swap">Avadiho</string>
+    <string name="route_pick_from">Fidio ny toerana iaingana</string>
+    <string name="route_pick_to">Fidio ny toerana haleha</string>
+    <string name="route_clear">Fafao</string>
+    <string name="route_by_road">%1$s km amin’ny lalana fahiny</string>
+    <string name="route_straight">%1$s km mahitsy (tsy misy lalana mampitohy azy: an-dranomasina, na mamaky tany)</string>
+    <string name="route_days">≈ %1$s andro an-tongotra (eo amin’ny 30 km isan’andro)</string>
+    <string name="route_hint">Fidio toerana roa, eto na avy amin’ny toerana iray eo amin’ny sarintany (Lalana avy eto, Ho eto).</string>
+    <string name="route_note">Lalana: lalana romana (AWMC) sy ireo lalambe tamin’ny Testamenta Taloha. Ny lalana fohy indrindra amin’ireo no aseho, tsy voatery ho ilay nalehany.</string>
+    <string name="journey_length">Fijanonana %1$d · ≈ %2$s km</string>
+    <string name="journey_note">Mampitohy ireo fijanonana voatonona ao amin’ny soratra, araka ny filaharany, ny tsipika; tsy ilay lalana marina nalehany izy, ary misy toerana tsy azo antoka (OpenBible.info). Tsindrio ny andinin-teny hamakiana ny tantara.</string>
 </resources>

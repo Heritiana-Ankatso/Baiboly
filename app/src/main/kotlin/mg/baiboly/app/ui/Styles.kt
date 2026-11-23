@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Church
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Straighten
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.BorderColor
 import androidx.compose.material.icons.outlined.EditNote
@@ -319,7 +320,7 @@ fun TranslationChip(label: String, onClick: () -> Unit) {
 
 // ---------------------------------------------------------------- Page: the menu
 
-private class MenuEntry(val screen: Screen, val icon: ImageVector, val label: Int)
+private class MenuEntry(val screen: Screen, val icon: ImageVector, val label: Int, val units: Boolean = false)
 
 /**
  * Page: no bars, so everything is here, grouped by purpose: the Bible,
@@ -336,6 +337,7 @@ fun PageMenuScreen(vm: AppViewModel) {
         ))
         if (vm.mode == AppMode.Study) add(R.string.group_study to listOf(
             MenuEntry(Screen.Dictionary, Icons.Outlined.Translate, R.string.dictionary),
+            MenuEntry(Screen.Dictionary, Icons.Outlined.Straighten, R.string.units, units = true),
             MenuEntry(Screen.Map, Icons.Outlined.Map, R.string.map),
         ))
         add(R.string.group_saved to listOf(
@@ -372,8 +374,10 @@ fun PageMenuScreen(vm: AppViewModel) {
                 entries.forEach { e ->
                     item {
                         Row(
-                            Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { navigateTo(vm, e.screen) }
-                                .testTag("nav:${e.screen.name}").padding(horizontal = 20.dp),
+                            Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable {
+                                if (e.screen == Screen.Dictionary) vm.dictionaryUnits = e.units
+                                navigateTo(vm, e.screen)
+                            }.testTag(if (e.units) "nav:Units" else "nav:${e.screen.name}").padding(horizontal = 20.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(e.icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))

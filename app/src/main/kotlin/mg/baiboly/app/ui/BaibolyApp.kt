@@ -57,8 +57,9 @@ private fun AppContent(vm: AppViewModel) {
                             Screen.Menu -> PageMenuScreen(vm)
                         }
                     }
-                    // the mode's main pages, one tap away
-                    if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive) StyledNavigation(vm)
+                    // the mode's main pages, one tap away (not over the full-screen map)
+                    val fullMap = vm.screen == Screen.Map && vm.mapFullscreen
+                    if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive && !fullMap) StyledNavigation(vm)
                 }
             }
         }

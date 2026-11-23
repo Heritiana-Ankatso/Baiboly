@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import mg.baiboly.app.update.Release
 import mg.baiboly.app.update.UpdateCheck
+import mg.baiboly.app.update.UpdateInstaller
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
@@ -39,6 +40,34 @@ class UpdateCheckTest {
         assertEquals(UpdateCheck.RELEASES_PAGE, UpdateCheck.parseLatest("""{"tag_name":"v1.3.0"}""")?.url)
         assertNull(UpdateCheck.parseLatest("""{"message":"Not Found"}"""))
         assertNull(UpdateCheck.parseLatest("not json"))
+    }
+
+    @Test fun findsTheApkAndItsChecksum() {
+        val json = """{"tag_name":"v1.5.0","html_url":"https://github.com/Heritiana-Ankatso/Baiboly/releases/tag/v1.5.0","assets":[
+            {"name":"Baiboly-v1.5.0.apk.sha256","size":90,"browser_download_url":"https://github.com/Heritiana-Ankatso/Baiboly/releases/download/v1.5.0/Baiboly-v1.5.0.apk.sha256"},
+            {"name":"Baiboly-v1.5.0.apk","size":52428800,"browser_download_url":"https://github.com/Heritiana-Ankatso/Baiboly/releases/download/v1.5.0/Baiboly-v1.5.0.apk"}]}"""
+        val r = UpdateCheck.parseLatest(json)!!
+        assertEquals("1.5.0", r.version)
+        assertEquals("https://github.com/Heritiana-Ankatso/Baiboly/releases/download/v1.5.0/Baiboly-v1.5.0.apk", r.apkUrl)
+        assertEquals("https://github.com/Heritiana-Ankatso/Baiboly/releases/download/v1.5.0/Baiboly-v1.5.0.apk.sha256", r.sha256Url)
+        assertEquals(52428800L, r.apkSize)
+        // only https links are followed
+        assertNull(UpdateCheck.parseLatest("""{"tag_name":"v1.5.0","assets":[{"name":"x.apk","browser_download_url":"http://example.com/x.apk"}]}""")!!.apkUrl)
+    }
+
+    @Test fun readsTheChecksumFile() {
+        val sum = "3f".repeat(32)
+        assertEquals(sum, UpdateInstaller.parseSha256("$sum  Baiboly-v1.5.0.apk\n"))
+        assertEquals(sum, UpdateInstaller.parseSha256(sum.uppercase()))
+        assertNull(UpdateInstaller.parseSha256("Not Found"))
+    }
+
+    @Test fun updateSettingsOfferInstallInsideTheApp() {
+        // the notification opens Settings with Advanced › Updates unfolded
+        val vm = AppViewModel(ApplicationProvider.getApplicationContext())
+        vm.openUpdates()
+        assertEquals(Screen.Settings, vm.screen)
+        assertTrue(vm.openUpdateSettings)
     }
 
     @Test fun automaticCheckIsOptIn() {

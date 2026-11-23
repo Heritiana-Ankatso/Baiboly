@@ -203,10 +203,13 @@
     <string name="lang_english">English</string>
     <string name="whats_new">What’s new</string>
     <string name="whats_new_ok">Amen</string>
-    <string name="updates_hint">Updates install over the app and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
+    <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Verses as paragraphs: Settings › Appearance › Verses › Paragraphs sets the text as running paragraphs, like a printed Bible, with small verse numbers. Tapping a verse, notes and highlights work as before.</item>
-        <item>Typesetting, for verses as paragraphs: Settings › Advanced › Typesetting. Text aligned left or justified, words broken by syllable at line ends (also in Malagasy), an indent or a space between paragraphs, and narrow, normal or wide margins.</item>
+        <item>Updates install inside the app: Settings › Advanced › Updates › Download and install. Android asks once to allow it, then confirms the update; nothing opens in the browser.</item>
+        <item>The map fills the screen. Search a place by name; zoom with the + and − buttons or a double tap.</item>
+        <item>Regions drawn whole: kingdoms, peoples and provinces (Edom, Moab, Galilee, Samaria, Macedonia, Asia…), darker where the region surely was, lighter where its edge is uncertain. Tap inside a region, or choose it under Regions.</item>
+        <item>Routes: 15 journeys of the Bible (Abraham, the Exodus, Paul’s journeys, the voyage to Rome…), and the way between any two places on the ancient roads, with its length and days on foot.</item>
+        <item>Units (Study mode, Dictionary page): cubits, shekels, ephahs, baths, denarii and more, converted to each other and to metres, grams and litres, with the verse of each unit; the hours of the day and the watches of the night.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -327,8 +330,64 @@
     <string name="update_up_to_date">You have the latest version (%1$s).</string>
     <string name="update_failed">Could not check. Is the phone connected to the internet?</string>
     <string name="update_available">Version %1$s is available</string>
-    <string name="update_tap_to_open">Tap to open the download page.</string>
+    <string name="update_tap_to_open">Tap to install it from the app.</string>
     <string name="update_open_page">Open the download page</string>
     <string name="update_last_check">Last checked: %1$s</string>
-    <string name="update_privacy">Only the update check uses the internet: it asks GitHub for the number of the latest version. Nothing about you or your reading is sent.</string>
+    <string name="update_privacy">Only updates use the internet: checking asks GitHub for the number of the latest version, and installing downloads the new version from GitHub, when you tap it. Nothing about you or your reading is sent.</string>
+    <string name="update_install">Download and install</string>
+    <string name="update_install_size">Download and install (%1$s MB)</string>
+    <string name="update_downloading">Downloading version %1$s…</string>
+    <string name="update_installing">Installing version %1$s: confirm in the window that opens.</string>
+    <string name="update_install_again">Show the installation again</string>
+    <string name="update_needs_permission">Android asks you, once, to allow Baiboly to install its updates. Turn on “Allow from this source”, then come back.</string>
+    <string name="update_allow">Allow installing updates</string>
+    <string name="update_download_failed">The download stopped. Is the phone connected to the internet?</string>
+    <string name="update_install_failed">The update was not installed.</string>
+    <string name="update_bad_file">The downloaded file is not a valid update of Baiboly. It was deleted.</string>
+    <string name="update_try_again">Try again</string>
+    <string name="units">Units</string>
+    <string name="units_length">Length</string>
+    <string name="units_weight">Weight</string>
+    <string name="units_dry">Dry measures</string>
+    <string name="units_liquid">Liquids</string>
+    <string name="units_money">Money</string>
+    <string name="units_time">Time</string>
+    <string name="units_days_wages">≈ %1$s days’ wages (a denarius was a day’s wage, Mt 20:2)</string>
+    <string name="units_pick_hint">Type an amount; tap a unit to convert from it. Verse references open the text.</string>
+    <string name="units_note">Modern values are approximate: weights and measures varied by time and place, and scholars differ (common cubit ≈ 44.4 cm, shekel ≈ 11.4 g, ephah = bath ≈ 22 L). Relations marked “=” are stated by the verse cited (20 gerahs = 1 shekel, Ex 30:13); the others are the usual estimates. Ezekiel’s maneh is 60 shekels (Ezek 45:12); the older one is usually reckoned at 50.</string>
+    <string name="units_hours_title">Hours of the day</string>
+    <string name="units_hours_hint">Counted from sunrise, about 6 a.m.: “the third hour” is about 9 a.m. (Some read John’s hours as counted from midnight.)</string>
+    <string name="units_hour_n">Hour %1$d</string>
+    <string name="units_watches_title">Watches of the night</string>
+    <string name="units_watches_hint">The Roman reckoning of the Gospels: four watches from sunset, about 6 p.m. (Mk 13:35). The Old Testament names three (Judg 7:19).</string>
+    <string name="units_watch_n">Watch %1$d</string>
+    <string name="map_search_hint">Search a place</string>
+    <string name="map_regions">Regions</string>
+    <string name="map_routes">Routes</string>
+    <string name="map_journeys">Journeys</string>
+    <string name="map_plan">From… to…</string>
+    <string name="map_fullscreen">Full screen</string>
+    <string name="map_exit_fullscreen">Show the bars</string>
+    <string name="map_zoom_in">Zoom in</string>
+    <string name="map_zoom_out">Zoom out</string>
+    <string name="map_recenter">Fit the map</string>
+    <string name="map_region_outlines">Region outlines</string>
+    <string name="map_no_results">No place of that name.</string>
+    <string name="regions_hint">Areas outlined by OpenBible.info: kingdoms, peoples, provinces. Tap one to see it whole.</string>
+    <string name="region_outline_note">Shaded on the map: darker where the region surely was, lighter where its edge is uncertain.</string>
+    <string name="route_from">From</string>
+    <string name="route_to">To</string>
+    <string name="route_from_here">Route from here</string>
+    <string name="route_to_here">To here</string>
+    <string name="route_swap">Swap</string>
+    <string name="route_pick_from">Choose the starting place</string>
+    <string name="route_pick_to">Choose the destination</string>
+    <string name="route_clear">Clear</string>
+    <string name="route_by_road">%1$s km on the ancient roads</string>
+    <string name="route_straight">%1$s km in a straight line (no road between them: by sea, or across country)</string>
+    <string name="route_days">≈ %1$s days on foot (about 30 km a day)</string>
+    <string name="route_hint">Choose two places, here or from a place on the map (Route from here, To here).</string>
+    <string name="route_note">Roads: Roman roads (AWMC) and the Old Testament highways. The way shown is the shortest on them, not necessarily the one taken.</string>
+    <string name="journey_length">%1$d stops · ≈ %2$s km</string>
+    <string name="journey_note">The line joins the stops named in the text, in order; it is not the exact way taken, and some sites are uncertain (OpenBible.info). Tap the reference to read the account.</string>
 </resources>

@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         Silent.applyTo(window.decorView)
+        if (savedInstanceState == null) handleOpen(intent)
         setContent {
             // The screens get a language-specific context; the activity's own
             // result registry and back dispatcher are provided explicitly.
@@ -25,6 +26,19 @@ class MainActivity : ComponentActivity() {
                 LocalActivityResultRegistryOwner provides this,
                 LocalOnBackPressedDispatcherOwner provides this,
             ) { BaibolyApp(vm) }
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        handleOpen(intent)
+    }
+
+    /** The "new version" notification opens the update settings. */
+    private fun handleOpen(intent: android.content.Intent?) {
+        if (intent?.getStringExtra(mg.baiboly.app.update.UpdateCheck.EXTRA_OPEN) == mg.baiboly.app.update.UpdateCheck.OPEN_UPDATES) {
+            intent.removeExtra(mg.baiboly.app.update.UpdateCheck.EXTRA_OPEN)
+            vm.openUpdates()
         }
     }
 }

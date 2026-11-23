@@ -26,6 +26,9 @@ import zlib
 
 GEO_URL = "https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/main/data/ancient.jsonl"
 GEO_LICENCE_URL = "https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/main/license.txt"
+# outlines of regions (Edom, Galilee, the Roman provinces…), same dataset and licence
+GEO_GEOMETRY_URL = "https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/main/data/geometry.jsonl"
+GEO_GEOMETRY_FILE = "https://raw.githubusercontent.com/openbibleinfo/Bible-Geocoding-Data/main/geometry/{}"
 NE = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/{}.geojson"
 # Ancient World Mapping Center geodata (ODbL): Roman roads and period borders
 AWMC = "https://raw.githubusercontent.com/AWMC/geodata/master/{}"
@@ -110,6 +113,132 @@ def build_routes(geo_path):
             pts.append(prev)
         out.append({"name": list(names), "p": [round(v, 3) for p in pts for v in p]})
     return out
+
+# Journeys told in the Bible, through their stops in the order of the text
+# (OpenBible.info names; a stop is resolved by its exact name). The line joins
+# the stops: it is not the exact way taken. Names: English, French, Malagasy.
+# ref: (book, chapter, verse) where the journey begins in the text (Malagasy 1865 numbering).
+JOURNEYS = [
+    ("abraham", ("Abraham: from Ur to Canaan", "Abraham : d’Ur à Canaan", "Abrahama: avy any Ora ho any Kanana"), (1, 11, 31),
+     ["Ur 2", "Haran", "Shechem", "Bethel 1", "Egypt", "Bethel 1", "Hebron"]),
+    ("jacob", ("Jacob: to Haran and back", "Jacob : vers Charan et retour", "Jakoba: nankany Harana sy niverina"), (1, 28, 10),
+     ["Beersheba 1", "Bethel 1", "Haran", "Mahanaim", "Penuel", "Succoth 1", "Shechem", "Bethel 1", "Bethlehem 1", "Hebron"]),
+    ("joseph", ("Joseph sold into Egypt", "Joseph vendu en Égypte", "Josefa namidy ho any Egypta"), (1, 37, 14),
+     ["Hebron", "Shechem", "Dothan", "Egypt"]),
+    ("exodus", ("The Exodus (traditional route)", "L’Exode (itinéraire traditionnel)", "Ny Fivoahana (lalana nentim-paharazana)"), (2, 12, 37),
+     ["Rameses", "Succoth 2", "Etham", "Pi-hahiroth", "Marah", "Elim", "Rephidim", "Mount Sinai", "Ezion-geber", "Kadesh-barnea",
+      "Mount Hor 1", "Dibon 1", "Mount Nebo", "Shittim"]),
+    ("conquest", ("Into the Promised Land", "L’entrée en Canaan", "Ny fidirana tany Kanana"), (6, 3, 1),
+     ["Shittim", "Gilgal 1", "Jericho 1", "Ai 1", "Shechem"]),
+    ("elijah", ("Elijah: from Carmel to Horeb", "Élie : du Carmel à l’Horeb", "Elia: avy any Karmela ho any Horeba"), (11, 18, 19),
+     ["Mount Carmel", "Jezreel 2", "Beersheba 1", "Mount Sinai"]),
+    ("nativity", ("Jesus: birth and childhood", "Jésus : naissance et enfance", "Jesosy: fahaterahana sy fahazazana"), (42, 2, 4),
+     ["Nazareth", "Bethlehem 1", "Egypt", "Nazareth"]),
+    ("last_journey", ("Jesus goes up to Jerusalem", "Jésus monte à Jérusalem", "Jesosy niakatra ho any Jerosalema"), (40, 19, 1),
+     ["Capernaum", "Jericho 1", "Bethany 1", "Bethphage", "Jerusalem"]),
+    ("emmaus", ("The road to Emmaus", "Le chemin d’Emmaüs", "Ny lalana ho any Emaosy"), (42, 24, 13),
+     ["Jerusalem", "Emmaus"]),
+    ("philip", ("Philip the evangelist", "Philippe l’évangéliste", "Filipo mpitory filazantsara"), (44, 8, 5),
+     ["Jerusalem", "Samaria 1", "Gaza", "Ashdod", "Caesarea"]),
+    ("damascus", ("Saul on the road to Damascus", "Saul sur le chemin de Damas", "Saoly teny an-dalana ho any Damaskosy"), (44, 9, 1),
+     ["Jerusalem", "Damascus"]),
+    ("paul1", ("Paul’s first journey", "Premier voyage de Paul", "Dia voalohany nataon’i Paoly"), (44, 13, 4),
+     ["Antioch 1", "Seleucia", "Salamis", "Paphos", "Perga", "Antioch 2", "Iconium", "Lystra", "Derbe", "Lystra", "Iconium", "Antioch 2",
+      "Perga", "Attalia", "Antioch 1"]),
+    ("paul2", ("Paul’s second journey", "Deuxième voyage de Paul", "Dia faharoa nataon’i Paoly"), (44, 15, 36),
+     ["Antioch 1", "Derbe", "Lystra", "Troas", "Samothrace", "Neapolis", "Philippi", "Amphipolis", "Apollonia", "Thessalonica",
+      "Berea", "Athens", "Corinth", "Cenchreae", "Ephesus", "Caesarea", "Antioch 1"]),
+    ("paul3", ("Paul’s third journey", "Troisième voyage de Paul", "Dia fahatelo nataon’i Paoly"), (44, 18, 23),
+     ["Antioch 1", "Ephesus", "Troas", "Philippi", "Corinth", "Philippi", "Troas", "Assos", "Mitylene", "Chios", "Samos", "Miletus", "Cos",
+      "Rhodes 1", "Patara", "Tyre", "Ptolemais", "Caesarea", "Jerusalem"]),
+    ("rome", ("Paul sails to Rome", "Paul en route vers Rome", "Paoly nankany Roma"), (44, 27, 1),
+     ["Caesarea", "Sidon", "Myra", "Cnidus", "Fair Havens", "Cauda", "Malta", "Syracuse", "Rhegium", "Puteoli", "Forum of Appius",
+      "Three Taverns", "Rome"]),
+]
+
+# Kinds of place drawn as an area when OpenBible.info has an outline for them.
+REGION_TYPES = {"region", "valley", "mountain range", "people group", "natural area", "island", "body of water"}
+
+
+def _geo_rows(geo_path):
+    with open(geo_path, encoding="utf-8") as f:
+        for line in f:
+            yield json.loads(line)
+
+
+def build_journeys(geo_path):
+    """Resolve each journey's stops (exact OpenBible names) to place ids and coordinates."""
+    by_name = {}
+    for d in _geo_rows(geo_path):
+        ident = (d.get("identifications") or [None])[0]
+        res = ((ident or {}).get("resolutions") or [None])[0]
+        if res and res.get("lonlat"):
+            lon, lat = (float(x) for x in res["lonlat"].split(","))
+            by_name[d["friendly_id"]] = (d["id"], lon, lat)
+    out = []
+    for jid, names, ref, stops in JOURNEYS:
+        ids, pts = [], []
+        for stop in stops:
+            if stop not in by_name:
+                raise SystemExit(f"journey {jid}: place not found: {stop}")
+            pid, lon, lat = by_name[stop]
+            ids.append(pid)
+            pts += [round(lon, 3), round(lat, 3)]
+        out.append({"id": jid, "name": list(names), "ref": list(ref), "stops": ids, "p": pts})
+    return out
+
+
+def build_regions(geo_path, geometry_index_path, fetch_geometry):
+    """
+    place id -> outline, for regions that OpenBible.info draws as an area.
+    "b": 1 when the outline is a set of nested bands of decreasing likelihood
+    (isobands: the region's extent is uncertain), 0 for a single rough boundary.
+    "r": the rings (outermost band first).
+    """
+    index = {g["id"]: g for g in _geo_rows(geometry_index_path)}
+    out = {}
+    for d in _geo_rows(geo_path):
+        ptype = (d.get("types") or [""])[0]
+        if ptype not in REGION_TYPES:
+            continue
+        ident = (d.get("identifications") or [None])[0]
+        res = ((ident or {}).get("resolutions") or [None])[0] or {}
+        geom = None
+        for key in ("geometry_id", "precise_geometry_id"):
+            g = index.get(res.get(key) or "")
+            if g and g.get("geometry") in ("isobands", "rough_boundary"):
+                geom = g
+                break
+        if not geom:
+            continue
+        bands = geom["geometry"] == "isobands"
+        name = geom.get("isobands_geojson_file") if bands else geom.get("geojson_file")
+        rings = []
+        if name:
+            with open(fetch_geometry(name), encoding="utf-8") as f:
+                data = json.load(f)
+            feats = data["features"] if data.get("type") == "FeatureCollection" else [data]
+            for feat in feats:
+                for ring in _rings(feat["geometry"]):
+                    pts = [(float(x), float(y)) for x, y, *_ in ring]
+                    if len(pts) >= 4:
+                        rings.append(pts)
+        elif (geom.get("suggested") or {}).get("rough_boundary"):
+            rings.append([tuple(float(v) for v in q.split(",")) for q in geom["suggested"]["rough_boundary"]])
+        if not rings:
+            continue
+        # outermost first (largest extent), so inner bands draw over outer ones
+        rings.sort(key=lambda r: -(max(p[0] for p in r) - min(p[0] for p in r)) * (max(p[1] for p in r) - min(p[1] for p in r)))
+        simple = []
+        for r in rings:
+            span = max(max(p[0] for p in r) - min(p[0] for p in r), max(p[1] for p in r) - min(p[1] for p in r))
+            r2 = _simplify_ring(r, max(0.002, span / 150))
+            if len(r2) >= 4:
+                simple.append([round(v, 3) for p in r2 for v in p])
+        if simple:
+            out[d["id"]] = {"b": 1 if bands and len(simple) > 1 else 0, "r": simple}
+    return out
+
 
 # Bible lands, from Rome to Persia and from the Black Sea to Upper Egypt.
 BBOX = (8.0, 22.0, 56.0, 44.0)  # lon_min, lat_min, lon_max, lat_max
@@ -385,7 +514,8 @@ def _rings(geom):
         yield from geom["coordinates"]
 
 
-def build_map(land_path, lakes_path, rivers_path, out_path, roads_path=None, realms=None, countries_path=None, cities_path=None, routes=None):
+def build_map(land_path, lakes_path, rivers_path, out_path, roads_path=None, realms=None, countries_path=None, cities_path=None, routes=None,
+              regions=None, journeys=None):
     def layer(path, tol, keep=lambda props: True, min_points=3, polygon=True):
         out = []
         with open(path, encoding="utf-8") as f:
@@ -434,6 +564,10 @@ def build_map(land_path, lakes_path, rivers_path, out_path, roads_path=None, rea
         result["roads"] = roads
     if routes:
         result["routes"] = routes
+    if regions:
+        result["regions"] = regions
+    if journeys:
+        result["journeys"] = journeys
     if realms:
         result["realms"] = {k: layer(path, 0.02) for k, path in realms.items()}
     if countries_path:

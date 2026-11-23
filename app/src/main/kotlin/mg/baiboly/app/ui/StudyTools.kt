@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Straighten
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -167,19 +168,34 @@ fun DictionaryScreen(vm: AppViewModel) {
         Column(Modifier.padding(padding).fillMaxSize()) {
             val src = sources.firstOrNull { it.id == source }
             val key = open
-            if (key != null && src != null) {
+            val units = vm.dictionaryUnits
+            if (key != null && src != null && !units) {
                 DictEntryView(vm, src, key, onLink = { history = history + key; open = it })
                 return@Column
             }
             LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(sources, key = { it.id }) { s ->
                     FilterChip(
-                        selected = s.id == source,
-                        onClick = { source = s.id },
+                        selected = s.id == source && !units,
+                        onClick = { source = s.id; vm.dictionaryUnits = false },
                         label = { Text(dictLabel(s)) },
                         modifier = Modifier.heightIn(min = 48.dp).testTag("dict-source:${s.id}"),
                     )
                 }
+                // weights, measures, money and hours of the Bible
+                item(key = "units") {
+                    FilterChip(
+                        selected = units,
+                        onClick = { vm.dictionaryUnits = true },
+                        label = { Text(stringResource(R.string.units)) },
+                        leadingIcon = { Icon(Icons.Outlined.Straighten, null, Modifier.size(18.dp)) },
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("dict-units"),
+                    )
+                }
+            }
+            if (units) {
+                UnitsView(vm, Modifier.weight(1f))
+                return@Column
             }
             OutlinedTextField(
                 value = query, onValueChange = { query = it }, singleLine = true,

@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performSemanticsAction
@@ -502,5 +503,82 @@ class UiAcceptanceTest {
         tag("map-base:Today").assertExists()
         tag("map-base:Today").tap()
         tag("map").assertExists()
+    }
+
+    /** Map: full screen; search a place; a region drawn whole; a journey; a way between two places. */
+    @Test fun mapSearchRegionsAndRoutes() {
+        ready()
+        vm.changeMode(AppMode.Study)
+        tag("nav:Map").tap()
+        waitFor { vm.screen == Screen.Map }
+        // full screen by default: no navigation bar over the map; the button brings the bars back
+        assertTrue(vm.mapFullscreen)
+        tag("nav:Main").assertDoesNotExist()
+        tag("map-fullscreen").tap()
+        waitFor { !vm.mapFullscreen }
+        tag("nav:Main").assertExists()
+        tag("map-fullscreen").tap()
+        waitFor { vm.mapFullscreen }
+        // search: "galil" finds Galilee, a region drawn as an area
+        withManualClock {
+            tag("map-search").performSemanticsAction(SemanticsActions.RequestFocus)
+            tag("map-search").performSemanticsAction(SemanticsActions.SetText) { it(androidx.compose.ui.text.AnnotatedString("galil")) }
+            rule.mainClock.advanceTimeBy(500)
+            val galilee = vm.library.places.first { it.name == "Galilee 1" }
+            tag("map-hit:${galilee.id}").press()
+            rule.mainClock.advanceTimeBy(1_000)
+            tag("place-card").assertExists()
+            tag("region-note").assertExists()
+            // a way from Galilee… to Jerusalem
+            tag("route-from-here").press()
+            tag("routes-panel").assertExists()
+            tag("route-to").press()
+            tag("map-search").performSemanticsAction(SemanticsActions.SetText) { it(androidx.compose.ui.text.AnnotatedString("jerusalem")) }
+            rule.mainClock.advanceTimeBy(500)
+            val jerusalem = vm.library.places.first { it.name == "Jerusalem" }
+            tag("map-hit:${jerusalem.id}").press()
+        }
+        waitFor { runCatching { tag("route-result").assertExists(); true }.getOrDefault(false) }
+        rule.onNodeWithText("km on the ancient roads", substring = true).assertExists()
+        // the journeys of the Bible
+        tag("routes-tab:journeys").tap()
+        tag("journeys-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("journey:paul1"))
+        tag("journey:paul1").tap()
+        rule.onNodeWithText("Paul’s first journey", substring = true).assertExists()
+        // the list of regions
+        tag("map-regions").tap()
+        tag("regions-panel").assertExists()
+    }
+
+    /** Study mode: the units converter, beside the dictionaries. */
+    @Test fun unitsConverter() {
+        ready()
+        vm.changeMode(AppMode.Study)
+        tag("nav:Dictionary").tap()
+        waitFor { vm.screen == Screen.Dictionary }
+        tag("dict-units").tap()
+        tag("units").assertExists()
+        // 1 cubit, read in every unit of length: a span is half a cubit
+        tag("unit-value:span").assertExists()
+        rule.onNodeWithTag("unit-value:span", useUnmergedTree = true).assert(hasText("2"))
+        // tap shekel in Weight: 20 gerahs (Ex 30:13)
+        tag("units-kind:Weight").tap()
+        rule.onNodeWithTag("unit-value:gerah", useUnmergedTree = true).assert(hasText("20"))
+        // money in days' wages
+        tag("units-kind:Money").tap()
+        tag("units-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("unit:talent_nt"))
+        tag("unit:talent_nt").tap() // the talent becomes the unit converted from, keeping the amount
+        withManualClock {
+            tag("units-amount").performSemanticsAction(SemanticsActions.SetText) { it(androidx.compose.ui.text.AnnotatedString("1")) }
+            rule.mainClock.advanceTimeBy(500)
+            rule.onNodeWithTag("units-modern", useUnmergedTree = true).assert(hasText("6,000", substring = true)) // Mt 18:24
+        }
+        // the hours of the day
+        tag("units-kind:Time").tap()
+        tag("units-time").assertExists()
+        // the verse of a unit opens the text
+        tag("units-kind:Length").tap()
+        tag("unit-ref:cubit").tap()
+        waitFor { vm.screen == Screen.Main && vm.location.book == 1 && vm.location.chapter == 6 }
     }
 }

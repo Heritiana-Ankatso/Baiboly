@@ -483,13 +483,21 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     // ------------------------------------------------------------ updates (the only network use)
 
-    /** Result of the last update check shown in Settings. */
+    /** Where the update stands, shown in Settings › Advanced › Updates. */
     sealed interface UpdateStatus {
         data object Idle : UpdateStatus
         data object Checking : UpdateStatus
         data object UpToDate : UpdateStatus
         data object Failed : UpdateStatus
         data class Available(val release: mg.baiboly.app.update.Release) : UpdateStatus
+        /** Downloading the new version; [progress] from 0 to 1 (negative while the size is unknown). */
+        data class Downloading(val release: mg.baiboly.app.update.Release, val progress: Float) : UpdateStatus
+        /** Android must first allow this app to install updates (once, in a system page). */
+        data class NeedsPermission(val release: mg.baiboly.app.update.Release, val apk: java.io.File) : UpdateStatus
+        /** Handed to Android's installer; its confirmation is shown over the app. */
+        data class Installing(val release: mg.baiboly.app.update.Release, val apk: java.io.File) : UpdateStatus
+        /** The download or the installation did not succeed; [reason] is a short technical cause. */
+        data class InstallFailed(val release: mg.baiboly.app.update.Release, val reason: String?, val apk: java.io.File? = null) : UpdateStatus
     }
 
     var updateStatus by mutableStateOf<UpdateStatus>(UpdateStatus.Idle)
@@ -506,7 +514,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /** "Check now": only ever on the user's tap. */
     fun checkForUpdates() {
-        if (updateStatus == UpdateStatus.Checking) return
+        if (updateStatus == UpdateStatus.Checking || updateStatus is UpdateStatus.Downloading) return
         updateStatus = UpdateStatus.Checking
         viewModelScope.launch {
             val r = withContext(Dispatchers.IO) { mg.baiboly.app.update.UpdateCheck.check(getApplication()) }
@@ -517,6 +525,75 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
+
+    private var downloadJob: Job? = null
+
+    /**
+     * "Download and install": downloads the new version inside the app, checks
+     * it, and hands it to Android's installer. Only ever on the user's tap.
+     */
+    fun downloadAndInstallUpdate(release: mg.baiboly.app.update.Release) {
+        if (downloadJob?.isActive == true) return
+        val app = getApplication<Application>()
+        updateStatus = UpdateStatus.Downloading(release, -1f)
+        downloadJob = viewModelScope.launch {
+            val apk = withContext(Dispatchers.IO) {
+                runCatching {
+                    mg.baiboly.app.update.UpdateInstaller.download(app, release) { p ->
+                        viewModelScope.launch(Dispatchers.Main) {
+                            if (updateStatus is UpdateStatus.Downloading) updateStatus = UpdateStatus.Downloading(release, p)
+                        }
+                    }
+                }
+            }
+            apk.fold(
+                onSuccess = { installUpdate(release, it) },
+                onFailure = { updateStatus = UpdateStatus.InstallFailed(release, it.message) },
+            )
+        }
+    }
+
+    /** Hands the downloaded file to Android, first asking for the install permission if needed. */
+    fun installUpdate(release: mg.baiboly.app.update.Release, apk: java.io.File) {
+        val app = getApplication<Application>()
+        if (!apk.exists()) { updateStatus = UpdateStatus.Available(release); return }
+        if (!mg.baiboly.app.update.UpdateInstaller.canInstall(app)) {
+            updateStatus = UpdateStatus.NeedsPermission(release, apk); return
+        }
+        updateStatus = UpdateStatus.Installing(release, apk)
+        viewModelScope.launch {
+            val r = withContext(Dispatchers.IO) { runCatching { mg.baiboly.app.update.UpdateInstaller.install(app, apk) } }
+            r.onFailure { updateStatus = UpdateStatus.InstallFailed(release, it.message, apk) }
+        }
+    }
+
+    /** "Try again" after a failure: installs the file already downloaded, or downloads it again. */
+    fun retryUpdate(s: UpdateStatus.InstallFailed) {
+        val apk = s.apk
+        if (apk != null && apk.exists()) installUpdate(s.release, apk) else downloadAndInstallUpdate(s.release)
+    }
+
+    fun cancelUpdateDownload() {
+        downloadJob?.cancel()
+        mg.baiboly.app.update.UpdateInstaller.clean(getApplication())
+        (updateStatus as? UpdateStatus.Downloading)?.let { updateStatus = UpdateStatus.Available(it.release) }
+    }
+
+    /** Back from the system page that allows installing: continue if it was allowed. */
+    fun onInstallPermissionResult() {
+        val s = updateStatus as? UpdateStatus.NeedsPermission ?: return
+        if (mg.baiboly.app.update.UpdateInstaller.canInstall(getApplication())) installUpdate(s.release, s.apk)
+    }
+
+    /** Started from the "new version" notification: open the update settings and look for it. */
+    fun openUpdates() {
+        screen = Screen.Settings
+        openUpdateSettings = true
+        if (updateStatus == UpdateStatus.Idle || updateStatus == UpdateStatus.UpToDate || updateStatus == UpdateStatus.Failed) checkForUpdates()
+    }
+
+    /** Settings shows Advanced › Updates unfolded (set when opened from the notification). */
+    var openUpdateSettings by mutableStateOf(false)
 
     /** When the app opens, with the switch on: re-arms the daily check and checks if a day has passed. */
     private fun autoCheckUpdates() {
@@ -530,7 +607,20 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     init {
+        // a downloaded APK is not kept from one run of the app to the next
+        mg.baiboly.app.update.UpdateInstaller.clean(app)
         autoCheckUpdates()
+        // the installer's answer (confirmation shown, refused, cancelled)
+        viewModelScope.launch {
+            mg.baiboly.app.update.UpdateInstaller.events.collect { e ->
+                val s = updateStatus as? UpdateStatus.Installing ?: return@collect
+                when (e) {
+                    // the downloaded file is kept, so trying again does not download it again
+                    is mg.baiboly.app.update.UpdateInstaller.Event.Failed -> updateStatus = UpdateStatus.InstallFailed(s.release, e.message, s.apk)
+                    else -> Unit
+                }
+            }
+        }
     }
 
     fun changeReadRate(rate: Float) {
@@ -595,6 +685,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Map opened from the reader shows this chapter's places; from the menu, all places. */
     var mapForChapter by mutableStateOf(false)
+
+    /** The map fills the screen: no top bar, no navigation bar (on by default; remembered). */
+    var mapFullscreen by mutableStateOf(prefs.getBoolean("map_fullscreen", true))
+        private set
+
+    fun changeMapFullscreen(on: Boolean) {
+        mapFullscreen = on
+        prefs.edit().putBoolean("map_fullscreen", on).apply()
+    }
+
+    /** The Dictionary page shows the units converter instead of a dictionary. */
+    var dictionaryUnits by mutableStateOf(false)
 
     fun toggleStudyMode() {
         changeMode(if (studyMode) AppMode.Casual else AppMode.Study)

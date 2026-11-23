@@ -186,10 +186,13 @@
     <string name="lang_english">anglaise</string>
     <string name="whats_new">Nouveautés</string>
     <string name="whats_new_ok">Amen</string>
-    <string name="updates_hint">Les mises à jour s’installent par-dessus l’application et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
+    <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Versets en paragraphes : Réglages › Apparence › Versets › Paragraphes présente le texte en paragraphes suivis, comme une Bible imprimée, avec de petits numéros de verset. Toucher un verset, les notes et les surlignages fonctionnent comme avant.</item>
-        <item>Mise en page, pour les versets en paragraphes : Réglages › Avancé › Mise en page. Texte aligné à gauche ou justifié, césure par syllabe en fin de ligne (aussi en malgache), un retrait ou un espace entre les paragraphes, et des marges étroites, normales ou larges.</item>
+        <item>Les mises à jour s’installent dans l’application : Réglages › Avancé › Mises à jour › Télécharger et installer. Android demande une fois l’autorisation, puis confirme la mise à jour ; rien ne s’ouvre dans le navigateur.</item>
+        <item>La carte occupe tout l’écran. Cherchez un lieu par son nom ; zoomez avec les boutons + et − ou d’un double toucher.</item>
+        <item>Régions entières : royaumes, peuples et provinces (Édom, Moab, Galilée, Samarie, Macédoine, Asie…), plus foncées là où la région se trouvait sûrement, plus claires là où sa limite est incertaine. Touchez l’intérieur d’une région, ou choisissez-la dans Régions.</item>
+        <item>Itinéraires : 15 voyages de la Bible (Abraham, l’Exode, les voyages de Paul, la traversée vers Rome…), et le chemin entre deux lieux au choix par les routes antiques, avec sa longueur et les jours de marche.</item>
+        <item>Mesures (mode Étude, page Dictionnaire) : coudées, sicles, éphas, baths, deniers et autres, convertis entre eux et en mètres, grammes et litres, avec le verset de chaque unité ; les heures du jour et les veilles de la nuit.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
@@ -310,8 +313,64 @@
     <string name="update_up_to_date">Vous avez la dernière version (%1$s).</string>
     <string name="update_failed">Vérification impossible. Le téléphone est-il connecté à internet ?</string>
     <string name="update_available">La version %1$s est disponible</string>
-    <string name="update_tap_to_open">Touchez pour ouvrir la page de téléchargement.</string>
+    <string name="update_tap_to_open">Touchez pour l’installer depuis l’application.</string>
     <string name="update_open_page">Ouvrir la page de téléchargement</string>
     <string name="update_last_check">Dernière vérification : %1$s</string>
-    <string name="update_privacy">Seule la recherche de mises à jour utilise internet : elle demande à GitHub le numéro de la dernière version. Rien sur vous ni sur votre lecture n’est envoyé.</string>
+    <string name="update_privacy">Seules les mises à jour utilisent internet : la vérification demande à GitHub le numéro de la dernière version, et l’installation télécharge la nouvelle version depuis GitHub, quand vous la touchez. Rien sur vous ni sur votre lecture n’est envoyé.</string>
+    <string name="update_install">Télécharger et installer</string>
+    <string name="update_install_size">Télécharger et installer (%1$s Mo)</string>
+    <string name="update_downloading">Téléchargement de la version %1$s…</string>
+    <string name="update_installing">Installation de la version %1$s : confirmez dans la fenêtre qui s’ouvre.</string>
+    <string name="update_install_again">Afficher à nouveau l’installation</string>
+    <string name="update_needs_permission">Android vous demande, une seule fois, d’autoriser Baiboly à installer ses mises à jour. Activez « Autoriser cette source », puis revenez.</string>
+    <string name="update_allow">Autoriser l’installation des mises à jour</string>
+    <string name="update_download_failed">Le téléchargement s’est interrompu. Le téléphone est-il connecté à internet ?</string>
+    <string name="update_install_failed">La mise à jour n’a pas été installée.</string>
+    <string name="update_bad_file">Le fichier téléchargé n’est pas une mise à jour valide de Baiboly. Il a été supprimé.</string>
+    <string name="update_try_again">Réessayer</string>
+    <string name="units">Mesures</string>
+    <string name="units_length">Longueur</string>
+    <string name="units_weight">Poids</string>
+    <string name="units_dry">Matières sèches</string>
+    <string name="units_liquid">Liquides</string>
+    <string name="units_money">Monnaie</string>
+    <string name="units_time">Heures</string>
+    <string name="units_days_wages">≈ %1$s journées de salaire (un denier était le salaire d’une journée, Mt 20.2)</string>
+    <string name="units_pick_hint">Tapez une quantité ; touchez une unité pour convertir depuis elle. Les références ouvrent le texte.</string>
+    <string name="units_note">Les valeurs modernes sont approximatives : poids et mesures ont varié selon les époques et les lieux, et les spécialistes divergent (coudée ordinaire ≈ 44,4 cm, sicle ≈ 11,4 g, épha = bath ≈ 22 L). Les relations marquées « = » sont données par le verset cité (20 guéras = 1 sicle, Ex 30.13) ; les autres sont les estimations usuelles. La mine d’Ézéchiel vaut 60 sicles (Éz 45.12) ; l’ancienne est en général comptée à 50.</string>
+    <string name="units_hours_title">Heures du jour</string>
+    <string name="units_hours_hint">Comptées depuis le lever du soleil, vers 6 h : « la troisième heure » est vers 9 h. (Certains lisent les heures de Jean comptées depuis minuit.)</string>
+    <string name="units_hour_n">%1$de heure</string>
+    <string name="units_watches_title">Veilles de la nuit</string>
+    <string name="units_watches_hint">Le compte romain des Évangiles : quatre veilles depuis le coucher du soleil, vers 18 h (Mc 13.35). L’Ancien Testament en nomme trois (Jg 7.19).</string>
+    <string name="units_watch_n">%1$de veille</string>
+    <string name="map_search_hint">Chercher un lieu</string>
+    <string name="map_regions">Régions</string>
+    <string name="map_routes">Itinéraires</string>
+    <string name="map_journeys">Voyages</string>
+    <string name="map_plan">De… à…</string>
+    <string name="map_fullscreen">Plein écran</string>
+    <string name="map_exit_fullscreen">Afficher les barres</string>
+    <string name="map_zoom_in">Zoom avant</string>
+    <string name="map_zoom_out">Zoom arrière</string>
+    <string name="map_recenter">Recadrer la carte</string>
+    <string name="map_region_outlines">Contours des régions</string>
+    <string name="map_no_results">Aucun lieu de ce nom.</string>
+    <string name="regions_hint">Territoires tracés par OpenBible.info : royaumes, peuples, provinces. Touchez-en un pour le voir en entier.</string>
+    <string name="region_outline_note">Teinté sur la carte : plus foncé là où la région se trouvait sûrement, plus clair là où sa limite est incertaine.</string>
+    <string name="route_from">De</string>
+    <string name="route_to">À</string>
+    <string name="route_from_here">Itinéraire depuis ici</string>
+    <string name="route_to_here">Jusqu’ici</string>
+    <string name="route_swap">Inverser</string>
+    <string name="route_pick_from">Choisissez le lieu de départ</string>
+    <string name="route_pick_to">Choisissez la destination</string>
+    <string name="route_clear">Effacer</string>
+    <string name="route_by_road">%1$s km par les routes antiques</string>
+    <string name="route_straight">%1$s km à vol d’oiseau (aucune route entre eux : par mer, ou à travers le pays)</string>
+    <string name="route_days">≈ %1$s jours de marche (environ 30 km par jour)</string>
+    <string name="route_hint">Choisissez deux lieux, ici ou depuis un lieu de la carte (Itinéraire depuis ici, Jusqu’ici).</string>
+    <string name="route_note">Routes : voies romaines (AWMC) et grandes routes de l’Ancien Testament. Le chemin tracé est le plus court sur elles, pas forcément celui qui fut pris.</string>
+    <string name="journey_length">%1$d étapes · ≈ %2$s km</string>
+    <string name="journey_note">La ligne relie les étapes nommées dans le texte, dans l’ordre ; ce n’est pas le chemin exact, et certains sites sont incertains (OpenBible.info). Touchez la référence pour lire le récit.</string>
 </resources>

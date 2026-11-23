@@ -919,7 +919,7 @@ def build_study_library(offline):
     geo_lic = fetch(L.GEO_LICENCE_URL, "openbible-geo-license.txt", offline)
     if "Attribution 4.0 International" not in open(geo_lic, encoding="utf-8").read(2000):
         sys.exit("LICENCE CHECK FAILED: OpenBible.info geocoding data is no longer CC BY 4.0")
-    LICENCES.append(("openbible-geo", "Bible places (OpenBible.info Bible Geocoding Data)", "OpenBible.info",
+    LICENCES.append(("openbible-geo", "Bible places and region outlines (OpenBible.info Bible Geocoding Data)", "OpenBible.info",
                      "https://github.com/openbibleinfo/Bible-Geocoding-Data", "CC BY 4.0, © OpenBible.info", "https://www.openbible.info/geo/"))
     places, links = L.load_places(geo, OSIS_IDS, numbering)
 
@@ -941,8 +941,12 @@ def build_study_library(offline):
     relief = fetch(L.NE_RELIEF, "ne-sr-lr.tif", offline)
     rs = L.build_relief(relief, os.path.join(ROOT, "app", "src", "main", "assets", "map_relief.jpg"))
     print(f"  relief {rs[0]}x{rs[1]}")
+    geometry = fetch(L.GEO_GEOMETRY_URL, "openbible-geometry.jsonl", offline)
+    regions = L.build_regions(geo, geometry, lambda name: fetch(L.GEO_GEOMETRY_FILE.format(name), "openbible-geometry-" + name, offline))
     m = L.build_map(land, lakes, rivers, os.path.join(ROOT, "app", "src", "main", "assets", "map.json"),
-                    roads_path=roads, realms=realms, countries_path=countries, cities_path=cities, routes=L.build_routes(geo))
+                    roads_path=roads, realms=realms, countries_path=countries, cities_path=cities, routes=L.build_routes(geo),
+                    regions=regions, journeys=L.build_journeys(geo))
+    print(f"  map: {len(regions)} region outlines, {len(m['journeys'])} journeys")
     LICENCES.append(("naturalearth", "Map outlines (Natural Earth 1:10m land, lakes, rivers)", "Natural Earth",
                      "https://www.naturalearthdata.com", "Public Domain", "https://github.com/nvkelso/natural-earth-vector"))
 

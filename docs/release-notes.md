@@ -1,14 +1,23 @@
-## Baiboly 1.4.0
+## Baiboly 1.5.0
 
 **Install:** download the APK below and open it on the phone (allow installing from this source when asked).
-Updates install over the app and keep your lists, notes, highlights and settings.
+Updates install over the app and keep your lists, notes, highlights and settings. From this version on, the app installs its own updates.
 
-* **Verses as paragraphs:** Settings › Appearance › Verses › *Paragraphs* sets the text as running paragraphs, like a printed Bible, with small gilt verse numbers. *One per line* stays the default.
-  * Tapping a verse, its number or its note mark, selection, highlights and reading aloud work as before.
-  * The texts have no paragraph marks of their own: paragraphs break at section headings and at sentence ends in long sections.
-* **Typesetting, for verses as paragraphs:** Settings › Advanced › Typesetting.
-  * Alignment: left or justified (default).
-  * Word breaks at line ends: none, or by syllable (default). Malagasy is broken at its own syllables (*An·dria·ma·ni·tra*); French and English use the phone's rules.
-  * Between paragraphs: an indent (default) or a space.
-  * Margins: narrow, normal (default) or wide.
-  * *Reset appearance* brings all of these back to their defaults.
+* **Updates inside the app:** Settings › Advanced › Updates › *Download and install*.
+  * The new version is downloaded in the app (with a progress bar and *Cancel*), checked against the SHA-256 published with the release, and handed to Android's installer, which asks you to confirm. Nothing opens in the browser.
+  * The first time, Android asks you to allow Baiboly to install updates (*Allow from this source*); the app opens that page and continues when you come back.
+  * The "new version" notification now opens these settings.
+  * Still only on your tap, and nothing about you or your reading is sent. Updating *to* 1.5.0 is done the old way, from this page; the in-app update works from 1.5.0 to later versions.
+* **The map fills the screen.** The controls float over it; *Show the bars* brings back the top and bottom bars. Zoom with + and −, a pinch or a double tap; *Fit the map* frames what is shown.
+* **Search a place** by name (accents ignored), on the map's search field.
+* **Regions drawn whole:** 192 kingdoms, peoples, provinces and natural regions outlined by OpenBible.info (CC BY 4.0): Edom, Moab, Ammon, Philistia, Galilee, Samaria, Judea, the Decapolis, Assyria, Egypt, Macedonia, Galatia, Asia…
+  * Where the extent is uncertain, the region is shaded in bands: darker where it surely was, lighter towards an uncertain edge.
+  * Tap inside a region, tap its name, or choose it under *Regions* (those of the chosen period). *Layers › Region outlines* draws them all faintly.
+* **Routes:**
+  * *Journeys*: 15 journeys of the Bible through the stops the text names, in order, with the reference of the account: Abraham, Jacob, Joseph, the Exodus (traditional route), the entry into Canaan, Elijah, the childhood of Jesus, his last journey to Jerusalem, Emmaus, Philip, Saul to Damascus, Paul's three journeys and the voyage to Rome. The line joins the stops; it is not the exact way taken.
+  * *From… to…*: the way between any two places on the ancient roads (Roman roads and the Old Testament highways), with its length and the days on foot at about 30 km a day; a straight line when no road joins them (by sea). *Route from here* and *To here* on any place.
+* **Units** (Study mode, Dictionary page, *Units*): length, weight, dry and liquid measures, money and time.
+  * Type an amount, tap a unit: every other unit of the same kind and today's measure (metres, grams, litres; also feet, pounds and gallons in English). Money is also given in days' wages (a denarius a day, Mt 20:2).
+  * Each unit has its name in the Malagasy 1865, Segond 1910 and King James texts, its Hebrew or Greek word, and the verse where it appears.
+  * Relations stated by the text are marked "=" (20 gerahs = 1 shekel, Ex 30:13; 10 ephahs = 1 homer, Ezek 45:11…). Modern values are the usual estimates and are approximate.
+  * The hours of the day (from sunrise) and the four watches of the night.

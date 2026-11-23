@@ -199,5 +199,25 @@ class ScreenshotTest {
         click("map-layers")
         click("map-base:Ancient")
         shot("m6-ancient")
+        // regions drawn whole, journeys of the Bible
+        click("map-layers")
+        click("map-base:Terrain")
+        click("map-regions")
+        shot("m7-regions")
+        val edom = "region:" + vm.library.places.first { it.name == "Edom" }.id
+        rule.onNodeWithTag("regions-list").performScrollToNode(androidx.compose.ui.test.hasTestTag(edom))
+        click(edom)
+        pump(1500)
+        shot("m8-region-edom")
+        click("map-routes")
+        rule.onNodeWithTag("journeys-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("journey:paul2"))
+        click("journey:paul2")
+        pump(1500)
+        shot("m9-journey-paul")
+        // the units converter (Study mode, Dictionary page)
+        vm.dictionaryUnits = true
+        vm.screen = Screen.Dictionary
+        pump(1500)
+        shot("u1-units")
     }
 }
