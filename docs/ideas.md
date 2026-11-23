@@ -47,3 +47,14 @@ Unprioritised. Not committed to any release.
   - Perspective: present what each council decided as a historical fact, separately from how traditions (Reformed, Catholic, Orthodox) evaluate its authority. [INTRA-REFORMED DEBATE] on how binding the councils are; the Reformed view of conciliar authority is subordinate to Scripture (cf. WCF XXXI.3). [VERIFY]
   - Sources: primary texts (canons, creeds) and reputable scholarly summaries; check licences of any translation used (see `data-licences.md`).
   - Malagasy angle: whether Malagasy translations of creeds or canons exist. [VERIFY]
+
+## 6. Traditions: Orthodox alongside Catholic and Protestant
+
+- Present material by tradition (Orthodox, Catholic, Reformed, Lutheran, Anglican, ...) rather than three blocks; "Protestant" is not one tradition.
+- Applies to: councils (item 5), confessions (item 1), and a possible **canon setting** (Protestant 66 / Catholic / Orthodox-Septuagint).
+- Open points:
+  - Councils: the Orthodox count only the first seven as ecumenical; Catholics count more. Record each tradition's own count. [VERIFY]
+  - Canon: three Old Testament canons at least (Protestant 39, Catholic 46, Orthodox/LXX larger). No single closed Orthodox decree; Synod of Jerusalem (1672) is the key statement. [VERIFY]
+  - Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac) are a separate family from Eastern Orthodox, with different canons and a different view of Chalcedon; they need their own entries. [VERIFY]
+  - Framing: describe each tradition on its own terms, and mark the Reformed standpoint of the app explicitly. [EXTRA-CONFESSIONAL]
+  - Malagasy context: Orthodox presence in Madagascar is very small, if any, so this is for completeness and study. [VERIFY]
