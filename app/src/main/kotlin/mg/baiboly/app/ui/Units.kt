@@ -203,23 +203,16 @@ fun formatAmount(x: Double, locale: Locale): String {
     }.format(rounded)
 }
 
-/** Metric (and, in English, imperial) value of [base] in the kind's base unit. */
+/** Value of [base] (metres, grams or litres) in metric units, with the SI prefix that reads best. No imperial units. */
+@Suppress("UNUSED_PARAMETER")
 private fun modernText(kind: UnitKind, base: Double, lang: String, locale: Locale): String? {
     fun f(x: Double) = formatAmount(x, locale)
-    val metric = when (kind) {
-        UnitKind.Length -> if (base >= 1000) "${f(base / 1000)} km" else if (base >= 1) "${f(base)} m" else "${f(base * 100)} cm"
-        UnitKind.Weight -> if (base >= 1000) "${f(base / 1000)} kg" else "${f(base)} g"
+    return when (kind) {
+        UnitKind.Length -> if (base >= 1000) "${f(base / 1000)} km" else if (base >= 1) "${f(base)} m" else if (base >= 0.01) "${f(base * 100)} cm" else "${f(base * 1000)} mm"
+        UnitKind.Weight -> if (base >= 1000) "${f(base / 1000)} kg" else if (base >= 1) "${f(base)} g" else "${f(base * 1000)} mg"
         UnitKind.Dry, UnitKind.Liquid -> if (base >= 1) "${f(base)} L" else "${f(base * 1000)} mL"
-        else -> return null
+        else -> null
     }
-    if (lang != "en") return metric
-    val imperial = when (kind) {
-        UnitKind.Length -> if (base >= 1609) "${f(base / 1609.344)} mi" else if (base >= 0.9144) "${f(base / 0.3048)} ft" else "${f(base / 0.0254)} in"
-        UnitKind.Weight -> if (base >= 453.6) "${f(base / 453.59237)} lb" else "${f(base / 28.349523)} oz"
-        UnitKind.Dry, UnitKind.Liquid -> if (base >= 3.785) "${f(base / 3.785411784)} US gal" else "${f(base / 0.946352946)} US qt"
-        else -> return metric
-    }
-    return "$metric · $imperial"
 }
 
 /**
