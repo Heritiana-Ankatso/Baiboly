@@ -202,7 +202,7 @@
     <string name="lang_french">French</string>
     <string name="lang_english">English</string>
     <string name="whats_new">What’s new</string>
-    <string name="whats_new_ok">Amen</string>
+    <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
         <item>Study a passage: select verses, then Study. The passage in the other Bibles, its original Hebrew or Greek words with their meaning, cross-references, the places it names (on the map), its units (in the converter) and dictionary entries.</item>

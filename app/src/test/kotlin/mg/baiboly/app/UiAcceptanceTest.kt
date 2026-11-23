@@ -375,13 +375,13 @@ class UiAcceptanceTest {
         ready()
         vm.showWhatsNew = true
         waitFor { rule.onAllNodesWithTag("whats-new").fetchSemanticsNodes().isNotEmpty() }
-        rule.onNodeWithText("Amen").assertIsDisplayed()
+        rule.onNodeWithText("Close").assertIsDisplayed()
         val items = UiLanguage.wrap(rule.activity, "en").resources.getStringArray(R.array.whats_new_items)
         val last = items.last()
         tag("whats-new-list").performScrollToNode(hasText(last))
         rule.onNodeWithText(last).assertIsDisplayed()
-        rule.onNodeWithText("Amen").assertIsDisplayed()
-        rule.onNodeWithText("Amen").tap()
+        rule.onNodeWithText("Close").assertIsDisplayed()
+        rule.onNodeWithText("Close").tap()
         waitFor { !vm.showWhatsNew }
     }
 
@@ -531,6 +531,11 @@ class UiAcceptanceTest {
             tag("region-note").assertExists()
             // a way from Galilee… to Jerusalem
             tag("route-from-here").press()
+            // the panel replaces the place card on the next frames
+            var tries = 0
+            while (rule.onAllNodesWithTag("routes-panel", useUnmergedTree = true).fetchSemanticsNodes().isEmpty() && tries++ < 50) {
+                rule.mainClock.advanceTimeBy(100)
+            }
             tag("routes-panel").assertExists()
             tag("route-to").press()
             tag("map-search").performSemanticsAction(SemanticsActions.SetText) { it(androidx.compose.ui.text.AnnotatedString("jerusalem")) }

@@ -185,7 +185,7 @@
     <string name="lang_french">française</string>
     <string name="lang_english">anglaise</string>
     <string name="whats_new">Nouveautés</string>
-    <string name="whats_new_ok">Amen</string>
+    <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
         <item>Étudier un passage : sélectionnez des versets, puis Étude. Le passage dans les autres Bibles, ses mots originaux hébreux ou grecs avec leur sens, les références, les lieux nommés (sur la carte), les mesures (dans le convertisseur) et les articles de dictionnaire.</item>

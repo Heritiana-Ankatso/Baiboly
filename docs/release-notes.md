@@ -28,3 +28,4 @@ Updates install over the app and keep your lists, notes, highlights and settings
   * Each unit has its name in the Malagasy 1865, Segond 1910 and King James texts, its Hebrew or Greek word, and the verse where it appears.
   * Relations stated by the text are marked "=" (20 gerahs = 1 shekel, Ex 30:13; 10 ephahs = 1 homer, Ezek 45:11…). Modern values are the usual estimates and are approximate.
   * The hours of the day (from sunrise) and the four watches of the night.
+* **Also since 1.4.0** (from 1.4.1): the button that closes *What's new* reads *Close*; Settings no longer repeats the *Mode* choice (use the badge at the top left).

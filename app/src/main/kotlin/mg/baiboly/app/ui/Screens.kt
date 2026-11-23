@@ -52,7 +52,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Headphones
@@ -60,7 +59,6 @@ import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.ExpandLess
-import mg.baiboly.app.AppMode
 import mg.baiboly.app.Tradition
 import mg.baiboly.app.Palette
 import mg.baiboly.app.TextFont
@@ -460,16 +458,6 @@ fun SettingsScreen(vm: AppViewModel) {
         if (vm.openUpdateSettings) { advanced = true; open = "advanced"; vm.openUpdateSettings = false }
     }
     val groups = listOf(
-        SettingsGroup("mode", Icons.Outlined.Tune, stringResource(R.string.mode)) {
-            Column(Modifier.padding(horizontal = 20.dp)) {
-                ChoiceRow(
-                    label = "",
-                    options = AppMode.entries.map { it to it.label() },
-                    selected = vm.mode,
-                    tag = "settings-mode",
-                ) { vm.changeMode(it); vm.screen = Screen.Settings }
-            }
-        },
         SettingsGroup("look", Icons.Outlined.Palette, stringResource(R.string.appearance)) { AppearanceSettings(vm) },
         SettingsGroup("bible", Icons.Outlined.AutoStories, stringResource(R.string.default_bible)) { DefaultBibleSettings(vm) },
         SettingsGroup("audio", Icons.Outlined.Headphones, stringResource(R.string.read_aloud)) { ReadAloudSettings(vm) },

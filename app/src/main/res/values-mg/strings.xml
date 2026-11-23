@@ -187,7 +187,7 @@
     <string name="lang_french">frantsay</string>
     <string name="lang_english">anglisy</string>
     <string name="whats_new">Vaovao</string>
-    <string name="whats_new_ok">Amena</string>
+    <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
         <item>Fandalinana andalan-tsoratra: fidio ny andininy, dia Fianarana. Ilay andalan-tsoratra amin’ny Baiboly hafa, ny teny hebreo na grika tany am-boalohany sy ny heviny, ny andinin-teny mifandray, ny toerana voatonona (eo amin’ny sarintany), ny refy (amin’ny fanovana refy) ary ny ao amin’ny rakibolana.</item>
