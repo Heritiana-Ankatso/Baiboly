@@ -49,7 +49,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 8
+DATA_VERSION = 9
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -952,10 +952,59 @@ def build_study_library(offline):
 
     lib = os.path.join(ASSETS, "library.db")
     L.build_library(lib, xrefs, dicts, places, links)
+    build_people_and_confessions(lib, numbering, offline)
     sqlite3.connect(lib).execute("INSERT INTO meta VALUES('data_version', ?)", (str(DATA_VERSION),)).connection.commit()
     print(f"  cross-references {len(xrefs)}, dictionaries {[len(d[6]) for d in dicts]}, places {len(places)} "
           f"({len(links)} verse links), map rings land {len(m['land'])} lakes {len(m['lakes'])} rivers {len(m['rivers'])}, "
           f"library.db {os.path.getsize(lib) / 1e6:.2f} MB, map.json {os.path.getsize(os.path.join(ROOT, 'app', 'src', 'main', 'assets', 'map.json')) / 1e6:.2f} MB")
+
+
+def build_people_and_confessions(lib, numbering, offline):
+    """Family tree, chronology, confessions and councils (tools/build_extras.py, docs/ideas.md A1-A2, B1-B2)."""
+    import build_extras as X
+    theo_lic = fetch(X.THEO.format("LICENSE"), "theographic-LICENSE", offline)
+    if "Attribution-ShareAlike 4.0 International" not in open(theo_lic, encoding="utf-8").read(2000):
+        sys.exit("LICENCE CHECK FAILED: Theographic Bible Metadata is no longer CC BY-SA 4.0")
+    people = fetch(X.THEO.format("json/people.json"), "theographic-people.json", offline)
+    events = fetch(X.THEO.format("json/events.json"), "theographic-events.json", offline)
+    verses = fetch(X.THEO.format("json/verses.json"), "theographic-verses.json", offline)
+    pe = X.load_people_events(people, events, verses, OSIS_IDS, numbering)
+    LICENCES.append(("theographic", "People, family relations and events of the Bible (Theographic Bible Metadata); "
+                     "dates after F. N. Jones, The Chronology of the Old Testament, and the Treasury of Scripture Knowledge (after Ussher)",
+                     "Theographic Bible Metadata (Viz.Bible)", "https://github.com/robertrouse/theographic-bible-metadata",
+                     "CC BY-SA 4.0, © Robert Rouse / Viz.Bible; the people and events data derived from it is offered under the same licence",
+                     "https://viz.bible"))
+
+    rs_lic = fetch(X.RS.format("LICENSE"), "reformed-standards-LICENSE", offline)
+    if "Apache License" not in open(rs_lic, encoding="utf-8").read(500):
+        sys.exit("LICENCE CHECK FAILED: Reformed Standards compendium is no longer Apache 2.0")
+    creeds_readme = fetch(X.CREEDS.format("README.md"), "creeds-json-README.md", offline)
+    readme = open(creeds_readme, encoding="utf-8").read()
+    if "Unlicense" not in readme or "french_confession_of_faith" in readme.split("## Creeds Included")[0]:
+        sys.exit("LICENCE CHECK FAILED: Creeds.json licence or copyright list changed")
+    paths = {}
+    for did, _short, _title, _family, kind, path in X.DOCUMENTS:
+        paths[did] = fetch((X.CREEDS if kind == "creeds" else X.RS).format(path),
+                           ("creeds-" if kind == "creeds" else "rs-") + path.replace("/", "_"), offline)
+    meta = {did: fetch(X.CREEDS.format(f"creeds/{name}.json"), f"creeds-meta-{name}.json", offline) for did, name in X.META.items()}
+    canon_books = [(osis, NAMES_EN[i - 1]) for osis, i in OSIS_IDS.items() if i <= 66]
+    docs, items = X.load_documents(paths, canon_books)
+    docs = X.add_meta(docs, meta)
+    LICENCES.append(("reformed-standards", "Reformed confessions and catechisms with proof texts (historic English texts: "
+                     "Westminster Standards, Three Forms of Unity, Savoy Declaration, 1689 Baptist Confession) and the Nicene and Athanasian Creeds",
+                     "Reformed Standards compendium", "https://github.com/reformed-standards/compendium",
+                     "Apache License 2.0 (the historic texts themselves are public domain)", "https://reformedstandards.com"))
+    LICENCES.append(("creeds-json", "French Confession of Faith (1559, tr. Emily O. Butler, from Schaff, Creeds of Christendom); "
+                     "year and place of each document", "Creeds.json", "https://github.com/NonlinearFruit/Creeds.json",
+                     "Unlicense (public domain dedication); the text is public domain", "https://github.com/NonlinearFruit/Creeds.json"))
+
+    db = sqlite3.connect(lib)
+    refs = X.write_tables(db, *pe, docs, items, OSIS_IDS, numbering, norm)
+    db.commit()
+    db.execute("VACUUM")
+    db.close()
+    print(f"  people {len(pe[0])} ({len(pe[1])} relations), events {len(pe[3])}, "
+          f"confessions {len(docs)} ({len(items)} items, {refs} proof texts), councils {len(X.COUNCILS)}")
 
 
 def write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map):

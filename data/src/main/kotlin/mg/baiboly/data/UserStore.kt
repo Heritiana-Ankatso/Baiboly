@@ -129,7 +129,15 @@ class UserStore(context: Context) : SQLiteOpenHelper(context, "user.db", null, S
     ).use { c -> buildList { while (c.moveToNext()) add(SavedListSummary(c.getLong(0), c.getString(1), c.getString(2), c.getLong(3), c.getInt(4))) } }
 
     fun deleteList(id: Long) {
-        db.delete("service_list", "id=?", arrayOf(id.toString()))
+        // SQLite foreign keys are off, so ON DELETE CASCADE does not run: remove the items as well
+        db.beginTransaction()
+        try {
+            db.delete("list_item", "list_id=?", arrayOf(id.toString()))
+            db.delete("service_list", "id=?", arrayOf(id.toString()))
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
     }
 
     fun duplicateList(id: Long, title: String, date: String): ServiceList? {

@@ -60,6 +60,9 @@ enum class UiDensity(val scale: Float) { Compact(0.88f), Normal(1f) }
 /** Smallest Bible text size, in sp. */
 const val MIN_TEXT = 10f
 
+/** The tools of the Dictionary page besides the dictionaries. */
+enum class StudyTool { Units, People, Timeline, Confessions }
+
 /** Which Bibles the menus offer: Protestant (66 books) or also the Catholic Bibles (73). */
 enum class Tradition { Protestant, Catholic }
 
@@ -114,6 +117,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val bible = BibleRepository(dbs)
     val study = StudyRepository(dbs)
     val library = LibraryRepository(dbs, study)
+    val chronicle = mg.baiboly.data.HistoryRepository(dbs)
     private val user = UserStore(app)
     private val io = Dispatchers.IO.limitedParallelism(1)
 
@@ -834,8 +838,47 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().putBoolean("map_fullscreen", on).apply()
     }
 
+    /** The Dictionary page shows one of the study tools instead of a dictionary (null: a dictionary). */
+    var dictionaryTool by mutableStateOf<StudyTool?>(null)
+
     /** The Dictionary page shows the units converter instead of a dictionary. */
-    var dictionaryUnits by mutableStateOf(false)
+    var dictionaryUnits: Boolean
+        get() = dictionaryTool == StudyTool.Units
+        set(on) { dictionaryTool = if (on) StudyTool.Units else null }
+
+    /** A person, event or document to open when the tool page shows (from a passage). */
+    var personRequest by mutableStateOf<Int?>(null)
+    var eventRequest by mutableStateOf<Int?>(null)
+    var creedRequest by mutableStateOf<Pair<String, Int>?>(null)
+
+    fun openPerson(id: Int) { personRequest = id; dictionaryTool = StudyTool.People; screen = Screen.Dictionary }
+    fun openEvent(id: Int) { eventRequest = id; dictionaryTool = StudyTool.Timeline; screen = Screen.Dictionary }
+    fun openCreed(doc: String, seq: Int) { creedRequest = doc to seq; dictionaryTool = StudyTool.Confessions; screen = Screen.Dictionary }
+
+    /** People, events and confession articles of the selected passage. */
+    suspend fun peopleInPassage(p: Passage) = withContext(io) {
+        val mg = toMalagasyNow(p)
+        chronicle.peopleInVerses(mg.book, mg.chapter, mg.verseStart, mg.verseEnd)
+    }
+
+    suspend fun eventsInPassage(p: Passage) = withContext(io) {
+        val mg = toMalagasyNow(p)
+        chronicle.eventsInVerses(mg.book, mg.chapter, mg.verseStart, mg.verseEnd)
+    }
+
+    suspend fun creedsCiting(p: Passage) = withContext(io) {
+        val mg = toMalagasyNow(p)
+        chronicle.creedCitations(mg.book, mg.chapter, mg.verseStart, mg.verseEnd)
+    }
+
+    /**
+     * Families of documents shown in normal study for the chosen tradition (docs/ideas.md A3):
+     * the creeds belong to every tradition; the Reformed documents to the Protestant one.
+     * Documents of other traditions appear only under "Go deeper", marked with their tradition.
+     */
+    fun ownFamilies(): Set<String> = if (tradition == Tradition.Protestant) setOf("creed", "reformed") else setOf("creed")
+
+    suspend fun <T> onIo(block: () -> T): T = withContext(io) { block() }
 
     fun toggleStudyMode() {
         changeMode(if (studyMode) AppMode.Casual else AppMode.Study)
@@ -878,6 +921,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun renameList(title: String) = updateList(list.copy(title = title))
 
     fun newList() {
+        // the list in use is still empty: use it rather than adding a second empty list of the same name
+        if (list.items.isEmpty()) return
         viewModelScope.launch {
             val newTitle = defaultTitle()
             val l = withContext(io) { user.createList(newTitle, today()) }
@@ -909,8 +954,12 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             withContext(io) { user.deleteList(id) }
             if (id == list.id) {
-                val newTitle = defaultTitle()
-                val l = withContext(io) { user.createList(newTitle, today()) }
+                // The list in use was deleted: continue with the most recent remaining list. A new empty
+                // list is made only when none is left (it used to be made every time, with the same name,
+                // so the deleted row seemed to stay on screen).
+                val l = withContext(io) {
+                    user.savedLists().firstOrNull()?.let { user.loadList(it.id, 0) } ?: user.createList(defaultTitle(), today())
+                }
                 list = l
                 persistState()
             }

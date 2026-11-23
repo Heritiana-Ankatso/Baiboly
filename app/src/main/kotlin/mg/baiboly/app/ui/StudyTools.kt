@@ -169,15 +169,16 @@ fun DictionaryScreen(vm: AppViewModel) {
             val src = sources.firstOrNull { it.id == source }
             val key = open
             val units = vm.dictionaryUnits
-            if (key != null && src != null && !units) {
+            val tool = vm.dictionaryTool
+            if (key != null && src != null && tool == null) {
                 DictEntryView(vm, src, key, onLink = { history = history + key; open = it })
                 return@Column
             }
             LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(sources, key = { it.id }) { s ->
                     FilterChip(
-                        selected = s.id == source && !units,
-                        onClick = { source = s.id; vm.dictionaryUnits = false },
+                        selected = s.id == source && tool == null,
+                        onClick = { source = s.id; vm.dictionaryTool = null },
                         label = { Text(dictLabel(s)) },
                         modifier = Modifier.heightIn(min = 48.dp).testTag("dict-source:${s.id}"),
                     )
@@ -192,10 +193,26 @@ fun DictionaryScreen(vm: AppViewModel) {
                         modifier = Modifier.heightIn(min = 48.dp).testTag("dict-units"),
                     )
                 }
+                // family tree, timeline, confessions and councils
+                items(listOf(
+                    mg.baiboly.app.StudyTool.People to R.string.tool_people,
+                    mg.baiboly.app.StudyTool.Timeline to R.string.tool_timeline,
+                    mg.baiboly.app.StudyTool.Confessions to R.string.tool_confessions,
+                ), key = { it.first.name }) { (t, label) ->
+                    FilterChip(
+                        selected = tool == t,
+                        onClick = { vm.dictionaryTool = t },
+                        label = { Text(stringResource(label)) },
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("dict-tool:${t.name}"),
+                    )
+                }
             }
-            if (units) {
-                UnitsView(vm, Modifier.weight(1f))
-                return@Column
+            when (tool) {
+                mg.baiboly.app.StudyTool.Units -> { UnitsView(vm, Modifier.weight(1f)); return@Column }
+                mg.baiboly.app.StudyTool.People -> { PeopleView(vm, Modifier.weight(1f)); return@Column }
+                mg.baiboly.app.StudyTool.Timeline -> { TimelineView(vm, Modifier.weight(1f)); return@Column }
+                mg.baiboly.app.StudyTool.Confessions -> { ConfessionsView(vm, Modifier.weight(1f)); return@Column }
+                null -> {}
             }
             OutlinedTextField(
                 value = query, onValueChange = { query = it }, singleLine = true,

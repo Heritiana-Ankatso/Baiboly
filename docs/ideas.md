@@ -88,3 +88,32 @@ Open points:
 - At least three Old Testament canons: Protestant 39, Catholic 46, Orthodox/LXX larger. No single closed Orthodox decree; the Synod of Jerusalem (1672) is the key statement. [VERIFY]
 - The Septuagint also differs from the Hebrew text in wording and Psalm numbering. [VERIFY]
 - Reformed position for reference: the extra books are not canonical (WCF I.3). [VERIFY]
+
+## Status (release 1.6.0 branch)
+
+Implemented: B1, B2, A1 and A2 in part. Not started: A3 Orthodox value, B3.
+
+**B1 Family tree** (Dictionary page › *People*; Study panel › *People and events*)
+- Source: Theographic Bible Metadata (CC BY-SA 4.0): 3,068 people, 8,926 family links (father, mother, spouses, brothers and sisters, half-siblings, children), every verse naming each person.
+- Shows family groups, the father line upwards and a note that genealogies can skip generations.
+- Names are English (KJV) only. Malagasy and French name variants are still open, and so is a recorded variant for Luke 3:36. [VERIFY]
+
+**B2 Chronology** (Dictionary page › *Timeline*)
+- 501 events. The year follows F. N. Jones. Where it differs, the Ussher year from the Treasury of Scripture Knowledge margin is shown as a second date.
+- Each event is labelled as a reconstruction. Ranges and the Septuagint and Samaritan figures are not in the data. Open. [VERIFY]
+
+**A1 Confessions and catechisms** (Dictionary page › *Confessions*; Study panel › *Confessions*: articles that cite the passage)
+- Included (historic English texts, public domain): Apostles' Creed (as Heidelberg Q&A 23 gives it), Nicene (Western form) and Athanasian Creeds, Belgic Confession, Heidelberg Catechism, Canons of Dort, Westminster Confession, Larger and Shorter Catechisms, French Confession (Schaff), Savoy Declaration, 1689 Baptist Confession.
+- Sources: Reformed Standards compendium (Apache 2.0) and Creeds.json. 9,096 proof-text links, cited as `WCF 1.2`, `HC Q&A 23`.
+- Left out:
+  - Copyright: the Second Helvetic Confession, Chalcedonian Definition and Council of Orange (modern translations in both sources), the ELLC Apostles' Creed, and the CRC/Canadian Reformed texts that Creeds.json labels "Public Domain".
+  - Debated: the Thirty-Nine Articles.
+- Catholic documents: no public-domain source could be reached (Trent, Waterworth 1848; Roman Catechism). Vatican I/II and the Catechism of the Catholic Church are under Vatican copyright. Malagasy texts: none found.
+
+**A2 Councils**
+- Listed only where a library document records them: Council of Constantinople (381, Nicene Creed), Synod of Dort, Westminster Assembly, Savoy Assembly. Place and year are taken from the sources' metadata.
+- The seven ecumenical councils need a public-domain source (Percival, *The Seven Ecumenical Councils*, NPNF II/14, on ccel.org). Downloading it was not possible in this build session.
+
+**A3 Tradition**
+- Protestant: creeds and Reformed documents show in normal study.
+- Catholic: the creeds show in normal study. The Reformed documents appear only under *Go deeper: other traditions*, labelled "Protestant (Reformed)".
