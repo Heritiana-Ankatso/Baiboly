@@ -25,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -64,7 +63,7 @@ import mg.baiboly.data.VerseText
 @Composable
 fun BrowseSheet(vm: AppViewModel, onDismiss: () -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+    LocalizedSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         BrowseContent(vm, Modifier.fillMaxWidth().fillMaxHeight(0.72f).navigationBarsPadding(), onDone = onDismiss)
     }
 }

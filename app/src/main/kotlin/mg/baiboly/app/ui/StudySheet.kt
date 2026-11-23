@@ -28,7 +28,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -99,7 +98,7 @@ fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, start
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var tab by remember { mutableStateOf(if (startOnCrossRefs) 1 else 0) }
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+    LocalizedSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(0.82f).navigationBarsPadding()) {
             Text(
                 Passage(book, chapter, verse, verse).longLabel(lang),
