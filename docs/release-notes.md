@@ -1,3 +1,17 @@
+## Baiboly 1.6.0
+
+**Install:** download the APK below and open it on the phone, or update from Settings › Advanced › Updates › *Download and install*. Your lists, notes, highlights and settings are kept.
+
+* **People of the Bible** (Study mode, Dictionary page, *People*): 3,068 people with their father, mother, spouses, brothers and sisters and children, the father line upwards, the events they take part in and every verse that names them. Biblical genealogies can skip generations, and the page says so. Names are in English (KJV). Data: Theographic Bible Metadata, CC BY-SA 4.0.
+* **Timeline** (*Timeline*): 501 events from Creation to Acts. Dates follow F. N. Jones, *The Chronology of the Old Testament*; where Ussher's year (in the margin of the Treasury of Scripture Knowledge) differs, it is shown too. Each date is labelled as a reconstruction: Scripture gives ages and reigns, not dates.
+* **Confessions** (*Confessions*): the Apostles', Nicene and Athanasian Creeds; the Belgic Confession, Heidelberg Catechism and Canons of Dort; the Westminster Confession, Larger and Shorter Catechisms; the French Confession, the Savoy Declaration and the 1689 Baptist Confession.
+  * Historic English texts, in the public domain, with their proof texts (a tap opens the verse), cited as `WCF 1.2` or `HC Q&A 23`.
+  * The councils and assemblies that issued them: Constantinople (381), Dort, Westminster, Savoy.
+  * The **Tradition** setting decides what is shown: *Protestant* shows the creeds and the Reformed documents; *Catholic* shows the creeds, and the Reformed documents only under *Go deeper: other traditions*, each marked as such.
+  * Not included yet: Catholic and Orthodox documents, other Reformed texts known only in modern translations under copyright (Second Helvetic Confession, Chalcedonian Definition), and Malagasy or French texts (none with a free licence was found).
+* **Study a passage** adds *People and events* and *Confessions*: the articles and answers that cite the passage.
+* **Saved lists:** *Delete* now really removes the list (deleting the list in use opens your most recent other list instead of putting an empty list of the same name in its place), and *New list* no longer adds a second empty list.
+
 ## Baiboly 1.5.0
 
 **Install:** download the APK below and open it on the phone (allow installing from this source when asked).

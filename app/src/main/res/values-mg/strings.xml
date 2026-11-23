@@ -190,13 +190,11 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Fandalinana andalan-tsoratra: fidio ny andininy, dia Fianarana. Ilay andalan-tsoratra amin’ny Baiboly hafa, ny teny hebreo na grika tany am-boalohany sy ny heviny, ny andinin-teny mifandray, ny toerana voatonona (eo amin’ny sarintany), ny refy (amin’ny fanovana refy) ary ny ao amin’ny rakibolana.</item>
-        <item>Soratra betsaka kokoa eo amin’ny efijery: efijery tery (Fikirana › Endrika › Haben’ny efijery), sisiny tery kokoa, soratra hatramin’ny habe 10. Tsy maty ny efijery raha mbola misokatra ny fampiharana (azo ajanona).</item>
-        <item>Mipetraka ao anatin’ny fampiharana ny fanavaozana: Fikirana › Safidy hafa › Fanavaozana › Alaivo ary apetraho. Indray mandeha monja i Android no mangataka alalana, avy eo manamafy ny fanavaozana; tsy misy misokatra ao amin’ny mpitety tranonkala.</item>
-        <item>Mameno ny efijery ny sarintany. Hitady toerana amin’ny anarany; ahalehibe na ahakely amin’ny bokotra + sy −, na tsindrio indroa.</item>
-        <item>Faritany manontolo: fanjakana, firenena ary faritany (Edoma, Moaba, Galilia, Samaria, Makedonia, Azia…), matroka kokoa izay tena nisy azy, mazava kokoa izay tsy azo antoka ny sisiny. Tsindrio ao anatin’ny faritany iray, na fidio ao amin’ny Faritany.</item>
-        <item>Lalana: dia 15 ao amin’ny Baiboly (Abrahama, ny Fivoahana, ny dian’i Paoly, ny dia nankany Roma…), ary ny lalana mampitohy toerana roa tianao amin’ny lalana fahiny, miaraka amin’ny halaviny sy ny andro an-tongotra.</item>
-        <item>Refy (fomba Fianarana, pejy Rakibolana): hakiho, sekely, efaha, bata, denaria sy ny sisa, avadika ho samy izy sy ho metatra, grama ary litatra, miaraka amin’ny andinin-teny misy ny refy tsirairay; ny ora amin’ny andro sy ny fiambenana amin’ny alina.</item>
+        <item>Olona ao amin’ny Baiboly (fomba Fianarana, pejy Rakibolana, Olona): ray aman-dreny, vady, mpiray tampo, zanaka ary taranaka araka ny ray amin’ny olona 3 068, miaraka amin’ny zava-nitranga nisy azy sy ny andininy rehetra manonona azy.</item>
+        <item>Fotoana: zava-nitranga 501 hatramin’ny Famoronana ka hatramin’ny Asan’ny Apostoly, miaraka amin’ny daty (araka an’i Jones, sy Ussher raha samy hafa), ny olona sy ny andininy. Fanamboarana ireo daty ireo, ary voalaza izany.</item>
+        <item>Fanekem-pinoana: ny Fanekem-pinoan’ny Apostoly, Nikea sy Atanasio ary ny fanekem-pinoana sy katesizy Nohavaozina (Heidelberg, Belgika, Dort, Westminster…) amin’ny lahatsoratra anglisy tranainy, miaraka amin’ny andinin-teny porofo manokatra ny andininy, sy ny konsily sy fivoriambe namoaka azy. Ny safidy Fivavahana no mamaritra izay aseho; ao amin’ny Fandalinana ny an’ny fivavahana hafa.</item>
+        <item>Ny takelaka Fianarana amin’ny andalan-teny dia manampy Olona sy zava-nitranga, ary ny andininy amin’ny fanekem-pinoana manonona azy.</item>
+        <item>Lisitra voatahiry: tena mamafa ny lisitra ny Fafana, ary tsy manampy lisitra foana faharoa intsony ny Lisitra vaovao.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>

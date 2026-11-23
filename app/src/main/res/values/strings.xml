@@ -205,13 +205,11 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Study a passage: select verses, then Study. The passage in the other Bibles, its original Hebrew or Greek words with their meaning, cross-references, the places it names (on the map), its units (in the converter) and dictionary entries.</item>
-        <item>More text on the screen: a compact interface (Settings › Appearance › Interface size), narrower margins, text down to size 10. The screen stays on while the app is open (can be turned off).</item>
-        <item>Updates install inside the app: Settings › Advanced › Updates › Download and install. Android asks once to allow it, then confirms the update; nothing opens in the browser.</item>
-        <item>The map fills the screen. Search a place by name; zoom with the + and − buttons or a double tap.</item>
-        <item>Regions drawn whole: kingdoms, peoples and provinces (Edom, Moab, Galilee, Samaria, Macedonia, Asia…), darker where the region surely was, lighter where its edge is uncertain. Tap inside a region, or choose it under Regions.</item>
-        <item>Routes: 15 journeys of the Bible (Abraham, the Exodus, Paul’s journeys, the voyage to Rome…), and the way between any two places on the ancient roads, with its length and days on foot.</item>
-        <item>Units (Study mode, Dictionary page): cubits, shekels, ephahs, baths, denarii and more, converted to each other and to metres, grams and litres, with the verse of each unit; the hours of the day and the watches of the night.</item>
+        <item>People of the Bible (Study mode, Dictionary page, People): parents, spouses, brothers and sisters, children and the father line of 3,068 people, with the events they take part in and every verse that names them.</item>
+        <item>Timeline: 501 events from Creation to Acts, with their dates (after Jones, and Ussher where it differs), the people in them and their verses. The dates are reconstructions and are labelled so.</item>
+        <item>Confessions: the Apostles’, Nicene and Athanasian Creeds and the Reformed confessions and catechisms (Heidelberg, Belgic, Dort, Westminster…) in their historic English text, with proof texts that open the verse, and the councils and assemblies that issued them. The Tradition setting chooses what is shown; other traditions are under Go deeper.</item>
+        <item>The Study panel of a passage adds People and events, and the confession articles that cite it.</item>
+        <item>Saved lists: Delete now really removes the list, and New list no longer adds a second empty list.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>

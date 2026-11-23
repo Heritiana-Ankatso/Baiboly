@@ -188,13 +188,11 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Étudier un passage : sélectionnez des versets, puis Étude. Le passage dans les autres Bibles, ses mots originaux hébreux ou grecs avec leur sens, les références, les lieux nommés (sur la carte), les mesures (dans le convertisseur) et les articles de dictionnaire.</item>
-        <item>Plus de texte à l’écran : une interface compacte (Réglages › Apparence › Taille de l’interface), des marges plus étroites, un texte jusqu’à la taille 10. L’écran reste allumé tant que l’application est ouverte (désactivable).</item>
-        <item>Les mises à jour s’installent dans l’application : Réglages › Avancé › Mises à jour › Télécharger et installer. Android demande une fois l’autorisation, puis confirme la mise à jour ; rien ne s’ouvre dans le navigateur.</item>
-        <item>La carte occupe tout l’écran. Cherchez un lieu par son nom ; zoomez avec les boutons + et − ou d’un double toucher.</item>
-        <item>Régions entières : royaumes, peuples et provinces (Édom, Moab, Galilée, Samarie, Macédoine, Asie…), plus foncées là où la région se trouvait sûrement, plus claires là où sa limite est incertaine. Touchez l’intérieur d’une région, ou choisissez-la dans Régions.</item>
-        <item>Itinéraires : 15 voyages de la Bible (Abraham, l’Exode, les voyages de Paul, la traversée vers Rome…), et le chemin entre deux lieux au choix par les routes antiques, avec sa longueur et les jours de marche.</item>
-        <item>Mesures (mode Étude, page Dictionnaire) : coudées, sicles, éphas, baths, deniers et autres, convertis entre eux et en mètres, grammes et litres, avec le verset de chaque unité ; les heures du jour et les veilles de la nuit.</item>
+        <item>Personnages de la Bible (mode Étude, page Dictionnaire, Personnages) : parents, époux, frères et sœurs, enfants et lignée paternelle de 3 068 personnes, avec les événements où elles paraissent et tous les versets qui les nomment.</item>
+        <item>Chronologie : 501 événements de la Création aux Actes, avec leurs dates (d’après Jones, et Ussher quand il diffère), leurs personnages et leurs versets. Les dates sont des reconstructions et le disent.</item>
+        <item>Confessions : les symboles des Apôtres, de Nicée et d’Athanase et les confessions et catéchismes réformés (Heidelberg, Confession belge, Dordrecht, Westminster…) dans leur texte anglais historique, avec les textes de preuve qui ouvrent le verset, et les conciles et assemblées qui les ont publiés. Le réglage Tradition choisit ce qui est montré ; les autres traditions sont sous Approfondir.</item>
+        <item>Le panneau Étude d’un passage ajoute Personnages et événements, et les articles de confession qui le citent.</item>
+        <item>Listes enregistrées : Supprimer retire vraiment la liste, et Nouvelle liste n’ajoute plus une seconde liste vide.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
