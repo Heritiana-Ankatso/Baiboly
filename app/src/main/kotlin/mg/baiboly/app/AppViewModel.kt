@@ -77,6 +77,15 @@ enum class TextFont { Classic, Modern, Sans }
 
 enum class LineSpacing { Compact, Normal, Airy }
 
+/** How verses are set on the page: one per line, or as running paragraphs. */
+enum class VerseLayout { Lines, Paragraphs }
+
+/** What separates paragraphs in running text: a first-line indent, or a blank space. */
+enum class ParagraphBreak { Indent, Space }
+
+/** Side margins of running text. */
+enum class PageMargin { Narrow, Normal, Wide }
+
 /**
  * App state. The service list, the reader position and the settings are
  * restored on start (the app opens where the user left off) and saved on
@@ -119,6 +128,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var lineSpacing by mutableStateOf(enumPref("line_spacing", LineSpacing.Normal))
         private set
+    var verseLayout by mutableStateOf(enumPref("verse_layout", VerseLayout.Lines))
+        private set
+
+    // typesetting details (Settings, Advanced)
+    var justify by mutableStateOf(prefs.getBoolean("text_justify", true))
+        private set
+    var hyphenate by mutableStateOf(prefs.getBoolean("text_hyphenate", true))
+        private set
+    var paragraphBreak by mutableStateOf(enumPref("paragraph_break", ParagraphBreak.Indent))
+        private set
+    var pageMargin by mutableStateOf(enumPref("page_margin", PageMargin.Normal))
+        private set
 
     private inline fun <reified E : Enum<E>> enumPref(key: String, default: E): E =
         prefs.getString(key, null)?.let { n -> enumValues<E>().firstOrNull { it.name == n } } ?: default
@@ -134,10 +155,16 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun changeTextFont(f: TextFont) { textFont = f; prefs.edit().putString("text_font", f.name).apply() }
     fun changeEngravedTitles(on: Boolean) { engravedTitles = on; prefs.edit().putBoolean("engraved_titles", on).apply() }
     fun changeLineSpacing(l: LineSpacing) { lineSpacing = l; prefs.edit().putString("line_spacing", l.name).apply() }
+    fun changeVerseLayout(l: VerseLayout) { verseLayout = l; prefs.edit().putString("verse_layout", l.name).apply() }
+    fun changeJustify(on: Boolean) { justify = on; prefs.edit().putBoolean("text_justify", on).apply() }
+    fun changeHyphenate(on: Boolean) { hyphenate = on; prefs.edit().putBoolean("text_hyphenate", on).apply() }
+    fun changeParagraphBreak(b: ParagraphBreak) { paragraphBreak = b; prefs.edit().putString("paragraph_break", b.name).apply() }
+    fun changePageMargin(m: PageMargin) { pageMargin = m; prefs.edit().putString("page_margin", m.name).apply() }
 
     /** Back to the look the app ships with (text size included). */
     fun resetAppearance() {
-        changeStyle(Style.Manuscript); changeLineSpacing(LineSpacing.Normal); changeTextSize(20f)
+        changeStyle(Style.Manuscript); changeLineSpacing(LineSpacing.Normal); changeVerseLayout(VerseLayout.Lines); changeTextSize(20f)
+        changeJustify(true); changeHyphenate(true); changeParagraphBreak(ParagraphBreak.Indent); changePageMargin(PageMargin.Normal)
     }
     var mode by mutableStateOf(AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)])
         private set
@@ -832,6 +859,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         textFont = enumPref("text_font", TextFont.Classic)
         engravedTitles = prefs.getBoolean("engraved_titles", true)
         lineSpacing = enumPref("line_spacing", LineSpacing.Normal)
+        verseLayout = enumPref("verse_layout", VerseLayout.Lines)
+        justify = prefs.getBoolean("text_justify", true)
+        hyphenate = prefs.getBoolean("text_hyphenate", true)
+        paragraphBreak = enumPref("paragraph_break", ParagraphBreak.Indent)
+        pageMargin = enumPref("page_margin", PageMargin.Normal)
         mode = AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)]
         val newTitle = defaultTitle()
         val (l, rec, usage) = withContext(io) {

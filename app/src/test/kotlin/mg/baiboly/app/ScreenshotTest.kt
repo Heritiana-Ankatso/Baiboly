@@ -64,6 +64,20 @@ class ScreenshotTest {
         settle { vm.chapter?.book == p.book && vm.chapter?.chapter == p.chapter }
     }
 
+    /** Verses as running paragraphs (Settings, Appearance, Verses). */
+    @Test fun paragraphs() {
+        settle { vm.ready && vm.chapter != null }
+        vm.changeVerseLayout(VerseLayout.Paragraphs)
+        open(Passage(43, 1, 10, 14))
+        shot("reader-paragraphs-mg")
+        // Advanced: left-aligned, no word breaks, a space between paragraphs, wide margins
+        vm.changeJustify(false); vm.changeHyphenate(false)
+        vm.changeParagraphBreak(ParagraphBreak.Space); vm.changePageMargin(PageMargin.Wide)
+        settle()
+        shot("reader-paragraphs-plain-mg")
+        vm.resetAppearance()
+    }
+
     @Test fun screens() {
         settle { vm.ready && vm.chapter != null }
         // Casual mode: reading, with the bottom navigation

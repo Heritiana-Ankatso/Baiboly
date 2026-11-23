@@ -1,20 +1,14 @@
-## Baiboly 1.3.1
+## Baiboly 1.4.0
 
 **Install:** download the APK below and open it on the phone (allow installing from this source when asked).
 Updates install over the app and keep your lists, notes, highlights and settings.
 
-**Fixed in 1.3.1**
-
-* Sheets, dialogs and menus (for example *Choose a mode* and *What's new*) now use the interface language you chose, not the phone's.
-* The *What's new* list scrolls to its end; its button stays visible on small screens.
-
-**New in 1.3.0**
-
-* **Choosing a Bible:** the menu at the top now lists the languages first (Malagasy, Français, English); tap a language to unfold its translations. The language of the Bible you are reading is shown in bold.
-* **Update check, only if you want it:** Settings › Advanced › Updates.
-  * *Check now* asks GitHub for the number of the latest version.
-  * *Check automatically* (off by default) checks about once a day and shows one quiet notification when a new version is out.
-  * Nothing about you or your reading is sent, and the app downloads nothing: you still install the new APK from this page yourself.
-  * The app still works fully offline; this is the only thing that ever connects, and only if you ask.
-
-**Coming from 1.2.0:** install this release by hand once. From then on, if you switch on *Check automatically*, the app will tell you about later releases.
+* **Verses as paragraphs:** Settings › Appearance › Verses › *Paragraphs* sets the text as running paragraphs, like a printed Bible, with small gilt verse numbers. *One per line* stays the default.
+  * Tapping a verse, its number or its note mark, selection, highlights and reading aloud work as before.
+  * The texts have no paragraph marks of their own: paragraphs break at section headings and at sentence ends in long sections.
+* **Typesetting, for verses as paragraphs:** Settings › Advanced › Typesetting.
+  * Alignment: left or justified (default).
+  * Word breaks at line ends: none, or by syllable (default). Malagasy is broken at its own syllables (*An·dria·ma·ni·tra*); French and English use the phone's rules.
+  * Between paragraphs: an indent (default) or a space.
+  * Margins: narrow, normal (default) or wide.
+  * *Reset appearance* brings all of these back to their defaults.

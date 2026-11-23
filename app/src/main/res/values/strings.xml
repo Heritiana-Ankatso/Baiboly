@@ -205,9 +205,8 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Updates install over the app and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Choosing a Bible: the menu at the top now lists the languages first (Malagasy, Français, English); tap a language to see its translations.</item>
-        <item>Update check, only if you want it: Settings › Advanced › Updates. Check now asks GitHub for the latest version number; Check automatically (off by default) shows a notification when a new version is out. Nothing about you or your reading is sent, and the app downloads nothing.</item>
-        <item>Fixes: sheets, dialogs and menus now use the language you chose, and this list scrolls to its end.</item>
+        <item>Verses as paragraphs: Settings › Appearance › Verses › Paragraphs sets the text as running paragraphs, like a printed Bible, with small verse numbers. Tapping a verse, notes and highlights work as before.</item>
+        <item>Typesetting, for verses as paragraphs: Settings › Advanced › Typesetting. Text aligned left or justified, words broken by syllable at line ends (also in Malagasy), an indent or a space between paragraphs, and narrow, normal or wide margins.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -256,6 +255,24 @@
     <string name="spacing_compact">Compact</string>
     <string name="spacing_normal">Normal</string>
     <string name="spacing_airy">Airy</string>
+    <string name="verse_layout">Verses</string>
+    <string name="layout_lines">One per line</string>
+    <string name="layout_paragraphs">Paragraphs</string>
+    <string name="typesetting">Typesetting</string>
+    <string name="text_align">Alignment</string>
+    <string name="align_left">Left</string>
+    <string name="align_justify">Justified</string>
+    <string name="hyphenation">Word breaks at line ends</string>
+    <string name="hyph_off">None</string>
+    <string name="hyph_on">By syllable</string>
+    <string name="paragraph_break">Between paragraphs</string>
+    <string name="break_indent">Indent</string>
+    <string name="break_space">Space</string>
+    <string name="margins">Margins</string>
+    <string name="margin_narrow">Narrow</string>
+    <string name="margin_normal">Normal</string>
+    <string name="margin_wide">Wide</string>
+    <string name="typesetting_hint">For verses as paragraphs.</string>
     <string name="reset_appearance">Restore the original look</string>
     <string name="style">Theme</string>
     <string name="style_manuscript">Manuscript</string>

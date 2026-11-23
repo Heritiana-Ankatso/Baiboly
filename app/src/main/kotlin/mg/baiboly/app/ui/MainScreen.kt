@@ -6,6 +6,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.intl.LocaleList
+import mg.baiboly.app.VerseLayout
+import mg.baiboly.app.PageMargin
+import mg.baiboly.app.ParagraphBreak
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -577,6 +587,30 @@ private sealed interface ReaderRow {
     data class Title(val book: String, val chapter: Int) : ReaderRow
     data class Heading(val text: String) : ReaderRow
     data class Verse(val verse: Int, val text: String) : ReaderRow
+    /** Running text: several verses set as one paragraph. */
+    data class Paragraph(val verses: List<Verse>) : ReaderRow
+}
+
+private fun ReaderRow.holds(verse: Int): Boolean = when (this) {
+    is ReaderRow.Verse -> this.verse == verse
+    is ReaderRow.Paragraph -> verses.any { it.verse == verse }
+    else -> false
+}
+
+/**
+ * The texts carry no paragraph marks, so paragraphs break at section headings
+ * and, inside a long section, at the first sentence end after a few verses.
+ */
+private fun MutableList<ReaderRow>.addParagraphs(verses: List<ReaderRow.Verse>) {
+    var run = mutableListOf<ReaderRow.Verse>()
+    for (v in verses) {
+        run += v
+        val end = v.text.trimEnd().trimEnd('"', '”', '»', '’', '\'', ')').lastOrNull()
+        if (run.size >= 12 || (run.size >= 5 && end != null && end in ".!?")) {
+            add(ReaderRow.Paragraph(run)); run = mutableListOf()
+        }
+    }
+    if (run.isNotEmpty()) add(ReaderRow.Paragraph(run))
 }
 
 @Composable
@@ -591,13 +625,25 @@ private fun Reader(
     val pageStyle = LocalStyle.current == Style.Page
     val state = rememberLazyListState()
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
-    val rows = remember(ch, lang) {
+    val paragraphs = vm.verseLayout == VerseLayout.Paragraphs
+    val typeset = Typeset(
+        justify = vm.justify,
+        hyphenate = vm.hyphenate,
+        indent = vm.paragraphBreak == ParagraphBreak.Indent,
+        margin = when (vm.pageMargin) { PageMargin.Narrow -> 18.dp; PageMargin.Normal -> 24.dp; PageMargin.Wide -> 36.dp },
+        lang = lang,
+    )
+    val rows = remember(ch, lang, paragraphs) {
         if (ch == null) emptyList() else buildList {
             add(ReaderRow.Title(Canon.book(ch.book).name(lang), ch.chapter))
+            val section = mutableListOf<ReaderRow.Verse>()
             for (v in ch.verses) {
-                ch.headings[v.verse]?.forEach { add(ReaderRow.Heading(it)) }
-                add(ReaderRow.Verse(v.verse, v.text))
+                val heads = ch.headings[v.verse]
+                if (paragraphs && heads != null && section.isNotEmpty()) { addParagraphs(section); section.clear() }
+                heads?.forEach { add(ReaderRow.Heading(it)) }
+                if (paragraphs) section += ReaderRow.Verse(v.verse, v.text) else add(ReaderRow.Verse(v.verse, v.text))
             }
+            if (section.isNotEmpty()) addParagraphs(section)
         }
     }
     val focus = vm.location.focus?.takeIf { it.book == vm.location.book && it.chapter == vm.location.chapter && !it.isWholeChapter }
@@ -605,7 +651,7 @@ private fun Reader(
         if (rows.isEmpty()) return@LaunchedEffect
         val target = focus?.let { f ->
             // scroll to the heading above the verse when there is one
-            val idx = rows.indexOfFirst { it is ReaderRow.Verse && it.verse == f.verseStart }
+            val idx = rows.indexOfFirst { it.holds(f.verseStart) }
             var i = idx
             while (i > 0 && rows[i - 1] is ReaderRow.Heading) i--
             i
@@ -623,7 +669,7 @@ private fun Reader(
     val reading = if (rs.active && rs.book == ch?.book && rs.chapter == ch.chapter && rs.translation == vm.translationId) rs.verse else null
     LaunchedEffect(reading, rows) {
         if (reading != null) {
-            val idx = rows.indexOfFirst { it is ReaderRow.Verse && it.verse == reading }
+            val idx = rows.indexOfFirst { it.holds(reading) }
             if (idx >= 0 && state.layoutInfo.visibleItemsInfo.none { it.index == idx }) state.animateScrollToItem(idx)
         }
     }
@@ -647,7 +693,15 @@ private fun Reader(
             },
         contentPadding = PaddingValues(start = 4.dp, end = 18.dp, top = 4.dp, bottom = if (pageStyle) 24.dp else 104.dp),
     ) {
-        items(rows.size, key = { i -> rows[i].let { r -> if (r is ReaderRow.Verse) "v${r.verse}" else "r$i" } }) { i ->
+        items(rows.size, key = { i ->
+            rows[i].let { r ->
+                when (r) {
+                    is ReaderRow.Verse -> "v${r.verse}"
+                    is ReaderRow.Paragraph -> "p${r.verses.first().verse}"
+                    else -> "r$i"
+                }
+            }
+        }) { i ->
             when (val r = rows[i]) {
                 is ReaderRow.Title -> StyledChapterHeader(r.book, r.chapter)
                 is ReaderRow.Heading -> Text(
@@ -662,6 +716,8 @@ private fun Reader(
                     verse = r.verse,
                     text = r.text,
                     textSize = textSize,
+                    // the typesetting details are for running text; one verse per line stays as it was
+                    typeset = typeset.copy(justify = false, hyphenate = false),
                     focused = focus?.contains(r.verse) == true || reading == r.verse,
                     selected = r.verse in selected,
                     highlights = highlights.filter { it.passage.contains(r.verse) }.map { h ->
@@ -671,6 +727,22 @@ private fun Reader(
                     studyMode = vm.studyMode,
                     onTap = { onVerseTap(r.verse) },
                     onNumberTap = { onNumberTap(r.verse) },
+                    onNoteTap = onNoteTap,
+                )
+                is ReaderRow.Paragraph -> ParagraphBlock(
+                    verses = r.verses,
+                    typeset = typeset,
+                    textSize = textSize,
+                    focused = { v -> focus?.contains(v) == true || reading == v },
+                    selected = selected,
+                    highlights = { v ->
+                        highlights.filter { it.passage.contains(v) }.map { h ->
+                            Triple(if (charHighlights) h.charStart else null, if (charHighlights) h.charEnd else null, h.colour)
+                        }
+                    },
+                    notes = r.verses.mapNotNull { v -> notes.firstOrNull { it.passage.firstVerse == v.verse }?.let { v.verse to it } }.toMap(),
+                    onTap = onVerseTap,
+                    onNumberTap = onNumberTap,
                     onNoteTap = onNoteTap,
                 )
             }
@@ -684,6 +756,7 @@ private fun VerseRow(
     verse: Int,
     text: String,
     textSize: Float,
+    typeset: Typeset,
     focused: Boolean,
     selected: Boolean,
     highlights: List<Triple<Int?, Int?, Int>>,
@@ -702,14 +775,15 @@ private fun VerseRow(
     val dark = MaterialTheme.colorScheme.background.luminanceApprox() < 0.5f
     val titleFamily = TitleSerif
     val initial = dropCaps()
-    val annotated = remember(text, highlights, dark, verse, textSize, ornament, titleFamily, initial) {
+    val annotated = remember(text, highlights, dark, verse, textSize, ornament, titleFamily, initial, typeset) {
         buildAnnotatedString {
-            append(text)
+            val (shown, at) = typeset.breakable(text)
+            append(shown)
             for ((s, e, colour) in highlights) {
                 val c = Color(colour).copy(alpha = if (dark) 0.34f else 0.55f)
                 val start = (s ?: 0).coerceIn(0, text.length)
                 val end = (e ?: text.length).coerceIn(start, text.length)
-                addStyle(SpanStyle(background = c), start, end)
+                addStyle(SpanStyle(background = c), at?.get(start) ?: start, at?.get(end) ?: end)
             }
             // A rubricated initial opens each chapter, as in old Bibles.
             if (initial && verse == 1 && text.isNotEmpty() && text[0].isLetter()) {
@@ -756,6 +830,7 @@ private fun VerseRow(
             lineHeight = (textSize * LocalReading.current.lineSpacing).sp,
             fontFamily = TextSerif,
             color = MaterialTheme.colorScheme.onSurface,
+            style = typeset.style(MaterialTheme.typography.bodyLarge),
             modifier = Modifier
                 .weight(1f)
                 .clickable(onClick = onTap)
@@ -769,6 +844,144 @@ private fun VerseRow(
             ) { Icon(Icons.Filled.Create, stringResource(R.string.notes), tint = ornament.gold, modifier = Modifier.size(20.dp)) }
         }
     }
+}
+
+/** Typesetting details from Settings, Advanced. */
+private data class Typeset(
+    val justify: Boolean,
+    val hyphenate: Boolean,
+    val indent: Boolean,
+    val margin: androidx.compose.ui.unit.Dp,
+    val lang: String,
+) {
+    /** Lines break in the text's own language: system patterns for French and English. */
+    fun style(base: androidx.compose.ui.text.TextStyle) = base.copy(
+        textAlign = if (justify) TextAlign.Justify else TextAlign.Start,
+        hyphens = if (hyphenate) Hyphens.Auto else Hyphens.None,
+        lineBreak = if (justify) LineBreak.Paragraph else LineBreak.Simple,
+        localeList = LocaleList(lang),
+    )
+
+    /** Android has no Malagasy patterns: its break points come from its syllables. */
+    fun breakable(text: String): Pair<String, IntArray?> =
+        if (hyphenate && lang == "mg") malagasySoftHyphens(text) else text to null
+}
+
+/** Where each verse sits inside a paragraph's text. */
+private class VerseSpan(val verse: Int, val number: IntRange, val text: IntRange, val note: IntRange?)
+
+/**
+ * Verses as running text, numbers in small gilt superscript, as in a printed
+ * Bible. A tap on a number, on a verse's words or on its note mark acts as in
+ * the one-verse-per-line layout.
+ */
+@Composable
+private fun ParagraphBlock(
+    verses: List<ReaderRow.Verse>,
+    typeset: Typeset,
+    textSize: Float,
+    focused: (Int) -> Boolean,
+    selected: Set<Int>,
+    highlights: (Int) -> List<Triple<Int?, Int?, Int>>,
+    notes: Map<Int, Note>,
+    onTap: (Int) -> Unit,
+    onNumberTap: (Int) -> Unit,
+    onNoteTap: (Note) -> Unit,
+) {
+    val ornament = LocalOrnament.current
+    val selectedWash = MaterialTheme.colorScheme.secondaryContainer
+    val dark = MaterialTheme.colorScheme.background.luminanceApprox() < 0.5f
+    val initial = dropCaps()
+    val titleFamily = TitleSerif
+    val marks = verses.map { v -> Triple(focused(v.verse), v.verse in selected, highlights(v.verse)) }
+    val (annotated, spans) = remember(verses, typeset, marks, notes.keys, dark, textSize, ornament, initial, selectedWash, titleFamily) {
+        val spans = mutableListOf<VerseSpan>()
+        val text = buildAnnotatedString {
+            verses.forEachIndexed { i, v ->
+                val (isFocused, isSelected, hl) = marks[i]
+                if (i > 0) append(' ')
+                val start = length
+                // chapter opening: a rubricated initial instead of the number 1
+                val dropInitial = initial && v.verse == 1 && v.text.firstOrNull()?.isLetter() == true
+                if (!dropInitial) {
+                    withStyle(SpanStyle(
+                        fontSize = (textSize * 0.6f).sp, fontFamily = titleFamily, fontWeight = FontWeight.Bold,
+                        color = ornament.gold, baselineShift = BaselineShift.Superscript,
+                    )) { append("${v.verse}") }
+                    append('\u00A0')
+                }
+                val numberEnd = length - 1
+                val textStart = length
+                val (shown, at) = typeset.breakable(v.text)
+                append(shown)
+                if (dropInitial) addStyle(SpanStyle(fontFamily = titleFamily, fontWeight = FontWeight.Bold,
+                    fontSize = (textSize * 1.9f).sp, color = ornament.rubric), textStart, textStart + 1)
+                for ((s, e, colour) in hl) {
+                    val c = Color(colour).copy(alpha = if (dark) 0.34f else 0.55f)
+                    val os = (s ?: 0).coerceIn(0, v.text.length)
+                    val oe = (e ?: v.text.length).coerceIn(os, v.text.length)
+                    val hs = textStart + (at?.get(os) ?: os)
+                    val he = textStart + (at?.get(oe) ?: oe)
+                    addStyle(SpanStyle(background = c), hs, he)
+                }
+                val textEnd = length
+                var note: IntRange? = null
+                if (v.verse in notes) {
+                    append('\u00A0')
+                    val ns = length
+                    withStyle(SpanStyle(color = ornament.gold, fontSize = (textSize * 0.8f).sp)) { append("✎") }
+                    note = ns until length
+                }
+                // a marked run of verses is washed without gaps at the spaces between them
+                val prev = marks.getOrNull(i - 1)
+                val wash = when { isSelected -> 2; isFocused -> 1; else -> 0 }
+                val prevWash = when { prev == null -> 0; prev.second -> 2; prev.first -> 1; else -> 0 }
+                val from = if (i > 0 && wash == prevWash) start - 1 else start
+                when (wash) {
+                    2 -> addStyle(SpanStyle(background = selectedWash), from, length)
+                    1 -> addStyle(SpanStyle(background = ornament.focusWash), from, length)
+                }
+                spans += VerseSpan(v.verse, start..maxOf(start, numberEnd), textStart until textEnd, note)
+            }
+        }
+        text to spans
+    }
+    var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+    val first = verses.first().verse
+    Text(
+        annotated,
+        fontSize = textSize.sp,
+        lineHeight = (textSize * LocalReading.current.lineSpacing).sp,
+        fontFamily = TextSerif,
+        color = MaterialTheme.colorScheme.onSurface,
+        // paragraphs marked by a first-line indent, or by a blank space between them
+        style = typeset.style(MaterialTheme.typography.bodyLarge).let {
+            if (typeset.indent) it.copy(textIndent = TextIndent(firstLine = (textSize * 1.2f).sp)) else it
+        },
+        onTextLayout = { layout = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("paragraph:$first")
+            // inside the padding, so tap positions match the text layout
+            // the list adds 4 dp on the left and 18 on the right: equal margins on both sides
+            .padding(
+                start = typeset.margin - 4.dp, end = (typeset.margin - 18.dp).coerceAtLeast(0.dp),
+                top = if (typeset.indent) 0.dp else 6.dp, bottom = if (typeset.indent) 0.dp else 6.dp,
+            )
+            .pointerInput(spans, notes) {
+                detectTapGestures { pos ->
+                    val l = layout ?: return@detectTapGestures
+                    val at = l.getOffsetForPosition(pos)
+                    // the verse whose number, words or note mark lie under the finger
+                    val span = spans.lastOrNull { it.number.first <= at } ?: return@detectTapGestures
+                    when {
+                        span.note != null && at in span.note -> notes[span.verse]?.let(onNoteTap)
+                        at in span.number && at < span.text.first -> onNumberTap(span.verse)
+                        else -> onTap(span.verse)
+                    }
+                }
+            },
+    )
 }
 
 private fun Color.luminanceApprox(): Float = 0.2126f * red + 0.7152f * green + 0.0722f * blue

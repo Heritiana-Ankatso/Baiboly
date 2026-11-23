@@ -190,9 +190,8 @@
     <string name="whats_new_ok">Amena</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Fisafidianana Baiboly: ny fiteny no aseho voalohany ao amin’ny menio eo ambony (Malagasy, Français, English); tsindrio ny fiteny iray hahitana ny dikan-teny ao aminy.</item>
-        <item>Fijerena fanavaozana, raha tianao ihany: Fikirana › Safidy hafa › Fanavaozana. Jereo izao: manontany an’i GitHub ny laharan’ny versiona farany. Jereo ho azy (tsy mandeha raha tsy alefanao): misy fampandrenesana rehefa mivoaka ny versiona vaovao. Tsy misy mombamomba anao na ny famakianao alefa, ary tsy misy zavatra alain’ny fampiharana.</item>
-        <item>Fanitsiana: ny fiteny nofidinao no ampiasain’ny menio sy ny varavarankely misokatra rehetra, ary hita hatramin’ny farany ity lisitra ity.</item>
+        <item>Andininy mitohy: Fikirana › Endrika › Andininy › Mitohy dia mampiseho ny soratra ho fehintsoratra mitohy, toy ny Baiboly vita an-tsoratra, misy laharan’andininy kely. Mandeha toy ny teo aloha ny fanindriana andininy, ny fanamarihana ary ny voaloko.</item>
+        <item>Fandrafetana, ho an’ ny andininy mitohy: Fikirana › Safidy hafa › Fandrafetana. Soratra ankavia na feno, teny tapahina isaky ny vaninteny amin’ ny faran’ andalana (amin’ ny teny malagasy koa), fidirana na elanelana eo anelanelan’ ny fehintsoratra, ary sisiny tery, antonony na malalaka.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -241,6 +240,24 @@
     <string name="spacing_compact">Kely</string>
     <string name="spacing_normal">Antonony</string>
     <string name="spacing_airy">Malalaka</string>
+    <string name="verse_layout">Andininy</string>
+    <string name="layout_lines">Tsirairay</string>
+    <string name="layout_paragraphs">Mitohy</string>
+    <string name="typesetting">Fandrafetana</string>
+    <string name="text_align">Fandaharana</string>
+    <string name="align_left">Ankavia</string>
+    <string name="align_justify">Feno</string>
+    <string name="hyphenation">Fanapahan-teny amin’ ny faran’ andalana</string>
+    <string name="hyph_off">Tsy misy</string>
+    <string name="hyph_on">Isaky ny vaninteny</string>
+    <string name="paragraph_break">Elanelan’ ny fehintsoratra</string>
+    <string name="break_indent">Fidirana</string>
+    <string name="break_space">Elanelana</string>
+    <string name="margins">Sisiny</string>
+    <string name="margin_narrow">Tery</string>
+    <string name="margin_normal">Antonony</string>
+    <string name="margin_wide">Malalaka</string>
+    <string name="typesetting_hint">Ho an’ ny andininy mitohy.</string>
     <string name="reset_appearance">Averina ilay endrika voalohany</string>
     <string name="style">Modely</string>
     <string name="style_manuscript">Sora-tanana</string>
