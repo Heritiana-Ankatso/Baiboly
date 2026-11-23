@@ -297,6 +297,13 @@ class UiAcceptanceTest {
         vm.screen = Screen.Main
         waitFor { rule.onAllNodesWithText("Vakio").fetchSemanticsNodes().isNotEmpty() } // Read tab
         rule.onNodeWithText("Tahiry").assertExists()          // Library tab
+        // Regression: sheets, dialogs and menus open in their own window, which
+        // used to fall back to the phone's language (English here).
+        tag("mode-badge").tap()
+        waitFor { rule.onAllNodesWithText("Safidio ny fomba").fetchSemanticsNodes().isNotEmpty() } // "Choose a mode"
+        assertTrue(rule.onAllNodesWithText("Choose a mode").fetchSemanticsNodes().isEmpty(), "mode sheet in English")
+        rule.onNodeWithText("Tsotra").assertExists()          // Casual
+        tag("mode:Casual").tap()                              // closes the sheet
         assertTrue(vm.str(R.string.default_list_title, "x").startsWith("Fotoam-pivavahana"))
         // after closing and reopening the app
         rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
