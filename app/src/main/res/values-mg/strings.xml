@@ -190,16 +190,8 @@
     <string name="whats_new_ok">Amena</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Modely efatra, samy manana ny endriny manokana: Sora-tanana, Maoderina, Pejy (toy ny famakiana boky elektronika) ary Fitaratra miloko. Azo safidiana koa ny loko, ny soratra, ny lohateny ary ny elanelan’andalana (Fikirana › Endrika).</item>
-        <item>Fomba telo, tsindrio ny marika eo ambony ankavia: Tsotra ho an’ny famakiana isan’andro, Fiangonana (mangina, andalan-tsoratra teo aloha/manaraka ao amin’ny lisitrao), Fianarana (teny am-boalohany, andinin-teny mifandray, rakibolana, sarintany).</item>
-        <item>Fivezivezena tsotra kokoa: tabilao eo ambany, ny lohatenin’ny toko no manokatra ny boky, ny kodiarana no manokatra ny fikirana.</item>
-        <item>Endrika vaovao: taratasy sy ranomainty amin’ny andro, mainty mafana sy volamena amin’ny alina; endrika sy fiteny (MG, FR, EN) ao amin’ny fikirana.</item>
-        <item>Literal Standard Version (anglisy).</item>
-        <item>Andinin-teny mifandray ho an’ny andininy tsirairay (Treasury of Scripture Knowledge).</item>
-        <item>Rakibolana sy lohahevitra ara-Baiboly (anglisy) ary glossaire Martin (frantsay).</item>
-        <item>Sarintany: anarana vitsy kokoa indray mandeha (miseho rehefa ahitsy ny tanàna kely), tetiandro manomboka amin’ny Razambe ka hatramin’ny Fiangonana voalohany miaraka amin’ny sisintany tamin’izany, lalana, endriky ny tany ary sisintany ankehitriny.</item>
-        <item>Famakiana mafy, na dia maty aza ny efijery (alefaso ao amin’ny fikirana). Ny feo amin’ny fitenin’ny soratra ihany no mamaky azy.</item>
-        <item>Baiboly katolika misy an’i Tobia, Jodita, Makabeo, Fahendrena, Ekleziastika ary Baroka: Fikirana › Safidy hafa › Fiangonana sy boky.</item>
+        <item>Fisafidianana Baiboly: ny fiteny no aseho voalohany ao amin’ny menio eo ambony (Malagasy, Français, English); tsindrio ny fiteny iray hahitana ny dikan-teny ao aminy.</item>
+        <item>Fijerena fanavaozana, raha tianao ihany: Fikirana › Safidy hafa › Fanavaozana. Jereo izao: manontany an’i GitHub ny laharan’ny versiona farany. Jereo ho azy (tsy mandeha raha tsy alefanao): misy fampandrenesana rehefa mivoaka ny versiona vaovao. Tsy misy mombamomba anao na ny famakianao alefa, ary tsy misy zavatra alain’ny fampiharana.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
