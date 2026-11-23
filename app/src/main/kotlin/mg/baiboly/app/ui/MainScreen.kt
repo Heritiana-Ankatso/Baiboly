@@ -10,6 +10,9 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.intl.LocaleList
 import mg.baiboly.app.VerseLayout
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -717,6 +720,7 @@ private fun Reader(
                 )
                 is ReaderRow.Paragraph -> ParagraphBlock(
                     verses = r.verses,
+                    lang = lang,
                     textSize = textSize,
                     focused = { v -> focus?.contains(v) == true || reading == v },
                     selected = selected,
@@ -839,6 +843,7 @@ private class VerseSpan(val verse: Int, val number: IntRange, val text: IntRange
 @Composable
 private fun ParagraphBlock(
     verses: List<ReaderRow.Verse>,
+    lang: String,
     textSize: Float,
     focused: (Int) -> Boolean,
     selected: Set<Int>,
@@ -854,7 +859,7 @@ private fun ParagraphBlock(
     val initial = dropCaps()
     val titleFamily = TitleSerif
     val marks = verses.map { v -> Triple(focused(v.verse), v.verse in selected, highlights(v.verse)) }
-    val (annotated, spans) = remember(verses, marks, notes.keys, dark, textSize, ornament, initial, selectedWash, titleFamily) {
+    val (annotated, spans) = remember(verses, lang, marks, notes.keys, dark, textSize, ornament, initial, selectedWash, titleFamily) {
         val spans = mutableListOf<VerseSpan>()
         val text = buildAnnotatedString {
             verses.forEachIndexed { i, v ->
@@ -872,13 +877,17 @@ private fun ParagraphBlock(
                 }
                 val numberEnd = length - 1
                 val textStart = length
-                append(v.text)
+                // Malagasy gets its break points here; other languages use the system's patterns
+                val (shown, at) = if (lang == "mg") malagasySoftHyphens(v.text) else v.text to null
+                append(shown)
                 if (dropInitial) addStyle(SpanStyle(fontFamily = titleFamily, fontWeight = FontWeight.Bold,
                     fontSize = (textSize * 1.9f).sp, color = ornament.rubric), textStart, textStart + 1)
                 for ((s, e, colour) in hl) {
                     val c = Color(colour).copy(alpha = if (dark) 0.34f else 0.55f)
-                    val hs = textStart + (s ?: 0).coerceIn(0, v.text.length)
-                    val he = textStart + (e ?: v.text.length).coerceIn(hs - textStart, v.text.length)
+                    val os = (s ?: 0).coerceIn(0, v.text.length)
+                    val oe = (e ?: v.text.length).coerceIn(os, v.text.length)
+                    val hs = textStart + (at?.get(os) ?: os)
+                    val he = textStart + (at?.get(oe) ?: oe)
                     addStyle(SpanStyle(background = c), hs, he)
                 }
                 val textEnd = length
@@ -911,13 +920,22 @@ private fun ParagraphBlock(
         lineHeight = (textSize * LocalReading.current.lineSpacing).sp,
         fontFamily = TextSerif,
         color = MaterialTheme.colorScheme.onSurface,
-        style = MaterialTheme.typography.bodyLarge.copy(textIndent = TextIndent(firstLine = (textSize * 1.2f).sp)),
+        // set as a printed page: justified, hyphenated in the text's own language,
+        // paragraphs marked by their indent alone
+        style = MaterialTheme.typography.bodyLarge.copy(
+            textIndent = TextIndent(firstLine = (textSize * 1.2f).sp),
+            textAlign = TextAlign.Justify,
+            hyphens = Hyphens.Auto,
+            lineBreak = LineBreak.Paragraph,
+            localeList = LocaleList(lang),
+        ),
         onTextLayout = { layout = it },
         modifier = Modifier
             .fillMaxWidth()
             .testTag("paragraph:$first")
             // inside the padding, so tap positions match the text layout
-            .padding(start = 20.dp, top = 6.dp, bottom = 6.dp, end = 4.dp)
+            // with the list's own padding (4 left, 18 right): 24 dp margins on both sides
+            .padding(start = 20.dp, end = 6.dp)
             .pointerInput(spans, notes) {
                 detectTapGestures { pos ->
                     val l = layout ?: return@detectTapGestures
