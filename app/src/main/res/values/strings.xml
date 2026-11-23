@@ -210,6 +210,7 @@
         <item>Confessions: the Apostles’, Nicene and Athanasian Creeds and the Reformed confessions and catechisms (Heidelberg, Belgic, Dort, Westminster…) in their historic English text, with proof texts that open the verse, and the councils and assemblies that issued them. The Tradition setting chooses what is shown; other traditions are under Go deeper.</item>
         <item>The Study panel of a passage adds People and events, and the confession articles that cite it.</item>
         <item>Saved lists: Delete now really removes the list, and New list no longer adds a second empty list.</item>
+        <item>Study mode: Back to my place now appears only just after a jump (a reference, a search result, Found N verses) and goes when you read on; it no longer stays on every page after a service. In Church mode it works as before.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>

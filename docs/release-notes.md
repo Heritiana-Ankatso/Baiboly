@@ -10,6 +10,7 @@
   * The **Tradition** setting decides what is shown: *Protestant* shows the creeds and the Reformed documents; *Catholic* shows the creeds, and the Reformed documents only under *Go deeper: other traditions*, each marked as such.
   * Not included yet: Catholic and Orthodox documents, other Reformed texts known only in modern translations under copyright (Second Helvetic Confession, Chalcedonian Definition), and Malagasy or French texts (none with a free licence was found).
 * **Study a passage** adds *People and events* and *Confessions*: the articles and answers that cite the passage.
+* **Back to my place, in Study mode,** now appears only just after a jump (a cross-reference, a search result, *Found N verses*) and goes once you read on (Books, previous or next chapter). It used to stay on every page whenever the service list had a current passage. Church mode is unchanged: the button shows whenever you are away from the list passage.
 * **Saved lists:** *Delete* now really removes the list (deleting the list in use opens your most recent other list instead of putting an empty list of the same name in its place), and *New list* no longer adds a second empty list.
 
 ## Baiboly 1.5.0

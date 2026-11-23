@@ -444,19 +444,27 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Opens a passage that is not the current list item (Browse, search, history…): Back to my place appears. */
     fun openPassage(p: Passage) {
+        // a jump (a reference, a search result, Found N verses…): Back to my place is offered
+        jumpedFromList = true
         go(ReaderLocation(p.book, p.chapter, p), p)
         screen = Screen.Main
     }
 
-    fun openChapter(book: Int, chapter: Int) = openPassage(Passage(book, chapter))
+    /** A chapter chosen in Books: reading elsewhere on purpose, so Study mode drops Back to my place. */
+    fun openChapter(book: Int, chapter: Int) {
+        openPassage(Passage(book, chapter))
+        jumpedFromList = false
+    }
 
     /** Next chapter in reading order (Catholic order when the text has the deuterocanonical books). */
     fun nextChapter() {
+        jumpedFromList = false
         Canon.nextChapter(location.book, location.chapter, chapterCounts.ifEmpty { null })
             ?.let { (b, c) -> go(ReaderLocation(b, c, null), null) }
     }
 
     fun previousChapter() {
+        jumpedFromList = false
         Canon.previousChapter(location.book, location.chapter, chapterCounts.ifEmpty { null })
             ?.let { (b, c) -> go(ReaderLocation(b, c, null), null) }
     }
@@ -473,7 +481,23 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             return location.focus != item.passage || location.book != item.passage.book || location.chapter != item.passage.chapter
         }
 
+    /**
+     * Set when the reader jumps away from the list passage; cleared when they go back, or read on
+     * elsewhere by choice (Books, previous / next chapter). Not saved: a restart clears it.
+     */
+    var jumpedFromList by mutableStateOf(false)
+        private set
+
+    /**
+     * Back to my place: in Church mode whenever the reader is away from the list passage; in Study
+     * mode only just after a jump from it. (Study mode used to show it whenever a list had a current
+     * passage, so after a service it stayed on every page.)
+     */
+    val showBackToMyPlace: Boolean
+        get() = isAway && (mode == AppMode.Church || (mode == AppMode.Study && jumpedFromList))
+
     fun backToMyPlace() {
+        jumpedFromList = false
         list.currentItem?.let { go(ReaderLocation(it.passage.book, it.passage.chapter, it.passage), null) }
     }
 
@@ -894,6 +918,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun selectItem(index: Int) {
         if (index !in list.items.indices) return
+        jumpedFromList = false
         updateList(list.select(index))
         val p = list.items[index].passage
         go(ReaderLocation(p.book, p.chapter, p), p)

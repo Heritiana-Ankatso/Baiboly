@@ -230,7 +230,7 @@ fun MainScreen(vm: AppViewModel) {
                 )
                 ChapterOverlay(vm)
                 // Church, and Study after a jump (Found N verses): one tap back to the list passage.
-                if ((church || vm.mode == AppMode.Study) && vm.isAway) {
+                if (vm.showBackToMyPlace) {
                     ExtendedFloatingActionButton(
                         onClick = { vm.backToMyPlace() },
                         icon = { Icon(Icons.AutoMirrored.Outlined.Undo, null) },

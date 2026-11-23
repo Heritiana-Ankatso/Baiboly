@@ -193,6 +193,7 @@
         <item>Confessions : les symboles des Apôtres, de Nicée et d’Athanase et les confessions et catéchismes réformés (Heidelberg, Confession belge, Dordrecht, Westminster…) dans leur texte anglais historique, avec les textes de preuve qui ouvrent le verset, et les conciles et assemblées qui les ont publiés. Le réglage Tradition choisit ce qui est montré ; les autres traditions sont sous Approfondir.</item>
         <item>Le panneau Étude d’un passage ajoute Personnages et événements, et les articles de confession qui le citent.</item>
         <item>Listes enregistrées : Supprimer retire vraiment la liste, et Nouvelle liste n’ajoute plus une seconde liste vide.</item>
+        <item>Mode Étude : Retour à ma place n’apparaît plus qu’après un saut (une référence, un résultat de recherche, N versets trouvés) et disparaît quand vous lisez plus loin ; il ne reste plus sur chaque page après un culte. En mode Église, rien ne change.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
