@@ -37,14 +37,16 @@ Common to A1-A3: each text or event is linked to the Bible passages it cites or 
 ### A3. Tradition as the master setting
 
 Decided by the user:
-- The **tradition setting governs every part of the app**: Bible canon and offered translations, confessions, councils, and so on. Today the app has Protestant and Catholic only (Advanced settings); Orthodox and finer divisions (Reformed, Lutheran, Anglican, ...) would extend it.
-- **Other traditions appear only in the "go deeper" section of study mode**, and each item is **clearly marked** as belonging to another tradition.
+- The setting has three values: **Protestant / Catholic / Orthodox**. Today the app has Protestant and Catholic only (Advanced settings); Orthodox is to be added.
+- The **tradition setting governs every part of the app**: Bible canon and offered translations, confessions, councils, and so on.
+- **The councils and confessions of the selected tradition show in normal study mode.**
+- **Other traditions' councils and confessions appear only in the "go deeper" section of study mode**, and each item is **clearly marked** as belonging to another tradition.
 
 Open points:
-- Granularity: "Protestant" is not one tradition (Reformed, Lutheran, Anglican, Baptist differ). Decide whether the setting stays coarse or becomes finer, and how the finer values map to a canon (many traditions share one canon). [VERIFY]
+- "Protestant" covers Reformed, Lutheran, Anglican and Baptist, which differ in confessions. Decide how confessions are shown inside Protestant (all together, grouped by family, with Reformed first as the app's standpoint). [VERIFY]
 - How "marked as such" looks: a label naming the tradition, e.g. "Catholic: Council of Trent", plus a short neutral note on that tradition's view of its authority.
-- Councils: the Orthodox count only the first seven as ecumenical; Catholics count more. Each tradition's own count drives the main view. [VERIFY]
-- Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac) are a separate family from Eastern Orthodox, with different canons and a different view of Chalcedon; they need their own entries. [VERIFY]
+- Councils: the Orthodox count only the first seven as ecumenical; Catholics count more. Each tradition's own count drives its normal-mode list. [VERIFY]
+- Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac) are a separate family from Eastern Orthodox, with different canons and a different view of Chalcedon. Decide whether they fall under "Orthodox" or get separate entries in go deeper. [VERIFY]
 - Malagasy context: Orthodox presence in Madagascar is very small, if any, so this is for completeness and study. [VERIFY]
 
 ## B. Bible content
