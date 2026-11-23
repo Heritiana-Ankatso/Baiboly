@@ -749,6 +749,59 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    // ------------------------------------------------------------ quick look (selected verses)
+
+    /**
+     * What the small card shown with selected verses offers (Settings, Advanced, Quick look):
+     * "translation" (the passage in another Bible), "units", "people", "places", "confessions".
+     * By default the passage in another language and the units it names.
+     */
+    var quickLookItems by mutableStateOf(prefs.getStringSet("quick_look", null)?.toSet() ?: setOf("translation", "units"))
+        private set
+
+    fun changeQuickLookItem(item: String, on: Boolean) {
+        quickLookItems = if (on) quickLookItems + item else quickLookItems - item
+        prefs.edit().putStringSet("quick_look", quickLookItems).apply()
+    }
+
+    /** The Bible the quick look shows the passage in ("" = chosen by the app). */
+    var quickLookTranslation by mutableStateOf(prefs.getString("quick_look_translation", "") ?: "")
+        private set
+
+    fun changeQuickLookTranslation(id: String) {
+        quickLookTranslation = id
+        prefs.edit().putString("quick_look_translation", id).apply()
+    }
+
+    /**
+     * The other Bible for the quick look: the one chosen, unless it is the one being read; else one
+     * in the interface language (or French, then English, when reading in it), never the text being read.
+     */
+    fun quickLookTarget(): Translation? {
+        val current = translations.firstOrNull { it.id == translationId }
+        val offered = visibleTranslations.filter { it.id != translationId }
+        offered.firstOrNull { it.id == quickLookTranslation }?.let { return it }
+        val ui = uiLanguage.ifEmpty { java.util.Locale.getDefault().language }
+        val preferred = when (ui) { "fr" -> "lsg1910"; "en" -> "kjv"; else -> BibleRepository.PRIMARY }
+        return offered.firstOrNull { it.id == preferred && it.lang != current?.lang }
+            ?: offered.firstOrNull { it.lang != current?.lang }
+            ?: offered.firstOrNull()
+    }
+
+    /** The passage in one other Bible only (each Bible's file is copied on first use), numbering matched. */
+    suspend fun passageIn(p: Passage, t: Translation): Compared? = withContext(io) {
+        val fromMg = translationId == BibleRepository.PRIMARY
+        fun kjv(v: Int) = if (fromMg) study.mgToKjv(VerseRef(p.book, p.chapter, v)) else VerseRef(p.book, p.chapter, v)
+        val a = kjv(p.verseStart)
+        val b = kjv(p.verseEnd)
+        val (s, e) = if (t.id == BibleRepository.PRIMARY) study.kjvToMg(a) to study.kjvToMg(b) else a to b
+        val q = runCatching { Passage(p.book, s.chapter, s.verse, if (e.chapter == s.chapter) maxOf(s.verse, e.verse) else s.verse) }.getOrNull()
+            ?: return@withContext null
+        val text = runCatching { bible.verses(t.id, q.book, q.chapter, q.verseStart, q.verseEnd) }.getOrDefault(emptyList())
+            .joinToString(" ") { if (q.verseStart != q.verseEnd) "${it.verse} ${it.text}" else it.text }
+        if (text.isBlank()) null else Compared(t, q, text, t.id == "dra" && p.book == 19)
+    }
+
     /** Opens the passage in another Bible. */
     fun readIn(c: Compared) {
         if (c.translation.id != translationId) { translationId = c.translation.id; chapter = null; persistState() }

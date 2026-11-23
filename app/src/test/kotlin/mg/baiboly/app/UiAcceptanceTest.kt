@@ -598,6 +598,37 @@ class UiAcceptanceTest {
     }
 
     /** A selected passage: the same verses in the other Bibles, original words, places, units, dictionary. */
+    /**
+     * Requested: selecting verses shows a small menu, configurable in Settings, Advanced; by default the
+     * passage in another language and the unit conversion when the passage names a unit.
+     */
+    @Test fun quickLook() {
+        ready()
+        vm.chooseUiLanguage("en")
+        vm.setTranslation("mg1865")
+        vm.openPassage(Passage(1, 6, 15, 15))
+        waitFor { vm.chapter?.book == 1 && vm.chapter?.chapter == 6 }
+        tag("reader").performScrollToKey("v15")
+        tag("verse:15").tap()
+        // the English Bible (interface language) and the cubit, converted
+        waitFor { runCatching { tag("quick-look-translation").assertExists(); true }.getOrDefault(false) }
+        assertTrue(rule.onAllNodesWithText("three hundred cubits", substring = true).fetchSemanticsNodes().isNotEmpty())
+        waitFor { runCatching { tag("quick-look-unit:cubit").assertExists(); true }.getOrDefault(false) }
+        // the settings decide: no units, then a chosen Bible
+        vm.changeQuickLookItem("units", false)
+        vm.changeQuickLookTranslation("lsg1910")
+        rule.waitForIdle()
+        tag("verse:15").tap(); tag("verse:15").tap() // a new selection
+        waitFor { runCatching { tag("quick-look-translation").assertExists(); true }.getOrDefault(false) }
+        assertTrue(rule.onAllNodesWithTag("quick-look-unit:cubit", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+        assertTrue(rule.onAllNodesWithText("trois cents coudées", substring = true).fetchSemanticsNodes().isNotEmpty())
+        // closed by the user; nothing at all when every item is off
+        tag("quick-look-close").tap()
+        assertTrue(rule.onAllNodesWithTag("quick-look").fetchSemanticsNodes().isEmpty())
+        vm.changeQuickLookItem("translation", false)
+        assertTrue(vm.quickLookItems.isEmpty())
+    }
+
     @Test fun passageStudyTools() {
         ready()
         // compact interface, text down to 10, screen kept awake: the defaults

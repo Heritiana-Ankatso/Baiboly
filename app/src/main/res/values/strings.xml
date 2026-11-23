@@ -501,4 +501,11 @@
     <string name="tl_chart">Chart</string>
     <string name="tl_list">List</string>
     <string name="tl_hint">Pinch or double-tap to zoom; tap an event or a bar to open it.</string>
+    <!-- Quick look -->
+    <string name="ql_title">Quick look</string>
+    <string name="ql_translation">The passage in another Bible</string>
+    <string name="ql_cited">Cited by %1$d articles of your confessions</string>
+    <string name="ql_bible">Other Bible</string>
+    <string name="ql_bible_auto">Automatic</string>
+    <string name="ql_settings_hint">Shown above the actions when verses are selected; a tap opens the full Study panel.</string>
 </resources>

@@ -506,7 +506,7 @@ fun SettingsScreen(vm: AppViewModel) {
                     // rarely changed: kept out of the way
                     SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { vm.settingsPage = "advanced" }
                 }
-                "advanced" -> { traditionContent(); TypesettingSettings(vm); UpdateSettings(vm) }
+                "advanced" -> { traditionContent(); QuickLookSettings(vm); TypesettingSettings(vm); UpdateSettings(vm) }
                 else -> groups.firstOrNull { it.key == current }?.content?.invoke()
             }
             Spacer(Modifier.height(16.dp))
@@ -968,6 +968,38 @@ fun AboutScreen(vm: AppViewModel) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 12.dp),
             )
+        }
+    }
+}
+
+/** Settings, Advanced: what the quick look shows with selected verses, and in which Bible. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun QuickLookSettings(vm: AppViewModel) {
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp).testTag("settings-quick-look")) {
+        Text(stringResource(R.string.ql_title), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.ql_settings_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        QUICK_LOOK_ITEMS.forEach { item ->
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.changeQuickLookItem(item, item !in vm.quickLookItems) }
+                    .testTag("settings-ql:$item"),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(quickLookItemLabel(item), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                androidx.compose.material3.Switch(checked = item in vm.quickLookItems, onCheckedChange = null)
+            }
+        }
+        if ("translation" in vm.quickLookItems) {
+            Text(stringResource(R.string.ql_bible), style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp))
+            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation.isEmpty(), onClick = { vm.changeQuickLookTranslation("") },
+                    label = { Text(stringResource(R.string.ql_bible_auto)) }, modifier = Modifier.testTag("settings-ql-bible:auto"))
+                vm.visibleTranslations.forEach { t ->
+                    androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation == t.id, onClick = { vm.changeQuickLookTranslation(t.id) },
+                        label = { Text(t.shortName) }, modifier = Modifier.testTag("settings-ql-bible:${t.id}"))
+                }
+            }
         }
     }
 }

@@ -484,4 +484,11 @@
     <string name="tl_chart">Frise</string>
     <string name="tl_list">Liste</string>
     <string name="tl_hint">Pincez ou touchez deux fois pour zoomer ; touchez un événement ou une barre pour l’ouvrir.</string>
+    <!-- Quick look -->
+    <string name="ql_title">Aperçu</string>
+    <string name="ql_translation">Le passage dans une autre Bible</string>
+    <string name="ql_cited">Cité par %1$d articles de vos confessions</string>
+    <string name="ql_bible">Autre Bible</string>
+    <string name="ql_bible_auto">Automatique</string>
+    <string name="ql_settings_hint">Affiché au-dessus des actions quand des versets sont sélectionnés ; un toucher ouvre le panneau Étude complet.</string>
 </resources>

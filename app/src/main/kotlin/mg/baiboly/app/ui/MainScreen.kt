@@ -145,6 +145,9 @@ fun MainScreen(vm: AppViewModel) {
     var noteDraft by remember { mutableStateOf<NoteDraft?>(null) }
     var xrefVerse by remember { mutableStateOf<Int?>(null) }
     var toolsPassage by remember { mutableStateOf<Passage?>(null) }
+    var toolsTab by remember { mutableStateOf(PassageTab.Translations) }
+    // the quick look closed by the user for this selection (it comes back with the next one)
+    var quickLookClosed by remember { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
     val clipboard = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
@@ -191,7 +194,7 @@ fun MainScreen(vm: AppViewModel) {
                         },
                         onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
                         onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
-                        onStudy = { toolsPassage = Passage(loc.book, loc.chapter, selected.min(), selected.max()) },
+                        onStudy = { toolsTab = PassageTab.Translations; toolsPassage = Passage(loc.book, loc.chapter, selected.min(), selected.max()) },
                         onWords = if (selected.size == 1) ({ wordsVerse = selected.first() }) else null,
                         onCrossRefs = if (selected.size == 1 && vm.mode == AppMode.Study) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
                         onListen = if (vm.readAloudEnabled && !church) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
@@ -229,6 +232,17 @@ fun MainScreen(vm: AppViewModel) {
                     onNoteTap = { n -> noteDraft = NoteDraft(n.passage, n.text, n.id) },
                 )
                 ChapterOverlay(vm)
+                // quick look: the passage in another language, its units… (Settings, Advanced, Quick look)
+                LaunchedEffect(selected) { quickLookClosed = false }
+                if (selected.isNotEmpty() && !quickLookClosed && toolsPassage == null) {
+                    val qp = Passage(loc.book, loc.chapter, selected.min(), selected.max())
+                    QuickLookCard(
+                        vm, qp,
+                        onOpen = { tab -> toolsTab = tab; toolsPassage = qp },
+                        onClose = { quickLookClosed = true },
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                    )
+                }
                 // Church, and Study after a jump (Found N verses): one tap back to the list passage.
                 if (vm.showBackToMyPlace) {
                     ExtendedFloatingActionButton(
@@ -252,7 +266,7 @@ fun MainScreen(vm: AppViewModel) {
     if (showAdd) AddPanel(vm, onDismiss = { showAdd = false })
     if (showBrowse) BrowseSheet(vm, onDismiss = { showBrowse = false })
     studyVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, onDismiss = { studyVerse = null }) }
-    toolsPassage?.let { p -> PassageToolsSheet(vm, p, onDismiss = { toolsPassage = null; selected = emptySet() }) }
+    toolsPassage?.let { p -> PassageToolsSheet(vm, p, toolsTab, onDismiss = { toolsPassage = null; selected = emptySet() }) }
     xrefVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, startOnCrossRefs = true, onDismiss = { xrefVerse = null }) }
     if (vm.showWhatsNew) WhatsNewSheet(vm.versionName, onDismiss = { vm.dismissWhatsNew() })
     noteDraft?.let { d ->

@@ -486,4 +486,11 @@
     <string name="tl_chart">Sary</string>
     <string name="tl_list">Lisitra</string>
     <string name="tl_hint">Atsofohy na tsindrio indroa raha hanakaiky; tsindrio ny zava-nitranga na ny tsipika raha hanokatra azy.</string>
+    <!-- Quick look -->
+    <string name="ql_title">Topy maso</string>
+    <string name="ql_translation">Ilay andalan-teny amin’ny Baiboly hafa</string>
+    <string name="ql_cited">Tononin’ny andininy %1$d amin’ny fanekem-pinoanao</string>
+    <string name="ql_bible">Baiboly hafa</string>
+    <string name="ql_bible_auto">Ho azy</string>
+    <string name="ql_settings_hint">Miseho eo ambonin’ny asa rehefa misy andininy voafidy; tsindrio raha hanokatra ny takelaka Fianarana feno.</string>
 </resources>
