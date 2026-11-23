@@ -69,7 +69,9 @@ class JustifyProbeTest {
             Case("superscript+space", verses(true, false, true, false), base),
             Case("small-number+nbsp", verses(true, true, false, false), base),
             Case("indent", plain, base.copy(textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 22.sp))),
-            Case("reader-like", verses(true, true, true, true), mgHyph.copy(textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 22.sp))),
+            Case("letter-spacing-0.5sp", plain, base.copy(letterSpacing = 0.5.sp)),
+            Case("reader-like+spacing", verses(true, true, true, true), mgHyph.copy(letterSpacing = 0.5.sp,
+                textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 22.sp))),
         )
         rule.setContent {
             Column(Modifier.background(Color.White)) {

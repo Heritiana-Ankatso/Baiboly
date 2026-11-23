@@ -854,6 +854,10 @@ private data class Typeset(
 ) {
     /** Lines break in the text's own language: system patterns for French and English. */
     fun style(base: androidx.compose.ui.text.TextStyle) = base.copy(
+        // No letter spacing in the Bible text (Material's bodyLarge adds 0.5sp). Book text has none, and on
+        // Android 15 justified lines with letter spacing stop short of the right edge by the spacing of the
+        // whole line (~one character), so the right margin looked twice the left. Test: ReaderMarginTest.
+        letterSpacing = 0.sp,
         textAlign = if (justify) TextAlign.Justify else TextAlign.Start,
         hyphens = if (hyphenate) Hyphens.Auto else Hyphens.None,
         lineBreak = if (justify) LineBreak.Paragraph else LineBreak.Simple,
