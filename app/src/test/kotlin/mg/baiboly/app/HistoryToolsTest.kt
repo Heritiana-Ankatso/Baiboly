@@ -61,13 +61,15 @@ class HistoryToolsTest {
     @Test fun data() {
         settle { vm.ready }
         val h = vm.chronicle
-        // B1: Abraham, his father Terah, Isaac among his children; the father line reaches Adam through Noah
+        // B1: Abraham, his father Terah, Isaac among his children. The father line goes through Noah
+        // to Adam and, as in Luke 3:38 ("which was the son of Adam, which was the son of God"), to God.
         val abraham = h.searchPeople("Abraham").first { it.name == "Abraham" }
         val rel = h.relatives(abraham.id)
         assertTrue(rel.any { it.kind == "father" && it.person.name == "Terah" })
         assertTrue(rel.any { it.kind == "child" && it.person.name == "Isaac" })
         val line = h.fatherLine(abraham.id).map { it.name }
-        assertTrue("Noah" in line && line.last() == "Adam", "father line: $line")
+        assertTrue("Noah" in line && line.takeLast(2) == listOf("Adam", "God"), "father line: $line")
+        assertTrue("Cainan (son of Arphaxad)" in line, "Luke 3:36 keeps the second Cainan: $line")
         // B2: Exodus year after Jones (1491 BC = astronomical -1490), in order
         assertEquals(-1490, h.timeline.first { it.title == "Exodus from Egypt" }.year)
         assertTrue(h.timeline.zipWithNext().all { (a, b) -> a.year <= b.year }, "timeline in order")
@@ -118,7 +120,9 @@ class HistoryToolsTest {
         kotlinx.coroutines.runBlocking {
             assertTrue(vm.creedsCiting(p).isNotEmpty())
             assertTrue(vm.peopleInPassage(Passage(1, 22, 1, 3)).any { it.name == "Abraham" })
-            assertTrue(vm.eventsInPassage(Passage(1, 22, 1, 3)).isNotEmpty())
+            // Ex 12:37-41, the departure from Egypt: Moses and Aaron, and the event itself
+            assertTrue(vm.peopleInPassage(Passage(2, 12, 37, 43)).any { it.name == "Moses" })
+            assertTrue(vm.eventsInPassage(Passage(2, 12, 37, 41)).any { it.title == "Exodus from Egypt" })
         }
     }
 }
