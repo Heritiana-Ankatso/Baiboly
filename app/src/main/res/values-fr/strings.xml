@@ -185,11 +185,12 @@
     <string name="lang_french">française</string>
     <string name="lang_english">anglaise</string>
     <string name="whats_new">Nouveautés</string>
-    <string name="whats_new_ok">Amen</string>
+    <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
         <item>Versets en paragraphes : Réglages › Apparence › Versets › Paragraphes présente le texte en paragraphes suivis, comme une Bible imprimée, avec de petits numéros de verset. Toucher un verset, les notes et les surlignages fonctionnent comme avant.</item>
         <item>Mise en page, pour les versets en paragraphes : Réglages › Avancé › Mise en page. Texte aligné à gauche ou justifié, césure par syllabe en fin de ligne (aussi en malgache), un retrait ou un espace entre les paragraphes, et des marges étroites, normales ou larges.</item>
+        <item>Plus simple : le bouton ici s’appelle désormais Fermer, et les Réglages ne répètent plus le choix du mode (utilisez le badge en haut à gauche).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>

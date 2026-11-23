@@ -187,11 +187,12 @@
     <string name="lang_french">frantsay</string>
     <string name="lang_english">anglisy</string>
     <string name="whats_new">Vaovao</string>
-    <string name="whats_new_ok">Amena</string>
+    <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
         <item>Andininy mitohy: Fikirana › Endrika › Andininy › Mitohy dia mampiseho ny soratra ho fehintsoratra mitohy, toy ny Baiboly vita an-tsoratra, misy laharan’andininy kely. Mandeha toy ny teo aloha ny fanindriana andininy, ny fanamarihana ary ny voaloko.</item>
         <item>Fandrafetana, ho an’ ny andininy mitohy: Fikirana › Safidy hafa › Fandrafetana. Soratra ankavia na feno, teny tapahina isaky ny vaninteny amin’ ny faran’ andalana (amin’ ny teny malagasy koa), fidirana na elanelana eo anelanelan’ ny fehintsoratra, ary sisiny tery, antonony na malalaka.</item>
+        <item>Tsotra kokoa: Hidio no anaran’ ity bokotra ity izao, ary tsy averina ao amin’ ny Fikirana intsony ny fisafidianana fomba fampiasana (ampiasao ny marika eo ankavia ambony).</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>

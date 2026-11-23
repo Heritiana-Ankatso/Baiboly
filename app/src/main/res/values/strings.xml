@@ -202,11 +202,12 @@
     <string name="lang_french">French</string>
     <string name="lang_english">English</string>
     <string name="whats_new">What’s new</string>
-    <string name="whats_new_ok">Amen</string>
+    <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
         <item>Verses as paragraphs: Settings › Appearance › Verses › Paragraphs sets the text as running paragraphs, like a printed Bible, with small verse numbers. Tapping a verse, notes and highlights work as before.</item>
         <item>Typesetting, for verses as paragraphs: Settings › Advanced › Typesetting. Text aligned left or justified, words broken by syllable at line ends (also in Malagasy), an indent or a space between paragraphs, and narrow, normal or wide margins.</item>
+        <item>Simpler: the button here now reads Close, and Settings no longer repeats the mode choice (use the badge at the top left).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>

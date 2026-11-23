@@ -374,13 +374,13 @@ class UiAcceptanceTest {
         ready()
         vm.showWhatsNew = true
         waitFor { rule.onAllNodesWithTag("whats-new").fetchSemanticsNodes().isNotEmpty() }
-        rule.onNodeWithText("Amen").assertIsDisplayed()
+        rule.onNodeWithText("Close").assertIsDisplayed()
         val items = UiLanguage.wrap(rule.activity, "en").resources.getStringArray(R.array.whats_new_items)
         val last = items.last()
         tag("whats-new-list").performScrollToNode(hasText(last))
         rule.onNodeWithText(last).assertIsDisplayed()
-        rule.onNodeWithText("Amen").assertIsDisplayed()
-        rule.onNodeWithText("Amen").tap()
+        rule.onNodeWithText("Close").assertIsDisplayed()
+        rule.onNodeWithText("Close").tap()
         waitFor { !vm.showWhatsNew }
     }
 
