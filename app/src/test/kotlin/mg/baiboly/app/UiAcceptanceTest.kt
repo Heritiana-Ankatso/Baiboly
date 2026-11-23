@@ -6,6 +6,9 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performSemanticsAction
@@ -310,6 +313,26 @@ class UiAcceptanceTest {
         rule.activityRule.scenario.recreate()
         waitFor { vm.ready && vm.chapter != null }
         waitFor { rule.onAllNodesWithText("Vakio").fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    /**
+     * Regression: on a short screen "What's new" cut its list off and pushed
+     * the button out of the sheet. The list must scroll to its last item and
+     * the button stay visible.
+     */
+    @Config(qualifiers = "w360dp-h400dp-xxhdpi")
+    @Test fun whatsNewScrollsOnShortScreen() {
+        ready()
+        vm.showWhatsNew = true
+        waitFor { rule.onAllNodesWithTag("whats-new").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Amen").assertIsDisplayed()
+        val items = UiLanguage.wrap(rule.activity, "en").resources.getStringArray(R.array.whats_new_items)
+        val last = items.last()
+        tag("whats-new-list").performScrollToNode(hasText(last))
+        rule.onNodeWithText(last).assertIsDisplayed()
+        rule.onNodeWithText("Amen").assertIsDisplayed()
+        rule.onNodeWithText("Amen").tap()
+        waitFor { !vm.showWhatsNew }
     }
 
     /** The default Bible is set with one tap on its star; it is what the app opens with. */
