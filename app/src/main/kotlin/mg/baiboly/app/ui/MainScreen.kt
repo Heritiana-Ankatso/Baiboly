@@ -89,6 +89,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.Color
@@ -389,15 +390,41 @@ fun studySymbol(book: Int): String = if (Canon.book(book).isHebrewOriginal) "א"
 fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
+        // The menu opens on the languages only; each one unfolds its translations.
+        // The state lives inside the menu, so it starts folded every time it opens.
+        var open by remember { mutableStateOf(setOf<String>()) }
         vm.visibleTranslations.groupBy { it.lang }.forEach { (lang, ts) ->
-            Text(
-                langName[lang] ?: lang,
-                style = MaterialTheme.typography.labelLarge,
-                color = LocalOrnament.current.gold,
-                letterSpacing = 2.sp,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+            val isOpen = lang in open
+            val holdsCurrent = ts.any { it.id == vm.translationId }
+            DropdownMenuItem(
+                text = {
+                    Column {
+                        Text(
+                            langName[lang] ?: lang,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = LocalOrnament.current.gold,
+                            letterSpacing = 2.sp,
+                            fontWeight = if (holdsCurrent) FontWeight.Bold else FontWeight.Normal,
+                        )
+                        // What the language holds, so the right one is found without opening it.
+                        Text(
+                            ts.joinToString(" · ") { it.shortName },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                trailingIcon = {
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.rotate(if (isOpen) 180f else 0f),
+                    )
+                },
+                onClick = { open = if (isOpen) open - lang else open + lang },
+                modifier = Modifier.heightIn(min = 56.dp).testTag("lang:$lang"),
             )
-            ts.forEach { t ->
+            if (isOpen) ts.forEach { t ->
                 DropdownMenuItem(
                     text = {
                         Column {
