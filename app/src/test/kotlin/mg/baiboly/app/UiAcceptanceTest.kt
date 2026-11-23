@@ -98,6 +98,8 @@ class UiAcceptanceTest {
         if (vm.mode != AppMode.Casual) vm.changeMode(AppMode.Casual)
         if (vm.tradition != Tradition.Protestant) vm.changeTradition(Tradition.Protestant)
         if (vm.verseLayout != VerseLayout.Lines) vm.changeVerseLayout(VerseLayout.Lines)
+        vm.changeJustify(true); vm.changeHyphenate(true)
+        vm.changeParagraphBreak(ParagraphBreak.Indent); vm.changePageMargin(PageMargin.Normal)
         vm.screen = Screen.Main
         if (!vm.list.isEmpty) {
             val old = vm.list.id
@@ -298,6 +300,16 @@ class UiAcceptanceTest {
         tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
         tag("settings-layout:Paragraphs").tap()
         assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
+        // the typesetting details are under Advanced
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-advanced"))
+        assertTrue(rule.onAllNodesWithTag("settings-justify:false", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+        tag("settings-advanced").tap()
+        for (t in listOf("settings-justify:false", "settings-hyphenate:false", "settings-paragraph-break:Space", "settings-margins:Wide")) {
+            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag(t))
+            tag(t).tap()
+        }
+        assertFalse(vm.justify); assertFalse(vm.hyphenate)
+        assertEquals(ParagraphBreak.Space, vm.paragraphBreak); assertEquals(PageMargin.Wide, vm.pageMargin)
         vm.screen = Screen.Main
         vm.openChapter(43, 1)
         waitFor { vm.chapter?.book == 43 && vm.chapter?.chapter == 1 }
@@ -317,7 +329,12 @@ class UiAcceptanceTest {
         rule.activityRule.scenario.recreate()
         waitFor { vm !== old && vm.ready }
         assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
-        vm.changeVerseLayout(VerseLayout.Lines)
+        assertEquals(PageMargin.Wide, vm.pageMargin)
+        // resetting the appearance brings back the defaults
+        vm.resetAppearance()
+        assertEquals(VerseLayout.Lines, vm.verseLayout)
+        assertTrue(vm.justify && vm.hyphenate)
+        assertEquals(ParagraphBreak.Indent, vm.paragraphBreak); assertEquals(PageMargin.Normal, vm.pageMargin)
     }
 
     /** Malagasy interface: chosen in Settings, applied at once and kept after a restart. */

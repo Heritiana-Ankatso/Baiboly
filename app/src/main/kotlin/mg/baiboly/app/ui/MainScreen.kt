@@ -14,6 +14,8 @@ import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.intl.LocaleList
 import mg.baiboly.app.VerseLayout
+import mg.baiboly.app.PageMargin
+import mg.baiboly.app.ParagraphBreak
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -624,6 +626,13 @@ private fun Reader(
     val state = rememberLazyListState()
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
     val paragraphs = vm.verseLayout == VerseLayout.Paragraphs
+    val typeset = Typeset(
+        justify = vm.justify,
+        hyphenate = vm.hyphenate,
+        indent = vm.paragraphBreak == ParagraphBreak.Indent,
+        margin = when (vm.pageMargin) { PageMargin.Narrow -> 18.dp; PageMargin.Normal -> 24.dp; PageMargin.Wide -> 36.dp },
+        lang = lang,
+    )
     val rows = remember(ch, lang, paragraphs) {
         if (ch == null) emptyList() else buildList {
             add(ReaderRow.Title(Canon.book(ch.book).name(lang), ch.chapter))
@@ -707,6 +716,8 @@ private fun Reader(
                     verse = r.verse,
                     text = r.text,
                     textSize = textSize,
+                    // the typesetting details are for running text; one verse per line stays as it was
+                    typeset = typeset.copy(justify = false, hyphenate = false),
                     focused = focus?.contains(r.verse) == true || reading == r.verse,
                     selected = r.verse in selected,
                     highlights = highlights.filter { it.passage.contains(r.verse) }.map { h ->
@@ -720,7 +731,7 @@ private fun Reader(
                 )
                 is ReaderRow.Paragraph -> ParagraphBlock(
                     verses = r.verses,
-                    lang = lang,
+                    typeset = typeset,
                     textSize = textSize,
                     focused = { v -> focus?.contains(v) == true || reading == v },
                     selected = selected,
@@ -745,6 +756,7 @@ private fun VerseRow(
     verse: Int,
     text: String,
     textSize: Float,
+    typeset: Typeset,
     focused: Boolean,
     selected: Boolean,
     highlights: List<Triple<Int?, Int?, Int>>,
@@ -763,14 +775,15 @@ private fun VerseRow(
     val dark = MaterialTheme.colorScheme.background.luminanceApprox() < 0.5f
     val titleFamily = TitleSerif
     val initial = dropCaps()
-    val annotated = remember(text, highlights, dark, verse, textSize, ornament, titleFamily, initial) {
+    val annotated = remember(text, highlights, dark, verse, textSize, ornament, titleFamily, initial, typeset) {
         buildAnnotatedString {
-            append(text)
+            val (shown, at) = typeset.breakable(text)
+            append(shown)
             for ((s, e, colour) in highlights) {
                 val c = Color(colour).copy(alpha = if (dark) 0.34f else 0.55f)
                 val start = (s ?: 0).coerceIn(0, text.length)
                 val end = (e ?: text.length).coerceIn(start, text.length)
-                addStyle(SpanStyle(background = c), start, end)
+                addStyle(SpanStyle(background = c), at?.get(start) ?: start, at?.get(end) ?: end)
             }
             // A rubricated initial opens each chapter, as in old Bibles.
             if (initial && verse == 1 && text.isNotEmpty() && text[0].isLetter()) {
@@ -817,6 +830,7 @@ private fun VerseRow(
             lineHeight = (textSize * LocalReading.current.lineSpacing).sp,
             fontFamily = TextSerif,
             color = MaterialTheme.colorScheme.onSurface,
+            style = typeset.style(MaterialTheme.typography.bodyLarge),
             modifier = Modifier
                 .weight(1f)
                 .clickable(onClick = onTap)
@@ -832,6 +846,27 @@ private fun VerseRow(
     }
 }
 
+/** Typesetting details from Settings, Advanced. */
+private data class Typeset(
+    val justify: Boolean,
+    val hyphenate: Boolean,
+    val indent: Boolean,
+    val margin: androidx.compose.ui.unit.Dp,
+    val lang: String,
+) {
+    /** Lines break in the text's own language: system patterns for French and English. */
+    fun style(base: androidx.compose.ui.text.TextStyle) = base.copy(
+        textAlign = if (justify) TextAlign.Justify else TextAlign.Start,
+        hyphens = if (hyphenate) Hyphens.Auto else Hyphens.None,
+        lineBreak = if (justify) LineBreak.Paragraph else LineBreak.Simple,
+        localeList = LocaleList(lang),
+    )
+
+    /** Android has no Malagasy patterns: its break points come from its syllables. */
+    fun breakable(text: String): Pair<String, IntArray?> =
+        if (hyphenate && lang == "mg") malagasySoftHyphens(text) else text to null
+}
+
 /** Where each verse sits inside a paragraph's text. */
 private class VerseSpan(val verse: Int, val number: IntRange, val text: IntRange, val note: IntRange?)
 
@@ -843,7 +878,7 @@ private class VerseSpan(val verse: Int, val number: IntRange, val text: IntRange
 @Composable
 private fun ParagraphBlock(
     verses: List<ReaderRow.Verse>,
-    lang: String,
+    typeset: Typeset,
     textSize: Float,
     focused: (Int) -> Boolean,
     selected: Set<Int>,
@@ -859,7 +894,7 @@ private fun ParagraphBlock(
     val initial = dropCaps()
     val titleFamily = TitleSerif
     val marks = verses.map { v -> Triple(focused(v.verse), v.verse in selected, highlights(v.verse)) }
-    val (annotated, spans) = remember(verses, lang, marks, notes.keys, dark, textSize, ornament, initial, selectedWash, titleFamily) {
+    val (annotated, spans) = remember(verses, typeset, marks, notes.keys, dark, textSize, ornament, initial, selectedWash, titleFamily) {
         val spans = mutableListOf<VerseSpan>()
         val text = buildAnnotatedString {
             verses.forEachIndexed { i, v ->
@@ -877,8 +912,7 @@ private fun ParagraphBlock(
                 }
                 val numberEnd = length - 1
                 val textStart = length
-                // Malagasy gets its break points here; other languages use the system's patterns
-                val (shown, at) = if (lang == "mg") malagasySoftHyphens(v.text) else v.text to null
+                val (shown, at) = typeset.breakable(v.text)
                 append(shown)
                 if (dropInitial) addStyle(SpanStyle(fontFamily = titleFamily, fontWeight = FontWeight.Bold,
                     fontSize = (textSize * 1.9f).sp, color = ornament.rubric), textStart, textStart + 1)
@@ -920,22 +954,20 @@ private fun ParagraphBlock(
         lineHeight = (textSize * LocalReading.current.lineSpacing).sp,
         fontFamily = TextSerif,
         color = MaterialTheme.colorScheme.onSurface,
-        // set as a printed page: justified, hyphenated in the text's own language,
-        // paragraphs marked by their indent alone
-        style = MaterialTheme.typography.bodyLarge.copy(
-            textIndent = TextIndent(firstLine = (textSize * 1.2f).sp),
-            textAlign = TextAlign.Justify,
-            hyphens = Hyphens.Auto,
-            lineBreak = LineBreak.Paragraph,
-            localeList = LocaleList(lang),
-        ),
+        // paragraphs marked by a first-line indent, or by a blank space between them
+        style = typeset.style(MaterialTheme.typography.bodyLarge).let {
+            if (typeset.indent) it.copy(textIndent = TextIndent(firstLine = (textSize * 1.2f).sp)) else it
+        },
         onTextLayout = { layout = it },
         modifier = Modifier
             .fillMaxWidth()
             .testTag("paragraph:$first")
             // inside the padding, so tap positions match the text layout
-            // with the list's own padding (4 left, 18 right): 24 dp margins on both sides
-            .padding(start = 20.dp, end = 6.dp)
+            // the list adds 4 dp on the left and 18 on the right: equal margins on both sides
+            .padding(
+                start = typeset.margin - 4.dp, end = (typeset.margin - 18.dp).coerceAtLeast(0.dp),
+                top = if (typeset.indent) 0.dp else 6.dp, bottom = if (typeset.indent) 0.dp else 6.dp,
+            )
             .pointerInput(spans, notes) {
                 detectTapGestures { pos ->
                     val l = layout ?: return@detectTapGestures

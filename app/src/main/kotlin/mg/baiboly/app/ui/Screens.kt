@@ -66,6 +66,8 @@ import mg.baiboly.app.Palette
 import mg.baiboly.app.TextFont
 import mg.baiboly.app.LineSpacing
 import mg.baiboly.app.VerseLayout
+import mg.baiboly.app.PageMargin
+import mg.baiboly.app.ParagraphBreak
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.foundation.layout.height
@@ -499,7 +501,7 @@ fun SettingsScreen(vm: AppViewModel) {
                         SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
                         SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { open = "advanced" }
                     }
-                    "advanced" -> { traditionContent(); UpdateSettings(vm) }
+                    "advanced" -> { traditionContent(); TypesettingSettings(vm); UpdateSettings(vm) }
                     else -> groups.first { it.key == current }.content()
                 }
             }
@@ -516,7 +518,7 @@ fun SettingsScreen(vm: AppViewModel) {
             SettingsLink(if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, stringResource(R.string.advanced), "settings-advanced") {
                 advanced = !advanced
             }
-            if (advanced) { traditionContent(); UpdateSettings(vm) }
+            if (advanced) { traditionContent(); TypesettingSettings(vm); UpdateSettings(vm) }
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -776,6 +778,46 @@ private fun ReadAloudSettings(vm: AppViewModel) {
  * runs on a tap; the switch (off by default) checks about once a day and shows
  * a silent notification when a new version is out.
  */
+/** The fine details of the reading page, kept out of the way under Advanced. */
+@Composable
+private fun TypesettingSettings(vm: AppViewModel) {
+    Column(
+        Modifier.padding(horizontal = 20.dp, vertical = 8.dp).testTag("settings-typesetting"),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(stringResource(R.string.typesetting), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.typesetting_hint), style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        ChoiceRow(
+            label = stringResource(R.string.text_align),
+            options = listOf(false to stringResource(R.string.align_left), true to stringResource(R.string.align_justify)),
+            selected = vm.justify, tag = "settings-justify",
+        ) { vm.changeJustify(it) }
+        ChoiceRow(
+            label = stringResource(R.string.hyphenation),
+            options = listOf(false to stringResource(R.string.hyph_off), true to stringResource(R.string.hyph_on)),
+            selected = vm.hyphenate, tag = "settings-hyphenate",
+        ) { vm.changeHyphenate(it) }
+        ChoiceRow(
+            label = stringResource(R.string.paragraph_break),
+            options = listOf(
+                ParagraphBreak.Indent to stringResource(R.string.break_indent),
+                ParagraphBreak.Space to stringResource(R.string.break_space),
+            ),
+            selected = vm.paragraphBreak, tag = "settings-paragraph-break",
+        ) { vm.changeParagraphBreak(it) }
+        ChoiceRow(
+            label = stringResource(R.string.margins),
+            options = listOf(
+                PageMargin.Narrow to stringResource(R.string.margin_narrow),
+                PageMargin.Normal to stringResource(R.string.margin_normal),
+                PageMargin.Wide to stringResource(R.string.margin_wide),
+            ),
+            selected = vm.pageMargin, tag = "settings-margins",
+        ) { vm.changePageMargin(it) }
+    }
+}
+
 @Composable
 private fun UpdateSettings(vm: AppViewModel) {
     val ctx = LocalContext.current

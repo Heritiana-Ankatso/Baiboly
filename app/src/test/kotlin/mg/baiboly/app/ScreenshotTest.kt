@@ -70,7 +70,12 @@ class ScreenshotTest {
         vm.changeVerseLayout(VerseLayout.Paragraphs)
         open(Passage(43, 1, 10, 14))
         shot("reader-paragraphs-mg")
-        vm.changeVerseLayout(VerseLayout.Lines)
+        // Advanced: left-aligned, no word breaks, a space between paragraphs, wide margins
+        vm.changeJustify(false); vm.changeHyphenate(false)
+        vm.changeParagraphBreak(ParagraphBreak.Space); vm.changePageMargin(PageMargin.Wide)
+        settle()
+        shot("reader-paragraphs-plain-mg")
+        vm.resetAppearance()
     }
 
     @Test fun screens() {
