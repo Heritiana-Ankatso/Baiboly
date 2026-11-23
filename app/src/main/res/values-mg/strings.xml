@@ -471,4 +471,19 @@
         <item quantity="other">%1$d andro</item>
     </plurals>
     <string name="tradition_orthodox">Ortodoksa</string>
+    <!-- Timeline chart -->
+    <string name="tl_lives">Fiainana</string>
+    <string name="tl_reigns">Fanjakana</string>
+    <string name="tl_judges">Mpitsara</string>
+    <string name="tl_periods">Vanim-potoana hafa</string>
+    <string name="tl_this_chapter">Ity toko ity</string>
+    <string name="tl_whole">Ny Baiboly manontolo</string>
+    <string name="tl_years">%1$d taona</string>
+    <string name="era_creation">Famoronana ka hatramin’ny Safodrano</string>
+    <string name="era_flood">Safodrano ka hatramin’i Abrahama</string>
+    <string name="era_exile">Sesitany</string>
+    <string name="era_return">Fiverenana avy any an-tsesitany</string>
+    <string name="tl_chart">Sary</string>
+    <string name="tl_list">Lisitra</string>
+    <string name="tl_hint">Atsofohy na tsindrio indroa raha hanakaiky; tsindrio ny zava-nitranga na ny tsipika raha hanokatra azy.</string>
 </resources>

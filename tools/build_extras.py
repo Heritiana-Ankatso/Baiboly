@@ -101,13 +101,57 @@ def load_people_events(people_path, events_path, verses_path, osis_ids, numberin
         part_of = rec_to_eid.get((f.get("partOf") or [None])[0])
         events.append((eid, f["title"], y, start if "-" in start[1:] else "", f.get("duration") or "",
                        1 if f.get("rangeFlag") else 0, (f.get("notes") or "").strip(), ussher,
-                       float(f.get("sortKey") or y), part_of, first[0], first[1], first[2]))
+                       float(f.get("sortKey") or y), part_of, first[0], first[1], first[2],
+                       event_kind(f["title"], f.get("duration") or ""), len(vs)))
         for rec in set((f.get("participants") or []) + (f.get("people (from verses)") or [])):
             if rec in rec_to_pid:
                 eppl.append((eid, rec_to_pid[rec]))
         for (b, c, v), _y in vs:
             everses.append((eid, b, c, v))
     return people, sorted(set(rels)), pverses, events, sorted(set(eppl)), everses
+
+
+def event_kind(title, duration):
+    """life | reign | judge | period (a span of a year or more) | point."""
+    if not re.match(r"^\d+(Y|Y\d+M)$", duration or ""):
+        return "point"
+    t = title.lower()
+    if t.startswith("lifetime of"):
+        return "life"
+    if t.startswith("reign of"):
+        return "reign"
+    if t.startswith("judgeship of"):
+        return "judge"
+    return "period"
+
+
+# Eras of the timeline, each opened by a dated event of the source (F. N. Jones's chronology) and
+# closed by the next one. key (names in the app's strings), title of the event that opens it.
+ERAS = [
+    ("creation", "Creation of all things"),
+    ("flood", "The Great Flood begins"),
+    ("patriarchs", "Abraham enters Canaan"),
+    ("exodus", "Exodus from Egypt"),
+    ("conquest", "Crossing the Jordan into Canaan"),
+    ("kingdom", "Reign of Saul"),
+    ("divided", "Death of Solomon"),
+    ("exile", "Fall of Jerusalem"),
+    ("return", "Exiles return with Zerubbabel"),
+    ("between", "Prophecies of Malachi"),
+    ("jesus", "Birth of Jesus"),
+    ("church", "Peter preaches at Pentecost"),
+]
+
+
+def eras(events):
+    """(key, start year, end year, sort) from the events; the last era runs to the last event."""
+    by_title = {e[1]: e[2] for e in events}
+    missing = [t for _, t in ERAS if t not in by_title]
+    if missing:
+        raise SystemExit(f"timeline eras: events not found in the source: {missing}")
+    starts = [(k, by_title[t]) for k, t in ERAS]
+    last = max(e[2] for e in events) + 1
+    return [(k, y, starts[i + 1][1] if i + 1 < len(starts) else last, i) for i, (k, y) in enumerate(starts)]
 
 
 # ---------------------------------------------------------------- curation of family links
@@ -343,9 +387,13 @@ def write_tables(db, people, rels, pverses, events, eppl, everses, docs, items, 
             verse INTEGER NOT NULL, PRIMARY KEY(person, book, chapter, verse)) WITHOUT ROWID;
         CREATE INDEX person_by_verse ON person_verse(book, chapter, verse);
         -- year: F. N. Jones's chronology; ussher: TSK marginal year of the first verse (after Ussher)
+        -- kind: life | reign | judge | period (spans of a year or more) | point; weight: verses telling it
         CREATE TABLE event(id INTEGER PRIMARY KEY, title TEXT NOT NULL, year INTEGER NOT NULL, date TEXT NOT NULL,
             duration TEXT NOT NULL, approx INTEGER NOT NULL, notes TEXT NOT NULL, ussher INTEGER, sort REAL NOT NULL,
-            part_of INTEGER, book INTEGER NOT NULL, chapter INTEGER NOT NULL, verse INTEGER NOT NULL);
+            part_of INTEGER, book INTEGER NOT NULL, chapter INTEGER NOT NULL, verse INTEGER NOT NULL,
+            kind TEXT NOT NULL, weight INTEGER NOT NULL);
+        -- eras of the timeline (tools/build_extras.py ERAS): [start, end) in astronomical years
+        CREATE TABLE era(key TEXT PRIMARY KEY, start INTEGER NOT NULL, end INTEGER NOT NULL, sort INTEGER NOT NULL) WITHOUT ROWID;
         CREATE TABLE event_person(event INTEGER NOT NULL, person INTEGER NOT NULL, PRIMARY KEY(event, person)) WITHOUT ROWID;
         CREATE INDEX event_by_person ON event_person(person);
         CREATE TABLE event_verse(event INTEGER NOT NULL, book INTEGER NOT NULL, chapter INTEGER NOT NULL,
@@ -367,7 +415,8 @@ def write_tables(db, people, rels, pverses, events, eppl, everses, docs, items, 
     db.executemany("INSERT INTO person VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", [p + (norm(p[1]),) for p in people])
     db.executemany("INSERT OR IGNORE INTO person_rel VALUES(?,?,?)", rels)
     db.executemany("INSERT OR IGNORE INTO person_verse VALUES(?,?,?,?)", pverses)
-    db.executemany("INSERT INTO event VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", events)
+    db.executemany("INSERT INTO event VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", events)
+    db.executemany("INSERT INTO era VALUES(?,?,?,?)", eras(events))
     db.executemany("INSERT OR IGNORE INTO event_person VALUES(?,?)", eppl)
     db.executemany("INSERT OR IGNORE INTO event_verse VALUES(?,?,?,?)", everses)
     db.executemany("INSERT INTO creed_doc VALUES(?,?,?,?,?,?,?,?,?)", docs)

@@ -275,9 +275,12 @@ private fun EventRow(vm: AppViewModel, e: BibleEvent) {
 @Composable
 fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
     var all by remember { mutableStateOf<List<BibleEvent>>(emptyList()) }
+    var eras by remember { mutableStateOf<List<mg.baiboly.data.Era>>(emptyList()) }
     var query by remember { mutableStateOf("") }
     var open by remember { mutableStateOf(vm.eventRequest) }
-    LaunchedEffect(Unit) { all = vm.onIo { vm.chronicle.timeline } }
+    // the chart by default; the list is its table view (and the place to search)
+    var asList by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) { vm.onIo { all = vm.chronicle.timeline; eras = vm.chronicle.eras } }
     LaunchedEffect(vm.eventRequest) { vm.eventRequest?.let { open = it; vm.eventRequest = null } }
     androidx.activity.compose.BackHandler(enabled = open != null) { open = null }
     val id = open
@@ -289,6 +292,18 @@ fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
     val shown = remember(all, q) { if (q.isEmpty()) all else all.filter { mg.baiboly.core.text.TextNorm.norm(it.title).contains(q) } }
     val ornament = LocalOrnament.current
     Column(modifier) {
+        Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            androidx.compose.material3.FilterChip(selected = !asList, onClick = { asList = false },
+                label = { Text(stringResource(R.string.tl_chart)) }, modifier = Modifier.testTag("tl-mode-chart"))
+            androidx.compose.material3.FilterChip(selected = asList, onClick = { asList = true },
+                label = { Text(stringResource(R.string.tl_list)) }, modifier = Modifier.testTag("tl-mode-list"))
+        }
+        if (!asList) {
+            Note(stringResource(R.string.tl_hint), Modifier.padding(horizontal = 16.dp))
+            TimelineChart(vm, all, eras, Modifier.weight(1f))
+            Note(stringResource(R.string.theographic_credit), Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            return@Column
+        }
         OutlinedTextField(
             value = query, onValueChange = { query = it }, singleLine = true,
             placeholder = { Text(stringResource(R.string.timeline_search_hint)) },

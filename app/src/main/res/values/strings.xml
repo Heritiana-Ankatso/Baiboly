@@ -486,4 +486,19 @@
         <item quantity="other">%1$d days</item>
     </plurals>
     <string name="tradition_orthodox">Orthodox</string>
+    <!-- Timeline chart -->
+    <string name="tl_lives">Lifetimes</string>
+    <string name="tl_reigns">Reigns</string>
+    <string name="tl_judges">Judges</string>
+    <string name="tl_periods">Other periods</string>
+    <string name="tl_this_chapter">This chapter</string>
+    <string name="tl_whole">Whole Bible</string>
+    <string name="tl_years">%1$d yrs</string>
+    <string name="era_creation">Creation to the Flood</string>
+    <string name="era_flood">Flood to Abraham</string>
+    <string name="era_exile">Exile</string>
+    <string name="era_return">Return from exile</string>
+    <string name="tl_chart">Chart</string>
+    <string name="tl_list">List</string>
+    <string name="tl_hint">Pinch or double-tap to zoom; tap an event or a bar to open it.</string>
 </resources>

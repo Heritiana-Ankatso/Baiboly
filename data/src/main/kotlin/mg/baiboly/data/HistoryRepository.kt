@@ -40,7 +40,22 @@ data class BibleEvent(
     val ussher: Int?,
     val partOf: Int?,
     val first: Passage?,
-)
+    /** life | reign | judge | period (spans of a year or more) | point. */
+    val kind: String = "point",
+    /** Verses telling it: decides which labels stay when the timeline is zoomed out. */
+    val weight: Int = 0,
+) {
+    /** End of a span in fractional years (start + duration); the start itself for a point. */
+    val endYear: Double
+        get() {
+            val y = Regex("(\\d+)Y").find(duration)?.groupValues?.get(1)?.toDouble() ?: 0.0
+            val m = Regex("(\\d+)M").find(duration)?.groupValues?.get(1)?.toDouble() ?: 0.0
+            return year + y + m / 12.0
+        }
+}
+
+/** An era of the timeline: [start, end) in astronomical years (1 BC = 0). */
+data class Era(val key: String, val start: Int, val end: Int)
 
 /** A confession, catechism or creed. family: "creed" (shared by the traditions) or "reformed". */
 data class CreedDoc(
@@ -126,7 +141,7 @@ class HistoryRepository(private val dbs: AssetDatabases) {
         arrayOf(book.toString(), chapter.toString(), from.toString(), to.toString()),
     )
 
-    private val eventCols = "e.id, e.title, e.year, e.date, e.duration, e.approx, e.notes, e.ussher, e.part_of, e.book, e.chapter, e.verse"
+    private val eventCols = "e.id, e.title, e.year, e.date, e.duration, e.approx, e.notes, e.ussher, e.part_of, e.book, e.chapter, e.verse, e.kind, e.weight"
 
     private fun events(sql: String, args: Array<String>): List<BibleEvent> = db.rawQuery(sql, args).use { c ->
         buildList {
@@ -134,8 +149,15 @@ class HistoryRepository(private val dbs: AssetDatabases) {
                 BibleEvent(
                     c.getInt(0), c.getString(1), c.getInt(2), c.getString(3), c.getString(4), c.getInt(5) != 0, c.getString(6),
                     if (c.isNull(7)) null else c.getInt(7), if (c.isNull(8)) null else c.getInt(8), c.passageAt(9),
+                    c.getString(12), c.getInt(13),
                 ),
             )
+        }
+    }
+
+    val eras: List<Era> by lazy {
+        db.rawQuery("SELECT key, start, end FROM era ORDER BY sort", null).use { c ->
+            buildList { while (c.moveToNext()) add(Era(c.getString(0), c.getInt(1), c.getInt(2))) }
         }
     }
 
