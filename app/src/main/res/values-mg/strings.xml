@@ -455,4 +455,5 @@
     <string name="note_no_family">Andriamanitra no Mpamorona, fa tsy anisan’ny fianakaviana ao amin’ny tetirazana: tsy misy rohim-pianakaviana aseho. Ny Lioka 3:38 dia milaza an’i Adama ho “zanak’Andriamanitra” noho ny famoronana.</string>
     <!-- Language of Bible references (book abbreviations) -->
     <string name="ref_lang">mg</string>
+    <string name="no_saved_lists">Mbola tsy misy lisitra voatahiry. Miseho eto ny lisitra raha vao misy andalan-teny ampidirina ao (fomba Fiangonana, Ho lisitra).</string>
 </resources>

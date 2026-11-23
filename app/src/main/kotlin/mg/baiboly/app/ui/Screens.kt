@@ -415,8 +415,18 @@ fun SavedListsScreen(vm: AppViewModel) {
     SubScreen(vm, stringResource(R.string.saved_lists), actions = {
         TextButton(onClick = { vm.newList(); vm.screen = Screen.Main }) { Text(stringResource(R.string.new_list)) }
     }) { padding ->
+        // The list in use is shown once it has a passage: an empty list is not a saved list, and it
+        // could not be deleted anyway (a list is always in use, so deleting it made a new empty one).
+        val shown = vm.savedLists.filter { it.id != vm.list.id || vm.list.items.isNotEmpty() }
+        if (shown.isEmpty()) {
+            Text(
+                stringResource(R.string.no_saved_lists), style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(padding).padding(24.dp).testTag("no-saved-lists"),
+            )
+        }
         LazyColumn(contentPadding = padding) {
-            items(vm.savedLists, key = { it.id }) { l ->
+            items(shown, key = { it.id }) { l ->
                 val isCurrent = l.id == vm.list.id
                 ListRow(
                     l.title + if (isCurrent) " · " + stringResource(R.string.current_list) else "",

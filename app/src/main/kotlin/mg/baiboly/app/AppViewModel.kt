@@ -999,7 +999,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     fun refreshSavedLists() {
-        viewModelScope.launch { savedLists = withContext(io) { user.savedLists() } }
+        val current = list.id
+        viewModelScope.launch {
+            savedLists = withContext(io) {
+                // empty lists other than the one in use are left over (e.g. made and never filled): drop them
+                user.savedLists().filter { it.itemCount == 0 && it.id != current }.forEach { user.deleteList(it.id) }
+                user.savedLists()
+            }
+        }
     }
 
     // ------------------------------------------------------------ history, notes, highlights

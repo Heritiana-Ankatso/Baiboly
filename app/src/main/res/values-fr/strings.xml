@@ -453,4 +453,5 @@
     <string name="note_no_family">Dieu est le Créateur, non l’une des familles des généalogies : aucun lien de famille n’est montré. Luc 3:38 appelle Adam « fils de Dieu » par la création.</string>
     <!-- Language of Bible references (book abbreviations) -->
     <string name="ref_lang">fr</string>
+    <string name="no_saved_lists">Aucune liste enregistrée. Une liste apparaît ici dès qu’un passage y est ajouté (mode Église, À la liste).</string>
 </resources>

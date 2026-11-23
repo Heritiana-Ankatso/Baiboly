@@ -470,4 +470,5 @@
     <string name="note_no_family">God is the Creator, not one of the families of the genealogies, so no family links are shown. Luke 3:38 calls Adam “the son of God” by creation.</string>
     <!-- Language of Bible references (book abbreviations) -->
     <string name="ref_lang">en</string>
+    <string name="no_saved_lists">No saved lists yet. A list appears here once a passage is added to it (Church mode, To list).</string>
 </resources>
