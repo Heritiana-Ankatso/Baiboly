@@ -34,14 +34,18 @@ Common to A1-A3: each text or event is linked to the Bible passages it cites or 
 - Present decisions as history, separate from how each tradition rates the council's authority. The Reformed view puts councils below Scripture (cf. WCF XXXI.3). [INTRA-REFORMED DEBATE] [VERIFY]
 - Sources: primary texts (canons, creeds) and reputable scholarly summaries. Malagasy translations of creeds or canons: unknown. [VERIFY]
 
-### A3. Traditions: Orthodox alongside Catholic and Protestant
+### A3. Tradition as the master setting
 
-- Organise by tradition (Orthodox, Catholic, Reformed, Lutheran, Anglican, ...), not three blocks; "Protestant" is not one tradition.
-- Applies to A1 (confessions), A2 (councils) and a possible **canon setting** (see B3).
-- Open points:
-  - Councils: the Orthodox count only the first seven as ecumenical; Catholics count more. Record each tradition's own count. [VERIFY]
-  - Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac) are a separate family from Eastern Orthodox, with different canons and a different view of Chalcedon; they need their own entries. [VERIFY]
-  - Malagasy context: Orthodox presence in Madagascar is very small, if any, so this is for completeness and study. [VERIFY]
+Decided by the user:
+- The **tradition setting governs every part of the app**: Bible canon and offered translations, confessions, councils, and so on. Today the app has Protestant and Catholic only (Advanced settings); Orthodox and finer divisions (Reformed, Lutheran, Anglican, ...) would extend it.
+- **Other traditions appear only in the "go deeper" section of study mode**, and each item is **clearly marked** as belonging to another tradition.
+
+Open points:
+- Granularity: "Protestant" is not one tradition (Reformed, Lutheran, Anglican, Baptist differ). Decide whether the setting stays coarse or becomes finer, and how the finer values map to a canon (many traditions share one canon). [VERIFY]
+- How "marked as such" looks: a label naming the tradition, e.g. "Catholic: Council of Trent", plus a short neutral note on that tradition's view of its authority.
+- Councils: the Orthodox count only the first seven as ecumenical; Catholics count more. Each tradition's own count drives the main view. [VERIFY]
+- Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac) are a separate family from Eastern Orthodox, with different canons and a different view of Chalcedon; they need their own entries. [VERIFY]
+- Malagasy context: Orthodox presence in Madagascar is very small, if any, so this is for completeness and study. [VERIFY]
 
 ## B. Bible content
 
@@ -60,9 +64,9 @@ Common to A1-A3: each text or event is linked to the Bible passages it cites or 
 - Show each date with its source and a range or alternatives, not a single "true" date; label what Scripture states and what is scholarly reconstruction.
 - Choose which chronologies to include (Ussher is one historical option, not the only one). [VERIFY]
 
-### B3. Canon setting
+### B3. Canon (driven by the tradition setting, see A3)
 
-- Possible setting: Protestant 66 / Catholic / Orthodox (Septuagint). This changes the Bible text itself, so it is a separate, larger feature than A1-A3.
+- The canon follows the tradition setting; it is not a separate switch. The Protestant/Catholic version already exists (Bibles offered, deuterocanonical books shown or hidden). An Orthodox/Septuagint canon would be new and larger. [VERIFY]
 - At least three Old Testament canons: Protestant 39, Catholic 46, Orthodox/LXX larger. No single closed Orthodox decree; the Synod of Jerusalem (1672) is the key statement. [VERIFY]
 - The Septuagint also differs from the Hebrew text in wording and Psalm numbering. [VERIFY]
 - Reformed position for reference: the extra books are not canonical (WCF I.3). [VERIFY]
