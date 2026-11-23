@@ -45,7 +45,7 @@ book	name_mg	abbr_mg	status	source	aliases
 41	Marka	Mar	source-text	Malagasy 1865 source (toc3), matches common usage	
 42	Lioka	Lio	source-text	Malagasy 1865 source (toc3), matches common usage	
 43	Jaona	Jao	confirmed	user example	
-44	Asan’ ny Apostoly	Asan	source-text	Malagasy 1865 source (toc3), matches common usage	Asan’ny Apostoly
+44	Asan’ ny Apostoly	Asa	confirmed	the user's own usage (2026-11-23); 'Asan' (1865 source, toc3) kept as an alias	Asan’ny Apostoly|Asan
 45	Romana	Rom	source-text	Malagasy 1865 source (toc3), matches common usage	
 46	1 Korintiana	Kor	source-text	Malagasy 1865 source (toc3), matches common usage	
 47	2 Korintiana	Kor	source-text	Malagasy 1865 source (toc3), matches common usage	

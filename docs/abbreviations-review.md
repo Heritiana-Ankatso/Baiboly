@@ -1,6 +1,6 @@
 # Book abbreviations
 
-The parser accepts, for every book, its abbreviation, any extra spelling listed below, its full Malagasy name or any unambiguous beginning of that name (accents, case and a trailing dot ignored). So *Ohab*, *Asa*, *Mpanj* or *Filip* work as well as *Oha*, *Asan*, *Mpan* and *Flp*. French and English names work as a fallback. A number before the abbreviation picks the book (`2 Sam`, `1 Mpan`, `3 Jao`).
+The parser accepts, for every book, its abbreviation, any extra spelling listed below, its full Malagasy name or any unambiguous beginning of that name (accents, case and a trailing dot ignored). So *Ohab*, *Asan*, *Mpanj* or *Filip* work as well as *Oha*, *Asa*, *Mpan* and *Flp*. French and English names work as a fallback. A number before the abbreviation picks the book (`2 Sam`, `1 Mpan`, `3 Jao`).
 
 **Sources.** Your own examples; the Malagasy Bible dictionary's abbreviation list (malagasyword.org / mondemalgache.org: *Gen.*, *Eks.*, *Deot.*, *Tant.*, *Mpit.*, read through search-result excerpts because the site refuses connections from the build machine); otherwise the abbreviation field of the Malagasy 1865 source file. No other publisher's material is used.
 
@@ -55,7 +55,7 @@ To change one: edit `tools/abbreviations.tsv` and rebuild with `python3 tools/bu
 | 41 | Marka | Mar |  | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
 | 42 | Lioka | Lio |  | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
 | 43 | Jaona | Jao |  | ✅ yours | user example |
-| 44 | Asan’ ny Apostoly | Asan | Asan’ny Apostoly | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
+| 44 | Asan’ ny Apostoly | Asa | Asan’ny Apostoly, Asan | confirmed | the user's own usage; Asan (1865 source, toc3) kept as an alias |
 | 45 | Romana | Rom |  | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
 | 46 | 1 Korintiana | Kor |  | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
 | 47 | 2 Korintiana | Kor |  | 1865 source file | Malagasy 1865 source (toc3), matches common usage |
