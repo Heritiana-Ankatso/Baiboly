@@ -5,11 +5,12 @@ Dates and details marked [VERIFY] come from memory and must be checked against a
 
 ## A. Study library (study mode, "go deeper" section)
 
-Common to A1-A3: each text or event is linked to the Bible passages it cites or discusses; every source and translation gets its licence checked (see `data-licences.md`); the Reformed standpoint of the app is stated openly, while other traditions are described on their own terms. [EXTRA-CONFESSIONAL]
+Common to A1-A2: each text or event is linked to the Bible passages it cites or discusses; every source and translation gets its licence checked (see `data-licences.md`); the Reformed standpoint of the app is stated openly, while other traditions are described on their own terms. [EXTRA-CONFESSIONAL]
 
 ### A1. Confessions and catechisms
 
-- Many traditions, with **Malagasy** texts as a priority.
+- Confessions of each tradition (Protestant, Catholic, Orthodox), shown according to the tradition setting (A3). **Malagasy** texts are a priority.
+- Only the Reformed list is filled in so far; Catholic and Orthodox lists still to do.
 - Open points:
   - Which Malagasy confessions and catechisms exist, which church owns them, under what licence. Unknown. [VERIFY]
   - Original-language text vs. translations (Malagasy, French, English) of the same document.
