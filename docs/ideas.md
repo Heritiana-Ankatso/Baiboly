@@ -1,60 +1,68 @@
 # Ideas for future development
 
-Unprioritised. Not committed to any release.
+Brainstorm notes. Unprioritised, not committed to any release.
+Dates and details marked [VERIFY] come from memory and must be checked against a source before any data is entered.
 
-## 1. Confessions and catechisms
+## A. Study library (study mode, "go deeper" section)
 
-- Support many traditions, not only Reformed (WCF, Heidelberg, Belgic, Canons of Dort, etc.).
-- Include **Malagasy** confessions/catechisms as a priority.
+Common to A1-A3: each text or event is linked to the Bible passages it cites or discusses; every source and translation gets its licence checked (see `data-licences.md`); the Reformed standpoint of the app is stated openly, while other traditions are described on their own terms. [EXTRA-CONFESSIONAL]
+
+### A1. Confessions and catechisms
+
+- Many traditions, with **Malagasy** texts as a priority.
 - Open points:
-  - Which Malagasy texts exist, which church owns them, and under what licence (see `data-licences.md`). [VERIFY]
-  - Original-language text vs. translation; Malagasy/French/English versions of the same document.
-  - Cross-linking: confession/catechism article ↔ Bible verses (proof texts) already in the app.
+  - Which Malagasy confessions and catechisms exist, which church owns them, under what licence. Unknown. [VERIFY]
+  - Original-language text vs. translations (Malagasy, French, English) of the same document.
+  - Cross-linking: article or question ↔ proof texts already in the app.
 
-## 2. Hymnals (on hold: set aside by the user for now)
+**Reformed confessions to include** [VERIFY all dates]
 
-- **Fihirana FFPM** and **Fihirana Fanampiny** (Malagasy).
-- Open points:
-  - Copyright/permission for each hymnal; older texts may be public domain, recent ones probably are not. [VERIFY]
-  - Whether English/French equivalents are wanted at all, or whether this is Malagasy-only.
-  - Data format: number, title, verses, refrain, tune/metre, author, source book.
-  - Search by number, title, first line; link to Bible references.
+| Group | Documents |
+|---|---|
+| Three Forms of Unity (Continental) | Belgic Confession (1561), Heidelberg Catechism (1563), Canons of Dort (1618-19) |
+| Westminster Standards (Presbyterian) | Westminster Confession of Faith (1646), Larger Catechism and Shorter Catechism (1647) |
+| Other Reformation confessions | Second Helvetic Confession (1566), Scots Confession (1560), French (Gallic) Confession (1559), Geneva Catechism (Calvin, 1545) |
+| Related Reformed families | Savoy Declaration (1658, Congregationalist), Second London Baptist Confession (1689, Reformed Baptist) |
 
-## 3. Biblical character family tree
+- Debated whether to include: the Thirty-Nine Articles (Anglican, Reformed in content, but a different tradition). [INTRA-REFORMED DEBATE]
+- Present each as a document with structure (articles, chapters, questions and answers), so it can be cited the way the user cites them: `[WCF X.Y]`, `[HC Q&A N]`.
 
-- Genealogy graph of people in the Bible, linked to verses and to the app's existing text.
-- Main sources: Gen 5 and 11, 1 Chr 1-9, Matt 1, Luke 3, plus narrative relations (marriages, siblings).
-- Open points:
-  - Data model: person, relation (parent, spouse), source verse(s), confidence.
-  - Genealogies can skip generations ("son of" can mean descendant), so the tree must not imply strict generation counts.
-  - Same name for different people, and one person under several names; variants across Malagasy, French and English.
-  - Where manuscript traditions differ (e.g. Luke 3:36), record the variant rather than pick one silently. [VERIFY]
+### A2. Church councils
 
-## 4. Bible chronology
+- For each council: date, place, what it dealt with, who attended, what it decided (creeds, canons), why it matters.
+- Scope: the ecumenical councils (Nicaea 325 to Nicaea II 787) are the core. Regional and Reformation-era synods (e.g. Dort) are an open choice. [VERIFY list and dates]
+- Present decisions as history, separate from how each tradition rates the council's authority. The Reformed view puts councils below Scripture (cf. WCF XXXI.3). [INTRA-REFORMED DEBATE] [VERIFY]
+- Sources: primary texts (canons, creeds) and reputable scholarly summaries. Malagasy translations of creeds or canons: unknown. [VERIFY]
 
-- Timeline of events and people, linked to verses and to the family tree.
-- Open points:
-  - Dates are disputed: the Masoretic, Septuagint and Samaritan texts give different figures for the early genealogies, and the date of the Exodus is debated (early vs. late). [INTRA-REFORMED DEBATE]
-  - Show each date with its source and a range or alternatives, not a single "true" date; label what is stated in Scripture and what is scholarly reconstruction.
-  - Choose which chronologies to include (e.g. Ussher is one historical option, not the only one). [VERIFY]
+### A3. Traditions: Orthodox alongside Catholic and Protestant
 
-## 5. Church councils ("go deeper" section, study mode)
-
-- A list of church councils, with for each: date, place, what it was about, who attended, what it decided (creeds, canons), and why it matters.
-- Placed in study mode, under a "go deeper" section, linked to the confessions (item 1) and to the Bible passages the councils discussed.
-- Open points:
-  - Scope: the ecumenical councils (Nicaea 325 to Nicaea II 787) are the obvious core. Whether to add regional synods and Reformation-era ones (e.g. Dort 1618-19) is a choice to make. [VERIFY exact list and dates before entering data]
-  - Perspective: present what each council decided as a historical fact, separately from how traditions (Reformed, Catholic, Orthodox) evaluate its authority. [INTRA-REFORMED DEBATE] on how binding the councils are; the Reformed view of conciliar authority is subordinate to Scripture (cf. WCF XXXI.3). [VERIFY]
-  - Sources: primary texts (canons, creeds) and reputable scholarly summaries; check licences of any translation used (see `data-licences.md`).
-  - Malagasy angle: whether Malagasy translations of creeds or canons exist. [VERIFY]
-
-## 6. Traditions: Orthodox alongside Catholic and Protestant
-
-- Present material by tradition (Orthodox, Catholic, Reformed, Lutheran, Anglican, ...) rather than three blocks; "Protestant" is not one tradition.
-- Applies to: councils (item 5), confessions (item 1), and a possible **canon setting** (Protestant 66 / Catholic / Orthodox-Septuagint).
+- Organise by tradition (Orthodox, Catholic, Reformed, Lutheran, Anglican, ...), not three blocks; "Protestant" is not one tradition.
+- Applies to A1 (confessions), A2 (councils) and a possible **canon setting** (see B3).
 - Open points:
   - Councils: the Orthodox count only the first seven as ecumenical; Catholics count more. Record each tradition's own count. [VERIFY]
-  - Canon: three Old Testament canons at least (Protestant 39, Catholic 46, Orthodox/LXX larger). No single closed Orthodox decree; Synod of Jerusalem (1672) is the key statement. [VERIFY]
   - Oriental Orthodox (Coptic, Ethiopian, Armenian, Syriac) are a separate family from Eastern Orthodox, with different canons and a different view of Chalcedon; they need their own entries. [VERIFY]
-  - Framing: describe each tradition on its own terms, and mark the Reformed standpoint of the app explicitly. [EXTRA-CONFESSIONAL]
   - Malagasy context: Orthodox presence in Madagascar is very small, if any, so this is for completeness and study. [VERIFY]
+
+## B. Bible content
+
+### B1. Biblical character family tree
+
+- Genealogy graph linked to verses. Sources: Gen 5 and 11, 1 Chr 1-9, Matt 1, Luke 3, plus narrative relations (marriages, siblings).
+- Data model: person, relation (parent, spouse), source verse(s), confidence.
+- Genealogies can skip generations ("son of" can mean descendant), so the tree must not imply strict generation counts.
+- Same name for different people, one person under several names; variants across Malagasy, French and English.
+- Where manuscript traditions differ (e.g. Luke 3:36), record the variant rather than pick one silently. [VERIFY]
+
+### B2. Bible chronology
+
+- Timeline of events and people, linked to verses and to the family tree (B1).
+- Dates are disputed: the Masoretic, Septuagint and Samaritan texts give different figures for the early genealogies, and the Exodus date is debated (early vs. late). [INTRA-REFORMED DEBATE]
+- Show each date with its source and a range or alternatives, not a single "true" date; label what Scripture states and what is scholarly reconstruction.
+- Choose which chronologies to include (Ussher is one historical option, not the only one). [VERIFY]
+
+### B3. Canon setting
+
+- Possible setting: Protestant 66 / Catholic / Orthodox (Septuagint). This changes the Bible text itself, so it is a separate, larger feature than A1-A3.
+- At least three Old Testament canons: Protestant 39, Catholic 46, Orthodox/LXX larger. No single closed Orthodox decree; the Synod of Jerusalem (1672) is the key statement. [VERIFY]
+- The Septuagint also differs from the Hebrew text in wording and Psalm numbering. [VERIFY]
+- Reformed position for reference: the extra books are not canonical (WCF I.3). [VERIFY]
