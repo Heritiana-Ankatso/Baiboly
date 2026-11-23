@@ -777,7 +777,7 @@ private fun UpdateSettings(vm: AppViewModel) {
         Row(
             Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable {
                 val on = !vm.updateAuto
-                vm.setUpdateAuto(on)
+                vm.changeUpdateAuto(on)
                 if (on && android.os.Build.VERSION.SDK_INT >= 33) notifPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             }.testTag("settings-update-auto"),
             verticalAlignment = Alignment.CenterVertically,

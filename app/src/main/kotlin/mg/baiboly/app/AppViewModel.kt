@@ -471,7 +471,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var updateLastCheck by mutableStateOf(mg.baiboly.app.update.UpdateCheck.lastCheck(app))
         private set
 
-    fun setUpdateAuto(on: Boolean) {
+    fun changeUpdateAuto(on: Boolean) {
         updateAuto = on
         mg.baiboly.app.update.UpdateCheck.setAuto(getApplication(), on)
         if (on) autoCheckUpdates()
