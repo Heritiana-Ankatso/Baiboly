@@ -47,7 +47,7 @@ internal object CanonData {
         BookInfo(41, "Mark", "Marka", "Mar", false, listOf(), "Marc", "Mark"),
         BookInfo(42, "Luke", "Lioka", "Lio", false, listOf(), "Luc", "Luke"),
         BookInfo(43, "John", "Jaona", "Jao", true, listOf(), "Jean", "John"),
-        BookInfo(44, "Acts", "Asan’ ny Apostoly", "Asan", false, listOf("Asan’ny Apostoly"), "Actes", "Acts"),
+        BookInfo(44, "Acts", "Asan’ ny Apostoly", "Asa", true, listOf("Asan’ny Apostoly", "Asan"), "Actes", "Acts"),
         BookInfo(45, "Rom", "Romana", "Rom", false, listOf(), "Romains", "Romans"),
         BookInfo(46, "1Cor", "1 Korintiana", "Kor", false, listOf(), "1 Corinthiens", "1 Corinthians"),
         BookInfo(47, "2Cor", "2 Korintiana", "Kor", false, listOf(), "2 Corinthiens", "2 Corinthians"),

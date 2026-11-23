@@ -1,6 +1,7 @@
 package mg.baiboly.app
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import mg.baiboly.core.ref.Passage
@@ -61,5 +62,18 @@ class SavedListsTest {
         vm.deleteSavedList(first); settle(vm) { vm.savedLists.none { it.id == first } }
         assertTrue(vm.savedLists.none { it.id == first })
         assertTrue(vm.savedLists.any { it.id == vm.list.id })
+
+        // Reported: that empty list in use showed under Lists, and "Delete" only made another one.
+        // An empty list in use is not shown; the page says there is no saved list yet.
+        vm.screen = Screen.Lists
+        settle(vm)
+        assertTrue(rule.onAllNodesWithTag("no-saved-lists").fetchSemanticsNodes().isNotEmpty(), "empty list in use shown as saved")
+        // empty lists not in use are cleaned up
+        vm.addToList(listOf(Passage(19, 23, 1, 1))); settle(vm) { vm.list.items.isNotEmpty() }
+        val filled = vm.list.id
+        vm.newList(); settle(vm) { vm.list.id != filled }
+        vm.openSavedList(filled); settle(vm) { vm.list.id == filled }
+        vm.refreshSavedLists(); settle(vm) { vm.savedLists.size == 1 }
+        assertTrue(vm.savedLists.map { it.id } == listOf(filled), "left-over empty list kept: ${vm.savedLists}")
     }
 }

@@ -203,23 +203,35 @@ fun formatAmount(x: Double, locale: Locale): String {
     }.format(rounded)
 }
 
-/** Metric (and, in English, imperial) value of [base] in the kind's base unit. */
+/** Value of [base] (metres, grams or litres) in metric units, with the SI prefix that reads best. No imperial units. */
+@Suppress("UNUSED_PARAMETER")
 private fun modernText(kind: UnitKind, base: Double, lang: String, locale: Locale): String? {
     fun f(x: Double) = formatAmount(x, locale)
-    val metric = when (kind) {
-        UnitKind.Length -> if (base >= 1000) "${f(base / 1000)} km" else if (base >= 1) "${f(base)} m" else "${f(base * 100)} cm"
-        UnitKind.Weight -> if (base >= 1000) "${f(base / 1000)} kg" else "${f(base)} g"
+    return when (kind) {
+        UnitKind.Length -> if (base >= 1000) "${f(base / 1000)} km" else if (base >= 1) "${f(base)} m" else if (base >= 0.01) "${f(base * 100)} cm" else "${f(base * 1000)} mm"
+        UnitKind.Weight -> if (base >= 1000) "${f(base / 1000)} kg" else if (base >= 1) "${f(base)} g" else "${f(base * 1000)} mg"
         UnitKind.Dry, UnitKind.Liquid -> if (base >= 1) "${f(base)} L" else "${f(base * 1000)} mL"
-        else -> return null
+        else -> null
     }
-    if (lang != "en") return metric
-    val imperial = when (kind) {
-        UnitKind.Length -> if (base >= 1609) "${f(base / 1609.344)} mi" else if (base >= 0.9144) "${f(base / 0.3048)} ft" else "${f(base / 0.0254)} in"
-        UnitKind.Weight -> if (base >= 453.6) "${f(base / 453.59237)} lb" else "${f(base / 28.349523)} oz"
-        UnitKind.Dry, UnitKind.Liquid -> if (base >= 3.785) "${f(base / 3.785411784)} US gal" else "${f(base / 0.946352946)} US qt"
-        else -> return metric
-    }
-    return "$metric · $imperial"
+}
+
+/**
+ * How long a labourer worked for [days] days' wages: six working days a week (Ex 20:9), so 6,000
+ * days' wages are 7,000 calendar days, about 19 years and 2 months. Returns years, months, days;
+ * null under a week, where the days themselves say it.
+ */
+fun workTime(days: Double): Triple<Int, Int, Int>? {
+    if (!days.isFinite() || days < 6.0) return null
+    val calendar = days * 7.0 / 6.0
+    var years = floor(calendar / 365.25).toInt()
+    var rest = calendar - years * 365.25
+    var months = floor(rest / 30.4375).toInt()
+    var d = (rest - months * 30.4375).roundToLong().toInt()
+    if (d >= 30) { months++; d = 0 }
+    if (months >= 12) { years++; months -= 12 }
+    // a long time is told in years and months: the days would claim a precision the value lacks
+    if (years >= 2) d = 0
+    return Triple(years, months, d)
 }
 
 /** One line for a unit: its modern value, or for money its value in denarii (days' wages). */
@@ -290,6 +302,20 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                 if (kind == UnitKind.Money && base != null) {
                     Text(stringResource(R.string.units_days_wages, formatAmount(base, locale)), style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.testTag("units-modern"))
+                    // the same as a length of work: "about 19 years and 2 months of work"
+                    workTime(base)?.let { (y, m, d) ->
+                        val parts = listOfNotNull(
+                            if (y > 0) androidx.compose.ui.res.pluralStringResource(R.plurals.work_years, y, y) else null,
+                            if (m > 0) androidx.compose.ui.res.pluralStringResource(R.plurals.work_months, m, m) else null,
+                            if (d > 0) androidx.compose.ui.res.pluralStringResource(R.plurals.work_days, d, d) else null,
+                        )
+                        if (parts.isNotEmpty()) {
+                            val joined = if (parts.size == 1) parts[0]
+                                else parts.dropLast(1).joinToString(", ") + stringResource(R.string.list_and) + parts.last()
+                            Text(stringResource(R.string.units_work_time, joined), style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.testTag("units-work-time"))
+                        }
+                    }
                 } else if (modern != null && !from.modern) {
                     Text("≈ $modern", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("units-modern"))
                 }
@@ -322,7 +348,7 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant, fontStyle = if (u.modern) FontStyle.Italic else FontStyle.Normal)
                         u.ref?.let { r ->
                             Text(
-                                r.shortLabel(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
+                                r.label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
                                 modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(r) }
                                     .heightIn(min = 32.dp).padding(vertical = 6.dp).testTag("unit-ref:${u.id}"),
                             )
@@ -368,7 +394,7 @@ private fun TimeOfDay(vm: AppViewModel, lang: String) {
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.units_hour_n, h), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                 hours[h]?.let { r ->
-                    Text(r.shortLabel(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
+                    Text(r.label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
                         modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(r) }.padding(8.dp))
                 }
                 Text("≈ %d:00".format(6 + h), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
@@ -386,7 +412,7 @@ private fun TimeOfDay(vm: AppViewModel, lang: String) {
             Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 4.dp).testTag("watch:${i + 1}"),
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.units_watch_n, i + 1), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                if (i == 3) Text(Passage(41, 6, 48, 48).shortLabel(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
+                if (i == 3) Text(Passage(41, 6, 48, 48).label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
                     modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(Passage(41, 6, 48, 48)) }.padding(8.dp))
                 Text(watches[i], style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
             }

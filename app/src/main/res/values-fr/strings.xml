@@ -188,12 +188,12 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Personnages de la Bible (mode Étude, page Dictionnaire, Personnages) : parents, époux, frères et sœurs, enfants et lignée paternelle de 3 068 personnes, avec les événements où elles paraissent et tous les versets qui les nomment.</item>
-        <item>Chronologie : 501 événements de la Création aux Actes, avec leurs dates (d’après Jones, et Ussher quand il diffère), leurs personnages et leurs versets. Les dates sont des reconstructions et le disent.</item>
-        <item>Confessions : les symboles des Apôtres, de Nicée et d’Athanase et les confessions et catéchismes réformés (Heidelberg, Confession belge, Dordrecht, Westminster…) dans leur texte anglais historique, avec les textes de preuve qui ouvrent le verset, et les conciles et assemblées qui les ont publiés. Le réglage Tradition choisit ce qui est montré ; les autres traditions sont sous Approfondir.</item>
-        <item>Le panneau Étude d’un passage ajoute Personnages et événements, et les articles de confession qui le citent.</item>
-        <item>Listes enregistrées : Supprimer retire vraiment la liste, et Nouvelle liste n’ajoute plus une seconde liste vide.</item>
-        <item>Mode Étude : Retour à ma place n’apparaît plus qu’après un saut (une référence, un résultat de recherche, N versets trouvés) et disparaît quand vous lisez plus loin ; il ne reste plus sur chaque page après un culte. En mode Église, rien ne change.</item>
+        <item>Aperçu : sélectionnez des versets et une petite carte montre le passage dans une autre Bible et les unités qu’il nomme. Réglages › Avancé › Aperçu choisit ce qu’elle montre.</item>
+        <item>Chronologie en frise à l’échelle, de la Création à l’Église naissante : époques, vies et règnes côte à côte, événements qui apparaissent au zoom, et Ce chapitre.</item>
+        <item>Confessions : documents catholiques et orthodoxes (Trente, Vatican I, Catéchisme orthodoxe) et les sept conciles œcuméniques avec leurs décisions. Votre tradition d’abord ; les autres sous Approfondir.</item>
+        <item>Réglages en pages dans tous les thèmes ; les Régions de la carte se cherchent par nom, de A à Z ou par type.</item>
+        <item>Références dans la langue de l’interface (John 3:16, Jn 3:16, Jao 3: 16) ; les Actes s’abrègent « Asa » en malgache. Unités métriques seulement ; salaires aussi en années et mois de travail.</item>
+        <item>Marges égales sous Android 15, une liste vide n’apparaît plus dans Listes, et Dieu n’est plus présenté comme parent dans l’arbre (Luc 3:38 parle de création).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
@@ -427,13 +427,68 @@
     <string name="family_creeds">Symboles de l’Église ancienne</string>
     <string name="tradition_reformed">Protestant (réformé)</string>
     <string name="councils">Conciles, synodes et assemblées</string>
-    <string name="councils_note">Seulement ceux qui ont publié un document de cette bibliothèque. Chaque tradition juge à sa manière l’autorité des conciles ; pour les Églises réformées, ils sont soumis à l’Écriture.</string>
+    <string name="councils_note">Conciles reçus par votre tradition ; les sept conciles œcuméniques par toutes (le septième par les Églises orthodoxe et catholique). Résumés d’après Philip Schaff, The Creeds of Christendom (1877). Pour les Églises réformées, les conciles sont soumis à l’Écriture.</string>
     <string name="council_issued">A publié :</string>
     <string name="go_deeper">Approfondir : autres traditions</string>
-    <string name="no_other_traditions">Aucun document catholique ou orthodoxe n’est encore inclus : aucun n’a pu être obtenu sous licence libre. Quand la tradition choisie est catholique, les documents réformés figurent ici.</string>
     <string name="other_tradition_note">Ce document appartient à une autre tradition (%1$s).</string>
     <string name="creeds_text_note">Textes anglais historiques, du domaine public. Aucun texte malgache ou français sous licence libre n’a été trouvé.</string>
-    <string name="creeds_credit">Textes et références : Reformed Standards compendium (Apache 2.0) et Creeds.json (domaine public)</string>
+    <string name="creeds_credit">Textes et références : Reformed Standards compendium (Apache 2.0), Creeds.json et Philip Schaff, The Creeds of Christendom vol. II, 1877 (domaine public).</string>
     <string name="proof_texts">Textes de preuve</string>
     <string name="no_citations_own">Aucun document de votre tradition ne cite ce passage.</string>
+    <!-- Map: finding a region -->
+    <string name="regions_filter_hint">Chercher une région</string>
+    <string name="regions_sort_named">Plus cités</string>
+    <string name="regions_sort_az">A–Z</string>
+    <string name="region_kind_all">Toutes</string>
+    <string name="region_kind_lands">Pays et peuples</string>
+    <string name="region_kind_relief">Montagnes et vallées</string>
+    <string name="region_kind_waters">Mers, fleuves et îles</string>
+    <string name="regions_count">%1$d régions sur %2$d</string>
+    <!-- People: links the text does not support as family -->
+    <string name="rel_legal_father">Père légal (Luc 3:23)</string>
+    <string name="rel_legal_child">Fils selon la loi (Luc 3:23)</string>
+    <string name="note_son_of_god">Luc 3:38 appelle Adam « fils de Dieu » : il a été créé par Dieu (Gn 2:7), non engendré. Dieu n’est pas présenté comme un parent dans l’arbre généalogique.</string>
+    <string name="note_virgin_birth">Conçu du Saint-Esprit et né de la vierge Marie (Mt 1:18-25 ; Lc 1:35). Joseph était son père selon la loi, « comme on le croyait » (Lc 3:23) ; les généalogies de Matthieu 1 et de Luc 3 passent par lui.</string>
+    <string name="note_no_family">Dieu est le Créateur, non l’une des familles des généalogies : aucun lien de famille n’est montré. Luc 3:38 appelle Adam « fils de Dieu » par la création.</string>
+    <!-- Language of Bible references (book abbreviations) -->
+    <string name="ref_lang">fr</string>
+    <string name="no_saved_lists">Aucune liste enregistrée. Une liste apparaît ici dès qu’un passage y est ajouté (mode Église, À la liste).</string>
+    <!-- Units: wages as a length of work -->
+    <string name="units_work_time">≈ %1$s de travail, à six jours ouvrés par semaine (Ex 20.9)</string>
+    <string name="list_and">" et "</string>
+    <plurals name="work_years">
+        <item quantity="one">%1$d an</item>
+        <item quantity="other">%1$d ans</item>
+    </plurals>
+    <plurals name="work_months">
+        <item quantity="one">%1$d mois</item>
+        <item quantity="other">%1$d mois</item>
+    </plurals>
+    <plurals name="work_days">
+        <item quantity="one">%1$d jour</item>
+        <item quantity="other">%1$d jours</item>
+    </plurals>
+    <string name="tradition_orthodox">Orthodoxe</string>
+    <!-- Timeline chart -->
+    <string name="tl_lives">Vies</string>
+    <string name="tl_reigns">Règnes</string>
+    <string name="tl_judges">Juges</string>
+    <string name="tl_periods">Autres périodes</string>
+    <string name="tl_this_chapter">Ce chapitre</string>
+    <string name="tl_whole">Toute la Bible</string>
+    <string name="tl_years">%1$d ans</string>
+    <string name="era_creation">De la Création au Déluge</string>
+    <string name="era_flood">Du Déluge à Abraham</string>
+    <string name="era_exile">Exil</string>
+    <string name="era_return">Retour d’exil</string>
+    <string name="tl_chart">Frise</string>
+    <string name="tl_list">Liste</string>
+    <string name="tl_hint">Pincez ou touchez deux fois pour zoomer ; touchez un événement ou une barre pour l’ouvrir.</string>
+    <!-- Quick look -->
+    <string name="ql_title">Aperçu</string>
+    <string name="ql_translation">Le passage dans une autre Bible</string>
+    <string name="ql_cited">Cité par %1$d articles de vos confessions</string>
+    <string name="ql_bible">Autre Bible</string>
+    <string name="ql_bible_auto">Automatique</string>
+    <string name="ql_settings_hint">Affiché au-dessus des actions quand des versets sont sélectionnés ; un toucher ouvre le panneau Étude complet.</string>
 </resources>

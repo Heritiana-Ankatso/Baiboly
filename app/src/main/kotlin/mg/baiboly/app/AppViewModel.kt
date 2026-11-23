@@ -657,6 +657,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** Settings shows Advanced › Updates unfolded (set when opened from the notification). */
     var openUpdateSettings by mutableStateOf(false)
 
+    /** The Settings group shown ("look", "bible", "audio", "advanced"), or null for the list of groups. */
+    var settingsPage by mutableStateOf<String?>(null)
+
     /** When the app opens, with the switch on: re-arms the daily check and checks if a day has passed. */
     private fun autoCheckUpdates() {
         if (!updateAuto) return
@@ -744,6 +747,59 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             // the Douay-Rheims numbers the Psalms as the Vulgate does
             if (text.isBlank()) null else Compared(t, q, text, t.id == "dra" && p.book == 19)
         }
+    }
+
+    // ------------------------------------------------------------ quick look (selected verses)
+
+    /**
+     * What the small card shown with selected verses offers (Settings, Advanced, Quick look):
+     * "translation" (the passage in another Bible), "units", "people", "places", "confessions".
+     * By default the passage in another language and the units it names.
+     */
+    var quickLookItems by mutableStateOf(prefs.getStringSet("quick_look", null)?.toSet() ?: setOf("translation", "units"))
+        private set
+
+    fun changeQuickLookItem(item: String, on: Boolean) {
+        quickLookItems = if (on) quickLookItems + item else quickLookItems - item
+        prefs.edit().putStringSet("quick_look", quickLookItems).apply()
+    }
+
+    /** The Bible the quick look shows the passage in ("" = chosen by the app). */
+    var quickLookTranslation by mutableStateOf(prefs.getString("quick_look_translation", "") ?: "")
+        private set
+
+    fun changeQuickLookTranslation(id: String) {
+        quickLookTranslation = id
+        prefs.edit().putString("quick_look_translation", id).apply()
+    }
+
+    /**
+     * The other Bible for the quick look: the one chosen, unless it is the one being read; else one
+     * in the interface language (or French, then English, when reading in it), never the text being read.
+     */
+    fun quickLookTarget(): Translation? {
+        val current = translations.firstOrNull { it.id == translationId }
+        val offered = visibleTranslations.filter { it.id != translationId }
+        offered.firstOrNull { it.id == quickLookTranslation }?.let { return it }
+        val ui = uiLanguage.ifEmpty { java.util.Locale.getDefault().language }
+        val preferred = when (ui) { "fr" -> "lsg1910"; "en" -> "kjv"; else -> BibleRepository.PRIMARY }
+        return offered.firstOrNull { it.id == preferred && it.lang != current?.lang }
+            ?: offered.firstOrNull { it.lang != current?.lang }
+            ?: offered.firstOrNull()
+    }
+
+    /** The passage in one other Bible only (each Bible's file is copied on first use), numbering matched. */
+    suspend fun passageIn(p: Passage, t: Translation): Compared? = withContext(io) {
+        val fromMg = translationId == BibleRepository.PRIMARY
+        fun kjv(v: Int) = if (fromMg) study.mgToKjv(VerseRef(p.book, p.chapter, v)) else VerseRef(p.book, p.chapter, v)
+        val a = kjv(p.verseStart)
+        val b = kjv(p.verseEnd)
+        val (s, e) = if (t.id == BibleRepository.PRIMARY) study.kjvToMg(a) to study.kjvToMg(b) else a to b
+        val q = runCatching { Passage(p.book, s.chapter, s.verse, if (e.chapter == s.chapter) maxOf(s.verse, e.verse) else s.verse) }.getOrNull()
+            ?: return@withContext null
+        val text = runCatching { bible.verses(t.id, q.book, q.chapter, q.verseStart, q.verseEnd) }.getOrDefault(emptyList())
+            .joinToString(" ") { if (q.verseStart != q.verseEnd) "${it.verse} ${it.text}" else it.text }
+        if (text.isBlank()) null else Compared(t, q, text, t.id == "dra" && p.book == 19)
     }
 
     /** Opens the passage in another Bible. */
@@ -900,7 +956,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
      * the creeds belong to every tradition; the Reformed documents to the Protestant one.
      * Documents of other traditions appear only under "Go deeper", marked with their tradition.
      */
-    fun ownFamilies(): Set<String> = if (tradition == Tradition.Protestant) setOf("creed", "reformed") else setOf("creed")
+    fun ownFamilies(): Set<String> = if (tradition == Tradition.Protestant) setOf("creed", "reformed") else setOf("creed", "catholic")
 
     suspend fun <T> onIo(block: () -> T): T = withContext(io) { block() }
 
@@ -996,7 +1052,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     fun refreshSavedLists() {
-        viewModelScope.launch { savedLists = withContext(io) { user.savedLists() } }
+        val current = list.id
+        viewModelScope.launch {
+            savedLists = withContext(io) {
+                // empty lists other than the one in use are left over (e.g. made and never filled): drop them
+                user.savedLists().filter { it.itemCount == 0 && it.id != current }.forEach { user.deleteList(it.id) }
+                user.savedLists()
+            }
+        }
     }
 
     // ------------------------------------------------------------ history, notes, highlights

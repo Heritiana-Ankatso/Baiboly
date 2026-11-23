@@ -190,12 +190,12 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Olona ao amin’ny Baiboly (fomba Fianarana, pejy Rakibolana, Olona): ray aman-dreny, vady, mpiray tampo, zanaka ary taranaka araka ny ray amin’ny olona 3 068, miaraka amin’ny zava-nitranga nisy azy sy ny andininy rehetra manonona azy.</item>
-        <item>Fotoana: zava-nitranga 501 hatramin’ny Famoronana ka hatramin’ny Asan’ny Apostoly, miaraka amin’ny daty (araka an’i Jones, sy Ussher raha samy hafa), ny olona sy ny andininy. Fanamboarana ireo daty ireo, ary voalaza izany.</item>
-        <item>Fanekem-pinoana: ny Fanekem-pinoan’ny Apostoly, Nikea sy Atanasio ary ny fanekem-pinoana sy katesizy Nohavaozina (Heidelberg, Belgika, Dort, Westminster…) amin’ny lahatsoratra anglisy tranainy, miaraka amin’ny andinin-teny porofo manokatra ny andininy, sy ny konsily sy fivoriambe namoaka azy. Ny safidy Fivavahana no mamaritra izay aseho; ao amin’ny Fandalinana ny an’ny fivavahana hafa.</item>
-        <item>Ny takelaka Fianarana amin’ny andalan-teny dia manampy Olona sy zava-nitranga, ary ny andininy amin’ny fanekem-pinoana manonona azy.</item>
-        <item>Lisitra voatahiry: tena mamafa ny lisitra ny Fafana, ary tsy manampy lisitra foana faharoa intsony ny Lisitra vaovao.</item>
-        <item>Fomba Fianarana: tsy miseho intsony ny Hiverina amin’ny toerako afa-tsy rehefa avy nitsambikina (andinin-teny voatonona, valin’ny fikarohana, andininy N hita) ary miala rehefa mamaky manaraka ianao; tsy mijanona eo amin’ny pejy rehetra intsony izy aorian’ny fotoam-pivavahana. Tsy miova ny ao amin’ny fomba Fiangonana.</item>
+        <item>Topy maso: fidio ny andininy dia misy karatra kely mampiseho ilay andalan-teny amin’ny Baiboly hafa sy ny refy voatonony. Fikirana › Safidy hafa › Topy maso no mamaritra izay aseho.</item>
+        <item>Fotoana amin’ny sary mifanaraka amin’ny refy, hatramin’ny Famoronana ka hatramin’ny Fiangonana voalohany: vanim-potoana, fiainana sy fanjakana mifanila, zava-nitranga miseho rehefa manakaiky, ary Ity toko ity.</item>
+        <item>Fanekem-pinoana: antontan-taratasy katolika sy ortodoksa (Trente, Vatican I, Katesizy ortodoksa) sy ny konsily ekiomenika fito miaraka amin’ny nanapahany. Ny an’ny fivavahanao aloha; ny hafa ao amin’ny Fandalinana.</item>
+        <item>Fikirana mizara pejy amin’ny modely rehetra; ny Faritra amin’ny sarintany azo karohina amin’ny anarana, A–Z na araka ny karazany.</item>
+        <item>Andinin-teny amin’ny fiteny voafidy (John 3:16, Jn 3:16, Jao 3: 16); “Asa” ny Asan’ny Apostoly. Refy metrika ihany; karama aseho koa amin’ny taona sy volana niasana.</item>
+        <item>Sisiny mitovy amin’ny Android 15, tsy aseho intsony ao amin’ny Lisitra ny lisitra foana, ary tsy aseho ho ray aman-dreny ao amin’ny tetirazana intsony Andriamanitra (Lioka 3:38 dia miresaka famoronana).</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -429,13 +429,68 @@
     <string name="family_creeds">Fanekem-pinoan’ny Fiangonana voalohany</string>
     <string name="tradition_reformed">Protestanta (Nohavaozina)</string>
     <string name="councils">Konsily, synoda ary fivoriambe</string>
-    <string name="councils_note">Ireo namoaka antontan-taratasy ato amin’ity tranomboky ity ihany. Samy manana ny fomba fijeriny ny fahefan’ny konsily ny fivavahana tsirairay; ho an’ny fiangonana Nohavaozina, ambanin’ny Soratra Masina izy ireo.</string>
+    <string name="councils_note">Konsily raisin’ny fivavahanao; ny konsily ekiomenika fito raisin’ny rehetra (ny fahafito raisin’ny Fiangonana ortodoksa sy katolika). Famintinana araka an’i Philip Schaff, The Creeds of Christendom (1877). Ho an’ny fiangonana Nohavaozina, ambanin’ny Soratra Masina ny konsily.</string>
     <string name="council_issued">Namoaka:</string>
     <string name="go_deeper">Fandalinana: fivavahana hafa</string>
-    <string name="no_other_traditions">Mbola tsy misy antontan-taratasy katolika na ortodoksa: tsy nahitana izay manana fahazoan-dalana malalaka. Raha Katolika no fivavahana voafidy, eto no asehoana ny antontan-taratasy Nohavaozina.</string>
     <string name="other_tradition_note">An’ny fivavahana hafa ity antontan-taratasy ity (%1$s).</string>
     <string name="creeds_text_note">Lahatsoratra anglisy tranainy, an’ny besinimaro. Tsy nahitana dikanteny malagasy na frantsay manana fahazoan-dalana malalaka.</string>
-    <string name="creeds_credit">Lahatsoratra sy andinin-teny porofo: Reformed Standards compendium (Apache 2.0) sy Creeds.json (an’ny besinimaro)</string>
+    <string name="creeds_credit">Lahatsoratra sy andinin-teny porofo: Reformed Standards compendium (Apache 2.0), Creeds.json ary Philip Schaff, The Creeds of Christendom boky II, 1877 (an’ny besinimaro).</string>
     <string name="proof_texts">Andinin-teny porofo</string>
     <string name="no_citations_own">Tsy misy antontan-taratasin’ny fivavahanao manonona ity andalan-teny ity.</string>
+    <!-- Map: finding a region -->
+    <string name="regions_filter_hint">Hitady faritra</string>
+    <string name="regions_sort_named">Be voatonona indrindra</string>
+    <string name="regions_sort_az">A–Z</string>
+    <string name="region_kind_all">Rehetra</string>
+    <string name="region_kind_lands">Tany sy firenena</string>
+    <string name="region_kind_relief">Tendrombohitra sy lohasaha</string>
+    <string name="region_kind_waters">Ranomasina, ony ary nosy</string>
+    <string name="regions_count">Faritra %1$d amin’ny %2$d</string>
+    <!-- People: links the text does not support as family -->
+    <string name="rel_legal_father">Ray araka ny lalàna (Lioka 3:23)</string>
+    <string name="rel_legal_child">Zanaka araka ny lalàna (Lioka 3:23)</string>
+    <string name="note_son_of_god">Ny Lioka 3:38 dia milaza an’i Adama ho “zanak’Andriamanitra”: noforonin’Andriamanitra izy (Gen 2:7), fa tsy naterany. Tsy aseho ho ray aman-dreny ao amin’ny tetirazana Andriamanitra.</string>
+    <string name="note_virgin_birth">Torontoronin’ny Fanahy Masina ary naterak’i Maria virjiny (Mat 1:18-25; Lio 1:35). Ray araka ny lalàna azy i Josefa, “araka ny ninoana” (Lio 3:23); aminy no andalovan’ny tetirazana ao amin’ny Matio 1 sy Lioka 3.</string>
+    <string name="note_no_family">Andriamanitra no Mpamorona, fa tsy anisan’ny fianakaviana ao amin’ny tetirazana: tsy misy rohim-pianakaviana aseho. Ny Lioka 3:38 dia milaza an’i Adama ho “zanak’Andriamanitra” noho ny famoronana.</string>
+    <!-- Language of Bible references (book abbreviations) -->
+    <string name="ref_lang">mg</string>
+    <string name="no_saved_lists">Mbola tsy misy lisitra voatahiry. Miseho eto ny lisitra raha vao misy andalan-teny ampidirina ao (fomba Fiangonana, Ho lisitra).</string>
+    <!-- Units: wages as a length of work -->
+    <string name="units_work_time">≈ asa %1$s, enina andro isan-kerinandro (Eks. 20:9)</string>
+    <string name="list_and">" sy "</string>
+    <plurals name="work_years">
+        <item quantity="one">%1$d taona</item>
+        <item quantity="other">%1$d taona</item>
+    </plurals>
+    <plurals name="work_months">
+        <item quantity="one">%1$d volana</item>
+        <item quantity="other">%1$d volana</item>
+    </plurals>
+    <plurals name="work_days">
+        <item quantity="one">%1$d andro</item>
+        <item quantity="other">%1$d andro</item>
+    </plurals>
+    <string name="tradition_orthodox">Ortodoksa</string>
+    <!-- Timeline chart -->
+    <string name="tl_lives">Fiainana</string>
+    <string name="tl_reigns">Fanjakana</string>
+    <string name="tl_judges">Mpitsara</string>
+    <string name="tl_periods">Vanim-potoana hafa</string>
+    <string name="tl_this_chapter">Ity toko ity</string>
+    <string name="tl_whole">Ny Baiboly manontolo</string>
+    <string name="tl_years">%1$d taona</string>
+    <string name="era_creation">Famoronana ka hatramin’ny Safodrano</string>
+    <string name="era_flood">Safodrano ka hatramin’i Abrahama</string>
+    <string name="era_exile">Sesitany</string>
+    <string name="era_return">Fiverenana avy any an-tsesitany</string>
+    <string name="tl_chart">Sary</string>
+    <string name="tl_list">Lisitra</string>
+    <string name="tl_hint">Atsofohy na tsindrio indroa raha hanakaiky; tsindrio ny zava-nitranga na ny tsipika raha hanokatra azy.</string>
+    <!-- Quick look -->
+    <string name="ql_title">Topy maso</string>
+    <string name="ql_translation">Ilay andalan-teny amin’ny Baiboly hafa</string>
+    <string name="ql_cited">Tononin’ny andininy %1$d amin’ny fanekem-pinoanao</string>
+    <string name="ql_bible">Baiboly hafa</string>
+    <string name="ql_bible_auto">Ho azy</string>
+    <string name="ql_settings_hint">Miseho eo ambonin’ny asa rehefa misy andininy voafidy; tsindrio raha hanokatra ny takelaka Fianarana feno.</string>
 </resources>

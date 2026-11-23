@@ -122,7 +122,7 @@ fun CrossRefContent(vm: AppViewModel, verse: Int, onDismiss: () -> Unit) {
                             Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.openPassage(p); onDismiss() }
                                 .testTag("xref:${p.book}-${p.chapter}-${p.verseStart}").padding(vertical = 6.dp),
                         ) {
-                            Text(p.shortLabel(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = ornament.rubric)
+                            Text(p.label(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = ornament.rubric)
                             lines[p]?.let { Text(it, style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = TextOverflow.Ellipsis) }
                         }
                     }

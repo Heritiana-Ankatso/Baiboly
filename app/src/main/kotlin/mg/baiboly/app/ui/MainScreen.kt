@@ -145,6 +145,9 @@ fun MainScreen(vm: AppViewModel) {
     var noteDraft by remember { mutableStateOf<NoteDraft?>(null) }
     var xrefVerse by remember { mutableStateOf<Int?>(null) }
     var toolsPassage by remember { mutableStateOf<Passage?>(null) }
+    var toolsTab by remember { mutableStateOf(PassageTab.Translations) }
+    // the quick look closed by the user for this selection (it comes back with the next one)
+    var quickLookClosed by remember { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
     val clipboard = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
@@ -191,7 +194,7 @@ fun MainScreen(vm: AppViewModel) {
                         },
                         onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
                         onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
-                        onStudy = { toolsPassage = Passage(loc.book, loc.chapter, selected.min(), selected.max()) },
+                        onStudy = { toolsTab = PassageTab.Translations; toolsPassage = Passage(loc.book, loc.chapter, selected.min(), selected.max()) },
                         onWords = if (selected.size == 1) ({ wordsVerse = selected.first() }) else null,
                         onCrossRefs = if (selected.size == 1 && vm.mode == AppMode.Study) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
                         onListen = if (vm.readAloudEnabled && !church) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
@@ -229,6 +232,17 @@ fun MainScreen(vm: AppViewModel) {
                     onNoteTap = { n -> noteDraft = NoteDraft(n.passage, n.text, n.id) },
                 )
                 ChapterOverlay(vm)
+                // quick look: the passage in another language, its units… (Settings, Advanced, Quick look)
+                LaunchedEffect(selected) { quickLookClosed = false }
+                if (selected.isNotEmpty() && !quickLookClosed && toolsPassage == null) {
+                    val qp = Passage(loc.book, loc.chapter, selected.min(), selected.max())
+                    QuickLookCard(
+                        vm, qp,
+                        onOpen = { tab -> toolsTab = tab; toolsPassage = qp },
+                        onClose = { quickLookClosed = true },
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                    )
+                }
                 // Church, and Study after a jump (Found N verses): one tap back to the list passage.
                 if (vm.showBackToMyPlace) {
                     ExtendedFloatingActionButton(
@@ -236,7 +250,7 @@ fun MainScreen(vm: AppViewModel) {
                         icon = { Icon(Icons.AutoMirrored.Outlined.Undo, null) },
                         text = {
                             Text(
-                                stringResource(R.string.back_to_my_place) + "  " + (vm.list.currentItem?.passage?.shortLabel() ?: ""),
+                                stringResource(R.string.back_to_my_place) + "  " + (vm.list.currentItem?.passage?.label() ?: ""),
                                 style = MaterialTheme.typography.labelLarge,
                             )
                         },
@@ -252,7 +266,7 @@ fun MainScreen(vm: AppViewModel) {
     if (showAdd) AddPanel(vm, onDismiss = { showAdd = false })
     if (showBrowse) BrowseSheet(vm, onDismiss = { showBrowse = false })
     studyVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, onDismiss = { studyVerse = null }) }
-    toolsPassage?.let { p -> PassageToolsSheet(vm, p, onDismiss = { toolsPassage = null; selected = emptySet() }) }
+    toolsPassage?.let { p -> PassageToolsSheet(vm, p, toolsTab, onDismiss = { toolsPassage = null; selected = emptySet() }) }
     xrefVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, startOnCrossRefs = true, onDismiss = { xrefVerse = null }) }
     if (vm.showWhatsNew) WhatsNewSheet(vm.versionName, onDismiss = { vm.dismissWhatsNew() })
     noteDraft?.let { d ->
@@ -352,7 +366,7 @@ private fun ServiceBar(vm: AppViewModel, onAdd: () -> Unit) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val prev = list.items.getOrNull(list.current - 1)
                 val next = list.items.getOrNull(list.current + 1)
-                ServiceStep(prev?.passage?.shortLabel(), forward = false, modifier = Modifier.weight(1f).testTag("service-prev")) {
+                ServiceStep(prev?.passage?.label(), forward = false, modifier = Modifier.weight(1f).testTag("service-prev")) {
                     vm.selectItem(list.current - 1)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 6.dp)) {
@@ -363,7 +377,7 @@ private fun ServiceBar(vm: AppViewModel, onAdd: () -> Unit) {
                     ) { Icon(Icons.Filled.Add, stringResource(R.string.add)) }
                     Text("${list.current + 1} / ${list.items.size}", style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.gold)
                 }
-                ServiceStep(next?.passage?.shortLabel(), forward = true, modifier = Modifier.weight(1f).testTag("service-next")) {
+                ServiceStep(next?.passage?.label(), forward = true, modifier = Modifier.weight(1f).testTag("service-next")) {
                     vm.selectItem(list.current + 1)
                 }
             }
@@ -522,7 +536,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
                             .testTag("chip:$i"),
                     ) {
                         Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(item.passage.shortLabel(), style = MaterialTheme.typography.bodyLarge, fontWeight = if (current) FontWeight.Bold else FontWeight.Normal)
+                            Text(item.passage.label(), style = MaterialTheme.typography.bodyLarge, fontWeight = if (current) FontWeight.Bold else FontWeight.Normal)
                             if (item.isSide) {
                                 Spacer(Modifier.width(6.dp))
                                 Text(
@@ -854,6 +868,10 @@ private data class Typeset(
 ) {
     /** Lines break in the text's own language: system patterns for French and English. */
     fun style(base: androidx.compose.ui.text.TextStyle) = base.copy(
+        // No letter spacing in the Bible text (Material's bodyLarge adds 0.5sp). Book text has none, and on
+        // Android 15 justified lines with letter spacing stop short of the right edge by the spacing of the
+        // whole line (~one character), so the right margin looked twice the left. Test: ReaderMarginTest.
+        letterSpacing = 0.sp,
         textAlign = if (justify) TextAlign.Justify else TextAlign.Start,
         hyphens = if (hyphenate) Hyphens.Auto else Hyphens.None,
         lineBreak = if (justify) LineBreak.Paragraph else LineBreak.Simple,

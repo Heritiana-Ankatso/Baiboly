@@ -74,6 +74,8 @@ android {
         unitTests.all {
             it.maxHeapSize = "3g"
             it.forkEvery = 1 // Robolectric resets preferences but not SQLite files between tests
+            // a failing assertion's message (not only its file and line) in the CI log
+            it.testLogging { exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL; events("failed") }
         }
     }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }

@@ -205,12 +205,12 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>People of the Bible (Study mode, Dictionary page, People): parents, spouses, brothers and sisters, children and the father line of 3,068 people, with the events they take part in and every verse that names them.</item>
-        <item>Timeline: 501 events from Creation to Acts, with their dates (after Jones, and Ussher where it differs), the people in them and their verses. The dates are reconstructions and are labelled so.</item>
-        <item>Confessions: the Apostles’, Nicene and Athanasian Creeds and the Reformed confessions and catechisms (Heidelberg, Belgic, Dort, Westminster…) in their historic English text, with proof texts that open the verse, and the councils and assemblies that issued them. The Tradition setting chooses what is shown; other traditions are under Go deeper.</item>
-        <item>The Study panel of a passage adds People and events, and the confession articles that cite it.</item>
-        <item>Saved lists: Delete now really removes the list, and New list no longer adds a second empty list.</item>
-        <item>Study mode: Back to my place now appears only just after a jump (a reference, a search result, Found N verses) and goes when you read on; it no longer stays on every page after a service. In Church mode it works as before.</item>
+        <item>Quick look: select verses and a small card shows the passage in another Bible and the units it names. Settings › Advanced › Quick look chooses what it shows.</item>
+        <item>Timeline as a chart to scale, from Creation to the early church: eras, lifetimes and reigns side by side, events that appear as you zoom, and This chapter.</item>
+        <item>Confessions: Catholic and Orthodox documents (Trent, Vatican I, the Orthodox Catechism) and the seven ecumenical councils, with what each decided. Your tradition first; the others under Go deeper.</item>
+        <item>Settings in pages in every theme; the map’s Regions can be searched by name, listed A–Z or by kind.</item>
+        <item>References in the interface language (John 3:16, Jn 3:16, Jao 3: 16); Acts is “Asa” in Malagasy. Units in metric only; wages also as years and months of work.</item>
+        <item>Even margins on Android 15, an empty list no longer shown under Lists, and God no longer shown as a parent in the family tree (Luke 3:38 speaks of creation).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -444,13 +444,68 @@
     <string name="family_creeds">Creeds of the early Church</string>
     <string name="tradition_reformed">Protestant (Reformed)</string>
     <string name="councils">Councils, synods and assemblies</string>
-    <string name="councils_note">Only those that issued a document of this library. Each tradition rates the authority of councils in its own way; for the Reformed churches they stand below Scripture.</string>
+    <string name="councils_note">Councils received by your tradition; the seven ecumenical councils by all (the seventh by the Orthodox and Catholic Churches). Summaries after Philip Schaff, The Creeds of Christendom (1877). For the Reformed churches councils stand below Scripture.</string>
     <string name="council_issued">Issued:</string>
     <string name="go_deeper">Go deeper: other traditions</string>
-    <string name="no_other_traditions">No Catholic or Orthodox document is included yet: none could be obtained with a free licence. When the tradition setting is Catholic, the Reformed documents are listed here.</string>
     <string name="other_tradition_note">This document belongs to another tradition (%1$s).</string>
     <string name="creeds_text_note">Historic English texts, in the public domain. No Malagasy or French text with a free licence was found.</string>
-    <string name="creeds_credit">Texts and proof texts: Reformed Standards compendium (Apache 2.0) and Creeds.json (public domain)</string>
+    <string name="creeds_credit">Texts and proof texts: Reformed Standards compendium (Apache 2.0), Creeds.json and Philip Schaff, The Creeds of Christendom vol. II, 1877 (public domain).</string>
     <string name="proof_texts">Proof texts</string>
     <string name="no_citations_own">No document of your tradition cites this passage.</string>
+    <!-- Map: finding a region -->
+    <string name="regions_filter_hint">Find a region</string>
+    <string name="regions_sort_named">Most named</string>
+    <string name="regions_sort_az">A–Z</string>
+    <string name="region_kind_all">All</string>
+    <string name="region_kind_lands">Lands and peoples</string>
+    <string name="region_kind_relief">Mountains and valleys</string>
+    <string name="region_kind_waters">Seas, rivers and islands</string>
+    <string name="regions_count">%1$d of %2$d regions</string>
+    <!-- People: links the text does not support as family -->
+    <string name="rel_legal_father">Legal father (Luke 3:23)</string>
+    <string name="rel_legal_child">Son by law (Luke 3:23)</string>
+    <string name="note_son_of_god">Luke 3:38 calls Adam “the son of God”: he was created by God (Gen 2:7), not begotten. God is not shown as a parent in the family tree.</string>
+    <string name="note_virgin_birth">Conceived by the Holy Spirit and born of the virgin Mary (Matt 1:18–25; Luke 1:35). Joseph was his father in law, “as was supposed” (Luke 3:23); the genealogies of Matthew 1 and Luke 3 run through him.</string>
+    <string name="note_no_family">God is the Creator, not one of the families of the genealogies, so no family links are shown. Luke 3:38 calls Adam “the son of God” by creation.</string>
+    <!-- Language of Bible references (book abbreviations) -->
+    <string name="ref_lang">en</string>
+    <string name="no_saved_lists">No saved lists yet. A list appears here once a passage is added to it (Church mode, To list).</string>
+    <!-- Units: wages as a length of work -->
+    <string name="units_work_time">≈ %1$s of work, at six working days a week (Ex 20:9)</string>
+    <string name="list_and">" and "</string>
+    <plurals name="work_years">
+        <item quantity="one">%1$d year</item>
+        <item quantity="other">%1$d years</item>
+    </plurals>
+    <plurals name="work_months">
+        <item quantity="one">%1$d month</item>
+        <item quantity="other">%1$d months</item>
+    </plurals>
+    <plurals name="work_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="tradition_orthodox">Orthodox</string>
+    <!-- Timeline chart -->
+    <string name="tl_lives">Lifetimes</string>
+    <string name="tl_reigns">Reigns</string>
+    <string name="tl_judges">Judges</string>
+    <string name="tl_periods">Other periods</string>
+    <string name="tl_this_chapter">This chapter</string>
+    <string name="tl_whole">Whole Bible</string>
+    <string name="tl_years">%1$d yrs</string>
+    <string name="era_creation">Creation to the Flood</string>
+    <string name="era_flood">Flood to Abraham</string>
+    <string name="era_exile">Exile</string>
+    <string name="era_return">Return from exile</string>
+    <string name="tl_chart">Chart</string>
+    <string name="tl_list">List</string>
+    <string name="tl_hint">Pinch or double-tap to zoom; tap an event or a bar to open it.</string>
+    <!-- Quick look -->
+    <string name="ql_title">Quick look</string>
+    <string name="ql_translation">The passage in another Bible</string>
+    <string name="ql_cited">Cited by %1$d articles of your confessions</string>
+    <string name="ql_bible">Other Bible</string>
+    <string name="ql_bible_auto">Automatic</string>
+    <string name="ql_settings_hint">Shown above the actions when verses are selected; a tap opens the full Study panel.</string>
 </resources>

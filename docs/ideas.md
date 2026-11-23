@@ -108,11 +108,11 @@ Implemented: B1, B2, A1 and A2 in part. Not started: A3 Orthodox value, B3.
 - Left out:
   - Copyright: the Second Helvetic Confession, Chalcedonian Definition and Council of Orange (modern translations in both sources), the ELLC Apostles' Creed, and the CRC/Canadian Reformed texts that Creeds.json labels "Public Domain".
   - Debated: the Thirty-Nine Articles.
-- Catholic documents: no public-domain source could be reached (Trent, Waterworth 1848; Roman Catechism). Vatican I/II and the Catechism of the Catholic Church are under Vatican copyright. Malagasy texts: none found.
+- Catholic and Orthodox documents (in *Go deeper* for Protestants, in normal study for Catholics): the Canons and Decrees of Trent (Waterworth 1848), the Profession of the Tridentine Faith, *Ineffabilis Deus* (1854) and the Vatican Council's decrees (1870), and the Longer Catechism of the Orthodox Church (Philaret, tr. Blackmore 1845, all 610 questions); with the Definition of Chalcedon. Source: Schaff, *Creeds of Christendom* II (1877), CCEL, public domain. Still out: the Orthodox Confession (1643) and the Confession of Dositheus (1672), Greek and Latin only in Schaff; Vatican II and the Catechism of the Catholic Church (Vatican copyright).
 
 **A2 Councils**
-- Listed only where a library document records them: Council of Constantinople (381, Nicene Creed), Synod of Dort, Westminster Assembly, Savoy Assembly. Place and year are taken from the sources' metadata.
-- The seven ecumenical councils need a public-domain source (Percival, *The Seven Ecumenical Councils*, NPNF II/14, on ccel.org). Downloading it was not possible in this build session.
+- The seven ecumenical councils (Nicaea 325 to Nicaea II 787), Trent and the Vatican Council, then Dort, Westminster and Savoy: place, year, a neutral summary after Schaff, and the documents of the library each issued.
+- Each council records the traditions that receive it: the first six all; Nicaea II the Orthodox and Catholic Churches; Trent and Vatican I the Catholic; the Reformed assemblies the Reformed. Those of the chosen tradition show in normal study, the others under *Go deeper*.
 
 **A3 Tradition**
 - Protestant: creeds and Reformed documents show in normal study.

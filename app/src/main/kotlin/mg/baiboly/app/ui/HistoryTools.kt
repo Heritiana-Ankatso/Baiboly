@@ -78,7 +78,7 @@ private fun VerseChips(vm: AppViewModel, verses: List<Passage>, tag: String) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.testTag(tag)) {
         verses.forEach { p ->
             TextButton(onClick = { vm.openPassage(p) }, modifier = Modifier.heightIn(min = 40.dp)) {
-                Text(p.shortLabel(), color = LocalOrnament.current.rubric)
+                Text(p.label(), color = LocalOrnament.current.rubric)
             }
         }
     }
@@ -86,7 +86,16 @@ private fun VerseChips(vm: AppViewModel, verses: List<Passage>, tag: String) {
 
 // ---------------------------------------------------------------- people
 
-private val RELATION_ORDER = listOf("father", "mother", "partner", "sibling", "half_sibling", "child")
+private val RELATION_ORDER = listOf("father", "legal_father", "mother", "partner", "sibling", "half_sibling", "child", "legal_child")
+
+/** A note for a person's page, where a family link would say more (or other) than the text. */
+@Composable
+private fun personNote(key: String): String? = when (key) {
+    "son_of_god" -> stringResource(R.string.note_son_of_god)
+    "virgin_birth" -> stringResource(R.string.note_virgin_birth)
+    "no_family" -> stringResource(R.string.note_no_family)
+    else -> null
+}
 
 @Composable
 private fun relationTitle(kind: String): String = when (kind) {
@@ -95,6 +104,8 @@ private fun relationTitle(kind: String): String = when (kind) {
     "partner" -> stringResource(R.string.rel_partners)
     "sibling" -> stringResource(R.string.rel_siblings)
     "half_sibling" -> stringResource(R.string.rel_half_siblings)
+    "legal_father" -> stringResource(R.string.rel_legal_father)
+    "legal_child" -> stringResource(R.string.rel_legal_child)
     else -> stringResource(R.string.rel_children)
 }
 
@@ -102,7 +113,7 @@ private fun relationTitle(kind: String): String = when (kind) {
 @Composable
 private fun personSubtitle(p: Person, father: Person? = null): String = listOfNotNull(
     father?.let { stringResource(R.string.child_of, it.name) },
-    p.first?.shortLabel(),
+    p.first?.label(),
     stringResource(R.string.place_mentions, p.mentions),
 ).joinToString(" · ")
 
@@ -165,6 +176,10 @@ private fun PersonView(vm: AppViewModel, id: Int, modifier: Modifier, onPerson: 
         item {
             Text(p.name, style = MaterialTheme.typography.headlineSmall, color = ornament.rubric, modifier = Modifier.padding(top = 12.dp))
             if (p.alsoCalled.isNotEmpty()) Note(stringResource(R.string.also_called, p.alsoCalled))
+            personNote(p.note)?.let {
+                Text(it, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic,
+                    modifier = Modifier.padding(top = 6.dp).testTag("person-note"))
+            }
             val born = p.born?.let { yearLabel(it) }
             val died = p.died?.let { yearLabel(it) }
             if (born != null || died != null) {
@@ -187,6 +202,8 @@ private fun PersonView(vm: AppViewModel, id: Int, modifier: Modifier, onPerson: 
             }
             item {
                 Text("✠ " + p.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = ornament.rubric, modifier = Modifier.padding(vertical = 6.dp))
+                // the first ancestor's note (Adam: "the son of God" by creation, Luke 3:38)
+                line.last().note.let { k -> personNote(k)?.let { Note(line.last().name + ": " + it, Modifier.padding(bottom = 4.dp)) } }
                 Note(stringResource(R.string.genealogy_note))
             }
         }
@@ -251,16 +268,19 @@ private fun durationLabel(d: String): String? {
 private fun EventRow(vm: AppViewModel, e: BibleEvent) {
     Column(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { vm.openEvent(e.id) }.testTag("event:${e.id}").padding(vertical = 6.dp)) {
         Text(e.title, style = MaterialTheme.typography.bodyLarge)
-        Note(listOfNotNull(eventDates(e), e.first?.shortLabel()).joinToString(" · "))
+        Note(listOfNotNull(eventDates(e), e.first?.label()).joinToString(" · "))
     }
 }
 
 @Composable
 fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
     var all by remember { mutableStateOf<List<BibleEvent>>(emptyList()) }
+    var eras by remember { mutableStateOf<List<mg.baiboly.data.Era>>(emptyList()) }
     var query by remember { mutableStateOf("") }
     var open by remember { mutableStateOf(vm.eventRequest) }
-    LaunchedEffect(Unit) { all = vm.onIo { vm.chronicle.timeline } }
+    // the chart by default; the list is its table view (and the place to search)
+    var asList by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) { vm.onIo { all = vm.chronicle.timeline; eras = vm.chronicle.eras } }
     LaunchedEffect(vm.eventRequest) { vm.eventRequest?.let { open = it; vm.eventRequest = null } }
     androidx.activity.compose.BackHandler(enabled = open != null) { open = null }
     val id = open
@@ -272,6 +292,18 @@ fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
     val shown = remember(all, q) { if (q.isEmpty()) all else all.filter { mg.baiboly.core.text.TextNorm.norm(it.title).contains(q) } }
     val ornament = LocalOrnament.current
     Column(modifier) {
+        Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            androidx.compose.material3.FilterChip(selected = !asList, onClick = { asList = false },
+                label = { Text(stringResource(R.string.tl_chart)) }, modifier = Modifier.testTag("tl-mode-chart"))
+            androidx.compose.material3.FilterChip(selected = asList, onClick = { asList = true },
+                label = { Text(stringResource(R.string.tl_list)) }, modifier = Modifier.testTag("tl-mode-list"))
+        }
+        if (!asList) {
+            Note(stringResource(R.string.tl_hint), Modifier.padding(horizontal = 16.dp))
+            TimelineChart(vm, all, eras, Modifier.weight(1f))
+            Note(stringResource(R.string.theographic_credit), Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            return@Column
+        }
         OutlinedTextField(
             value = query, onValueChange = { query = it }, singleLine = true,
             placeholder = { Text(stringResource(R.string.timeline_search_hint)) },
@@ -334,8 +366,17 @@ private fun EventView(vm: AppViewModel, e: BibleEvent, modifier: Modifier) {
 // ---------------------------------------------------------------- confessions and councils
 
 @Composable
-internal fun familyLabel(family: String): String =
-    if (family == "reformed") stringResource(R.string.tradition_reformed) else stringResource(R.string.family_creeds)
+internal fun familyLabel(family: String): String = when (family) {
+    "reformed" -> stringResource(R.string.tradition_reformed)
+    "catholic" -> stringResource(R.string.catholic)
+    "orthodox" -> stringResource(R.string.tradition_orthodox)
+    else -> stringResource(R.string.family_creeds)
+}
+
+/** The traditions that receive a council, as a label ("Catholic, Orthodox"). */
+@Composable
+private fun councilLabel(c: mg.baiboly.data.Council): String =
+    c.families.filter { it != "creed" }.map { familyLabel(it) }.joinToString(", ")
 
 @Composable
 fun ConfessionsView(vm: AppViewModel, modifier: Modifier = Modifier) {
@@ -361,27 +402,32 @@ fun ConfessionsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium, color = ornament.rubric, modifier = Modifier.padding(top = 8.dp),
             )
         }
-        listOf("creed", "reformed").filter { it in own }.forEach { fam ->
+        listOf("creed", "reformed", "catholic", "orthodox").filter { it in own }.forEach { fam ->
             item(key = "fam-$fam") { SectionTitle(familyLabel(fam)) }
             items(docs.filter { it.family == fam }, key = { it.id }) { d -> DocRow(d, marked = false) { open = d.id to -1 } }
         }
-        val councilsShown = councils.filter { c -> c.docs.any { id -> docs.firstOrNull { it.id == id }?.family in own } }
+        // councils received by the chosen tradition (the ecumenical ones by all); the others under Go deeper
+        val councilsShown = councils.filter { c -> c.families.any { it in own } }
         if (councilsShown.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.councils)) }
             items(councilsShown, key = { "c-" + it.id }) { c -> CouncilRow(c, docs) { open = it to -1 } }
             item { Note(stringResource(R.string.councils_note), Modifier.padding(top = 4.dp)) }
         }
-        // Go deeper: documents of the other traditions, each marked with its tradition
-        item {
-            TextButton(onClick = { deeper = !deeper }, modifier = Modifier.padding(top = 12.dp).heightIn(min = 48.dp).testTag("go-deeper")) {
-                Text((if (deeper) "▾ " else "▸ ") + stringResource(R.string.go_deeper), style = MaterialTheme.typography.titleSmall)
+        // Go deeper: documents and councils of the other traditions, each marked with its tradition
+        // (left out altogether when there is none)
+        val others = docs.filter { it.family !in own }
+        val otherCouncils = councils.filter { it !in councilsShown }
+        if (others.isNotEmpty() || otherCouncils.isNotEmpty()) {
+            item {
+                TextButton(onClick = { deeper = !deeper }, modifier = Modifier.padding(top = 12.dp).heightIn(min = 48.dp).testTag("go-deeper")) {
+                    Text((if (deeper) "▾ " else "▸ ") + stringResource(R.string.go_deeper) + " (${others.size + otherCouncils.size})",
+                        style = MaterialTheme.typography.titleSmall)
+                }
             }
         }
         if (deeper) {
-            val others = docs.filter { it.family !in own }
             items(others, key = { "o-" + it.id }) { d -> DocRow(d, marked = true) { open = d.id to -1 } }
-            items(councils.filter { it !in councilsShown }, key = { "oc-" + it.id }) { c -> CouncilRow(c, docs, marked = true) { open = it to -1 } }
-            item { Note(stringResource(R.string.no_other_traditions), Modifier.padding(vertical = 6.dp)) }
+            items(otherCouncils, key = { "oc-" + it.id }) { c -> CouncilRow(c, docs, marked = true) { open = it to -1 } }
         }
         item {
             Note(stringResource(R.string.creeds_text_note), Modifier.padding(top = 16.dp))
@@ -402,14 +448,15 @@ private fun DocRow(d: CreedDoc, marked: Boolean, onOpen: () -> Unit) {
 @Composable
 private fun CouncilRow(c: mg.baiboly.data.Council, docs: List<CreedDoc>, marked: Boolean = false, onDoc: (String) -> Unit) {
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp).testTag("council:${c.id}")) {
-        val fam = docs.firstOrNull { it.id == c.docs.first() }?.family ?: "creed"
-        Text((if (marked) familyLabel(fam) + ": " else "") + c.name, style = MaterialTheme.typography.bodyLarge)
+        val label = councilLabel(c)
+        Text((if (marked && label.isNotEmpty()) "$label: " else "") + c.name, style = MaterialTheme.typography.bodyLarge)
         Note(listOf(c.place, c.year).filter { it.isNotEmpty() }.joinToString(" · "))
-        Row {
+        if (c.summary.isNotEmpty()) Text(c.summary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
+        val issued = c.docs.mapNotNull { id -> docs.firstOrNull { it.id == id } }
+        if (issued.isNotEmpty()) Row {
             Text(stringResource(R.string.council_issued) + " ", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 12.dp))
-            c.docs.forEach { id ->
-                val d = docs.firstOrNull { it.id == id } ?: return@forEach
-                TextButton(onClick = { onDoc(id) }, modifier = Modifier.heightIn(min = 40.dp)) { Text(d.short, color = LocalOrnament.current.rubric) }
+            issued.forEach { d ->
+                TextButton(onClick = { onDoc(d.id) }, modifier = Modifier.heightIn(min = 40.dp)) { Text(d.short, color = LocalOrnament.current.rubric) }
             }
         }
     }
@@ -460,7 +507,8 @@ internal fun CreedItemView(vm: AppViewModel, d: CreedDoc?, it: CreedItem, compac
             append(it.text.substring(pos))
         }
     }
-    val proofs = remember(it.proofs, ornament) {
+    val lang = refLang()
+    val proofs = remember(it.proofs, ornament, lang) {
         it.proofs.lines().filter { l -> l.isNotBlank() }.map { line ->
             val letter = line.substringBefore('⟦')
             buildAnnotatedString {
@@ -469,7 +517,7 @@ internal fun CreedItemView(vm: AppViewModel, d: CreedDoc?, it: CreedItem, compac
                     if (i > 0) append(", ")
                     val p = vm.library.osisToPassage(m.groupValues[1])
                     if (p == null) append(m.groupValues[1])
-                    else withLink(LinkAnnotation.Clickable("ref", link) { vm.openPassage(p) }) { append(p.shortLabel()) }
+                    else withLink(LinkAnnotation.Clickable("ref", link) { vm.openPassage(p) }) { append(p.shortLabel(lang)) }
                 }
             }
         }
