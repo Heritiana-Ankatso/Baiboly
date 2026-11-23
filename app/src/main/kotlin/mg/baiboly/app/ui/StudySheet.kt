@@ -93,7 +93,7 @@ fun StudyContent(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismis
 fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, startOnCrossRefs: Boolean = false, onDismiss: () -> Unit) =
     PassageToolsSheet(vm, Passage(book, chapter, verse, verse), if (startOnCrossRefs) PassageTab.References else PassageTab.Original, onDismiss)
 
-enum class PassageTab { Translations, Original, References, Places, Units, Dictionary }
+enum class PassageTab { Translations, Original, References, People, Places, Units, Dictionary, Confessions }
 
 /**
  * Everything about the selected verses, in one panel (any mode: Study on the
@@ -112,6 +112,14 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
     var places by remember(passage) { mutableStateOf<List<mg.baiboly.data.Place>?>(null) }
     var units by remember(passage) { mutableStateOf<List<BibleUnit>?>(null) }
     var dict by remember(passage) { mutableStateOf<List<AppViewModel.DictMatch>?>(null) }
+    var people by remember(passage) { mutableStateOf<List<mg.baiboly.data.Person>?>(null) }
+    var events by remember(passage) { mutableStateOf<List<mg.baiboly.data.BibleEvent>?>(null) }
+    var creeds by remember(passage) { mutableStateOf<List<mg.baiboly.data.CreedItem>?>(null) }
+    LaunchedEffect(passage) {
+        people = vm.peopleInPassage(passage)
+        events = vm.eventsInPassage(passage)
+        creeds = vm.creedsCiting(passage)
+    }
     LaunchedEffect(passage) {
         val m = vm.toMalagasy(passage)
         mg = m
@@ -124,6 +132,8 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
             PassageTab.Places -> !places.isNullOrEmpty()
             PassageTab.Units -> !units.isNullOrEmpty()
             PassageTab.Dictionary -> !dict.isNullOrEmpty()
+            PassageTab.People -> !people.isNullOrEmpty() || !events.isNullOrEmpty()
+            PassageTab.Confessions -> !creeds.isNullOrEmpty()
             else -> true
         }
     }
@@ -156,6 +166,8 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                                     PassageTab.Places -> stringResource(R.string.tab_places) + " (${places?.size ?: 0})"
                                     PassageTab.Units -> stringResource(R.string.units) + " (${units?.size ?: 0})"
                                     PassageTab.Dictionary -> stringResource(R.string.dictionary)
+                                    PassageTab.People -> stringResource(R.string.tab_people) + " (${(people?.size ?: 0) + (events?.size ?: 0)})"
+                                    PassageTab.Confessions -> stringResource(R.string.tool_confessions) + " (${creeds?.size ?: 0})"
                                 },
                                 maxLines = 1,
                             )
@@ -178,6 +190,8 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                     PassageTab.Places -> PlacesPage(vm, places.orEmpty(), onDismiss)
                     PassageTab.Units -> UnitsPage(vm, units.orEmpty(), lang, onDismiss)
                     PassageTab.Dictionary -> DictionaryPage(vm, dict.orEmpty())
+                    PassageTab.People -> PassagePeoplePage(vm, people.orEmpty(), events.orEmpty(), onDismiss)
+                    PassageTab.Confessions -> PassageConfessionsPage(vm, creeds.orEmpty(), onDismiss)
                 }
             }
         }

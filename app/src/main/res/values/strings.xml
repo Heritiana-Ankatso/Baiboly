@@ -205,13 +205,12 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Study a passage: select verses, then Study. The passage in the other Bibles, its original Hebrew or Greek words with their meaning, cross-references, the places it names (on the map), its units (in the converter) and dictionary entries.</item>
-        <item>More text on the screen: a compact interface (Settings › Appearance › Interface size), narrower margins, text down to size 10. The screen stays on while the app is open (can be turned off).</item>
-        <item>Updates install inside the app: Settings › Advanced › Updates › Download and install. Android asks once to allow it, then confirms the update; nothing opens in the browser.</item>
-        <item>The map fills the screen. Search a place by name; zoom with the + and − buttons or a double tap.</item>
-        <item>Regions drawn whole: kingdoms, peoples and provinces (Edom, Moab, Galilee, Samaria, Macedonia, Asia…), darker where the region surely was, lighter where its edge is uncertain. Tap inside a region, or choose it under Regions.</item>
-        <item>Routes: 15 journeys of the Bible (Abraham, the Exodus, Paul’s journeys, the voyage to Rome…), and the way between any two places on the ancient roads, with its length and days on foot.</item>
-        <item>Units (Study mode, Dictionary page): cubits, shekels, ephahs, baths, denarii and more, converted to each other and to metres, grams and litres, with the verse of each unit; the hours of the day and the watches of the night.</item>
+        <item>People of the Bible (Study mode, Dictionary page, People): parents, spouses, brothers and sisters, children and the father line of 3,068 people, with the events they take part in and every verse that names them.</item>
+        <item>Timeline: 501 events from Creation to Acts, with their dates (after Jones, and Ussher where it differs), the people in them and their verses. The dates are reconstructions and are labelled so.</item>
+        <item>Confessions: the Apostles’, Nicene and Athanasian Creeds and the Reformed confessions and catechisms (Heidelberg, Belgic, Dort, Westminster…) in their historic English text, with proof texts that open the verse, and the councils and assemblies that issued them. The Tradition setting chooses what is shown; other traditions are under Go deeper.</item>
+        <item>The Study panel of a passage adds People and events, and the confession articles that cite it.</item>
+        <item>Saved lists: Delete now really removes the list, and New list no longer adds a second empty list.</item>
+        <item>Study mode: Back to my place now appears only just after a jump (a reference, a search result, Found N verses) and goes when you read on; it no longer stays on every page after a service. In Church mode it works as before.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -404,4 +403,54 @@
     <string name="show_on_map">Map</string>
     <string name="open_converter">Convert</string>
     <string name="units_approx">Modern values are approximate (see Units in the Dictionary page).</string>
+
+    <!-- Family tree, timeline, confessions and councils -->
+    <string name="tool_people">People</string>
+    <string name="tool_timeline">Timeline</string>
+    <string name="tool_confessions">Confessions</string>
+    <string name="tab_people">People and events</string>
+    <string name="people_search_hint">Search a name</string>
+    <string name="timeline_search_hint">Search an event</string>
+    <string name="rel_father">Father</string>
+    <string name="rel_mother">Mother</string>
+    <string name="rel_partners">Husbands and wives</string>
+    <string name="rel_siblings">Brothers and sisters</string>
+    <string name="rel_half_siblings">Half-brothers and half-sisters</string>
+    <string name="rel_children">Children</string>
+    <string name="child_of">child of %1$s</string>
+    <string name="also_called">Also called %1$s</string>
+    <string name="born_x">born %1$s</string>
+    <string name="died_x">died %1$s</string>
+    <string name="after_jones">(Jones)</string>
+    <string name="after_tsk">(margin of the Treasury of Scripture Knowledge)</string>
+    <string name="father_line">Father line</string>
+    <string name="genealogy_note">Biblical genealogies can skip generations (“son of” may mean “descendant of”): this line shows the links the text gives, not a count of generations.</string>
+    <string name="no_family">No family link is recorded for this person.</string>
+    <string name="events">Events</string>
+    <string name="verses_x">Verses (%1$d)</string>
+    <string name="names_note">Names are in English (KJV), as in the source; one person may bear several names, and several people the same name.</string>
+    <string name="theographic_credit">People and events: Theographic Bible Metadata (Viz.Bible), CC BY-SA 4.0</string>
+    <string name="year_bc">%1$d BC</string>
+    <string name="year_ad">AD %1$d</string>
+    <string name="approx">about</string>
+    <string name="ussher_x">Ussher: %1$s</string>
+    <string name="dur_days">%1$d days</string>
+    <string name="dur_weeks">%1$d weeks</string>
+    <string name="dur_months">%1$d months</string>
+    <string name="dur_years">%1$d years</string>
+    <string name="timeline_note">Dates follow F. N. Jones, The Chronology of the Old Testament (built on Ussher); where it differs, Ussher’s year printed in the margin of the Treasury of Scripture Knowledge is shown too. Both are reconstructions: Scripture gives ages and reigns, not dates. The Hebrew, Greek and Samaritan texts give different figures for the early genealogies, and the date of the Exodus is debated.</string>
+    <string name="dates_reconstructed">A reconstruction, not a date stated by Scripture.</string>
+    <string name="your_tradition">Your tradition</string>
+    <string name="family_creeds">Creeds of the early Church</string>
+    <string name="tradition_reformed">Protestant (Reformed)</string>
+    <string name="councils">Councils, synods and assemblies</string>
+    <string name="councils_note">Only those that issued a document of this library. Each tradition rates the authority of councils in its own way; for the Reformed churches they stand below Scripture.</string>
+    <string name="council_issued">Issued:</string>
+    <string name="go_deeper">Go deeper: other traditions</string>
+    <string name="no_other_traditions">No Catholic or Orthodox document is included yet: none could be obtained with a free licence. When the tradition setting is Catholic, the Reformed documents are listed here.</string>
+    <string name="other_tradition_note">This document belongs to another tradition (%1$s).</string>
+    <string name="creeds_text_note">Historic English texts, in the public domain. No Malagasy or French text with a free licence was found.</string>
+    <string name="creeds_credit">Texts and proof texts: Reformed Standards compendium (Apache 2.0) and Creeds.json (public domain)</string>
+    <string name="proof_texts">Proof texts</string>
+    <string name="no_citations_own">No document of your tradition cites this passage.</string>
 </resources>

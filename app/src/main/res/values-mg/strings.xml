@@ -190,13 +190,12 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Fandalinana andalan-tsoratra: fidio ny andininy, dia Fianarana. Ilay andalan-tsoratra amin’ny Baiboly hafa, ny teny hebreo na grika tany am-boalohany sy ny heviny, ny andinin-teny mifandray, ny toerana voatonona (eo amin’ny sarintany), ny refy (amin’ny fanovana refy) ary ny ao amin’ny rakibolana.</item>
-        <item>Soratra betsaka kokoa eo amin’ny efijery: efijery tery (Fikirana › Endrika › Haben’ny efijery), sisiny tery kokoa, soratra hatramin’ny habe 10. Tsy maty ny efijery raha mbola misokatra ny fampiharana (azo ajanona).</item>
-        <item>Mipetraka ao anatin’ny fampiharana ny fanavaozana: Fikirana › Safidy hafa › Fanavaozana › Alaivo ary apetraho. Indray mandeha monja i Android no mangataka alalana, avy eo manamafy ny fanavaozana; tsy misy misokatra ao amin’ny mpitety tranonkala.</item>
-        <item>Mameno ny efijery ny sarintany. Hitady toerana amin’ny anarany; ahalehibe na ahakely amin’ny bokotra + sy −, na tsindrio indroa.</item>
-        <item>Faritany manontolo: fanjakana, firenena ary faritany (Edoma, Moaba, Galilia, Samaria, Makedonia, Azia…), matroka kokoa izay tena nisy azy, mazava kokoa izay tsy azo antoka ny sisiny. Tsindrio ao anatin’ny faritany iray, na fidio ao amin’ny Faritany.</item>
-        <item>Lalana: dia 15 ao amin’ny Baiboly (Abrahama, ny Fivoahana, ny dian’i Paoly, ny dia nankany Roma…), ary ny lalana mampitohy toerana roa tianao amin’ny lalana fahiny, miaraka amin’ny halaviny sy ny andro an-tongotra.</item>
-        <item>Refy (fomba Fianarana, pejy Rakibolana): hakiho, sekely, efaha, bata, denaria sy ny sisa, avadika ho samy izy sy ho metatra, grama ary litatra, miaraka amin’ny andinin-teny misy ny refy tsirairay; ny ora amin’ny andro sy ny fiambenana amin’ny alina.</item>
+        <item>Olona ao amin’ny Baiboly (fomba Fianarana, pejy Rakibolana, Olona): ray aman-dreny, vady, mpiray tampo, zanaka ary taranaka araka ny ray amin’ny olona 3 068, miaraka amin’ny zava-nitranga nisy azy sy ny andininy rehetra manonona azy.</item>
+        <item>Fotoana: zava-nitranga 501 hatramin’ny Famoronana ka hatramin’ny Asan’ny Apostoly, miaraka amin’ny daty (araka an’i Jones, sy Ussher raha samy hafa), ny olona sy ny andininy. Fanamboarana ireo daty ireo, ary voalaza izany.</item>
+        <item>Fanekem-pinoana: ny Fanekem-pinoan’ny Apostoly, Nikea sy Atanasio ary ny fanekem-pinoana sy katesizy Nohavaozina (Heidelberg, Belgika, Dort, Westminster…) amin’ny lahatsoratra anglisy tranainy, miaraka amin’ny andinin-teny porofo manokatra ny andininy, sy ny konsily sy fivoriambe namoaka azy. Ny safidy Fivavahana no mamaritra izay aseho; ao amin’ny Fandalinana ny an’ny fivavahana hafa.</item>
+        <item>Ny takelaka Fianarana amin’ny andalan-teny dia manampy Olona sy zava-nitranga, ary ny andininy amin’ny fanekem-pinoana manonona azy.</item>
+        <item>Lisitra voatahiry: tena mamafa ny lisitra ny Fafana, ary tsy manampy lisitra foana faharoa intsony ny Lisitra vaovao.</item>
+        <item>Fomba Fianarana: tsy miseho intsony ny Hiverina amin’ny toerako afa-tsy rehefa avy nitsambikina (andinin-teny voatonona, valin’ny fikarohana, andininy N hita) ary miala rehefa mamaky manaraka ianao; tsy mijanona eo amin’ny pejy rehetra intsony izy aorian’ny fotoam-pivavahana. Tsy miova ny ao amin’ny fomba Fiangonana.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -389,4 +388,54 @@
     <string name="show_on_map">Sarintany</string>
     <string name="open_converter">Avadiho</string>
     <string name="units_approx">Tombantombana ny sanda ankehitriny (jereo ny Refy ao amin’ny pejy Rakibolana).</string>
+
+    <!-- Family tree, timeline, confessions and councils -->
+    <string name="tool_people">Olona</string>
+    <string name="tool_timeline">Fotoana</string>
+    <string name="tool_confessions">Fanekem-pinoana</string>
+    <string name="tab_people">Olona sy zava-nitranga</string>
+    <string name="people_search_hint">Hitady anarana</string>
+    <string name="timeline_search_hint">Hitady zava-nitranga</string>
+    <string name="rel_father">Ray</string>
+    <string name="rel_mother">Reny</string>
+    <string name="rel_partners">Vady</string>
+    <string name="rel_siblings">Mpiray tampo</string>
+    <string name="rel_half_siblings">Iray ray na iray reny</string>
+    <string name="rel_children">Zanaka</string>
+    <string name="child_of">zanak’i %1$s</string>
+    <string name="also_called">Antsoina koa hoe %1$s</string>
+    <string name="born_x">teraka tamin’ny %1$s</string>
+    <string name="died_x">maty tamin’ny %1$s</string>
+    <string name="after_jones">(Jones)</string>
+    <string name="after_tsk">(sisin’ny Treasury of Scripture Knowledge)</string>
+    <string name="father_line">Taranaka araka ny ray</string>
+    <string name="genealogy_note">Mety mandingana taranaka ny tetirazana ao amin’ny Baiboly (ny hoe “zanak’i” dia mety ho “taranak’i”): ireo rohy omen’ny soratra ihany no asehon’ity, fa tsy isan’ny taranaka.</string>
+    <string name="no_family">Tsy misy rohim-pianakaviana voasoratra ho an’ity olona ity.</string>
+    <string name="events">Zava-nitranga</string>
+    <string name="verses_x">Andininy (%1$d)</string>
+    <string name="names_note">Amin’ny teny anglisy (KJV) ny anarana, araka ny loharano; mety manana anarana maromaro ny olona iray, ary mety mitovy anarana ny olona maro.</string>
+    <string name="theographic_credit">Olona sy zava-nitranga: Theographic Bible Metadata (Viz.Bible), CC BY-SA 4.0</string>
+    <string name="year_bc">%1$d talohan’i JK</string>
+    <string name="year_ad">%1$d taorian’i JK</string>
+    <string name="approx">manodidina ny</string>
+    <string name="ussher_x">Ussher: %1$s</string>
+    <string name="dur_days">%1$d andro</string>
+    <string name="dur_weeks">%1$d herinandro</string>
+    <string name="dur_months">%1$d volana</string>
+    <string name="dur_years">%1$d taona</string>
+    <string name="timeline_note">Araka an’i F. N. Jones, The Chronology of the Old Testament (miorina amin’i Ussher) ny daty; raha samy hafa, aseho koa ny taona nataon’i Ussher eo amin’ny sisin’ny Treasury of Scripture Knowledge. Samy fanamboarana ireo: taona niainana sy fotoam-panjakana no omen’ny Soratra Masina, fa tsy daty. Samy hafa ny isa omen’ny soratra hebreo, grika ary samaritana ho an’ny tetirazana voalohany, ary iadian-kevitra ny datin’ny Fivoahana.</string>
+    <string name="dates_reconstructed">Fanamboarana io, fa tsy daty lazain’ny Soratra Masina.</string>
+    <string name="your_tradition">Ny fivavahanao</string>
+    <string name="family_creeds">Fanekem-pinoan’ny Fiangonana voalohany</string>
+    <string name="tradition_reformed">Protestanta (Nohavaozina)</string>
+    <string name="councils">Konsily, synoda ary fivoriambe</string>
+    <string name="councils_note">Ireo namoaka antontan-taratasy ato amin’ity tranomboky ity ihany. Samy manana ny fomba fijeriny ny fahefan’ny konsily ny fivavahana tsirairay; ho an’ny fiangonana Nohavaozina, ambanin’ny Soratra Masina izy ireo.</string>
+    <string name="council_issued">Namoaka:</string>
+    <string name="go_deeper">Fandalinana: fivavahana hafa</string>
+    <string name="no_other_traditions">Mbola tsy misy antontan-taratasy katolika na ortodoksa: tsy nahitana izay manana fahazoan-dalana malalaka. Raha Katolika no fivavahana voafidy, eto no asehoana ny antontan-taratasy Nohavaozina.</string>
+    <string name="other_tradition_note">An’ny fivavahana hafa ity antontan-taratasy ity (%1$s).</string>
+    <string name="creeds_text_note">Lahatsoratra anglisy tranainy, an’ny besinimaro. Tsy nahitana dikanteny malagasy na frantsay manana fahazoan-dalana malalaka.</string>
+    <string name="creeds_credit">Lahatsoratra sy andinin-teny porofo: Reformed Standards compendium (Apache 2.0) sy Creeds.json (an’ny besinimaro)</string>
+    <string name="proof_texts">Andinin-teny porofo</string>
+    <string name="no_citations_own">Tsy misy antontan-taratasin’ny fivavahanao manonona ity andalan-teny ity.</string>
 </resources>
