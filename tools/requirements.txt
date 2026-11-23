@@ -1,2 +1,4 @@
 # Python packages for tools/build_data.py (the map relief is cut with Pillow)
 Pillow==12.3.0
+# ... and the confessions and catechisms (Reformed Standards compendium) are YAML
+PyYAML==6.0.3
