@@ -11,7 +11,7 @@ Unprioritised. Not committed to any release.
   - Original-language text vs. translation; Malagasy/French/English versions of the same document.
   - Cross-linking: confession/catechism article ↔ Bible verses (proof texts) already in the app.
 
-## 2. Hymnals
+## 2. Hymnals (on hold: set aside by the user for now)
 
 - **Fihirana FFPM** and **Fihirana Fanampiny** (Malagasy).
 - Open points:
@@ -37,3 +37,13 @@ Unprioritised. Not committed to any release.
   - Dates are disputed: the Masoretic, Septuagint and Samaritan texts give different figures for the early genealogies, and the date of the Exodus is debated (early vs. late). [INTRA-REFORMED DEBATE]
   - Show each date with its source and a range or alternatives, not a single "true" date; label what is stated in Scripture and what is scholarly reconstruction.
   - Choose which chronologies to include (e.g. Ussher is one historical option, not the only one). [VERIFY]
+
+## 5. Church councils ("go deeper" section, study mode)
+
+- A list of church councils, with for each: date, place, what it was about, who attended, what it decided (creeds, canons), and why it matters.
+- Placed in study mode, under a "go deeper" section, linked to the confessions (item 1) and to the Bible passages the councils discussed.
+- Open points:
+  - Scope: the ecumenical councils (Nicaea 325 to Nicaea II 787) are the obvious core. Whether to add regional synods and Reformation-era ones (e.g. Dort 1618-19) is a choice to make. [VERIFY exact list and dates before entering data]
+  - Perspective: present what each council decided as a historical fact, separately from how traditions (Reformed, Catholic, Orthodox) evaluate its authority. [INTRA-REFORMED DEBATE] on how binding the councils are; the Reformed view of conciliar authority is subordinate to Scripture (cf. WCF XXXI.3). [VERIFY]
+  - Sources: primary texts (canons, creeds) and reputable scholarly summaries; check licences of any translation used (see `data-licences.md`).
+  - Malagasy angle: whether Malagasy translations of creeds or canons exist. [VERIFY]
