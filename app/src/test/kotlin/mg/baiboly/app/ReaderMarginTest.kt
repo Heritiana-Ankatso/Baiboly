@@ -82,7 +82,10 @@ class ReaderMarginTest {
             val line = measure(name)
             report += line
             val m = Regex("left=(\\d+) right=(\\d+)").find(line)
-            if (m == null || abs(m.groupValues[1].toInt() - m.groupValues[2].toInt()) > 8) bad += line
+            // justified text must be even; left-aligned text has a ragged right edge, but must not run past the margin
+            val uneven = m != null && if (vm.justify) abs(m.groupValues[1].toInt() - m.groupValues[2].toInt()) > 8
+                else m.groupValues[2].toInt() < m.groupValues[1].toInt() - 8
+            if (m == null || uneven) bad += line
         }
         for (style in listOf(Style.Page, Style.Glass, Style.Manuscript)) {
             vm.changeStyle(style)
