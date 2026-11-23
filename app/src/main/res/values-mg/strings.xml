@@ -438,4 +438,13 @@
     <string name="creeds_credit">Lahatsoratra sy andinin-teny porofo: Reformed Standards compendium (Apache 2.0) sy Creeds.json (an’ny besinimaro)</string>
     <string name="proof_texts">Andinin-teny porofo</string>
     <string name="no_citations_own">Tsy misy antontan-taratasin’ny fivavahanao manonona ity andalan-teny ity.</string>
+    <!-- Map: finding a region -->
+    <string name="regions_filter_hint">Hitady faritra</string>
+    <string name="regions_sort_named">Be voatonona indrindra</string>
+    <string name="regions_sort_az">A–Z</string>
+    <string name="region_kind_all">Rehetra</string>
+    <string name="region_kind_lands">Tany sy firenena</string>
+    <string name="region_kind_relief">Tendrombohitra sy lohasaha</string>
+    <string name="region_kind_waters">Ranomasina, ony ary nosy</string>
+    <string name="regions_count">Faritra %1$d amin’ny %2$d</string>
 </resources>

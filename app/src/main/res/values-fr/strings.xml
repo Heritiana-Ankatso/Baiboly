@@ -436,4 +436,13 @@
     <string name="creeds_credit">Textes et références : Reformed Standards compendium (Apache 2.0) et Creeds.json (domaine public)</string>
     <string name="proof_texts">Textes de preuve</string>
     <string name="no_citations_own">Aucun document de votre tradition ne cite ce passage.</string>
+    <!-- Map: finding a region -->
+    <string name="regions_filter_hint">Chercher une région</string>
+    <string name="regions_sort_named">Plus cités</string>
+    <string name="regions_sort_az">A–Z</string>
+    <string name="region_kind_all">Toutes</string>
+    <string name="region_kind_lands">Pays et peuples</string>
+    <string name="region_kind_relief">Montagnes et vallées</string>
+    <string name="region_kind_waters">Mers, fleuves et îles</string>
+    <string name="regions_count">%1$d régions sur %2$d</string>
 </resources>

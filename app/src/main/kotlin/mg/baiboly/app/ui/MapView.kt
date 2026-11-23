@@ -794,29 +794,101 @@ private fun PlaceCard(
     }
 }
 
-/** Regions drawn as areas (kingdoms, peoples, provinces…), the most named first; those of the period when one is chosen. */
+/** Kinds of region, from the type OpenBible.info gives each one. */
+private enum class RegionKind(val label: Int, val types: Set<String>) {
+    Lands(R.string.region_kind_lands, setOf("region", "people group", "natural area")),
+    Relief(R.string.region_kind_relief, setOf("valley", "mountain range")),
+    Waters(R.string.region_kind_waters, setOf("body of water", "island")),
+}
+
+/**
+ * Regions drawn as areas (kingdoms, peoples, provinces…), those of the period when one is chosen.
+ * A filter by name (accents ignored, names starting with it first), the order (most named or
+ * A–Z, with letter headings) and the kind narrow the list: scrolling 190 names was tedious.
+ */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun RegionsPanel(places: List<Place>, outlined: Set<String>, period: Period?, onClose: () -> Unit, onPick: (Place) -> Unit) {
-    val list = remember(places, outlined, period) {
-        places.filter { it.id in outlined && it.inPeriod(period) }.sortedByDescending { if (period != null) it.periodMentions.getOrElse(period.ordinal) { 0 } else it.mentions }
+    var query by rememberSaveable { mutableStateOf("") }
+    var alphabetical by rememberSaveable { mutableStateOf(false) }
+    var kind by rememberSaveable { mutableStateOf<String?>(null) }
+    val all = remember(places, outlined, period) { places.filter { it.id in outlined && it.inPeriod(period) } }
+    val q = remember(query) { TextNorm.norm(query.trim()) }
+    val list = remember(all, q, alphabetical, kind, period) {
+        val types = kind?.let { k -> RegionKind.valueOf(k).types }
+        all.asSequence()
+            .filter { types == null || it.type in types }
+            .map { it to TextNorm.norm(it.displayName) }
+            .filter { (_, n) -> q.isEmpty() || n.contains(q) }
+            .sortedWith(
+                if (alphabetical) compareBy({ if (q.isNotEmpty() && !it.second.startsWith(q)) 1 else 0 }, { it.second })
+                else compareBy<Pair<Place, String>>({ if (q.isNotEmpty() && !it.second.startsWith(q)) 1 else 0 },
+                    { -(if (period != null) it.first.periodMentions.getOrElse(period.ordinal) { 0 } else it.first.mentions) }),
+            )
+            .map { it.first }.toList()
     }
     val height = LocalConfiguration.current.screenHeightDp
-    Column(Modifier.fillMaxWidth().heightIn(max = (height * 0.42f).dp).testTag("regions-panel")) {
+    Column(Modifier.fillMaxWidth().heightIn(max = (height * 0.5f).dp).testTag("regions-panel")) {
         PanelHeader(stringResource(R.string.map_regions), stringResource(R.string.regions_hint), onClose)
+        androidx.compose.material3.OutlinedTextField(
+            value = query, onValueChange = { query = it }, singleLine = true,
+            placeholder = { Text(stringResource(R.string.regions_filter_hint)) },
+            leadingIcon = { Icon(Icons.Filled.Search, null) },
+            trailingIcon = if (query.isNotEmpty()) ({ IconButton(onClick = { query = "" }) { Icon(Icons.Filled.Close, stringResource(R.string.close)) } }) else null,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp).testTag("regions-filter"),
+        )
+        LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            item {
+                androidx.compose.material3.FilterChip(selected = !alphabetical, onClick = { alphabetical = false },
+                    label = { Text(stringResource(R.string.regions_sort_named)) }, modifier = Modifier.testTag("regions-sort-named"))
+            }
+            item {
+                androidx.compose.material3.FilterChip(selected = alphabetical, onClick = { alphabetical = true },
+                    label = { Text(stringResource(R.string.regions_sort_az)) }, modifier = Modifier.testTag("regions-sort-az"))
+            }
+            item { androidx.compose.material3.VerticalDivider(Modifier.height(32.dp).padding(horizontal = 2.dp)) }
+            item {
+                androidx.compose.material3.FilterChip(selected = kind == null, onClick = { kind = null },
+                    label = { Text(stringResource(R.string.region_kind_all)) }, modifier = Modifier.testTag("regions-kind:All"))
+            }
+            items(RegionKind.entries, key = { it.name }) { k ->
+                androidx.compose.material3.FilterChip(selected = kind == k.name, onClick = { kind = if (kind == k.name) null else k.name },
+                    label = { Text(stringResource(k.label)) }, modifier = Modifier.testTag("regions-kind:${k.name}"))
+            }
+        }
+        Text(
+            stringResource(R.string.regions_count, list.size, all.size), style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp).testTag("regions-count"),
+        )
+        if (list.isEmpty()) {
+            Text(stringResource(R.string.map_no_results), modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         LazyColumn(Modifier.testTag("regions-list")) {
-            items(list, key = { it.id }) { r ->
-                Row(
-                    Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { onPick(r) }.testTag("region:${r.id}").padding(horizontal = 16.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text("▧", color = LocalOrnament.current.rubric, modifier = Modifier.padding(end = 12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(r.displayName, style = MaterialTheme.typography.bodyLarge)
-                        Text(listOf(r.type, stringResource(R.string.place_mentions, r.mentions)).joinToString(" · "),
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            var letter = ""
+            list.forEach { r ->
+                // A–Z: a heading for each first letter
+                val first = TextNorm.norm(r.displayName).take(1).uppercase()
+                if (alphabetical && q.isEmpty() && first != letter) {
+                    letter = first
+                    stickyHeader(key = "letter-$first") {
+                        Text(first, style = MaterialTheme.typography.titleSmall, color = LocalOrnament.current.gold,
+                            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 4.dp))
                     }
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                item(key = r.id) {
+                    Row(
+                        Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { onPick(r) }.testTag("region:${r.id}").padding(horizontal = 16.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("▧", color = LocalOrnament.current.rubric, modifier = Modifier.padding(end = 12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(r.displayName, style = MaterialTheme.typography.bodyLarge)
+                            Text(listOf(r.type, stringResource(R.string.place_mentions, r.mentions)).joinToString(" · "),
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                }
             }
         }
     }
