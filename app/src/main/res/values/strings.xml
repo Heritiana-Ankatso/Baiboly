@@ -205,9 +205,8 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Updates install over the app and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Choosing a Bible: the menu at the top now lists the languages first (Malagasy, Français, English); tap a language to see its translations.</item>
-        <item>Update check, only if you want it: Settings › Advanced › Updates. Check now asks GitHub for the latest version number; Check automatically (off by default) shows a notification when a new version is out. Nothing about you or your reading is sent, and the app downloads nothing.</item>
-        <item>Fixes: sheets, dialogs and menus now use the language you chose, and this list scrolls to its end.</item>
+        <item>Verses as paragraphs: Settings › Appearance › Verses › Paragraphs sets the text as running paragraphs, like a printed Bible, with small verse numbers. Tapping a verse, notes and highlights work as before.</item>
+        <item>Typesetting, for verses as paragraphs: Settings › Advanced › Typesetting. Text aligned left or justified, words broken by syllable at line ends (also in Malagasy), an indent or a space between paragraphs, and narrow, normal or wide margins.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
