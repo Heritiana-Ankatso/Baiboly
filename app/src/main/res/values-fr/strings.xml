@@ -188,12 +188,12 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Personnages de la Bible (mode Étude, page Dictionnaire, Personnages) : parents, époux, frères et sœurs, enfants et lignée paternelle de 3 068 personnes, avec les événements où elles paraissent et tous les versets qui les nomment.</item>
-        <item>Chronologie : 501 événements de la Création aux Actes, avec leurs dates (d’après Jones, et Ussher quand il diffère), leurs personnages et leurs versets. Les dates sont des reconstructions et le disent.</item>
-        <item>Confessions : les symboles des Apôtres, de Nicée et d’Athanase et les confessions et catéchismes réformés (Heidelberg, Confession belge, Dordrecht, Westminster…) dans leur texte anglais historique, avec les textes de preuve qui ouvrent le verset, et les conciles et assemblées qui les ont publiés. Le réglage Tradition choisit ce qui est montré ; les autres traditions sont sous Approfondir.</item>
-        <item>Le panneau Étude d’un passage ajoute Personnages et événements, et les articles de confession qui le citent.</item>
-        <item>Listes enregistrées : Supprimer retire vraiment la liste, et Nouvelle liste n’ajoute plus une seconde liste vide.</item>
-        <item>Mode Étude : Retour à ma place n’apparaît plus qu’après un saut (une référence, un résultat de recherche, N versets trouvés) et disparaît quand vous lisez plus loin ; il ne reste plus sur chaque page après un culte. En mode Église, rien ne change.</item>
+        <item>Aperçu : sélectionnez des versets et une petite carte montre le passage dans une autre Bible et les unités qu’il nomme. Réglages › Avancé › Aperçu choisit ce qu’elle montre.</item>
+        <item>Chronologie en frise à l’échelle, de la Création à l’Église naissante : époques, vies et règnes côte à côte, événements qui apparaissent au zoom, et Ce chapitre.</item>
+        <item>Confessions : documents catholiques et orthodoxes (Trente, Vatican I, Catéchisme orthodoxe) et les sept conciles œcuméniques avec leurs décisions. Votre tradition d’abord ; les autres sous Approfondir.</item>
+        <item>Réglages en pages dans tous les thèmes ; les Régions de la carte se cherchent par nom, de A à Z ou par type.</item>
+        <item>Références dans la langue de l’interface (John 3:16, Jn 3:16, Jao 3: 16) ; les Actes s’abrègent « Asa » en malgache. Unités métriques seulement ; salaires aussi en années et mois de travail.</item>
+        <item>Marges égales sous Android 15, une liste vide n’apparaît plus dans Listes, et Dieu n’est plus présenté comme parent dans l’arbre (Luc 3:38 parle de création).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>

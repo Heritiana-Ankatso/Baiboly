@@ -1,3 +1,24 @@
+## Baiboly 1.7.0
+
+**Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept.
+
+* **Quick look:** select a verse or a passage and a small card appears above the actions: the passage in another Bible (one in the interface language, or the one you choose; never the one you are reading) and the units it names, converted. Settings › Advanced › *Quick look* chooses what it shows: another Bible, units, people and events, places, the articles of your confessions that cite it. A tap opens the full Study panel there.
+* **Timeline as a chart to scale** (Dictionary page, *Timeline*), from Creation (4004 BC) to the early church, after F. N. Jones's chronology:
+  * twelve eras shade the background, their names kept at the top while they last;
+  * lifetimes, reigns, judgeships and other periods are bars side by side, so overlaps show (Noah's life overlaps Abraham's; the kings of Israel and Judah reign in parallel);
+  * other events are dots on the axis; labels appear as you zoom (pinch or double-tap), the most-told first, never overlapping;
+  * *This chapter* picks out the events of the chapter you are reading; an era chip frames that era; a tap opens the event. *List* keeps the searchable list.
+* **Confessions and councils:**
+  * Catholic documents (the Canons and Decrees of Trent, the Profession of the Tridentine Faith, *Ineffabilis Deus*, the Vatican Council's decrees) and the Longer Catechism of the Orthodox Church, all 610 questions, with the Definition of Chalcedon: English of Philip Schaff, *The Creeds of Christendom* (1877), with their Scripture references as proof texts.
+  * The seven ecumenical councils, Trent and the Vatican Council join Dort, Westminster and Savoy, each with what it decided and the traditions that receive it (Nicaea II: the Orthodox and Catholic Churches).
+  * Your tradition (Settings › Advanced) shows its own documents and councils first; *Go deeper* the others, each marked, and only when there are some.
+* **Settings** open in groups (Appearance, Default Bible, Reading aloud, Backup, About, Advanced), each on its own page, in every theme, with the theme and language at the top. *Interface size* no longer runs to the screen edges.
+* **Map:** *Regions* can be found by name, listed A–Z with letter headings or by most named, and narrowed to lands and peoples, mountains and valleys, or seas, rivers and islands.
+* **References in the interface language:** *John 3:16* in English, *Jn 3:16* in French, *Jao 3: 16* in Malagasy. Acts is *Asa* in Malagasy (*Asan* still works when typing).
+* **Units:** metric only (mm, cm, m, km; mg, g, kg; mL, L). Wages are also given as a length of work: a talent, 6,000 days' wages, is about 19 years and 2 months of work at six days a week (Ex 20:9).
+* **People:** God is no longer shown as a parent (Luke 3:38 calls Adam "the son of God" by creation, Gen 2:7); Joseph is the legal father of Jesus (Luke 3:23), and a note gives the virgin birth (Matt 1:18–25).
+* **Fixes:** even left and right margins on Android 15 (justified text no longer carries letter spacing); an empty list in use is no longer shown under *Lists*, where Delete could not remove it.
+
 ## Baiboly 1.6.0
 
 **Install:** download the APK below and open it on the phone, or update from Settings › Advanced › Updates › *Download and install*. Your lists, notes, highlights and settings are kept.

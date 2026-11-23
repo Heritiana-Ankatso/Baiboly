@@ -205,12 +205,12 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>People of the Bible (Study mode, Dictionary page, People): parents, spouses, brothers and sisters, children and the father line of 3,068 people, with the events they take part in and every verse that names them.</item>
-        <item>Timeline: 501 events from Creation to Acts, with their dates (after Jones, and Ussher where it differs), the people in them and their verses. The dates are reconstructions and are labelled so.</item>
-        <item>Confessions: the Apostles’, Nicene and Athanasian Creeds and the Reformed confessions and catechisms (Heidelberg, Belgic, Dort, Westminster…) in their historic English text, with proof texts that open the verse, and the councils and assemblies that issued them. The Tradition setting chooses what is shown; other traditions are under Go deeper.</item>
-        <item>The Study panel of a passage adds People and events, and the confession articles that cite it.</item>
-        <item>Saved lists: Delete now really removes the list, and New list no longer adds a second empty list.</item>
-        <item>Study mode: Back to my place now appears only just after a jump (a reference, a search result, Found N verses) and goes when you read on; it no longer stays on every page after a service. In Church mode it works as before.</item>
+        <item>Quick look: select verses and a small card shows the passage in another Bible and the units it names. Settings › Advanced › Quick look chooses what it shows.</item>
+        <item>Timeline as a chart to scale, from Creation to the early church: eras, lifetimes and reigns side by side, events that appear as you zoom, and This chapter.</item>
+        <item>Confessions: Catholic and Orthodox documents (Trent, Vatican I, the Orthodox Catechism) and the seven ecumenical councils, with what each decided. Your tradition first; the others under Go deeper.</item>
+        <item>Settings in pages in every theme; the map’s Regions can be searched by name, listed A–Z or by kind.</item>
+        <item>References in the interface language (John 3:16, Jn 3:16, Jao 3: 16); Acts is “Asa” in Malagasy. Units in metric only; wages also as years and months of work.</item>
+        <item>Even margins on Android 15, an empty list no longer shown under Lists, and God no longer shown as a parent in the family tree (Luke 3:38 speaks of creation).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
