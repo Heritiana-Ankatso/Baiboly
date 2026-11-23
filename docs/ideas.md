@@ -10,7 +10,7 @@ Common to A1-A2: each text or event is linked to the Bible passages it cites or 
 ### A1. Confessions and catechisms
 
 - Confessions of each tradition (Protestant, Catholic, Orthodox), shown according to the tradition setting (A3). **Malagasy** texts are a priority.
-- Only the Reformed list is filled in so far; Catholic and Orthodox lists still to do.
+- Reformed and Catholic lists are filled in; the Orthodox list is still to do.
 - Open points:
   - Which Malagasy confessions and catechisms exist, which church owns them, under what licence. Unknown. [VERIFY]
   - Original-language text vs. translations (Malagasy, French, English) of the same document.
@@ -27,6 +27,21 @@ Common to A1-A2: each text or event is linked to the Bible passages it cites or 
 
 - Debated whether to include: the Thirty-Nine Articles (Anglican, Reformed in content, but a different tradition). [INTRA-REFORMED DEBATE]
 - Present each as a document with structure (articles, chapters, questions and answers), so it can be cited the way the user cites them: `[WCF X.Y]`, `[HC Q&A N]`.
+
+**Catholic doctrinal documents to include** [VERIFY all dates]
+
+Catholic teaching is not centred on "confessions" in the Reformed sense. Its standards are mainly conciliar decrees and catechisms, so this list overlaps with A2 (councils); the same document should be one entry linked from both.
+
+| Group | Documents |
+|---|---|
+| Creeds shared with other traditions | Apostles' Creed, Nicene-Constantinopolitan Creed |
+| Council of Trent and after | Decrees and canons of the Council of Trent (1545-63), Profession of the Tridentine Faith (Creed of Pius IV, 1564), Roman Catechism (Catechism of the Council of Trent, 1566) |
+| First Vatican Council | Dei Filius and Pastor Aeternus (1870) |
+| Second Vatican Council | Dei Verbum, Lumen Gentium, Sacrosanctum Concilium, Gaudium et Spes (1962-65) |
+| Modern catechisms | Catechism of the Catholic Church (1992; typical edition 1997), Compendium of the Catechism (2005) |
+
+- Malagasy translations (e.g. of the Catechism of the Catholic Church) and who holds their rights: unknown. [VERIFY]
+- Official Latin text vs. vernacular translations; check the licence of each translation before use.
 
 ### A2. Church councils
 
