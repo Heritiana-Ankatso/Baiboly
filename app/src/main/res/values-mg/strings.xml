@@ -192,6 +192,7 @@
     <string-array name="whats_new_items">
         <item>Fisafidianana Baiboly: ny fiteny no aseho voalohany ao amin’ny menio eo ambony (Malagasy, Français, English); tsindrio ny fiteny iray hahitana ny dikan-teny ao aminy.</item>
         <item>Fijerena fanavaozana, raha tianao ihany: Fikirana › Safidy hafa › Fanavaozana. Jereo izao: manontany an’i GitHub ny laharan’ny versiona farany. Jereo ho azy (tsy mandeha raha tsy alefanao): misy fampandrenesana rehefa mivoaka ny versiona vaovao. Tsy misy mombamomba anao na ny famakianao alefa, ary tsy misy zavatra alain’ny fampiharana.</item>
+        <item>Fanitsiana: ny fiteny nofidinao no ampiasain’ny menio sy ny varavarankely misokatra rehetra, ary hita hatramin’ny farany ity lisitra ity.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>

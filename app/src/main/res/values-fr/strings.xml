@@ -190,6 +190,7 @@
     <string-array name="whats_new_items">
         <item>Choix de la Bible : le menu en haut affiche d’abord les langues (Malagasy, Français, English) ; touchez une langue pour voir ses traductions.</item>
         <item>Recherche de mises à jour, seulement si vous le voulez : Réglages › Avancé › Mises à jour. Vérifier maintenant demande à GitHub le numéro de la dernière version ; la recherche automatique (désactivée par défaut) affiche une notification quand une nouvelle version paraît. Rien sur vous ni sur votre lecture n’est envoyé, et l’application ne télécharge rien.</item>
+        <item>Corrections : les fenêtres, dialogues et menus suivent la langue choisie, et cette liste défile jusqu’au bout.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>

@@ -1,7 +1,14 @@
-## Baiboly 1.3.0
+## Baiboly 1.3.1
 
 **Install:** download the APK below and open it on the phone (allow installing from this source when asked).
 Updates install over the app and keep your lists, notes, highlights and settings.
+
+**Fixed in 1.3.1**
+
+* Sheets, dialogs and menus (for example *Choose a mode* and *What's new*) now use the interface language you chose, not the phone's.
+* The *What's new* list scrolls to its end; its button stays visible on small screens.
+
+**New in 1.3.0**
 
 * **Choosing a Bible:** the menu at the top now lists the languages first (Malagasy, Français, English); tap a language to unfold its translations. The language of the Bible you are reading is shown in bold.
 * **Update check, only if you want it:** Settings › Advanced › Updates.
