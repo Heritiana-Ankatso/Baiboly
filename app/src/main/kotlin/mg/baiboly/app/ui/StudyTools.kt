@@ -303,7 +303,15 @@ fun WhatsNewSheet(version: String, onDismiss: () -> Unit) {
             Text(stringResource(R.string.whats_new), style = MaterialTheme.typography.headlineSmall, color = ornament.rubric)
             Text(stringResource(R.string.version_x, version), style = MaterialTheme.typography.labelMedium, color = ornament.gold, letterSpacing = 2.sp)
             Fleuron()
-            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).heightIn(max = 420.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            // The list takes the room left between the title and the button, and
+            // scrolls within it; the button stays visible on any screen.
+            // (Order matters: the size limit must come BEFORE verticalScroll.
+            // The other way round, the scroll area grew with the list, then the
+            // list was cut off and the button pushed out of the sheet.)
+            Column(
+                Modifier.fillMaxWidth().weight(1f, fill = false).verticalScroll(rememberScrollState()).testTag("whats-new-list"),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
                 items.forEach { item ->
                     Row {
                         Text("❧", color = ornament.gold, modifier = Modifier.padding(end = 10.dp, top = 2.dp))
