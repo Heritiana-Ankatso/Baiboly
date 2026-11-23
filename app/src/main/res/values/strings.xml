@@ -205,16 +205,8 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Updates install over the app and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Four themes, each a complete design of its own: Manuscript, Modern, Page (like an e-reader) and Stained glass. Choose colours, typeface, titles and line spacing too (Settings › Appearance).</item>
-        <item>Three modes, one tap on the badge at the top left: Casual for everyday reading, Church (silent, previous/next passage of your service list), Study (original words, cross-references, dictionary, map).</item>
-        <item>Simpler navigation: tabs at the bottom, the chapter title opens the books, the gear opens Settings.</item>
-        <item>A new look: vellum and ink by day, warm black and gold by night; theme and language (MG, FR, EN) in Settings.</item>
-        <item>Literal Standard Version (English).</item>
-        <item>Cross-references for every verse (Treasury of Scripture Knowledge).</item>
-        <item>Bible dictionary and topics (English) and the Martin glossary (French).</item>
-        <item>Map: fewer names at once (villages appear as you zoom in), a timeline from the Patriarchs to the early church with the borders of each time, roads, relief, and today’s borders.</item>
-        <item>Reading aloud, also with the screen off (switch it on in Settings). Each text is read only with a voice in its own language.</item>
-        <item>Catholic Bibles with Tobit, Judith, Maccabees, Wisdom, Sirach and Baruch: Settings › Advanced › Tradition.</item>
+        <item>Choosing a Bible: the menu at the top now lists the languages first (Malagasy, Français, English); tap a language to see its translations.</item>
+        <item>Update check, only if you want it: Settings › Advanced › Updates. Check now asks GitHub for the latest version number; Check automatically (off by default) shows a notification when a new version is out. Nothing about you or your reading is sent, and the app downloads nothing.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>

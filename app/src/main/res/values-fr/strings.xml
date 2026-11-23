@@ -188,16 +188,8 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Quatre thèmes, chacun une conception complète : Manuscrit, Moderne, Page (comme une liseuse) et Vitrail. Choisissez aussi couleurs, police, titres et interligne (Réglages › Apparence).</item>
-        <item>Trois modes, d’un geste sur l’insigne en haut à gauche : Quotidien pour la lecture de tous les jours, Église (silencieux, passage précédent/suivant de votre liste du culte), Étude (mots originaux, renvois, dictionnaire, carte).</item>
-        <item>Navigation simplifiée : onglets en bas, le titre du chapitre ouvre les livres, la roue dentée ouvre les réglages.</item>
-        <item>Une nouvelle apparence : vélin et encre le jour, noir chaud et or la nuit ; thème et langue (MG, FR, EN) dans les réglages.</item>
-        <item>Literal Standard Version (anglais).</item>
-        <item>Références croisées pour chaque verset (Treasury of Scripture Knowledge).</item>
-        <item>Dictionnaire biblique et thèmes (anglais) et glossaire Martin (français).</item>
-        <item>Carte : moins de noms à la fois (les villages apparaissent en zoomant), une frise des Patriarches à l’Église primitive avec les frontières de chaque époque, les routes, le relief et les frontières actuelles.</item>
-        <item>Lecture à voix haute, même écran éteint (à activer dans les réglages). Chaque texte n’est lu qu’avec une voix de sa langue.</item>
-        <item>Bibles catholiques avec Tobie, Judith, Maccabées, Sagesse, Siracide et Baruch : Réglages › Avancé › Tradition.</item>
+        <item>Choix de la Bible : le menu en haut affiche d’abord les langues (Malagasy, Français, English) ; touchez une langue pour voir ses traductions.</item>
+        <item>Recherche de mises à jour, seulement si vous le voulez : Réglages › Avancé › Mises à jour. Vérifier maintenant demande à GitHub le numéro de la dernière version ; la recherche automatique (désactivée par défaut) affiche une notification quand une nouvelle version paraît. Rien sur vous ni sur votre lecture n’est envoyé, et l’application ne télécharge rien.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
