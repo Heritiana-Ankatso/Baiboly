@@ -471,4 +471,19 @@
     <!-- Language of Bible references (book abbreviations) -->
     <string name="ref_lang">en</string>
     <string name="no_saved_lists">No saved lists yet. A list appears here once a passage is added to it (Church mode, To list).</string>
+    <!-- Units: wages as a length of work -->
+    <string name="units_work_time">≈ %1$s of work, at six working days a week (Ex 20:9)</string>
+    <string name="list_and">" and "</string>
+    <plurals name="work_years">
+        <item quantity="one">%1$d year</item>
+        <item quantity="other">%1$d years</item>
+    </plurals>
+    <plurals name="work_months">
+        <item quantity="one">%1$d month</item>
+        <item quantity="other">%1$d months</item>
+    </plurals>
+    <plurals name="work_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
 </resources>

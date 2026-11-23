@@ -222,6 +222,25 @@ private fun modernText(kind: UnitKind, base: Double, lang: String, locale: Local
     return "$metric · $imperial"
 }
 
+/**
+ * How long a labourer worked for [days] days' wages: six working days a week (Ex 20:9), so 6,000
+ * days' wages are 7,000 calendar days, about 19 years and 2 months. Returns years, months, days;
+ * null under a week, where the days themselves say it.
+ */
+fun workTime(days: Double): Triple<Int, Int, Int>? {
+    if (!days.isFinite() || days < 6.0) return null
+    val calendar = days * 7.0 / 6.0
+    var years = floor(calendar / 365.25).toInt()
+    var rest = calendar - years * 365.25
+    var months = floor(rest / 30.4375).toInt()
+    var d = (rest - months * 30.4375).roundToLong().toInt()
+    if (d >= 30) { months++; d = 0 }
+    if (months >= 12) { years++; months -= 12 }
+    // a long time is told in years and months: the days would claim a precision the value lacks
+    if (years >= 2) d = 0
+    return Triple(years, months, d)
+}
+
 /** One line for a unit: its modern value, or for money its value in denarii (days' wages). */
 fun unitSummary(u: BibleUnit, locale: Locale): String? = when (u.kind) {
     UnitKind.Money -> "= ${formatAmount(u.value, locale)} × " + BibleUnits.byId("denarius").name(locale.language)
@@ -290,6 +309,20 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                 if (kind == UnitKind.Money && base != null) {
                     Text(stringResource(R.string.units_days_wages, formatAmount(base, locale)), style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.testTag("units-modern"))
+                    // the same as a length of work: "about 19 years and 2 months of work"
+                    workTime(base)?.let { (y, m, d) ->
+                        val parts = listOfNotNull(
+                            if (y > 0) androidx.compose.ui.res.pluralStringResource(R.plurals.work_years, y, y) else null,
+                            if (m > 0) androidx.compose.ui.res.pluralStringResource(R.plurals.work_months, m, m) else null,
+                            if (d > 0) androidx.compose.ui.res.pluralStringResource(R.plurals.work_days, d, d) else null,
+                        )
+                        if (parts.isNotEmpty()) {
+                            val joined = if (parts.size == 1) parts[0]
+                                else parts.dropLast(1).joinToString(", ") + stringResource(R.string.list_and) + parts.last()
+                            Text(stringResource(R.string.units_work_time, joined), style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.testTag("units-work-time"))
+                        }
+                    }
                 } else if (modern != null && !from.modern) {
                     Text("≈ $modern", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("units-modern"))
                 }

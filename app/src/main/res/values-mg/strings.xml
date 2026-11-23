@@ -456,4 +456,19 @@
     <!-- Language of Bible references (book abbreviations) -->
     <string name="ref_lang">mg</string>
     <string name="no_saved_lists">Mbola tsy misy lisitra voatahiry. Miseho eto ny lisitra raha vao misy andalan-teny ampidirina ao (fomba Fiangonana, Ho lisitra).</string>
+    <!-- Units: wages as a length of work -->
+    <string name="units_work_time">≈ asa %1$s, enina andro isan-kerinandro (Eks. 20:9)</string>
+    <string name="list_and">" sy "</string>
+    <plurals name="work_years">
+        <item quantity="one">%1$d taona</item>
+        <item quantity="other">%1$d taona</item>
+    </plurals>
+    <plurals name="work_months">
+        <item quantity="one">%1$d volana</item>
+        <item quantity="other">%1$d volana</item>
+    </plurals>
+    <plurals name="work_days">
+        <item quantity="one">%1$d andro</item>
+        <item quantity="other">%1$d andro</item>
+    </plurals>
 </resources>
