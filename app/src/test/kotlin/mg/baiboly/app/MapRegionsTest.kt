@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.ViewModelProvider
@@ -66,6 +67,8 @@ class MapRegionsTest {
         assertTrue(az.size >= 5)
         assertEquals(az, az.sortedBy { mg.baiboly.core.text.TextNorm.norm(it) }, "A–Z order")
         // by kind: only seas, rivers and islands
+        // the kind chips follow the order chips in a row that scrolls sideways
+        rule.onNodeWithTag("regions-chips").performScrollToNode(androidx.compose.ui.test.hasTestTag("regions-kind:Waters"))
         click("regions-kind:Waters")
         val waters = vm.library.places.filter { it.type == "body of water" || it.type == "island" }.map { it.displayName }.toSet()
         assertTrue(shown().isNotEmpty() && shown().all { it in waters }, "only waters: ${shown()}")

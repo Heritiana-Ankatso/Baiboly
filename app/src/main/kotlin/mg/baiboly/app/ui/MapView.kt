@@ -837,7 +837,8 @@ private fun RegionsPanel(places: List<Place>, outlined: Set<String>, period: Per
             trailingIcon = if (query.isNotEmpty()) ({ IconButton(onClick = { query = "" }) { Icon(Icons.Filled.Close, stringResource(R.string.close)) } }) else null,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp).testTag("regions-filter"),
         )
-        LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.testTag("regions-chips")) {
             item {
                 androidx.compose.material3.FilterChip(selected = !alphabetical, onClick = { alphabetical = false },
                     label = { Text(stringResource(R.string.regions_sort_named)) }, modifier = Modifier.testTag("regions-sort-named"))

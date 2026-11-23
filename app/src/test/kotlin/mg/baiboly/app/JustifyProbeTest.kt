@@ -31,7 +31,7 @@ import kotlin.test.fail
 /** Which text option leaves a gap on the right of justified text on Android 15 (temporary probe). */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(qualifiers = "w411dp-h914dp-420dpi", sdk = [34, 35])
+@Config(qualifiers = "w411dp-h2400dp-420dpi", sdk = [34, 35])
 class JustifyProbeTest {
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
@@ -39,31 +39,42 @@ class JustifyProbeTest {
         "ary hatramin’ i Davida ka hatramin’ ny nifindrana tany Babylona dia taranaka efatra ambin’ ny folo; ary hatramin’ ny " +
         "nifindrana tany Babylona ka hatramin’ i Kristy dia taranaka efatra ambin’ ny folo."
 
-    private data class Case(val name: String, val style: TextStyle?)
+    private data class Case(val name: String, val text: androidx.compose.ui.text.AnnotatedString, val style: TextStyle)
+
+    /** The reader's paragraph, one ingredient at a time. */
+    private fun verses(superscript: Boolean, nbsp: Boolean, shift: Boolean, soft: Boolean) =
+        androidx.compose.ui.text.buildAnnotatedString {
+            val parts = text.split(". ")
+            parts.forEachIndexed { i, p ->
+                if (i > 0) append(' ')
+                if (superscript) {
+                    pushStyle(androidx.compose.ui.text.SpanStyle(fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        baselineShift = if (shift) androidx.compose.ui.text.style.BaselineShift.Superscript else null)); append("${i + 16}"); pop()
+                    append(if (nbsp) '\u00A0' else ' ')
+                }
+                append(if (soft) mg.baiboly.app.ui.malagasySoftHyphens(p).first else p)
+                if (i < parts.lastIndex) append('.')
+            }
+        }
 
     @Test fun probe() {
         val base = TextStyle(fontSize = 18.sp, lineHeight = 26.sp, textAlign = TextAlign.Justify, color = Color.Black)
+        val plain = androidx.compose.ui.text.AnnotatedString(text)
+        val mgHyph = base.copy(lineBreak = LineBreak.Paragraph, localeList = LocaleList("mg"), hyphens = Hyphens.Auto)
         val cases = listOf(
-            Case("compose-justify", base),
-            Case("compose-simple", base.copy(lineBreak = LineBreak.Simple)),
-            Case("compose-heading", base.copy(lineBreak = LineBreak.Heading)),
-            Case("compose-paragraph", base.copy(lineBreak = LineBreak.Paragraph)),
-            Case("compose-paragraph-mg-hyph", base.copy(lineBreak = LineBreak.Paragraph, localeList = LocaleList("mg"), hyphens = Hyphens.Auto)),
-            Case("compose-simple-mg-hyph", base.copy(lineBreak = LineBreak.Simple, localeList = LocaleList("mg"), hyphens = Hyphens.Auto)),
-            Case("compose-start", base.copy(textAlign = TextAlign.Start)),
-            Case("textview-justify", null),
+            Case("plain", plain, base),
+            Case("paragraph-mg-hyph", plain, mgHyph),
+            Case("soft-hyphens", verses(false, false, false, true), mgHyph),
+            Case("superscript+nbsp", verses(true, true, true, false), base),
+            Case("superscript+space", verses(true, false, true, false), base),
+            Case("small-number+nbsp", verses(true, true, false, false), base),
+            Case("indent", plain, base.copy(textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 22.sp))),
+            Case("reader-like", verses(true, true, true, true), mgHyph.copy(textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 22.sp))),
         )
         rule.setContent {
             Column(Modifier.background(Color.White)) {
                 cases.forEach { c ->
-                    val m = Modifier.width(300.dp).background(Color.White).testTag(c.name)
-                    if (c.style != null) Text(text, style = c.style, modifier = m)
-                    else AndroidView(factory = { ctx ->
-                        android.widget.TextView(ctx).apply {
-                            setText(text); textSize = 18f; setTextColor(android.graphics.Color.BLACK)
-                            justificationMode = android.text.Layout.JUSTIFICATION_MODE_INTER_WORD
-                        }
-                    }, modifier = m)
+                    Text(c.text, style = c.style, modifier = Modifier.width(300.dp).background(Color.White).testTag(c.name))
                 }
             }
         }
