@@ -519,16 +519,18 @@ fun StyledSelectionActions(
         Style.Manuscript -> Surface(color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
                 GoldRule()
-                Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
-                    Text(countText, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-                }
                 if (colours) swatches()
-                Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                // one row: close, the count, then the actions (scrolling when they do not fit)
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(end = 4.dp, top = 2.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
+                    Text(countText, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(end = 4.dp))
                     actions.forEach { a ->
                         Column(
-                            Modifier.clip(RoundedCornerShape(12.dp)).clickable(onClick = a.onClick).widthIn(min = 56.dp)
-                                .padding(horizontal = 6.dp, vertical = 6.dp).testTag("action:${a.label}"),
+                            Modifier.clip(RoundedCornerShape(12.dp)).clickable(onClick = a.onClick).widthIn(min = 52.dp)
+                                .padding(horizontal = 4.dp, vertical = 4.dp).testTag("action:${a.label}"),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Icon(a.icon, null, tint = MaterialTheme.colorScheme.primary)

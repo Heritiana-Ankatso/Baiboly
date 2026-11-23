@@ -581,4 +581,47 @@ class UiAcceptanceTest {
         tag("unit-ref:cubit").tap()
         waitFor { vm.screen == Screen.Main && vm.location.book == 1 && vm.location.chapter == 6 }
     }
+
+    /** A selected passage: the same verses in the other Bibles, original words, places, units, dictionary. */
+    @Test fun passageStudyTools() {
+        ready()
+        // compact interface, text down to 10, screen kept awake: the defaults
+        assertEquals(UiDensity.Compact, vm.uiDensity)
+        assertTrue(vm.keepScreenOn)
+        fun awake(v: android.view.View): Boolean = v.keepScreenOn || (v is android.view.ViewGroup && (0 until v.childCount).any { awake(v.getChildAt(it)) })
+        assertTrue(awake(rule.activity.window.decorView), "screen kept on")
+        vm.changeTextSize(8f)
+        assertEquals(MIN_TEXT, vm.textSize)
+        vm.changeTextSize(20f)
+        // Casual mode (not only Study): Genesis 6:15, the ark's measures
+        vm.setTranslation("mg1865")
+        vm.openPassage(Passage(1, 6, 15, 15))
+        waitFor { vm.chapter?.book == 1 && vm.chapter?.chapter == 6 }
+        tag("reader").performScrollToKey("v15")
+        tag("verse:15").tap()
+        tag("action:Study").tap()
+        tag("passage-tools").assertExists()
+        // other Bibles, matched to their numbering
+        waitFor { runCatching { tag("compare:kjv").assertExists(); true }.getOrDefault(false) }
+        assertTrue(rule.onAllNodesWithText("three hundred cubits", substring = true).fetchSemanticsNodes().isNotEmpty())
+        // the unit named in the verse, opened in the converter
+        waitFor { runCatching { tag("tab-units").assertExists(); true }.getOrDefault(false) }
+        tag("tab-units").tap()
+        tag("passage-unit:cubit").tap()
+        waitFor { vm.screen == Screen.Dictionary && vm.dictionaryUnits }
+        rule.onNodeWithTag("unit-value:cubit", useUnmergedTree = true).assert(hasText("1"))
+        // Acts 13:4: Seleucia and Cyprus, shown on the map
+        vm.openPassage(Passage(44, 13, 4, 4))
+        waitFor { vm.screen == Screen.Main && vm.chapter?.book == 44 && vm.chapter?.chapter == 13 }
+        tag("reader").performScrollToKey("v4")
+        tag("verse:4").tap()
+        tag("action:Study").tap()
+        tag("tab-original").tap()
+        waitFor { runCatching { tag("word:G4581").assertExists(); true }.getOrDefault(false) } // Σελεύκεια
+        waitFor { runCatching { tag("tab-places").assertExists(); true }.getOrDefault(false) }
+        tag("tab-places").tap()
+        val seleucia = vm.library.places.first { it.name == "Seleucia" }
+        tag("passage-place:${seleucia.id}").tap()
+        waitFor { vm.screen == Screen.Map }
+    }
 }

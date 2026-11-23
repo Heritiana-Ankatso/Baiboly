@@ -188,6 +188,8 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
+        <item>Étudier un passage : sélectionnez des versets, puis Étude. Le passage dans les autres Bibles, ses mots originaux hébreux ou grecs avec leur sens, les références, les lieux nommés (sur la carte), les mesures (dans le convertisseur) et les articles de dictionnaire.</item>
+        <item>Plus de texte à l’écran : une interface compacte (Réglages › Apparence › Taille de l’interface), des marges plus étroites, un texte jusqu’à la taille 10. L’écran reste allumé tant que l’application est ouverte (désactivable).</item>
         <item>Les mises à jour s’installent dans l’application : Réglages › Avancé › Mises à jour › Télécharger et installer. Android demande une fois l’autorisation, puis confirme la mise à jour ; rien ne s’ouvre dans le navigateur.</item>
         <item>La carte occupe tout l’écran. Cherchez un lieu par son nom ; zoomez avec les boutons + et − ou d’un double toucher.</item>
         <item>Régions entières : royaumes, peuples et provinces (Édom, Moab, Galilée, Samarie, Macédoine, Asie…), plus foncées là où la région se trouvait sûrement, plus claires là où sa limite est incertaine. Touchez l’intérieur d’une région, ou choisissez-la dans Régions.</item>
@@ -373,4 +375,16 @@
     <string name="route_note">Routes : voies romaines (AWMC) et grandes routes de l’Ancien Testament. Le chemin tracé est le plus court sur elles, pas forcément celui qui fut pris.</string>
     <string name="journey_length">%1$d étapes · ≈ %2$s km</string>
     <string name="journey_note">La ligne relie les étapes nommées dans le texte, dans l’ordre ; ce n’est pas le chemin exact, et certains sites sont incertains (OpenBible.info). Touchez la référence pour lire le récit.</string>
+    <string name="ui_density">Taille de l’interface</string>
+    <string name="ui_compact">Compacte</string>
+    <string name="ui_normal">Normale</string>
+    <string name="keep_screen_on">Garder l’écran allumé</string>
+    <string name="keep_screen_on_hint">Tant que Baiboly est ouvert. Toujours en mode Église.</string>
+    <string name="study_action">Étude</string>
+    <string name="tab_translations">Traductions</string>
+    <string name="tab_places">Lieux</string>
+    <string name="compare_note">Touchez une Bible pour y lire le passage. Les numéros de verset sont mis en correspondance entre le malgache et les autres textes ; ⚠ signale un texte dont la numérotation peut différer ici.</string>
+    <string name="show_on_map">Carte</string>
+    <string name="open_converter">Convertir</string>
+    <string name="units_approx">Les valeurs modernes sont approximatives (voir Mesures dans la page Dictionnaire).</string>
 </resources>

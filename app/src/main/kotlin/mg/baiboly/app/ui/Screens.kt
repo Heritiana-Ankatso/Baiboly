@@ -571,10 +571,28 @@ private fun AppearanceSettings(vm: AppViewModel) {
         }
         Text(stringResource(R.string.text_size), style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 8.dp))
-        Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = 14f..40f, steps = 12,
-            modifier = Modifier.padding(horizontal = 20.dp))
-        Text(stringResource(R.string.sample_text), fontSize = vm.textSize.sp, lineHeight = (vm.textSize * LocalReading.current.lineSpacing).sp,
+        Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = mg.baiboly.app.MIN_TEXT..40f, steps = 14,
+            modifier = Modifier.padding(horizontal = 20.dp).testTag("settings-text-size"))
+        val sample = vm.textSize * LocalTextScale.current
+        Text(stringResource(R.string.sample_text), fontSize = sample.sp, lineHeight = (sample * LocalReading.current.lineSpacing).sp,
             fontFamily = TextSerif, modifier = Modifier.padding(horizontal = 20.dp))
+        // the size of everything else: bars, buttons, lists
+        ChoiceRow(
+            label = stringResource(R.string.ui_density),
+            options = listOf(mg.baiboly.app.UiDensity.Compact to stringResource(R.string.ui_compact), mg.baiboly.app.UiDensity.Normal to stringResource(R.string.ui_normal)),
+            selected = vm.uiDensity, tag = "settings-density",
+        ) { vm.changeUiDensity(it) }
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.changeKeepScreenOn(!vm.keepScreenOn) }
+                .padding(horizontal = 20.dp).testTag("settings-keep-awake"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.keep_screen_on), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.keep_screen_on_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            androidx.compose.material3.Switch(checked = vm.keepScreenOn, onCheckedChange = null)
+        }
         TextButton(onClick = { vm.resetAppearance() }, modifier = Modifier.padding(start = 12.dp, top = 4.dp).testTag("settings-reset-look")) {
             Text(stringResource(R.string.reset_appearance))
         }

@@ -205,6 +205,8 @@
     <string name="whats_new_ok">Amen</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
+        <item>Study a passage: select verses, then Study. The passage in the other Bibles, its original Hebrew or Greek words with their meaning, cross-references, the places it names (on the map), its units (in the converter) and dictionary entries.</item>
+        <item>More text on the screen: a compact interface (Settings › Appearance › Interface size), narrower margins, text down to size 10. The screen stays on while the app is open (can be turned off).</item>
         <item>Updates install inside the app: Settings › Advanced › Updates › Download and install. Android asks once to allow it, then confirms the update; nothing opens in the browser.</item>
         <item>The map fills the screen. Search a place by name; zoom with the + and − buttons or a double tap.</item>
         <item>Regions drawn whole: kingdoms, peoples and provinces (Edom, Moab, Galilee, Samaria, Macedonia, Asia…), darker where the region surely was, lighter where its edge is uncertain. Tap inside a region, or choose it under Regions.</item>
@@ -390,4 +392,16 @@
     <string name="route_note">Roads: Roman roads (AWMC) and the Old Testament highways. The way shown is the shortest on them, not necessarily the one taken.</string>
     <string name="journey_length">%1$d stops · ≈ %2$s km</string>
     <string name="journey_note">The line joins the stops named in the text, in order; it is not the exact way taken, and some sites are uncertain (OpenBible.info). Tap the reference to read the account.</string>
+    <string name="ui_density">Interface size</string>
+    <string name="ui_compact">Compact</string>
+    <string name="ui_normal">Normal</string>
+    <string name="keep_screen_on">Keep the screen on</string>
+    <string name="keep_screen_on_hint">While Baiboly is open. Always on in Church mode.</string>
+    <string name="study_action">Study</string>
+    <string name="tab_translations">Translations</string>
+    <string name="tab_places">Places</string>
+    <string name="compare_note">Tap a Bible to read the passage in it. Verse numbers are matched between the Malagasy and the other texts; ⚠ marks a text whose numbering may differ here.</string>
+    <string name="show_on_map">Map</string>
+    <string name="open_converter">Convert</string>
+    <string name="units_approx">Modern values are approximate (see Units in the Dictionary page).</string>
 </resources>

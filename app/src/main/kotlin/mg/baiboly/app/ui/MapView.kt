@@ -392,6 +392,14 @@ fun MapScreen(vm: AppViewModel) {
         }
         picking = null; query = ""; searching = false; focus.clearFocus()
     }
+    // opened from a passage: show that place
+    LaunchedEffect(vm.mapFocus, all) {
+        val id = vm.mapFocus ?: return@LaunchedEffect
+        val place = all.firstOrNull { it.id == id } ?: return@LaunchedEffect
+        vm.mapFocus = null
+        kotlinx.coroutines.delay(300) // the map has its size
+        select(place)
+    }
     // Back closes what is open on the map before leaving it
     BackHandler(enabled = searching || picking != null || panel != Panel.None || selected != null || journey != null || planned != null) {
         when {

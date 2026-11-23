@@ -135,6 +135,25 @@ class LibraryRepository(private val dbs: AssetDatabases, private val study: Stud
         return places.filter { it.id in ids }
     }
 
+    /** Places named in verses [from]..[to] of a chapter (Malagasy numbering), the most named first. */
+    fun placesInVerses(book: Int, chapter: Int, from: Int, to: Int): List<Place> {
+        val ids = db.rawQuery("SELECT DISTINCT place FROM place_verse WHERE book=? AND chapter=? AND verse BETWEEN ? AND ?",
+            arrayOf(book.toString(), chapter.toString(), from.toString(), to.toString()))
+            .use { c -> buildSet { while (c.moveToNext()) add(c.getString(0)) } }
+        return places.filter { it.id in ids }
+    }
+
+    /** Entries of [source] whose title is one of [words] (compared accent- and case-free), in the order of [words]. */
+    fun entriesNamed(source: String, words: List<String>): List<String> {
+        val norms = words.map { TextNorm.norm(it) }.distinct().take(200)
+        if (norms.isEmpty()) return emptyList()
+        val found = db.rawQuery(
+            "SELECT key, key_norm FROM dict_entry WHERE source=? AND key_norm IN (${norms.joinToString(",") { "?" }})",
+            arrayOf(source) + norms.toTypedArray(),
+        ).use { c -> buildMap { while (c.moveToNext()) put(c.getString(1), c.getString(0)) } }
+        return norms.mapNotNull { found[it] }.distinct()
+    }
+
     /** Verses that mention a place, canonical order. */
     fun versesOf(placeId: String): List<Passage> = db.rawQuery(
         "SELECT book, chapter, verse FROM place_verse WHERE place=? ORDER BY book, chapter, verse", arrayOf(placeId),

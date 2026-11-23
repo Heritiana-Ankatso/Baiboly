@@ -225,7 +225,7 @@ fun DictionaryScreen(vm: AppViewModel) {
 }
 
 @Composable
-private fun dictLabel(s: DictSource): String = when (s.id) {
+internal fun dictLabel(s: DictSource): String = when (s.id) {
     "easton" -> stringResource(R.string.dict_easton)
     "nave" -> stringResource(R.string.dict_nave)
     "martin" -> stringResource(R.string.dict_martin)
@@ -234,7 +234,7 @@ private fun dictLabel(s: DictSource): String = when (s.id) {
 
 /** An entry: Bible references open the passage, "see" links open another entry. */
 @Composable
-private fun DictEntryView(vm: AppViewModel, source: DictSource, key: String, onLink: (String) -> Unit) {
+internal fun DictEntryView(vm: AppViewModel, source: DictSource, key: String, onLink: (String) -> Unit) {
     var parts by remember(source.id, key) { mutableStateOf<List<Markup>?>(null) }
     LaunchedEffect(source.id, key) {
         parts = vm.dictEntry(source.id, key)?.let { vm.library.markup(it.body) } ?: emptyList()

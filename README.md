@@ -52,6 +52,10 @@ Within a theme, the reader can also change the colour variant, the Bible typefac
 
 **Settings** (gear icon), grouped with icons: Mode; Appearance (theme light / dark / device, language MG / FR / EN, text size); Default Bible; Reading aloud; Backup; About. **Advanced** (collapsed) holds the **Tradition** choice: *Protestant* (default: 66 books, Catholic translations hidden) or *Catholic* (adds the Catholic translations and the deuterocanonical books); and **Updates**: *Check now*, *Download and install* (in the app), and *Check automatically* (off by default).
 
+**Study a passage** (any mode): select verses, then *Study* on the selection bar: the passage in every Bible offered (numbering matched), its original Hebrew/Greek words with lexicon entries, cross-references, the places it names (open on the map), the units it names (open in the converter), and the Easton / Nave / Martin entries named by its words. In Study mode a tap on a verse number opens the same panel.
+
+**Screen space.** Settings › Appearance › *Interface size*: *Compact* (default, 88 %) or *Normal*; it scales bars, buttons and lists, not the Bible text. Text size 10 to 40. *Keep the screen on* (default on; always in Church mode).
+
 **Study tools (all offline).**
 * **Cross-references** for any verse (Study mode: tap the verse number, or select the verse and tap *References*): the Treasury of Scripture Knowledge, public domain, in Malagasy 1865 numbering.
 * **Dictionary and topics** (Study mode, *Dictionary* tab): Easton's Bible Dictionary and Nave's Topical Bible (English, public domain) and the Glossaire de la Bible Martin (French, ~1,000 older Bible words, free with credit to biblemartin.com). Bible references in entries open the verse. No free Malagasy Bible dictionary was found; the French Westphal dictionary is licensed only for CrossWire's own format.

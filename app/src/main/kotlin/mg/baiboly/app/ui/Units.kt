@@ -147,6 +147,40 @@ object BibleUnits {
     fun byId(id: String) = all.first { it.id == id }
     fun of(kind: UnitKind) = all.filter { it.kind == kind }
 
+    /**
+     * Words that name a unit in each language, from its names ("famarana (sea)"
+     * gives "sea"). Words with an everyday sense are left out (measure, finger,
+     * reed, piece…), so a unit is found only where the text means it.
+     */
+    private val GENERIC = setOf(
+        "measure", "mesure", "famarana", "vata", "piece", "pièce", "money", "silver", "finger", "doigt", "voantondro",
+        "reed", "canne", "volotara", "fandrefesana", "half", "petite", "small", "quart", "sou", "deux", "of", "tribute",
+        "antsasaky", "ny", "sekely", "vola", "farantsakely", "farantsa", "dia", "azo", "aleha", "amin’ny", "sabata", "day’s", "journey",
+        "chemin", "de", "sabbath", "long", "lava", "longue", "tapany", "homera", "kely", "fatam-bary", "penny", "ezek", "éz",
+    )
+
+    private fun words(name: String) = Regex("[\\p{L}’'-]+").findAll(name).map { it.value.lowercase() }.filter { it !in GENERIC && it.length >= 3 }.toSet()
+
+    private val keywords: Map<String, Map<String, Set<String>>> by lazy {
+        all.filter { !it.modern && it.id != "long_cubit" }.associate { u ->
+            u.id to mapOf("mg" to words(u.mg) + (if (u.id == "shekel") setOf("sekely") else emptySet()), "fr" to words(u.fr), "en" to words(u.en))
+        }
+    }
+
+    /**
+     * Units of the Bible named in a passage of [book], given its text in
+     * Malagasy, French and English. A talent or a mina is the Old Testament
+     * weight or the New Testament money, by the book.
+     */
+    fun namedIn(texts: Map<String, String>, book: Int): List<BibleUnit> {
+        // plurals too: cubits, coudées, shekels
+        val tokens = texts.mapValues { (_, t) -> Regex("[\\p{L}’'-]+").findAll(t.lowercase()).flatMap { sequenceOf(it.value, it.value.removeSuffix("s")) }.toSet() }
+        val nt = book in 40..66
+        return all.filter { u ->
+            !u.modern && keywords[u.id].orEmpty().any { (lang, ws) -> ws.any { it in tokens[lang].orEmpty() } }
+        }.filterNot { (nt && it.id in setOf("talent", "mina")) || (!nt && it.id in setOf("talent_nt", "mina_nt")) }
+    }
+
     /** [amount] of [from] expressed in [to]. */
     fun convert(amount: Double, from: BibleUnit, to: BibleUnit): Double {
         require(from.kind == to.kind)
@@ -188,6 +222,12 @@ private fun modernText(kind: UnitKind, base: Double, lang: String, locale: Local
     return "$metric · $imperial"
 }
 
+/** One line for a unit: its modern value, or for money its value in denarii (days' wages). */
+fun unitSummary(u: BibleUnit, locale: Locale): String? = when (u.kind) {
+    UnitKind.Money -> "= ${formatAmount(u.value, locale)} × " + BibleUnits.byId("denarius").name(locale.language)
+    else -> modernText(u.kind, u.value, locale.language, locale)?.let { "≈ $it" }
+}
+
 // ---------------------------------------------------------------- screen
 
 /**
@@ -203,6 +243,13 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
     var kind by rememberSaveable { mutableStateOf(UnitKind.Length) }
     var fromId by rememberSaveable { mutableStateOf("cubit") }
     var text by rememberSaveable { mutableStateOf("1") }
+    // opened from a passage: start from the unit it names
+    androidx.compose.runtime.LaunchedEffect(vm.unitsRequest) {
+        vm.unitsRequest?.let { id ->
+            BibleUnits.all.firstOrNull { it.id == id }?.let { kind = it.kind; fromId = it.id; text = "1" }
+            vm.unitsRequest = null
+        }
+    }
     val from = BibleUnits.all.firstOrNull { it.id == fromId && it.kind == kind } ?: BibleUnits.of(kind).firstOrNull { !it.modern }
     val amount = text.replace(',', '.').replace(" ", "").replace(" ", "").toDoubleOrNull()
     val ornament = LocalOrnament.current

@@ -190,6 +190,8 @@
     <string name="whats_new_ok">Amena</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
+        <item>Fandalinana andalan-tsoratra: fidio ny andininy, dia Fianarana. Ilay andalan-tsoratra amin’ny Baiboly hafa, ny teny hebreo na grika tany am-boalohany sy ny heviny, ny andinin-teny mifandray, ny toerana voatonona (eo amin’ny sarintany), ny refy (amin’ny fanovana refy) ary ny ao amin’ny rakibolana.</item>
+        <item>Soratra betsaka kokoa eo amin’ny efijery: efijery tery (Fikirana › Endrika › Haben’ny efijery), sisiny tery kokoa, soratra hatramin’ny habe 10. Tsy maty ny efijery raha mbola misokatra ny fampiharana (azo ajanona).</item>
         <item>Mipetraka ao anatin’ny fampiharana ny fanavaozana: Fikirana › Safidy hafa › Fanavaozana › Alaivo ary apetraho. Indray mandeha monja i Android no mangataka alalana, avy eo manamafy ny fanavaozana; tsy misy misokatra ao amin’ny mpitety tranonkala.</item>
         <item>Mameno ny efijery ny sarintany. Hitady toerana amin’ny anarany; ahalehibe na ahakely amin’ny bokotra + sy −, na tsindrio indroa.</item>
         <item>Faritany manontolo: fanjakana, firenena ary faritany (Edoma, Moaba, Galilia, Samaria, Makedonia, Azia…), matroka kokoa izay tena nisy azy, mazava kokoa izay tsy azo antoka ny sisiny. Tsindrio ao anatin’ny faritany iray, na fidio ao amin’ny Faritany.</item>
@@ -375,4 +377,16 @@
     <string name="route_note">Lalana: lalana romana (AWMC) sy ireo lalambe tamin’ny Testamenta Taloha. Ny lalana fohy indrindra amin’ireo no aseho, tsy voatery ho ilay nalehany.</string>
     <string name="journey_length">Fijanonana %1$d · ≈ %2$s km</string>
     <string name="journey_note">Mampitohy ireo fijanonana voatonona ao amin’ny soratra, araka ny filaharany, ny tsipika; tsy ilay lalana marina nalehany izy, ary misy toerana tsy azo antoka (OpenBible.info). Tsindrio ny andinin-teny hamakiana ny tantara.</string>
+    <string name="ui_density">Haben’ny efijery</string>
+    <string name="ui_compact">Tery</string>
+    <string name="ui_normal">Antonony</string>
+    <string name="keep_screen_on">Aza vonoina ny efijery</string>
+    <string name="keep_screen_on_hint">Raha mbola misokatra i Baiboly. Mandrakariva amin’ny fomba Fiangonana.</string>
+    <string name="study_action">Fianarana</string>
+    <string name="tab_translations">Dikan-teny</string>
+    <string name="tab_places">Toerana</string>
+    <string name="compare_note">Tsindrio ny Baiboly iray hamakiana ilay andalan-tsoratra ao aminy. Ampifanarahina ny laharan’andininy eo amin’ny teny malagasy sy ny soratra hafa; ⚠ no manamarika soratra mety tsy mitovy laharana eto.</string>
+    <string name="show_on_map">Sarintany</string>
+    <string name="open_converter">Avadiho</string>
+    <string name="units_approx">Tombantombana ny sanda ankehitriny (jereo ny Refy ao amin’ny pejy Rakibolana).</string>
 </resources>

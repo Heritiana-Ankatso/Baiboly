@@ -54,6 +54,7 @@ import mg.baiboly.core.ref.Passage
 import mg.baiboly.data.LexiconEntry
 import mg.baiboly.data.VerseRef
 import mg.baiboly.data.VerseStudy
+import androidx.compose.material.icons.outlined.Map
 
 private sealed interface StudyPage {
     data object Words : StudyPage
@@ -87,46 +88,234 @@ fun StudyContent(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismis
     }
 }
 
+/** Kept for callers of the one-verse panel: the passage panel on that verse. */
+@Composable
+fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, startOnCrossRefs: Boolean = false, onDismiss: () -> Unit) =
+    PassageToolsSheet(vm, Passage(book, chapter, verse, verse), if (startOnCrossRefs) PassageTab.References else PassageTab.Original, onDismiss)
+
+enum class PassageTab { Translations, Original, References, Places, Units, Dictionary }
+
 /**
- * Study mode: tapping a verse number opens this panel. One tab for the
- * original words (א for Hebrew/Aramaic books, α for Greek), one for the
- * cross-references.
+ * Everything about the selected verses, in one panel (any mode: Study on the
+ * selection bar, or a tap on a verse number in Study mode):
+ * the passage in the other Bibles; the original words (א Hebrew/Aramaic,
+ * α Greek) with their lexicon entries; cross-references; places named, to
+ * open on the map; units named, to open in the converter; dictionary entries
+ * named by its words. Tabs with nothing for this passage are left out.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, startOnCrossRefs: Boolean = false, onDismiss: () -> Unit) {
+fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = PassageTab.Translations, onDismiss: () -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var tab by remember { mutableStateOf(if (startOnCrossRefs) 1 else 0) }
     val lang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang ?: "mg"
+    var mg by remember(passage) { mutableStateOf<Passage?>(null) }
+    var places by remember(passage) { mutableStateOf<List<mg.baiboly.data.Place>?>(null) }
+    var units by remember(passage) { mutableStateOf<List<BibleUnit>?>(null) }
+    var dict by remember(passage) { mutableStateOf<List<AppViewModel.DictMatch>?>(null) }
+    LaunchedEffect(passage) {
+        val m = vm.toMalagasy(passage)
+        mg = m
+        places = vm.placesInPassage(passage)
+        units = BibleUnits.namedIn(vm.passageTexts(passage), passage.book)
+        dict = vm.passageDictionary(passage)
+    }
+    val tabs = PassageTab.entries.filter {
+        when (it) {
+            PassageTab.Places -> !places.isNullOrEmpty()
+            PassageTab.Units -> !units.isNullOrEmpty()
+            PassageTab.Dictionary -> !dict.isNullOrEmpty()
+            else -> true
+        }
+    }
+    var tab by remember(passage) { mutableStateOf(start) }
+    val shown = if (tab in tabs) tab else PassageTab.Translations
     LocalizedSheet(onDismissRequest = onDismiss, sheetState = sheet) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(0.82f).navigationBarsPadding()) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight(0.86f).navigationBarsPadding().testTag("passage-tools")) {
             Text(
-                Passage(book, chapter, verse, verse).longLabel(lang),
+                passage.longLabel(lang),
                 style = MaterialTheme.typography.titleLarge,
                 color = LocalOrnament.current.rubric,
-                modifier = Modifier.padding(horizontal = 20.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
-            androidx.compose.material3.TabRow(
-                selectedTabIndex = tab,
+            androidx.compose.material3.ScrollableTabRow(
+                selectedTabIndex = tabs.indexOf(shown).coerceAtLeast(0),
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 4.dp),
+                edgePadding = 8.dp,
+                modifier = Modifier.padding(top = 2.dp),
             ) {
-                androidx.compose.material3.Tab(
-                    selected = tab == 0, onClick = { tab = 0 },
-                    text = { Text(studySymbol(book) + "  " + stringResource(R.string.original_words)) },
-                    modifier = Modifier.testTag("tab-original"),
-                )
-                androidx.compose.material3.Tab(
-                    selected = tab == 1, onClick = { tab = 1 },
-                    icon = { Icon(androidx.compose.material.icons.Icons.Outlined.Link, null) },
-                    text = { Text(stringResource(R.string.cross_references)) },
-                    modifier = Modifier.testTag("tab-xrefs"),
-                )
+                tabs.forEach { t ->
+                    androidx.compose.material3.Tab(
+                        selected = t == shown, onClick = { tab = t },
+                        text = {
+                            Text(
+                                when (t) {
+                                    PassageTab.Translations -> stringResource(R.string.tab_translations)
+                                    PassageTab.Original -> studySymbol(passage.book) + " " + stringResource(R.string.original_words)
+                                    PassageTab.References -> stringResource(R.string.cross_references)
+                                    PassageTab.Places -> stringResource(R.string.tab_places) + " (${places?.size ?: 0})"
+                                    PassageTab.Units -> stringResource(R.string.units) + " (${units?.size ?: 0})"
+                                    PassageTab.Dictionary -> stringResource(R.string.dictionary)
+                                },
+                                maxLines = 1,
+                            )
+                        },
+                        modifier = Modifier.testTag(
+                            when (t) {
+                                PassageTab.Original -> "tab-original"; PassageTab.References -> "tab-xrefs"
+                                else -> "tab-" + t.name.lowercase()
+                            },
+                        ),
+                    )
+                }
             }
-            Box(Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 8.dp)) {
-                if (tab == 0) StudyContent(vm, book, chapter, verse, onDismiss)
-                else CrossRefContent(vm, verse, onDismiss)
+            Box(Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 6.dp)) {
+                val m = mg
+                when (shown) {
+                    PassageTab.Translations -> TranslationsPage(vm, passage, onDismiss)
+                    PassageTab.Original -> if (m == null) Text(stringResource(R.string.loading)) else OriginalPage(vm, m, onDismiss)
+                    PassageTab.References -> CrossRefContent(vm, passage.verseStart.coerceAtLeast(1), onDismiss)
+                    PassageTab.Places -> PlacesPage(vm, places.orEmpty(), onDismiss)
+                    PassageTab.Units -> UnitsPage(vm, units.orEmpty(), lang, onDismiss)
+                    PassageTab.Dictionary -> DictionaryPage(vm, dict.orEmpty())
+                }
+            }
+        }
+    }
+}
+
+/** The passage in each Bible offered; a tap reads it there. */
+@Composable
+private fun TranslationsPage(vm: AppViewModel, passage: Passage, onDismiss: () -> Unit) {
+    var list by remember(passage) { mutableStateOf<List<AppViewModel.Compared>?>(null) }
+    LaunchedEffect(passage, vm.translationId) { list = vm.compareTranslations(passage) }
+    val items = list ?: return Text(stringResource(R.string.loading))
+    val ornament = LocalOrnament.current
+    LazyColumn(Modifier.testTag("compare-list")) {
+        items(items, key = { it.translation.id }) { c ->
+            val current = c.translation.id == vm.translationId
+            Column(
+                Modifier.fillMaxWidth().clickable { vm.readIn(c); onDismiss() }
+                    .testTag("compare:${c.translation.id}").padding(vertical = 6.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(c.translation.shortName, style = MaterialTheme.typography.labelLarge, color = if (current) ornament.rubric else ornament.gold,
+                        fontWeight = FontWeight.Bold)
+                    Text(
+                        "  " + c.translation.name + (if (c.passage != passage) " · " + c.passage.numbers() else "") + (if (c.numberingMayDiffer) " ⚠" else ""),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Text(c.text, fontFamily = TextSerif, fontSize = 16.sp, lineHeight = 22.sp)
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+        }
+        item {
+            Text(stringResource(R.string.compare_note), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 10.dp))
+        }
+    }
+}
+
+/** Original words verse by verse: a chip per verse when several are selected. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun OriginalPage(vm: AppViewModel, mg: Passage, onDismiss: () -> Unit) {
+    val verses = (mg.verseStart.coerceAtLeast(1)..mg.verseEnd.coerceAtLeast(mg.verseStart.coerceAtLeast(1))).toList()
+    var verse by remember(mg) { mutableStateOf(verses.first()) }
+    Column {
+        if (verses.size > 1) {
+            androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(verses) { v ->
+                    androidx.compose.material3.FilterChip(selected = v == verse, onClick = { verse = v }, label = { Text("${mg.chapter}:$v") })
+                }
+            }
+        }
+        Box(Modifier.weight(1f)) { StudyContent(vm, mg.book, mg.chapter, verse, onDismiss) }
+    }
+}
+
+@Composable
+private fun PlacesPage(vm: AppViewModel, places: List<mg.baiboly.data.Place>, onDismiss: () -> Unit) {
+    LazyColumn(Modifier.testTag("passage-places")) {
+        items(places, key = { it.id }) { p ->
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { vm.showOnMap(p.id); onDismiss() }
+                    .testTag("passage-place:${p.id}").padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(androidx.compose.material.icons.Icons.Outlined.Map, null, tint = LocalOrnament.current.gold, modifier = Modifier.padding(end = 12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(p.displayName, style = MaterialTheme.typography.bodyLarge)
+                    Text(listOf(p.type, stringResource(R.string.place_mentions, p.mentions)).joinToString(" · "),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text(stringResource(R.string.show_on_map), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun UnitsPage(vm: AppViewModel, units: List<BibleUnit>, lang: String, onDismiss: () -> Unit) {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    LazyColumn(Modifier.testTag("passage-units")) {
+        items(units, key = { it.id }) { u ->
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { vm.openUnit(u.id); onDismiss() }
+                    .testTag("passage-unit:${u.id}").padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(u.name(lang), style = MaterialTheme.typography.bodyLarge)
+                    Text(listOfNotNull(u.original.takeIf { it.isNotEmpty() }, unitSummary(u, locale)).joinToString(" · "),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text(stringResource(R.string.open_converter), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+        }
+        item {
+            Text(stringResource(R.string.units_approx), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 10.dp))
+        }
+    }
+}
+
+/** Dictionary entries named by words of the passage; an entry opens here, its links too. */
+@Composable
+private fun DictionaryPage(vm: AppViewModel, matches: List<AppViewModel.DictMatch>) {
+    var open by remember { mutableStateOf<Pair<mg.baiboly.data.DictSource, String>?>(null) }
+    val o = open
+    if (o != null) {
+        Column {
+            IconButton(onClick = { open = null }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
+            Box(Modifier.weight(1f)) { DictEntryView(vm, o.first, o.second, onLink = { open = o.first to it }) }
+        }
+        return
+    }
+    LazyColumn(Modifier.testTag("passage-dictionary")) {
+        matches.forEach { m ->
+            item(key = "h:" + m.source.id) {
+                Text(dictLabel(m.source), style = MaterialTheme.typography.titleSmall, color = LocalOrnament.current.gold,
+                    modifier = Modifier.padding(top = 10.dp, bottom = 2.dp))
+            }
+            item(key = "k:" + m.source.id) {
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    m.keys.forEach { k ->
+                        Surface(
+                            shape = RoundedCornerShape(10.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            modifier = Modifier.clip(RoundedCornerShape(10.dp)).clickable { open = m.source to k }
+                                .heightIn(min = 40.dp).testTag("passage-entry:${m.source.id}:$k"),
+                        ) {
+                            Box(Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
+                                Text(k.lowercase().replaceFirstChar { it.titlecase() }, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

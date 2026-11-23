@@ -62,6 +62,9 @@ class StudyRepository(private val dbs: AssetDatabases) {
     /** A KJV-numbered reference (dictionaries use KJV numbering) in Malagasy 1865 numbering. */
     fun kjvToMg(k: VerseRef): VerseRef = fromKjv(k)
 
+    /** A Malagasy 1865 reference in KJV numbering (the numbering of the other texts, Psalms of the Douay-Rheims aside). */
+    fun mgToKjv(mg: VerseRef): VerseRef = toKjv(mg).first
+
     fun verse(mg: VerseRef): VerseStudy {
         val (kjv, uncertain) = toKjv(mg)
         val words = db.rawQuery(

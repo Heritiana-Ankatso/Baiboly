@@ -136,4 +136,27 @@ class MapToolsTest {
         assertEquals("34,200", formatAmount(34_200.0, Locale.ENGLISH))
         assertEquals("1,5", formatAmount(1.5, Locale.FRENCH))
     }
+
+    @Test fun unitsNamedInAPassage() {
+        val bible = BibleRepository(dbs)
+        fun texts(mg: Triple<Int, Int, Int>, kjv: Triple<Int, Int, Int> = mg): Map<String, String> = mapOf(
+            "mg" to bible.verses("mg1865", mg.first, mg.second, mg.third, mg.third).single().text,
+            "fr" to bible.verses("lsg1910", kjv.first, kjv.second, kjv.third, kjv.third).single().text,
+            "en" to bible.verses("kjv", kjv.first, kjv.second, kjv.third, kjv.third).single().text,
+        )
+        assertEquals(listOf("cubit"), BibleUnits.namedIn(texts(Triple(1, 6, 15)), 1).map { it.id })          // the ark
+        assertTrue("talent_nt" in BibleUnits.namedIn(texts(Triple(40, 18, 24)), 40).map { it.id })            // money in the Gospel
+        assertFalse("talent" in BibleUnits.namedIn(texts(Triple(40, 18, 24)), 40).map { it.id })
+        assertTrue("shekel" in BibleUnits.namedIn(texts(Triple(2, 30, 13)), 2).map { it.id } && "gerah" in BibleUnits.namedIn(texts(Triple(2, 30, 13)), 2).map { it.id })
+        assertTrue(BibleUnits.namedIn(texts(Triple(43, 3, 16)), 43).isEmpty(), "no unit in John 3:16")
+    }
+
+    @Test fun placesAndEntriesOfAPassage() {
+        // Acts 13:4: Seleucia and Cyprus
+        val names = lib.placesInVerses(44, 13, 4, 4).map { it.displayName }
+        assertTrue("Seleucia" in names && "Cyprus" in names, names.toString())
+        // dictionary titles named by words of a verse (KJV Gen 1:1)
+        val keys = lib.entriesNamed("easton", listOf("beginning", "God", "created", "heaven", "earth")).map { it.uppercase() }
+        assertTrue("GOD" in keys && "EARTH" in keys, keys.toString())
+    }
 }

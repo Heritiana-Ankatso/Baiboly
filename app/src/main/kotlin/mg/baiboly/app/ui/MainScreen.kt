@@ -84,6 +84,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.automirrored.outlined.Undo
 import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.BorderColor
 import androidx.compose.material.icons.outlined.Link
@@ -143,18 +144,14 @@ fun MainScreen(vm: AppViewModel) {
     var wordsVerse by remember { mutableStateOf<Int?>(null) }
     var noteDraft by remember { mutableStateOf<NoteDraft?>(null) }
     var xrefVerse by remember { mutableStateOf<Int?>(null) }
+    var toolsPassage by remember { mutableStateOf<Passage?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val clipboard = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
 
-    // Church mode keeps the screen awake for the whole service.
-    val view = LocalView.current
+    // the screen is kept awake for the whole app (BaibolyApp), always in Church mode
     val church = vm.mode == AppMode.Church
-    DisposableEffect(church) {
-        view.keepScreenOn = church
-        onDispose { view.keepScreenOn = false }
-    }
     LaunchedEffect(vm.location.book, vm.location.chapter, vm.translationId) { selected = emptySet() }
     // the selection actions take the place of the navigation bar
     LaunchedEffect(selected.isNotEmpty()) { vm.selectionActive = selected.isNotEmpty() }
@@ -194,6 +191,7 @@ fun MainScreen(vm: AppViewModel) {
                         },
                         onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
                         onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
+                        onStudy = { toolsPassage = Passage(loc.book, loc.chapter, selected.min(), selected.max()) },
                         onWords = if (selected.size == 1) ({ wordsVerse = selected.first() }) else null,
                         onCrossRefs = if (selected.size == 1 && vm.mode == AppMode.Study) ({ xrefVerse = selected.first(); selected = emptySet() }) else null,
                         onListen = if (vm.readAloudEnabled && !church) ({ vm.startReading(selected.min()); selected = emptySet() }) else null,
@@ -254,6 +252,7 @@ fun MainScreen(vm: AppViewModel) {
     if (showAdd) AddPanel(vm, onDismiss = { showAdd = false })
     if (showBrowse) BrowseSheet(vm, onDismiss = { showBrowse = false })
     studyVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, onDismiss = { studyVerse = null }) }
+    toolsPassage?.let { p -> PassageToolsSheet(vm, p, onDismiss = { toolsPassage = null; selected = emptySet() }) }
     xrefVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, startOnCrossRefs = true, onDismiss = { xrefVerse = null }) }
     if (vm.showWhatsNew) WhatsNewSheet(vm.versionName, onDismiss = { vm.dismissWhatsNew() })
     noteDraft?.let { d ->
@@ -630,7 +629,7 @@ private fun Reader(
         justify = vm.justify,
         hyphenate = vm.hyphenate,
         indent = vm.paragraphBreak == ParagraphBreak.Indent,
-        margin = when (vm.pageMargin) { PageMargin.Narrow -> 18.dp; PageMargin.Normal -> 24.dp; PageMargin.Wide -> 36.dp },
+        margin = when (vm.pageMargin) { PageMargin.Narrow -> 8.dp; PageMargin.Normal -> 14.dp; PageMargin.Wide -> 26.dp },
         lang = lang,
     )
     val rows = remember(ch, lang, paragraphs) {
@@ -663,7 +662,7 @@ private fun Reader(
     val highlights = vm.chapterHighlights
     val notes = vm.chapterNotes
     val charHighlights = vm.translationId == BibleRepository.PRIMARY
-    val textSize = vm.textSize
+    val textSize = vm.textSize * LocalTextScale.current
     // verse being read aloud in this chapter (highlighted and kept in view)
     val rs = vm.readState
     val reading = if (rs.active && rs.book == ch?.book && rs.chapter == ch.chapter && rs.translation == vm.translationId) rs.verse else null
@@ -691,7 +690,7 @@ private fun Reader(
                     onHorizontalDrag = { change, dx -> total += dx; change.consume() },
                 )
             },
-        contentPadding = PaddingValues(start = 4.dp, end = 18.dp, top = 4.dp, bottom = if (pageStyle) 24.dp else 104.dp),
+        contentPadding = PaddingValues(start = 0.dp, end = 6.dp, top = 2.dp, bottom = if (pageStyle) 24.dp else 88.dp),
     ) {
         items(rows.size, key = { i ->
             rows[i].let { r ->
@@ -710,7 +709,7 @@ private fun Reader(
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                     color = LocalOrnament.current.rubric,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(start = 40.dp, end = 28.dp, top = 18.dp, bottom = 6.dp),
+                    modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 12.dp, top = 12.dp, bottom = 4.dp),
                 )
                 is ReaderRow.Verse -> VerseRow(
                     verse = r.verse,
@@ -795,8 +794,7 @@ private fun VerseRow(
         Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .heightIn(min = 48.dp)
-            .padding(vertical = 1.dp)
+            .heightIn(min = 40.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(bg)
             .drawBehind {
@@ -806,11 +804,11 @@ private fun VerseRow(
     ) {
         Box(
             Modifier
-                .widthIn(min = 48.dp)
+                .widthIn(min = 34.dp)
                 .fillMaxHeight()
                 .clickable(onClick = onNumberTap)
                 .testTag("vnum:$verse")
-                .padding(top = (textSize * 0.42f).dp, end = 6.dp),
+                .padding(top = (textSize * 0.36f).dp, end = 4.dp),
             contentAlignment = Alignment.TopEnd,
         ) {
             Text(
@@ -835,11 +833,11 @@ private fun VerseRow(
                 .weight(1f)
                 .clickable(onClick = onTap)
                 .testTag("verse:$verse")
-                .padding(start = 4.dp, top = 6.dp, bottom = 6.dp, end = 4.dp),
+                .padding(start = 2.dp, top = 3.dp, bottom = 3.dp, end = 2.dp),
         )
         if (note != null) {
             Box(
-                Modifier.size(48.dp).clickable { onNoteTap(note) },
+                Modifier.width(32.dp).fillMaxHeight().clickable { onNoteTap(note) },
                 contentAlignment = Alignment.Center,
             ) { Icon(Icons.Filled.Create, stringResource(R.string.notes), tint = ornament.gold, modifier = Modifier.size(20.dp)) }
         }
@@ -963,9 +961,9 @@ private fun ParagraphBlock(
             .fillMaxWidth()
             .testTag("paragraph:$first")
             // inside the padding, so tap positions match the text layout
-            // the list adds 4 dp on the left and 18 on the right: equal margins on both sides
+            // the list adds 0 dp on the left and 6 on the right: equal margins on both sides
             .padding(
-                start = typeset.margin - 4.dp, end = (typeset.margin - 18.dp).coerceAtLeast(0.dp),
+                start = typeset.margin, end = (typeset.margin - 6.dp).coerceAtLeast(0.dp),
                 top = if (typeset.indent) 0.dp else 6.dp, bottom = if (typeset.indent) 0.dp else 6.dp,
             )
             .pointerInput(spans, notes) {
@@ -998,6 +996,7 @@ private fun SelectionBar(
     onNote: () -> Unit,
     onHighlight: (Int) -> Unit,
     onRemoveHighlight: () -> Unit,
+    onStudy: () -> Unit,
     onWords: (() -> Unit)?,
     onCrossRefs: (() -> Unit)?,
     onListen: (() -> Unit)?,
@@ -1006,6 +1005,8 @@ private fun SelectionBar(
 ) {
     var colours by remember { mutableStateOf(false) }
     val actions = buildList {
+        // the passage in other Bibles, its original words, places, units, dictionary
+        add(VerseAction(Icons.Outlined.School, stringResource(R.string.study_action), onStudy))
         add(VerseAction(Icons.Outlined.ContentCopy, stringResource(R.string.copy), onCopy))
         add(VerseAction(Icons.Outlined.EditNote, stringResource(R.string.note_action), onNote))
         add(VerseAction(Icons.Outlined.BorderColor, stringResource(R.string.highlight)) { colours = !colours })
