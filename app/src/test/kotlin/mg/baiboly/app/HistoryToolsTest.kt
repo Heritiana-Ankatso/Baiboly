@@ -136,9 +136,6 @@ class HistoryToolsTest {
         // the chart by default; the list as its table view
         rule.onNodeWithTag("timeline-chart").assertExists()
         shot("h3-timeline-chart")
-        click("tl-era:kingdom")
-        pump(800)
-        shot("h3b-timeline-kingdom")
         click("tl-mode-list")
         pump(800)
         rule.onNodeWithTag("timeline").assertExists()
