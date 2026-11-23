@@ -564,12 +564,14 @@ private fun AppearanceSettings(vm: AppViewModel) {
         val sample = vm.textSize * LocalTextScale.current
         Text(stringResource(R.string.sample_text), fontSize = sample.sp, lineHeight = (sample * LocalReading.current.lineSpacing).sp,
             fontFamily = TextSerif, modifier = Modifier.padding(horizontal = 20.dp))
-        // the size of everything else: bars, buttons, lists
-        ChoiceRow(
-            label = stringResource(R.string.ui_density),
-            options = listOf(mg.baiboly.app.UiDensity.Compact to stringResource(R.string.ui_compact), mg.baiboly.app.UiDensity.Normal to stringResource(R.string.ui_normal)),
-            selected = vm.uiDensity, tag = "settings-density",
-        ) { vm.changeUiDensity(it) }
+        // the size of everything else: bars, buttons, lists (inset like the other choices above)
+        Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+            ChoiceRow(
+                label = stringResource(R.string.ui_density),
+                options = listOf(mg.baiboly.app.UiDensity.Compact to stringResource(R.string.ui_compact), mg.baiboly.app.UiDensity.Normal to stringResource(R.string.ui_normal)),
+                selected = vm.uiDensity, tag = "settings-density",
+            ) { vm.changeUiDensity(it) }
+        }
         Row(
             Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.changeKeepScreenOn(!vm.keepScreenOn) }
                 .padding(horizontal = 20.dp).testTag("settings-keep-awake"),

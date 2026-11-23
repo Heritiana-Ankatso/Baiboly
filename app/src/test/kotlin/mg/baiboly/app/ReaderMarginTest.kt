@@ -7,6 +7,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.test.performScrollToNode
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -96,5 +97,27 @@ class ReaderMarginTest {
         vm.changeUiDensity(UiDensity.Normal); check("Manuscript-normal-size")
         println("READER MARGINS\n" + report.joinToString("\n"))
         if (bad.isNotEmpty()) fail("Uneven margins:\n" + bad.joinToString("\n") + "\n\nAll:\n" + report.joinToString("\n"))
+    }
+
+    /** Reported: Settings › Appearance › Interface size ran to the screen edges; every choice is inset 20 dp. */
+    @Test fun settingsChoicesAreInset() {
+        for (i in 0 until 300) { if (vm.ready) break; pump(30) }
+        vm.screen = Screen.Settings
+        pump(1000)
+        val view = rule.activity.window.decorView
+        val minInset = 16 * rule.activity.resources.displayMetrics.density * vm.uiDensity.scale
+        val bad = mutableListOf<String>()
+        // first and last option of each row
+        for ((first, last) in listOf("settings-density:Compact" to "settings-density:Normal",
+            "settings-spacing:Compact" to "settings-spacing:Airy", "settings-layout:Lines" to "settings-layout:Paragraphs")) {
+            rule.onNode(androidx.compose.ui.test.hasTestTag("settings-list")).performScrollToNode(androidx.compose.ui.test.hasTestTag(first))
+            pump(300)
+            val l = rule.onNode(androidx.compose.ui.test.hasTestTag(first), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.left
+            val r = view.width - rule.onNode(androidx.compose.ui.test.hasTestTag(last), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.right
+            val line = "${first.substringBefore(':')}: left=${l.toInt()} right=${r.toInt()} (min ${minInset.toInt()})"
+            println(line)
+            if (l < minInset || r < minInset) bad += line
+        }
+        if (bad.isNotEmpty()) fail("Settings choices touching the screen edge:\n" + bad.joinToString("\n"))
     }
 }
