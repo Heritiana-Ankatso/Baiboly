@@ -298,10 +298,14 @@ class UiAcceptanceTest {
         ready()
         vm.screen = Screen.Settings
         rule.waitForIdle()
+        // Settings lists its groups; Appearance opens on its own page
+        tag("settings-cat:look").tap()
         tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
         tag("settings-layout:Paragraphs").tap()
         assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
-        // the typesetting details are under Advanced
+        // back to the list of groups; the typesetting details are under Advanced
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        waitFor { vm.settingsPage == null }
         tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-advanced"))
         assertTrue(rule.onAllNodesWithTag("settings-justify:false", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
         tag("settings-advanced").tap()
@@ -479,7 +483,13 @@ class UiAcceptanceTest {
             } else tag("settings").tap()
             waitFor { vm.screen == Screen.Settings }
             tag("settings-list").assertExists()
-            tag("settings-advanced").assertExists()
+            // every theme: the groups, each on its own page, not every setting at once
+            for (g in listOf("settings-cat:look", "settings-cat:bible", "settings-cat:audio", "settings-advanced")) tag(g).assertExists()
+            assertTrue(rule.onAllNodesWithTag("settings-layout:Paragraphs", useUnmergedTree = true).fetchSemanticsNodes().isEmpty(),
+                "${st.name}: Appearance choices shown on the Settings list")
+            tag("settings-cat:look").tap()
+            waitFor { vm.settingsPage == "look" }
+            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
             vm.screen = Screen.Main
             rule.waitForIdle()
         }

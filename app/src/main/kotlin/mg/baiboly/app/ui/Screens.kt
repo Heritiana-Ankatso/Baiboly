@@ -57,8 +57,6 @@ import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.ExpandMore
-import androidx.compose.material.icons.outlined.ExpandLess
 import mg.baiboly.app.Tradition
 import mg.baiboly.app.Palette
 import mg.baiboly.app.TextFont
@@ -445,18 +443,23 @@ fun SavedListsScreen(vm: AppViewModel) {
 
 // ---------------------------------------------------------------- settings
 
-/** A group of settings: shown inline (Manuscript, Modern, Page) or as its own page (Glass). */
+/** A group of settings, on its own page; the Settings page lists the groups (every theme). */
 private class SettingsGroup(val key: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val title: String, val content: @Composable () -> Unit)
 
+/**
+ * Settings: the light / dark theme and the interface language (changed most often) at the top,
+ * then one row per group; each group opens its own page. Every theme works this way, each with
+ * its own form of row (it used to be only Stained glass; the other themes showed every setting
+ * on one long page).
+ */
 @Composable
 fun SettingsScreen(vm: AppViewModel) {
-    val style = LocalStyle.current
-    // opened from the "new version" notification: straight to Advanced › Updates
-    var advanced by remember { mutableStateOf(vm.openUpdateSettings) }
-    var open by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(if (vm.openUpdateSettings) "advanced" else null) }
+    // opened from the "new version" notification: straight to Advanced (Updates)
     LaunchedEffect(vm.openUpdateSettings) {
-        if (vm.openUpdateSettings) { advanced = true; open = "advanced"; vm.openUpdateSettings = false }
+        if (vm.openUpdateSettings) { vm.settingsPage = "advanced"; vm.openUpdateSettings = false }
     }
+    // the next visit starts again at the list of groups
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { vm.settingsPage = null } }
     val groups = listOf(
         SettingsGroup("look", Icons.Outlined.Palette, stringResource(R.string.appearance)) { AppearanceSettings(vm) },
         SettingsGroup("bible", Icons.Outlined.AutoStories, stringResource(R.string.default_bible)) { DefaultBibleSettings(vm) },
@@ -474,43 +477,28 @@ fun SettingsScreen(vm: AppViewModel) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 6.dp))
         }
     }
-
-    if (style == mg.baiboly.app.Style.Glass) {
-        // Glass: a page of categories; each opens its own page
-        val current = open
-        androidx.activity.compose.BackHandler(enabled = current != null) { open = null }
-        val title = when (current) {
-            null -> stringResource(R.string.settings)
-            "advanced" -> stringResource(R.string.advanced)
-            else -> groups.first { it.key == current }.title
-        }
-        SubScreen(vm, title, onBack = if (current != null) ({ open = null }) else null) { padding ->
-            Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 12.dp)) {
-                when (current) {
-                    null -> {
-                        groups.forEach { g -> SettingsLink(g.icon, g.title, "settings-cat:${g.key}") { open = g.key } }
-                        SettingsLink(Icons.Outlined.SettingsBackupRestore, stringResource(R.string.backup), "settings-backup") { vm.screen = Screen.Backup }
-                        SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
-                        SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { open = "advanced" }
-                    }
-                    "advanced" -> { traditionContent(); TypesettingSettings(vm); UpdateSettings(vm) }
-                    else -> groups.first { it.key == current }.content()
-                }
-            }
-        }
-        return
+    val current = vm.settingsPage
+    androidx.activity.compose.BackHandler(enabled = current != null) { vm.settingsPage = null }
+    val title = when (current) {
+        null -> stringResource(R.string.settings)
+        "advanced" -> stringResource(R.string.advanced)
+        else -> groups.firstOrNull { it.key == current }?.title ?: stringResource(R.string.settings)
     }
-
-    SubScreen(vm, stringResource(R.string.settings)) { padding ->
+    SubScreen(vm, title, onBack = if (current != null) ({ vm.settingsPage = null }) else null) { padding ->
         Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
-            groups.forEach { g -> SettingsSection(g.icon, g.title) { g.content() } }
-            SettingsLink(Icons.Outlined.SettingsBackupRestore, stringResource(R.string.backup), "settings-backup") { vm.screen = Screen.Backup }
-            SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
-            // Rarely changed: kept out of the way.
-            SettingsLink(if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, stringResource(R.string.advanced), "settings-advanced") {
-                advanced = !advanced
+            when (current) {
+                null -> {
+                    QuickSettings(vm, "settings")
+                    Spacer(Modifier.height(8.dp))
+                    groups.forEach { g -> SettingsLink(g.icon, g.title, "settings-cat:${g.key}") { vm.settingsPage = g.key } }
+                    SettingsLink(Icons.Outlined.SettingsBackupRestore, stringResource(R.string.backup), "settings-backup") { vm.screen = Screen.Backup }
+                    SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
+                    // rarely changed: kept out of the way
+                    SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { vm.settingsPage = "advanced" }
+                }
+                "advanced" -> { traditionContent(); TypesettingSettings(vm); UpdateSettings(vm) }
+                else -> groups.firstOrNull { it.key == current }?.content?.invoke()
             }
-            if (advanced) { traditionContent(); TypesettingSettings(vm); UpdateSettings(vm) }
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -522,7 +510,6 @@ private fun AppearanceSettings(vm: AppViewModel) {
         Text(stringResource(R.string.style), style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 4.dp))
         StylePicker(vm)
-        QuickSettings(vm, "settings")
         PalettePicker(vm)
         Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ChoiceRow(
@@ -670,47 +657,6 @@ fun Palette.label(): String = stringResource(
         Palette.Slate -> R.string.palette_slate
     },
 )
-
-/** A titled group of settings, in the theme's form. */
-@Composable
-private fun SettingsSection(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, content: @Composable () -> Unit) {
-    when (LocalStyle.current) {
-        mg.baiboly.app.Style.Manuscript -> Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-            Row(Modifier.padding(horizontal = 20.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, null, tint = LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
-                Spacer(Modifier.width(12.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium)
-            }
-            content()
-            GoldRule(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
-        }
-        // Modern: each group on its own rounded card
-        mg.baiboly.app.Style.Modern -> Surface(
-            color = MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.extraLarge,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
-        ) {
-            Column(Modifier.padding(vertical = 14.dp)) {
-                Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer), contentAlignment = Alignment.Center) {
-                        Icon(icon, null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(20.dp))
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                }
-                Spacer(Modifier.height(4.dp))
-                content()
-            }
-        }
-        // Page: a small heading, the settings, a hairline
-        mg.baiboly.app.Style.Page -> Column(Modifier.fillMaxWidth()) {
-            Text(title.uppercase(), style = MaterialTheme.typography.labelMedium, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 6.dp))
-            content()
-            HorizontalDivider(Modifier.padding(top = 14.dp), color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
-        }
-        mg.baiboly.app.Style.Glass -> Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) { content() }
-    }
-}
 
 /** A row that opens another page (or a group), in the theme's form. */
 @Composable

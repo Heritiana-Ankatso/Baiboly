@@ -103,6 +103,7 @@ class ReaderMarginTest {
     @Test fun settingsChoicesAreInset() {
         for (i in 0 until 300) { if (vm.ready) break; pump(30) }
         vm.screen = Screen.Settings
+        vm.settingsPage = "look"
         pump(1000)
         val view = rule.activity.window.decorView
         val minInset = 16 * rule.activity.resources.displayMetrics.density * vm.uiDensity.scale

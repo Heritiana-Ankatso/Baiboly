@@ -657,6 +657,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** Settings shows Advanced › Updates unfolded (set when opened from the notification). */
     var openUpdateSettings by mutableStateOf(false)
 
+    /** The Settings group shown ("look", "bible", "audio", "advanced"), or null for the list of groups. */
+    var settingsPage by mutableStateOf<String?>(null)
+
     /** When the app opens, with the switch on: re-arms the daily check and checks if a day has passed. */
     private fun autoCheckUpdates() {
         if (!updateAuto) return
