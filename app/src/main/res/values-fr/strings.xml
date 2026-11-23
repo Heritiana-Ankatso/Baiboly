@@ -111,7 +111,7 @@
     <string name="backup_restored">Sauvegarde restaurée.</string>
     <string name="backup_failed">Impossible de lire ce fichier : %1$s</string>
 
-    <string name="about_text">Baiboly est une Bible gratuite et hors ligne pour les cultes et l’étude personnelle. Elle n’émet aucun son, ne demande aucun compte et ne se connecte jamais à Internet.</string>
+    <string name="about_text">Baiboly est une Bible gratuite et hors ligne pour les cultes et l’étude personnelle. Elle fonctionne entièrement hors ligne, n’émet aucun son et ne demande aucun compte. Elle ne se connecte que pour rechercher les mises à jour, et seulement si vous le demandez (Réglages › Avancé).</string>
     <string name="sources_licences">Textes, données et licences</string>
     <string name="reading_texts">Textes de lecture</string>
     <string name="study_data">Données d’étude</string>
@@ -291,4 +291,17 @@
     <string name="realm_hasmonean">Royaume hasmonéen (v. 140–37 av. J.-C.)</string>
     <string name="realm_herod">Royaume d’Hérode le Grand</string>
     <string name="realm_rome">Provinces romaines (v. 200 apr. J.-C.)</string>
+    <!-- Update check (Settings › Advanced) -->
+    <string name="updates">Mises à jour</string>
+    <string name="update_auto">Rechercher les mises à jour automatiquement</string>
+    <string name="update_auto_hint">Environ une fois par jour, quand le téléphone est connecté. Une notification apparaît quand une nouvelle version paraît.</string>
+    <string name="update_check_now">Vérifier maintenant</string>
+    <string name="update_checking">Vérification…</string>
+    <string name="update_up_to_date">Vous avez la dernière version (%1$s).</string>
+    <string name="update_failed">Vérification impossible. Le téléphone est-il connecté à internet ?</string>
+    <string name="update_available">La version %1$s est disponible</string>
+    <string name="update_tap_to_open">Touchez pour ouvrir la page de téléchargement.</string>
+    <string name="update_open_page">Ouvrir la page de téléchargement</string>
+    <string name="update_last_check">Dernière vérification : %1$s</string>
+    <string name="update_privacy">Seule la recherche de mises à jour utilise internet : elle demande à GitHub le numéro de la dernière version. Rien sur vous ni sur votre lecture n’est envoyé.</string>
 </resources>

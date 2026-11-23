@@ -1,6 +1,6 @@
 # Baiboly
 
-A free, offline, silent Malagasy Bible for Android, built for two uses of the same text:
+A free, silent Malagasy Bible for Android that works fully offline, built for two uses of the same text:
 
 * **Church services.** Capture the verses the preacher announces as a short list, then move between them.
 * **Reading and study.** Read chapter by chapter, keep notes and highlights, and look at the Greek and Hebrew words behind a verse.
@@ -50,7 +50,7 @@ A free, offline, silent Malagasy Bible for Android, built for two uses of the sa
 
 Within a theme, the reader can also change the colour variant, the Bible typeface (classic Gentium / modern serif / sans-serif), engraved or plain titles, line spacing and text size; *Restore the original look* undoes it all.
 
-**Settings** (gear icon), grouped with icons: Mode; Appearance (theme light / dark / device, language MG / FR / EN, text size); Default Bible; Reading aloud; Backup; About. **Advanced** (collapsed) holds the **Tradition** choice: *Protestant* (default: 66 books, Catholic translations hidden) or *Catholic* (adds the Catholic translations and the deuterocanonical books).
+**Settings** (gear icon), grouped with icons: Mode; Appearance (theme light / dark / device, language MG / FR / EN, text size); Default Bible; Reading aloud; Backup; About. **Advanced** (collapsed) holds the **Tradition** choice: *Protestant* (default: 66 books, Catholic translations hidden) or *Catholic* (adds the Catholic translations and the deuterocanonical books); and **Updates**: *Check now*, and *Check automatically* (off by default).
 
 **Study tools (all offline).**
 * **Cross-references** for any verse (Study mode: tap the verse number, or select the verse and tap *References*): the Treasury of Scripture Knowledge, public domain, in Malagasy 1865 numbering.
@@ -66,7 +66,7 @@ Within a theme, the reader can also change the colour variant, the Bible typefac
 
 The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the translation menu (the chip in the top bar) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
 
-The app has no INTERNET or VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
+The app works fully offline. Its only internet use is the **update check** (Settings › Advanced › Updates): *Check now* asks GitHub for the number of the latest version, on a tap; *Check automatically* (off by default) does the same about once a day and shows a silent notification when a new version is out, which opens the release page. Nothing about the reader is sent, and the app downloads nothing itself. No VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
 
 ## Installing
 
@@ -119,7 +119,7 @@ Every source passes an automatic licence check before it is used; see [docs/data
 
 | # | Task | How it is verified |
 |---|---|---|
-| 1 | Project and silence | The manifest has no INTERNET or VIBRATE permission. `check_silence.sh` runs before every build and fails it on any audio, vibration, haptic or sound-effect API, or on those permissions, including in merged manifests. Compose haptics are replaced by a no-op. |
+| 1 | Project and silence | The manifest has no VIBRATE or network-state permission; INTERNET is declared only for the opt-in update check. `check_silence.sh` runs before every build and fails it on any audio, vibration, haptic or sound-effect API, on those permissions (including in merged manifests), on INTERNET from any other source, and on network code outside `update/UpdateCheck.kt`. Compose haptics are replaced by a no-op. |
 | 2 | Text pipeline | `DataAcceptanceTest.task2_textPipeline`: Jaona 3:16, Salamo 1, 66 books, every translation |
 | 3 | Parser | `ReferenceParserTest` (15 tests) |
 | 4–9 | Reader, list strip, Add (4 taps), Browse and Back to my place, persistence, five-verse dry run | `UiAcceptanceTest.serviceDryRun` |

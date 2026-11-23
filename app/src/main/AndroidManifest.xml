@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Offline and silent by default (brief section 2): no INTERNET, VIBRATE or
-  network-state permission. tools/check_silence.sh fails the build if one is added.
+  Works fully offline and silent (brief section 2). INTERNET is used only by the
+  update check (Settings > Advanced: on the user's tap, or daily when they switch
+  it on; update/UpdateCheck.kt). No VIBRATE or network-state permission.
+  tools/check_silence.sh fails the build on any other network code or permission.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -10,6 +12,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Update check only (opt-in). -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- silence-check: allow (update check, update/UpdateCheck.kt) -->
 
     <!-- Text-to-speech engines on the phone (Android 11+ package visibility). -->
     <queries>
@@ -41,5 +46,10 @@
             android:name=".audio.ReadAloudService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+        <!-- Daily update check, scheduled only while "Check automatically" is on. -->
+        <service
+            android:name=".update.UpdateJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 </manifest>

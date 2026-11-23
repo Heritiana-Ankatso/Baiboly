@@ -121,7 +121,7 @@
     <string name="backup_restored">Naverina ny tahiry.</string>
     <string name="backup_failed">Tsy voavaky ity rakitra ity: %1$s</string>
 
-    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Tsy mamoaka feo, tsy mila kaonty, ary tsy mifandray amin’ny aterineto mihitsy.</string>
+    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Mandeha tanteraka na tsy misy aterineto, tsy mamoaka feo ary tsy mila kaonty. Tsy mifandray amin’ny aterineto afa-tsy hijerena fanavaozana, ary raha angatahinao ihany (Fikirana › Safidy hafa).</string>
     <string name="sources_licences">Soratra, angona ary fahazoan-dalana</string>
     <string name="reading_texts">Dikan-teny vakiana</string>
     <string name="study_data">Angona fandalinana</string>
@@ -293,4 +293,17 @@
     <string name="realm_hasmonean">Fanjakana hasmoneana (t. 140–37 talohan’i J.K.)</string>
     <string name="realm_herod">Fanjakan’i Heroda Lehibe</string>
     <string name="realm_rome">Faritany romana (t. 200 taorian’i J.K.)</string>
+    <!-- Update check (Settings › Advanced) -->
+    <string name="updates">Fanavaozana</string>
+    <string name="update_auto">Jereo ho azy raha misy fanavaozana</string>
+    <string name="update_auto_hint">Indray mandeha isan’andro eo ho eo, rehefa misy aterineto ny finday. Misy fampandrenesana rehefa mivoaka ny versiona vaovao.</string>
+    <string name="update_check_now">Jereo izao</string>
+    <string name="update_checking">Mijery…</string>
+    <string name="update_up_to_date">Ny versiona farany no anananao (%1$s).</string>
+    <string name="update_failed">Tsy afaka nijery. Mifandray amin’ny aterineto ve ny finday?</string>
+    <string name="update_available">Efa misy ny versiona %1$s</string>
+    <string name="update_tap_to_open">Tsindrio hanokafana ny pejy hakana azy.</string>
+    <string name="update_open_page">Sokafy ny pejy hakana azy</string>
+    <string name="update_last_check">Fanamarinana farany: %1$s</string>
+    <string name="update_privacy">Ny fijerena fanavaozana ihany no mampiasa aterineto: manontany an’i GitHub ny laharan’ny versiona farany izy. Tsy misy mombamomba anao na ny famakianao alefa.</string>
 </resources>

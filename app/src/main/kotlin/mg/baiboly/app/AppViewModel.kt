@@ -454,6 +454,58 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (!on) stopReading()
     }
 
+    // ------------------------------------------------------------ updates (the only network use)
+
+    /** Result of the last update check shown in Settings. */
+    sealed interface UpdateStatus {
+        data object Idle : UpdateStatus
+        data object Checking : UpdateStatus
+        data object UpToDate : UpdateStatus
+        data object Failed : UpdateStatus
+        data class Available(val release: mg.baiboly.app.update.Release) : UpdateStatus
+    }
+
+    var updateStatus by mutableStateOf<UpdateStatus>(UpdateStatus.Idle)
+    var updateAuto by mutableStateOf(mg.baiboly.app.update.UpdateCheck.isAuto(app))
+        private set
+    var updateLastCheck by mutableStateOf(mg.baiboly.app.update.UpdateCheck.lastCheck(app))
+        private set
+
+    fun setUpdateAuto(on: Boolean) {
+        updateAuto = on
+        mg.baiboly.app.update.UpdateCheck.setAuto(getApplication(), on)
+        if (on) autoCheckUpdates()
+    }
+
+    /** "Check now": only ever on the user's tap. */
+    fun checkForUpdates() {
+        if (updateStatus == UpdateStatus.Checking) return
+        updateStatus = UpdateStatus.Checking
+        viewModelScope.launch {
+            val r = withContext(Dispatchers.IO) { mg.baiboly.app.update.UpdateCheck.check(getApplication()) }
+            updateLastCheck = mg.baiboly.app.update.UpdateCheck.lastCheck(getApplication())
+            updateStatus = r.fold(
+                onSuccess = { rel -> if (rel == null) UpdateStatus.UpToDate else UpdateStatus.Available(rel) },
+                onFailure = { UpdateStatus.Failed },
+            )
+        }
+    }
+
+    /** When the app opens, with the switch on: re-arms the daily check and checks if a day has passed. */
+    private fun autoCheckUpdates() {
+        if (!updateAuto) return
+        val app = getApplication<Application>()
+        mg.baiboly.app.update.UpdateCheck.schedule(app, true)
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { mg.baiboly.app.update.UpdateCheck.autoCheck(app) }
+            withContext(Dispatchers.Main) { updateLastCheck = mg.baiboly.app.update.UpdateCheck.lastCheck(app) }
+        }
+    }
+
+    init {
+        autoCheckUpdates()
+    }
+
     fun changeReadRate(rate: Float) {
         readRate = rate.coerceIn(0.6f, 1.6f)
         prefs.edit().putFloat("read_rate", readRate).apply()
