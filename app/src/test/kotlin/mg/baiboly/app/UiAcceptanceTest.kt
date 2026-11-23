@@ -311,6 +311,7 @@ class UiAcceptanceTest {
         assertEquals("mg1865", vm.defaultTranslationId)
         tag("reader").assertExists()
         tag("translation").tap()                   // the reading-text chip in the top bar
+        tag("lang:fr").tap()                       // the menu opens on the languages
         tag("default:lsg1910").tap()               // one tap: default Bible
         waitFor { vm.defaultTranslationId == "lsg1910" && vm.translationId == "lsg1910" && vm.chapter?.translation == "lsg1910" }
         // switching the text for a while does not change the default
