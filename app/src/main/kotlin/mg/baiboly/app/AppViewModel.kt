@@ -903,7 +903,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
      * the creeds belong to every tradition; the Reformed documents to the Protestant one.
      * Documents of other traditions appear only under "Go deeper", marked with their tradition.
      */
-    fun ownFamilies(): Set<String> = if (tradition == Tradition.Protestant) setOf("creed", "reformed") else setOf("creed")
+    fun ownFamilies(): Set<String> = if (tradition == Tradition.Protestant) setOf("creed", "reformed") else setOf("creed", "catholic")
 
     suspend fun <T> onIo(block: () -> T): T = withContext(io) { block() }
 

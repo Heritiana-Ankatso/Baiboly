@@ -427,13 +427,12 @@
     <string name="family_creeds">Symboles de l’Église ancienne</string>
     <string name="tradition_reformed">Protestant (réformé)</string>
     <string name="councils">Conciles, synodes et assemblées</string>
-    <string name="councils_note">Seulement ceux qui ont publié un document de cette bibliothèque. Chaque tradition juge à sa manière l’autorité des conciles ; pour les Églises réformées, ils sont soumis à l’Écriture.</string>
+    <string name="councils_note">Conciles reçus par votre tradition ; les sept conciles œcuméniques par toutes (le septième par les Églises orthodoxe et catholique). Résumés d’après Philip Schaff, The Creeds of Christendom (1877). Pour les Églises réformées, les conciles sont soumis à l’Écriture.</string>
     <string name="council_issued">A publié :</string>
     <string name="go_deeper">Approfondir : autres traditions</string>
-    <string name="no_other_traditions">Aucun document catholique ou orthodoxe n’est encore inclus : aucun n’a pu être obtenu sous licence libre. Quand la tradition choisie est catholique, les documents réformés figurent ici.</string>
     <string name="other_tradition_note">Ce document appartient à une autre tradition (%1$s).</string>
     <string name="creeds_text_note">Textes anglais historiques, du domaine public. Aucun texte malgache ou français sous licence libre n’a été trouvé.</string>
-    <string name="creeds_credit">Textes et références : Reformed Standards compendium (Apache 2.0) et Creeds.json (domaine public)</string>
+    <string name="creeds_credit">Textes et références : Reformed Standards compendium (Apache 2.0), Creeds.json et Philip Schaff, The Creeds of Christendom vol. II, 1877 (domaine public).</string>
     <string name="proof_texts">Textes de preuve</string>
     <string name="no_citations_own">Aucun document de votre tradition ne cite ce passage.</string>
     <!-- Map: finding a region -->
@@ -469,4 +468,5 @@
         <item quantity="one">%1$d jour</item>
         <item quantity="other">%1$d jours</item>
     </plurals>
+    <string name="tradition_orthodox">Orthodoxe</string>
 </resources>

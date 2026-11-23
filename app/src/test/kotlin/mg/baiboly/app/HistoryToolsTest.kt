@@ -102,7 +102,20 @@ class HistoryToolsTest {
         vm.changeTradition(Tradition.Protestant)
         assertEquals(setOf("creed", "reformed"), vm.ownFamilies())
         vm.changeTradition(Tradition.Catholic)
-        assertEquals(setOf("creed"), vm.ownFamilies())
+        assertEquals(setOf("creed", "catholic"), vm.ownFamilies())
+        // Catholic and Orthodox documents and the ecumenical councils (Schaff, 1877): Go deeper is never empty
+        val families = h.creedDocs.map { it.family }.toSet()
+        assertTrue(families.containsAll(setOf("creed", "reformed", "catholic", "orthodox")), "families: $families")
+        for (own in listOf(setOf("creed", "reformed"), setOf("creed", "catholic"))) {
+            assertTrue(h.creedDocs.any { it.family !in own }, "nothing under Go deeper for $own")
+        }
+        val trent = h.creedItems("trent")
+        assertTrue(trent.any { it.label == "Canon IX" && it.text.startsWith("If any one saith") }, "Trent canons")
+        assertTrue(h.creedItems("philaret").size > 600, "the Orthodox catechism in full")
+        val councils = h.councils.map { it.id }
+        assertEquals(listOf("nicaea1", "constantinople381", "ephesus", "chalcedon", "constantinople553", "constantinople680", "nicaea2"),
+            councils.take(7), "the seven ecumenical councils, in order")
+        assertEquals(setOf("catholic", "orthodox"), h.councils.first { it.id == "nicaea2" }.families)
         vm.changeTradition(Tradition.Protestant)
     }
 

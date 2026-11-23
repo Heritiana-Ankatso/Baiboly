@@ -351,8 +351,17 @@ private fun EventView(vm: AppViewModel, e: BibleEvent, modifier: Modifier) {
 // ---------------------------------------------------------------- confessions and councils
 
 @Composable
-internal fun familyLabel(family: String): String =
-    if (family == "reformed") stringResource(R.string.tradition_reformed) else stringResource(R.string.family_creeds)
+internal fun familyLabel(family: String): String = when (family) {
+    "reformed" -> stringResource(R.string.tradition_reformed)
+    "catholic" -> stringResource(R.string.catholic)
+    "orthodox" -> stringResource(R.string.tradition_orthodox)
+    else -> stringResource(R.string.family_creeds)
+}
+
+/** The traditions that receive a council, as a label ("Catholic, Orthodox"). */
+@Composable
+private fun councilLabel(c: mg.baiboly.data.Council): String =
+    c.families.filter { it != "creed" }.map { familyLabel(it) }.joinToString(", ")
 
 @Composable
 fun ConfessionsView(vm: AppViewModel, modifier: Modifier = Modifier) {
@@ -378,27 +387,32 @@ fun ConfessionsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium, color = ornament.rubric, modifier = Modifier.padding(top = 8.dp),
             )
         }
-        listOf("creed", "reformed").filter { it in own }.forEach { fam ->
+        listOf("creed", "reformed", "catholic", "orthodox").filter { it in own }.forEach { fam ->
             item(key = "fam-$fam") { SectionTitle(familyLabel(fam)) }
             items(docs.filter { it.family == fam }, key = { it.id }) { d -> DocRow(d, marked = false) { open = d.id to -1 } }
         }
-        val councilsShown = councils.filter { c -> c.docs.any { id -> docs.firstOrNull { it.id == id }?.family in own } }
+        // councils received by the chosen tradition (the ecumenical ones by all); the others under Go deeper
+        val councilsShown = councils.filter { c -> c.families.any { it in own } }
         if (councilsShown.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.councils)) }
             items(councilsShown, key = { "c-" + it.id }) { c -> CouncilRow(c, docs) { open = it to -1 } }
             item { Note(stringResource(R.string.councils_note), Modifier.padding(top = 4.dp)) }
         }
-        // Go deeper: documents of the other traditions, each marked with its tradition
-        item {
-            TextButton(onClick = { deeper = !deeper }, modifier = Modifier.padding(top = 12.dp).heightIn(min = 48.dp).testTag("go-deeper")) {
-                Text((if (deeper) "▾ " else "▸ ") + stringResource(R.string.go_deeper), style = MaterialTheme.typography.titleSmall)
+        // Go deeper: documents and councils of the other traditions, each marked with its tradition
+        // (left out altogether when there is none)
+        val others = docs.filter { it.family !in own }
+        val otherCouncils = councils.filter { it !in councilsShown }
+        if (others.isNotEmpty() || otherCouncils.isNotEmpty()) {
+            item {
+                TextButton(onClick = { deeper = !deeper }, modifier = Modifier.padding(top = 12.dp).heightIn(min = 48.dp).testTag("go-deeper")) {
+                    Text((if (deeper) "▾ " else "▸ ") + stringResource(R.string.go_deeper) + " (${others.size + otherCouncils.size})",
+                        style = MaterialTheme.typography.titleSmall)
+                }
             }
         }
         if (deeper) {
-            val others = docs.filter { it.family !in own }
             items(others, key = { "o-" + it.id }) { d -> DocRow(d, marked = true) { open = d.id to -1 } }
-            items(councils.filter { it !in councilsShown }, key = { "oc-" + it.id }) { c -> CouncilRow(c, docs, marked = true) { open = it to -1 } }
-            item { Note(stringResource(R.string.no_other_traditions), Modifier.padding(vertical = 6.dp)) }
+            items(otherCouncils, key = { "oc-" + it.id }) { c -> CouncilRow(c, docs, marked = true) { open = it to -1 } }
         }
         item {
             Note(stringResource(R.string.creeds_text_note), Modifier.padding(top = 16.dp))
@@ -419,14 +433,15 @@ private fun DocRow(d: CreedDoc, marked: Boolean, onOpen: () -> Unit) {
 @Composable
 private fun CouncilRow(c: mg.baiboly.data.Council, docs: List<CreedDoc>, marked: Boolean = false, onDoc: (String) -> Unit) {
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp).testTag("council:${c.id}")) {
-        val fam = docs.firstOrNull { it.id == c.docs.first() }?.family ?: "creed"
-        Text((if (marked) familyLabel(fam) + ": " else "") + c.name, style = MaterialTheme.typography.bodyLarge)
+        val label = councilLabel(c)
+        Text((if (marked && label.isNotEmpty()) "$label: " else "") + c.name, style = MaterialTheme.typography.bodyLarge)
         Note(listOf(c.place, c.year).filter { it.isNotEmpty() }.joinToString(" · "))
-        Row {
+        if (c.summary.isNotEmpty()) Text(c.summary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
+        val issued = c.docs.mapNotNull { id -> docs.firstOrNull { it.id == id } }
+        if (issued.isNotEmpty()) Row {
             Text(stringResource(R.string.council_issued) + " ", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 12.dp))
-            c.docs.forEach { id ->
-                val d = docs.firstOrNull { it.id == id } ?: return@forEach
-                TextButton(onClick = { onDoc(id) }, modifier = Modifier.heightIn(min = 40.dp)) { Text(d.short, color = LocalOrnament.current.rubric) }
+            issued.forEach { d ->
+                TextButton(onClick = { onDoc(d.id) }, modifier = Modifier.heightIn(min = 40.dp)) { Text(d.short, color = LocalOrnament.current.rubric) }
             }
         }
     }

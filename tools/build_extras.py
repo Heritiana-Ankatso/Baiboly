@@ -188,7 +188,6 @@ META = {
 # year are those the sources give for the document (Creeds.json metadata).
 COUNCILS = [
     # id, name, documents issued
-    ("constantinople381", "Council of Constantinople", ["nicene"]),
     ("dort", "Synod of Dort", ["dort"]),
     ("westminster", "Westminster Assembly", ["wcf", "wlc", "wsc"]),
     ("savoy", "Savoy Assembly", ["savoy"]),
@@ -361,8 +360,9 @@ def write_tables(db, people, rels, pverses, events, eppl, everses, docs, items, 
         CREATE TABLE creed_ref(doc TEXT NOT NULL, seq INTEGER NOT NULL, book INTEGER NOT NULL, chapter INTEGER NOT NULL,
             v1 INTEGER NOT NULL, v2 INTEGER NOT NULL, PRIMARY KEY(doc, seq, book, chapter, v1, v2)) WITHOUT ROWID;
         CREATE INDEX creed_by_verse ON creed_ref(book, chapter);
+        -- families: the traditions that receive the council (creed = all; reformed, catholic, orthodox)
         CREATE TABLE council(id TEXT PRIMARY KEY, name TEXT NOT NULL, place TEXT NOT NULL, year TEXT NOT NULL,
-            docs TEXT NOT NULL, sort INTEGER NOT NULL) WITHOUT ROWID;
+            docs TEXT NOT NULL, families TEXT NOT NULL, summary TEXT NOT NULL, sort INTEGER NOT NULL) WITHOUT ROWID;
     """)
     db.executemany("INSERT INTO person VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", [p + (norm(p[1]),) for p in people])
     db.executemany("INSERT OR IGNORE INTO person_rel VALUES(?,?,?)", rels)
@@ -387,9 +387,254 @@ def write_tables(db, people, rels, pverses, events, eppl, everses, docs, items, 
                 lines.append(letter + " ".join(parts))
         db.execute("INSERT INTO creed_item VALUES(?,?,?,?,?,?,?)", (did, seq, label, group, question, text, "\n".join(lines)))
     meta = {d[0]: d for d in docs}
-    for sort, (cid, name, ids) in enumerate(COUNCILS):
+    sort = 0
+    # the ecumenical councils, Trent and the Vatican Council (Schaff), then the Reformed assemblies
+    for cid, name, place, year, ids, families, summary in SCHAFF_COUNCILS:
+        db.execute("INSERT INTO council VALUES(?,?,?,?,?,?,?,?)",
+                   (cid, name, place, year, ",".join(i for i in ids if i in meta), families, summary, sort))
+        sort += 1
+    for cid, name, ids in COUNCILS:
+        if cid in {c[0] for c in SCHAFF_COUNCILS}:
+            continue
         first = meta[ids[0]]
         years = sorted({meta[i][4] for i in ids if meta[i][4]})
-        db.execute("INSERT INTO council VALUES(?,?,?,?,?,?)",
-                   (cid, name, first[5], years[0] if len(years) == 1 else f"{years[0]}–{years[-1]}" if years else "", ",".join(ids), sort))
+        db.execute("INSERT INTO council VALUES(?,?,?,?,?,?,?,?)",
+                   (cid, name, first[5], years[0] if len(years) == 1 else f"{years[0]}–{years[-1]}" if years else "",
+                    ",".join(ids), "reformed", "", sort))
+        sort += 1
     return refs
+
+
+# ---------------------------------------------------------------- Schaff, Creeds of Christendom II (1877)
+
+SCHAFF = "https://www.ccel.org/ccel/s/schaff/creeds2.xml"
+
+# Documents of the Catholic and Orthodox traditions (and the Definition of Chalcedon, shared), in the
+# English of Schaff's edition (public domain): id, short, title, family, start heading, end heading,
+# layout ("table": Latin/Greek and English side by side; "catechism": numbered questions), year, place,
+# numbered (items start with "I." / "1." in the text).
+SCHAFF_DOCS = [
+    ("chalcedon", "Chal", "The Definition of Chalcedon", "creed",
+     "III. SYMBOLUM CHALCEDONENSE", "IV. SYMBOLUM QUICUNQUE", "table", "451", "Chalcedon", False),
+    ("trent", "Trent", "The Canons and Decrees of the Council of Trent", "catholic",
+     "I. CANONES ET DECRETA DOGMATICA CONCILII TRIDENTINI", "II. PROFESSIO FIDEI TRIDENTIN", "table", "1546–1563", "Trent", False),
+    ("ptf", "PTF", "The Profession of the Tridentine Faith", "catholic",
+     "II. PROFESSIO FIDEI TRIDENTIN", "III. DECRETUM PII IX", "table", "1564", "Rome", True),
+    ("ineffabilis", "ID", "The Decree on the Immaculate Conception (Ineffabilis Deus)", "catholic",
+     "III. DECRETUM PII IX", "IV. SYLLABUS ERRORUM", "table", "1854", "Rome", False),
+    ("vatican1", "Vat. I", "The Dogmatic Decrees of the Vatican Council", "catholic",
+     "V. DECRETA DOGMATICA CONCILII VATICANI", "SYMBOLA GRÆCA ET RUSSICA", "table", "1870", "Rome", True),
+    ("philaret", "LCat", "The Longer Catechism of the Orthodox Church", "orthodox",
+     "III. THE LONGER CATECHISM OF THE ORTHODOX", "THE OLD CATHOLIC UNION CREEDS", "catechism", "1830", "Moscow", False),
+]
+
+# The seven ecumenical councils, Trent and the Vatican Council, in date order: id, name, place, year,
+# documents of the library they issued, traditions that receive them, a neutral summary drawn from
+# Schaff, Creeds II pp. 12-73 (the creeds) and his "Review of the Dogmatic Legislation of the Seven
+# Œcumenical Councils" (pp. 72-73). The Reformed assemblies follow (COUNCILS).
+SCHAFF_COUNCILS = [
+    ("nicaea1", "First Council of Nicaea", "Nicaea", "325", [], "creed",
+     "First ecumenical council. Its creed confessed the Son “of one substance with the Father” against Arius; "
+     "the Nicene Creed in its received form was completed at Constantinople in 381."),
+    ("constantinople381", "First Council of Constantinople", "Constantinople", "381", ["nicene"], "creed",
+     "Second ecumenical council. The received text of the Nicene Creed (Niceno-Constantinopolitan). "
+     "The early texts have no “and the Son” (Filioque), a later Western addition."),
+    ("ephesus", "Council of Ephesus", "Ephesus", "431", [], "creed",
+     "Third ecumenical council. Issued no new creed: it reaffirmed the previous creeds and condemned the teaching of Nestorius."),
+    ("chalcedon", "Council of Chalcedon", "Chalcedon", "451", ["chalcedon"], "creed",
+     "Fourth ecumenical council. Defined one Christ in two natures, divine and human, in one person, against Nestorius and Eutyches."),
+    ("constantinople553", "Second Council of Constantinople", "Constantinople", "553", [], "creed",
+     "Fifth ecumenical council. Confessed the Nicene Creed as explained at Constantinople, Ephesus and Chalcedon, "
+     "and condemned the “Three Chapters”, writings of Theodore of Mopsuestia, Theodoret of Cyrus and Ibas of Edessa."),
+    ("constantinople680", "Third Council of Constantinople", "Constantinople", "680", [], "creed",
+     "Sixth ecumenical council. Taught two natural wills and two natural operations in Christ, the human subject to the divine, "
+     "against the Monothelites."),
+    ("nicaea2", "Second Council of Nicaea", "Nicaea", "787", [], "catholic,orthodox",
+     "Seventh ecumenical council for the Orthodox and Catholic Churches. Condemned the Iconoclasts and sanctioned the use "
+     "and veneration of images; Protestants reject this decision (the Second Commandment)."),
+    ("trent", "Council of Trent", "Trent", "1546–1563", ["trent", "ptf"], "catholic",
+     "Catholic council of the Counter-Reformation: decrees on Scripture and tradition, original sin, justification "
+     "and the sacraments, with canons against Protestant teaching. The Profession of Faith of 1564 summarises them."),
+    ("vatican1", "First Vatican Council", "Rome", "1870", ["vatican1"], "catholic",
+     "Catholic council: dogmatic constitutions on the Catholic faith (God, revelation, faith and reason) "
+     "and on the Church (the primacy and infallible teaching office of the Pope)."),
+]
+
+_EN = {"the", "and", "of", "to", "that", "which", "is", "be", "he", "his", "by", "with", "shall", "this", "who", "as", "are", "it", "for", "any", "all"}
+_LA = {"et", "est", "quod", "ad", "non", "cum", "ut", "qui", "quæ", "sunt", "esse", "vel", "atque", "sed", "enim", "eius", "ejus",
+       "autem", "nos", "quam", "per", "de", "si", "quis", "dixerit", "sit", "ac", "eorum", "in", "ab", "sanctæ", "ecclesiæ"}
+
+
+def _plain(fragment):
+    import html as _h
+    # block tags separate words; inline ones (small capitals split as <span>D</span>ogmatic) do not
+    t = re.sub(r"<(?:/?(?:p|td|tr|br|div\d?|h\d)\b)[^>]*>", " ", fragment)
+    t = re.sub(r"<[^>]+>", "", t)
+    return re.sub(r"\s+", " ", _h.unescape(t)).strip()
+
+
+def _english(text):
+    words = re.findall(r"[a-zæœ]+", text.lower())
+    if not words or len(re.findall(r"[Ͱ-Ͽἀ-῿]", text)) > len(text) * 0.2:
+        return False
+    return sum(w in _EN for w in words) > sum(w in _LA for w in words)
+
+
+def _cell(fragment, refs):
+    """English cell -> text with [n] where a footnote cites Scripture; refs gets (n, [osis]) for those notes."""
+    out, pos = [], 0
+    for m in re.finditer(r"<note\b.*?</note>", fragment, re.S):
+        out.append(fragment[pos:m.start()])
+        osis = [o for r in re.findall(r'osisRef="([^"]+)"', m.group(0)) for o in r.split()]
+        osis = [o.replace("Bible:", "") for o in osis if o.startswith("Bible:")]
+        if osis:
+            n = len(refs) + 1
+            refs.append((str(n), osis))
+            out.append(f"[{n}]")
+        pos = m.end()
+    out.append(fragment[pos:])
+    text = "".join(out)
+    # scripture cited in the text itself
+    inline = [o.replace("Bible:", "") for r in re.findall(r'osisRef="([^"]+)"', re.sub(r"<note\b.*?</note>", "", fragment, flags=re.S))
+              for o in r.split() if o.startswith("Bible:")]
+    return _plain(text).replace(" [", "[").replace(" ,", ",").replace(" .", "."), inline
+
+
+def _heading_positions(xml):
+    return [(m.start(), _plain(m.group(2))) for m in re.finditer(r"<h([1-5])[^>]*>(.*?)</h\1>", xml, re.S)]
+
+
+def _slice(xml, heads, start, end):
+    a = next(p for p, t in heads if t.upper().startswith(start.upper()))
+    b = next(p for p, t in heads if p > a and t.upper().startswith(end.upper()))
+    return xml[a:b]
+
+
+def _cap(h):
+    h = h.strip().rstrip(",")
+    return h[:1].upper() + h[1:].lower() if h.isupper() else h
+
+
+def _table_items(seg, numbered):
+    items, ctx, cur = [], [], None
+    item_head = re.compile(r"^(chapter|canon)\s+[ivxlc\d]+\.?$|^[ivxlc]+\.$", re.I)
+    for row in re.findall(r"<tr\b[^>]*>(.*?)</tr>", seg, re.S):
+        cells = re.findall(r"<td\b([^>]*)>(.*?)</td>", row, re.S)
+        refs = []
+        english = [(a, c) for a, c in cells if _english(_plain(re.sub(r"<note\b.*?</note>", "", c, flags=re.S)))]
+        if not english:
+            # a short centred heading ("Chapter I.", "I.") has too few words to tell: take the right-hand cell
+            if len(cells) >= 2 and "center" in cells[-1][0] and len(_plain(cells[-1][1])) < 80 and not re.search(
+                    r"[Ͱ-Ͽ]", _plain(cells[-1][1])) and not _plain(cells[-1][1]).lower().startswith(("caput", "sessio", "de ")):
+                english = [cells[-1]]
+            else:
+                continue
+        attrs, frag = english[-1]
+        text, inline = _cell(frag, refs)
+        if not text:
+            continue
+        if "center" in attrs:
+            if item_head.match(text):
+                cur = {"label": text.rstrip("."), "title": None, "text": [], "refs": [], "grp": " · ".join(ctx)}
+                items.append(cur)
+            elif cur is not None and cur["title"] is None and not cur["text"]:
+                cur["title"] = _cap(text)
+            else:
+                if re.search(r"session|constitution", text, re.I) and not re.match(r"(held|published)\b", text, re.I):
+                    ctx, top = [], _cap(text).rstrip(",. ")
+                    ctx = [top]
+                elif ctx and re.match(r"(held|published|celebrated)\b", text, re.I):
+                    # "Third Session," + "held February 4, 1546." -> one heading
+                    ctx[0] = ctx[0].rstrip(",. ") + ", " + text.rstrip(".")
+                else:
+                    # the session (or constitution) first, then the two latest headings under it
+                    ctx = ctx[:1] + (ctx[1:] + [_cap(text).rstrip(".")])[-2:]
+                cur = None
+            continue
+        m = re.match(r"^CANON\s+([IVXLC]+)\.\s*[—-]?\s*", text, re.I) or (re.match(r"^([IVXLC]+|\d+)\.\s+", text) if numbered else None)
+        if m:
+            cur = {"label": ("Canon " if text.upper().startswith("CANON") else "") + m.group(1), "title": None,
+                   "text": [], "refs": [], "grp": " · ".join(ctx)}
+            items.append(cur)
+            text = text[m.end():]
+        elif cur is None:
+            cur = {"label": "", "title": None, "text": [], "refs": [], "grp": " · ".join(ctx)}
+            items.append(cur)
+        # renumber this cell's footnotes within the item
+        base = len(cur["refs"])
+        for n, osis in refs:
+            text = text.replace(f"[{n}]", f"[{base + int(n)}]", 1)
+            cur["refs"].append((str(base + int(n)), osis))
+        if inline:
+            cur["refs"].append(("", inline))
+        if cur["text"] and not re.search(r"[.;:!?»”’)\]]$", cur["text"][-1]):
+            cur["text"][-1] += " " + text
+        else:
+            cur["text"].append(text)
+    return [i for i in items if i["text"]]
+
+
+def _catechism_items(seg):
+    items, grp, cur = [], "", None
+    # footnotes hold paragraphs of their own: keep only the Scripture they cite, as inline references
+    seg = re.sub(r"<note\b.*?</note>", lambda m: "".join(f' <scripRef osisRef="{o}"/>' for o in re.findall(r'osisRef="([^"]+)"', m.group(0))),
+                 seg, flags=re.S)
+    def blocks(fragment):
+        for m in re.finditer(r"<(h[2-5]|p)\b([^>]*)>(.*?)</\1>", fragment, re.S):
+            tag, attrs, body = m.groups()
+            # one heading of the source is never closed and runs over many questions: read inside it
+            if tag.startswith("h") and len(_plain(body)) > 150:
+                yield from blocks(body)
+            else:
+                yield tag, attrs, body
+
+    for tag, attrs, body in blocks(seg):
+        if tag.startswith("h") or ("text-align:center" in attrs.replace(" ", "") and len(_plain(body)) < 90):
+            grp = _cap(_plain(body))
+            continue
+        if "footnote" in attrs:
+            continue
+        q = re.match(r"\s*<b>\s*(\d+)\.\s*</b>(.*)", body, re.S)
+        if q:
+            cur = {"label": q.group(1), "title": _plain(q.group(2)), "text": [], "refs": [], "grp": grp}
+            items.append(cur)
+            continue
+        if cur is None:
+            continue
+        refs = []
+        text, inline = _cell(body, refs)
+        if not text:
+            continue
+        for n, osis in refs:
+            cur["refs"].append(("", osis))
+        if inline:
+            cur["refs"].append(("", inline))
+        cur["text"].append(text)
+    return [i for i in items if i["text"]]
+
+
+def load_schaff(path):
+    """Schaff II -> (docs, items, councils) in the shapes of load_documents/add_meta and COUNCILS."""
+    xml = open(path, encoding="utf-8").read()
+    heads = _heading_positions(xml)
+    docs, items = [], []
+    for sort, (did, short, title, family, start, end, layout, year, place, numbered) in enumerate(SCHAFF_DOCS, start=100):
+        seg = _slice(xml, heads, start, end)
+        parsed = _catechism_items(seg) if layout == "catechism" else _table_items(seg, numbered)
+        for seq, it in enumerate(parsed):
+            proofs = []
+            for letter, osis in it["refs"]:
+                proofs.append((letter, osis))
+            text = "\n\n".join(it["text"])
+            if layout == "catechism":
+                items.append((did, seq, it["label"], it["grp"], it["title"] or "", text, proofs))
+            else:
+                items.append((did, seq, it["label"], it["grp"], it["title"] or "", text, proofs))
+        language = "Russian" if layout == "catechism" else ("Greek" if did == "chalcedon" else "Latin")
+        docs.append((did, short, title, family, year, place, language, sort, len(parsed)))
+    return docs, items
+
+
+def schaff_licence_ok(path):
+    head = open(path, encoding="utf-8").read(20000)
+    return "<DC.Rights>Public Domain</DC.Rights>" in head.replace(" ", "") or re.search(r"<DC\.Rights[^>]*>\s*Public Domain", head) is not None

@@ -444,13 +444,12 @@
     <string name="family_creeds">Creeds of the early Church</string>
     <string name="tradition_reformed">Protestant (Reformed)</string>
     <string name="councils">Councils, synods and assemblies</string>
-    <string name="councils_note">Only those that issued a document of this library. Each tradition rates the authority of councils in its own way; for the Reformed churches they stand below Scripture.</string>
+    <string name="councils_note">Councils received by your tradition; the seven ecumenical councils by all (the seventh by the Orthodox and Catholic Churches). Summaries after Philip Schaff, The Creeds of Christendom (1877). For the Reformed churches councils stand below Scripture.</string>
     <string name="council_issued">Issued:</string>
     <string name="go_deeper">Go deeper: other traditions</string>
-    <string name="no_other_traditions">No Catholic or Orthodox document is included yet: none could be obtained with a free licence. When the tradition setting is Catholic, the Reformed documents are listed here.</string>
     <string name="other_tradition_note">This document belongs to another tradition (%1$s).</string>
     <string name="creeds_text_note">Historic English texts, in the public domain. No Malagasy or French text with a free licence was found.</string>
-    <string name="creeds_credit">Texts and proof texts: Reformed Standards compendium (Apache 2.0) and Creeds.json (public domain)</string>
+    <string name="creeds_credit">Texts and proof texts: Reformed Standards compendium (Apache 2.0), Creeds.json and Philip Schaff, The Creeds of Christendom vol. II, 1877 (public domain).</string>
     <string name="proof_texts">Proof texts</string>
     <string name="no_citations_own">No document of your tradition cites this passage.</string>
     <!-- Map: finding a region -->
@@ -486,4 +485,5 @@
         <item quantity="one">%1$d day</item>
         <item quantity="other">%1$d days</item>
     </plurals>
+    <string name="tradition_orthodox">Orthodox</string>
 </resources>

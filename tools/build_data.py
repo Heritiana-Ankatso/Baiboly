@@ -51,7 +51,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 10
+DATA_VERSION = 11
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -1003,6 +1003,16 @@ def build_people_and_confessions(lib, numbering, offline):
     canon_books = [(osis, NAMES_EN[i - 1]) for osis, i in OSIS_IDS.items() if i <= 66]
     docs, items = X.load_documents(paths, canon_books)
     docs = X.add_meta(docs, meta)
+    # Catholic and Orthodox documents, the Definition of Chalcedon and the councils (Schaff, 1877)
+    schaff = fetch(X.SCHAFF, "ccel-schaff-creeds2.xml", offline)
+    if not X.schaff_licence_ok(schaff):
+        sys.exit("LICENCE CHECK FAILED: Schaff, Creeds of Christendom II is no longer marked Public Domain by CCEL")
+    sdocs, sitems = X.load_schaff(schaff)
+    docs += sdocs
+    items += sitems
+    LICENCES.append(("ccel-schaff", "Catholic and Orthodox documents, the Definition of Chalcedon and the councils: Philip Schaff, "
+                     "The Creeds of Christendom, vol. II (1877), English of Waterworth (Trent, 1848) and Blackmore (Orthodox Catechism, 1845)",
+                     "Christian Classics Ethereal Library", X.SCHAFF, "Public Domain", "https://www.ccel.org/ccel/schaff/creeds2"))
     LICENCES.append(("reformed-standards", "Reformed confessions and catechisms with proof texts (historic English texts: "
                      "Westminster Standards, Three Forms of Unity, Savoy Declaration, 1689 Baptist Confession) and the Nicene and Athanasian Creeds",
                      "Reformed Standards compendium", "https://github.com/reformed-standards/compendium",
@@ -1017,7 +1027,7 @@ def build_people_and_confessions(lib, numbering, offline):
     db.execute("VACUUM")
     db.close()
     print(f"  people {len(pe[0])} ({len(pe[1])} relations), events {len(pe[3])}, "
-          f"confessions {len(docs)} ({len(items)} items, {refs} proof texts), councils {len(X.COUNCILS)}")
+          f"confessions {len(docs)} ({len(items)} items, {refs} proof texts), councils {len(X.SCHAFF_COUNCILS) + len(X.COUNCILS)}")
 
 
 def write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map):

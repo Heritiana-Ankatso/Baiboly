@@ -51,8 +51,14 @@ data class CreedDoc(
 /** An article, a section of a chapter, or a question and answer. [proofs]: one line per footnote, library markup. */
 data class CreedItem(val doc: String, val seq: Int, val label: String, val group: String, val question: String, val text: String, val proofs: String)
 
-/** A council, synod or assembly that issued documents of the library. */
-data class Council(val id: String, val name: String, val place: String, val year: String, val docs: List<String>)
+/**
+ * A council, synod or assembly: the seven ecumenical councils, Trent, the Vatican Council and the
+ * Reformed assemblies. [families]: the traditions that receive it ("creed" = all of them).
+ */
+data class Council(
+    val id: String, val name: String, val place: String, val year: String, val docs: List<String>,
+    val families: Set<String> = setOf("creed"), val summary: String = "",
+)
 
 /**
  * Family tree, timeline, confessions and councils (library.db, tools/build_extras.py).
@@ -181,8 +187,13 @@ class HistoryRepository(private val dbs: AssetDatabases) {
     ).use { c -> buildList { while (c.moveToNext()) add(CreedItem(c.getString(0), c.getInt(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getString(6))) } }
 
     val councils: List<Council> by lazy {
-        db.rawQuery("SELECT id, name, place, year, docs FROM council ORDER BY sort", null).use { c ->
-            buildList { while (c.moveToNext()) add(Council(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4).split(','))) }
+        db.rawQuery("SELECT id, name, place, year, docs, families, summary FROM council ORDER BY sort", null).use { c ->
+            buildList {
+                while (c.moveToNext()) add(
+                    Council(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4).split(',').filter { it.isNotEmpty() },
+                        c.getString(5).split(',').filter { it.isNotEmpty() }.toSet(), c.getString(6)),
+                )
+            }
         }
     }
 

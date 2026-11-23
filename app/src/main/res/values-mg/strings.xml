@@ -429,13 +429,12 @@
     <string name="family_creeds">Fanekem-pinoan’ny Fiangonana voalohany</string>
     <string name="tradition_reformed">Protestanta (Nohavaozina)</string>
     <string name="councils">Konsily, synoda ary fivoriambe</string>
-    <string name="councils_note">Ireo namoaka antontan-taratasy ato amin’ity tranomboky ity ihany. Samy manana ny fomba fijeriny ny fahefan’ny konsily ny fivavahana tsirairay; ho an’ny fiangonana Nohavaozina, ambanin’ny Soratra Masina izy ireo.</string>
+    <string name="councils_note">Konsily raisin’ny fivavahanao; ny konsily ekiomenika fito raisin’ny rehetra (ny fahafito raisin’ny Fiangonana ortodoksa sy katolika). Famintinana araka an’i Philip Schaff, The Creeds of Christendom (1877). Ho an’ny fiangonana Nohavaozina, ambanin’ny Soratra Masina ny konsily.</string>
     <string name="council_issued">Namoaka:</string>
     <string name="go_deeper">Fandalinana: fivavahana hafa</string>
-    <string name="no_other_traditions">Mbola tsy misy antontan-taratasy katolika na ortodoksa: tsy nahitana izay manana fahazoan-dalana malalaka. Raha Katolika no fivavahana voafidy, eto no asehoana ny antontan-taratasy Nohavaozina.</string>
     <string name="other_tradition_note">An’ny fivavahana hafa ity antontan-taratasy ity (%1$s).</string>
     <string name="creeds_text_note">Lahatsoratra anglisy tranainy, an’ny besinimaro. Tsy nahitana dikanteny malagasy na frantsay manana fahazoan-dalana malalaka.</string>
-    <string name="creeds_credit">Lahatsoratra sy andinin-teny porofo: Reformed Standards compendium (Apache 2.0) sy Creeds.json (an’ny besinimaro)</string>
+    <string name="creeds_credit">Lahatsoratra sy andinin-teny porofo: Reformed Standards compendium (Apache 2.0), Creeds.json ary Philip Schaff, The Creeds of Christendom boky II, 1877 (an’ny besinimaro).</string>
     <string name="proof_texts">Andinin-teny porofo</string>
     <string name="no_citations_own">Tsy misy antontan-taratasin’ny fivavahanao manonona ity andalan-teny ity.</string>
     <!-- Map: finding a region -->
@@ -471,4 +470,5 @@
         <item quantity="one">%1$d andro</item>
         <item quantity="other">%1$d andro</item>
     </plurals>
+    <string name="tradition_orthodox">Ortodoksa</string>
 </resources>
