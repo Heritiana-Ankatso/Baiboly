@@ -28,7 +28,9 @@ import re
 import sqlite3
 import struct
 import sys
+import time
 import unicodedata
+import urllib.error
 import urllib.request
 import zipfile
 import zlib
@@ -154,8 +156,19 @@ def fetch(url: str, name: str, offline: bool) -> str:
             sys.exit(f"missing cached source {name} (run without --offline)")
         print(f"  downloading {url}")
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; bible-data-build)"})
-        with urllib.request.urlopen(req, timeout=120) as r, open(path + ".part", "wb") as f:
-            f.write(r.read())
+        # Hosts such as raw.githubusercontent.com answer 429 or 503 ("Backend.max_conn reached")
+        # when many files are fetched in a row: wait and try again a few times.
+        for attempt in range(5):
+            try:
+                with urllib.request.urlopen(req, timeout=120) as r, open(path + ".part", "wb") as f:
+                    f.write(r.read())
+                break
+            except urllib.error.HTTPError as e:
+                if e.code not in (429, 500, 502, 503, 504) or attempt == 4:
+                    raise
+                wait = 5 * 2 ** attempt
+                print(f"  HTTP {e.code}, retrying in {wait} s")
+                time.sleep(wait)
         os.replace(path + ".part", path)
     return path
 
