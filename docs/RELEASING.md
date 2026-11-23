@@ -31,6 +31,13 @@ Secrets stay private when the repository is public, and are not given to pull re
 * Bundled Bible/study databases are replaced when their `DATA_VERSION` changes; files no longer shipped are deleted.
 * After an update the app shows "What's new" once.
 
+## How phones learn of a new release
+
+The app's update check (Settings › Advanced › Updates, off by default) reads GitHub's *latest release* for this repository and compares its tag with the installed `versionName`. So:
+
+* Tag every release `vX.Y.Z` with the same number as `baiboly.versionName` (the Release workflow does this).
+* A draft or a pre-release is not "latest": phones are told of a version only once it is published as a full release.
+
 ## Local signed build
 
 Create `keystore.properties` at the repository root (ignored by git):

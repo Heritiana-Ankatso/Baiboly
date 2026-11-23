@@ -127,7 +127,7 @@
     <string name="backup_failed">Could not read this file: %1$s</string>
 
     <!-- About -->
-    <string name="about_text">Baiboly is a free, offline Bible for church services and personal study. It makes no sound, needs no account and never connects to the internet.</string>
+    <string name="about_text">Baiboly is a free, offline Bible for church services and personal study. It works fully offline, makes no sound and needs no account. It connects only to check for updates, and only if you ask it to (Settings › Advanced).</string>
     <string name="sources_licences">Texts, data and licences</string>
     <string name="reading_texts">Reading texts</string>
     <string name="study_data">Study data</string>
@@ -308,4 +308,17 @@
     <string name="realm_hasmonean">Hasmonean kingdom (c. 140–37 BC)</string>
     <string name="realm_herod">Kingdom of Herod the Great</string>
     <string name="realm_rome">Roman provinces (c. AD 200)</string>
+    <!-- Update check (Settings › Advanced) -->
+    <string name="updates">Updates</string>
+    <string name="update_auto">Check for updates automatically</string>
+    <string name="update_auto_hint">About once a day, when the phone is online. A notification appears when a new version is out.</string>
+    <string name="update_check_now">Check now</string>
+    <string name="update_checking">Checking…</string>
+    <string name="update_up_to_date">You have the latest version (%1$s).</string>
+    <string name="update_failed">Could not check. Is the phone connected to the internet?</string>
+    <string name="update_available">Version %1$s is available</string>
+    <string name="update_tap_to_open">Tap to open the download page.</string>
+    <string name="update_open_page">Open the download page</string>
+    <string name="update_last_check">Last checked: %1$s</string>
+    <string name="update_privacy">Only the update check uses the internet: it asks GitHub for the number of the latest version. Nothing about you or your reading is sent.</string>
 </resources>

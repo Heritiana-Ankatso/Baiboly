@@ -499,7 +499,7 @@ fun SettingsScreen(vm: AppViewModel) {
                         SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
                         SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { open = "advanced" }
                     }
-                    "advanced" -> traditionContent()
+                    "advanced" -> { traditionContent(); UpdateSettings(vm) }
                     else -> groups.first { it.key == current }.content()
                 }
             }
@@ -516,7 +516,7 @@ fun SettingsScreen(vm: AppViewModel) {
             SettingsLink(if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, stringResource(R.string.advanced), "settings-advanced") {
                 advanced = !advanced
             }
-            if (advanced) traditionContent()
+            if (advanced) { traditionContent(); UpdateSettings(vm) }
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -760,6 +760,65 @@ private fun ReadAloudSettings(vm: AppViewModel) {
             Slider(value = vm.readRate, onValueChange = { vm.changeReadRate(it) }, valueRange = 0.6f..1.6f, steps = 9)
             Text(stringResource(R.string.malagasy_voice_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+    }
+}
+
+/**
+ * Updates (in Advanced): the only part of the app that goes online. "Check now"
+ * runs on a tap; the switch (off by default) checks about once a day and shows
+ * a silent notification when a new version is out.
+ */
+@Composable
+private fun UpdateSettings(vm: AppViewModel) {
+    val ctx = LocalContext.current
+    val notifPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp).testTag("settings-updates")) {
+        Text(stringResource(R.string.updates), style = MaterialTheme.typography.titleMedium)
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable {
+                val on = !vm.updateAuto
+                vm.changeUpdateAuto(on)
+                if (on && android.os.Build.VERSION.SDK_INT >= 33) notifPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }.testTag("settings-update-auto"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.update_auto), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.update_auto_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            androidx.compose.material3.Switch(checked = vm.updateAuto, onCheckedChange = null)
+        }
+        val status = vm.updateStatus
+        OutlinedButton(
+            onClick = { vm.checkForUpdates() },
+            enabled = status != AppViewModel.UpdateStatus.Checking,
+            modifier = Modifier.heightIn(min = 48.dp).testTag("settings-update-check"),
+        ) { Text(stringResource(if (status == AppViewModel.UpdateStatus.Checking) R.string.update_checking else R.string.update_check_now)) }
+        val line = when (status) {
+            AppViewModel.UpdateStatus.UpToDate -> stringResource(R.string.update_up_to_date, vm.versionName)
+            AppViewModel.UpdateStatus.Failed -> stringResource(R.string.update_failed)
+            is AppViewModel.UpdateStatus.Available -> stringResource(R.string.update_available, status.release.version)
+            else -> null
+        }
+        line?.let { Text(it, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 6.dp)) }
+        if (status is AppViewModel.UpdateStatus.Available) {
+            Button(
+                onClick = {
+                    runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(status.release.url))) }
+                },
+                modifier = Modifier.padding(top = 6.dp).heightIn(min = 48.dp),
+            ) { Text(stringResource(R.string.update_open_page)) }
+        }
+        if (vm.updateLastCheck > 0) {
+            Text(
+                stringResource(R.string.update_last_check,
+                    java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT).format(Date(vm.updateLastCheck))),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+        }
+        Text(stringResource(R.string.update_privacy), style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp))
     }
 }
 
