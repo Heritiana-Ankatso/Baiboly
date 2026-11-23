@@ -41,9 +41,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -110,7 +108,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.Style
@@ -388,7 +385,7 @@ fun studySymbol(book: Int): String = if (Canon.book(book).isHebrewOriginal) "א"
 
 @Composable
 fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) {
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+    LocalizedMenu(expanded = expanded, onDismissRequest = onDismiss) {
         val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
         // The menu opens on the languages only; each one unfolds its translations.
         // The state lives inside the menu, so it starts folded every time it opens.
@@ -532,7 +529,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
                             }
                         }
                     }
-                    DropdownMenu(expanded = menuFor == i, onDismissRequest = { menuFor = null }) {
+                    LocalizedMenu(expanded = menuFor == i, onDismissRequest = { menuFor = null }) {
                         DropdownMenuItem(
                             text = { Text(stringResource(if (item.isSide) R.string.unmark_side else R.string.mark_side)) },
                             onClick = { vm.toggleSide(i); menuFor = null },
@@ -546,7 +543,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
         }
         Box {
             IconButton(onClick = { listMenu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.list_menu)) }
-            DropdownMenu(expanded = listMenu, onDismissRequest = { listMenu = false }) {
+            LocalizedMenu(expanded = listMenu, onDismissRequest = { listMenu = false }) {
                 Text(
                     list.title,
                     style = MaterialTheme.typography.labelLarge,
@@ -564,7 +561,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
     GoldRule(Modifier.padding(horizontal = 24.dp))
     if (rename) {
         var text by remember { mutableStateOf(list.title) }
-        AlertDialog(
+        LocalizedAlertDialog(
             onDismissRequest = { rename = false },
             title = { Text(stringResource(R.string.rename_list)) },
             text = { OutlinedTextField(text, { text = it }, label = { Text(stringResource(R.string.list_title)) }, singleLine = true) },
@@ -832,7 +829,7 @@ private fun SelectionBar(
 @Composable
 fun NoteDialog(title: String, initial: String, onDelete: (() -> Unit)?, onSave: (String) -> Unit, onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(TextFieldValue(initial, TextRange(initial.length))) }
-    AlertDialog(
+    LocalizedAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
@@ -869,7 +866,7 @@ private fun WordSelectDialog(
     val sel = value.selection
     val range = if (sel.collapsed) 0 until text.length else minOf(sel.start, sel.end) until maxOf(sel.start, sel.end)
     val chosen = text.substring(range.first, range.last + 1)
-    Dialog(onDismissRequest = onDismiss) {
+    LocalizedDialog(onDismissRequest = onDismiss) {
         Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 6.dp) {
             Column(Modifier.padding(20.dp)) {
                 Text(reference, style = MaterialTheme.typography.titleMedium)

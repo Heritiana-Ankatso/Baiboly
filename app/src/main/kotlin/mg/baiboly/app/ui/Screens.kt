@@ -27,7 +27,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -258,7 +257,7 @@ fun HistoryScreen(vm: AppViewModel) {
             }
         }
     }
-    if (confirm) AlertDialog(
+    if (confirm) LocalizedAlertDialog(
         onDismissRequest = { confirm = false },
         text = { Text(stringResource(R.string.clear_history) + "?") },
         confirmButton = { TextButton(onClick = { vm.clearHistory(); confirm = false }) { Text(stringResource(R.string.ok)) } },
@@ -434,7 +433,7 @@ fun SavedListsScreen(vm: AppViewModel) {
         }
     }
     confirmDelete?.let { id ->
-        AlertDialog(
+        LocalizedAlertDialog(
             onDismissRequest = { confirmDelete = null },
             text = { Text(stringResource(R.string.delete) + "?") },
             confirmButton = { TextButton(onClick = { vm.deleteSavedList(id); confirmDelete = null }) { Text(stringResource(R.string.delete)) } },
@@ -841,7 +840,7 @@ fun BackupScreen(vm: AppViewModel) {
         }
     }
     pendingImport?.let { uri ->
-        AlertDialog(
+        LocalizedAlertDialog(
             onDismissRequest = { pendingImport = null },
             text = { Text(stringResource(R.string.import_confirm)) },
             confirmButton = { TextButton(onClick = { vm.importBackup(uri); pendingImport = null }) { Text(stringResource(R.string.ok)) } },

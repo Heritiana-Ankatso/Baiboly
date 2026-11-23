@@ -34,7 +34,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -295,7 +294,7 @@ fun WhatsNewSheet(version: String, onDismiss: () -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val ornament = LocalOrnament.current
     val items = androidx.compose.ui.res.stringArrayResource(R.array.whats_new_items)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+    LocalizedSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         Column(
             Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 24.dp).padding(bottom = 16.dp).testTag("whats-new"),
             horizontalAlignment = Alignment.CenterHorizontally,

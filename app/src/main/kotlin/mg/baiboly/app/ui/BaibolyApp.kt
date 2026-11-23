@@ -18,13 +18,16 @@ import mg.baiboly.app.UiLanguage
 
 @Composable
 fun BaibolyApp(vm: AppViewModel) {
-    // The interface language is applied live: the whole UI (dialogs and sheets
-    // included) reads its strings through this context.
+    // The interface language is applied live: the UI reads its strings through
+    // this context. Sheets, dialogs and menus open in windows of their own,
+    // where Compose resets LocalContext to the activity (the phone's language);
+    // they get it back from LocalUiContext through the Localized* wrappers.
     val base = LocalContext.current
     val localized = remember(vm.uiLanguage) { UiLanguage.wrap(base, vm.uiLanguage) }
     CompositionLocalProvider(
         LocalContext provides localized,
         LocalConfiguration provides localized.resources.configuration,
+        LocalUiContext provides localized,
     ) { AppContent(vm) }
 }
 

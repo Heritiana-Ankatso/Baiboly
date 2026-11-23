@@ -178,7 +178,7 @@ fun MapScreen(vm: AppViewModel) {
                     IconButton(onClick = { layersMenu = true }, modifier = Modifier.testTag("map-layers")) {
                         Icon(Icons.Outlined.Layers, stringResource(R.string.map_layers))
                     }
-                    DropdownMenu(expanded = layersMenu, onDismissRequest = { layersMenu = false }) {
+                    LocalizedMenu(expanded = layersMenu, onDismissRequest = { layersMenu = false }) {
                         Text(stringResource(R.string.map_layers), style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
                         BaseMap.entries.forEach { b ->

@@ -31,7 +31,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SuggestionChip
@@ -123,7 +122,7 @@ fun AddPanel(vm: AppViewModel, onDismiss: () -> Unit) {
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, dragHandle = null) {
+    LocalizedSheet(onDismissRequest = onDismiss, sheetState = sheet, dragHandle = null) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(bottom = 8.dp)) {
             // header
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
