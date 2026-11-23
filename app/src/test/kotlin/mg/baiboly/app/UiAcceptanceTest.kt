@@ -14,6 +14,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollToKey
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.swipeLeft
@@ -96,6 +97,7 @@ class UiAcceptanceTest {
         if (vm.style != Style.Manuscript) vm.changeStyle(Style.Manuscript)
         if (vm.mode != AppMode.Casual) vm.changeMode(AppMode.Casual)
         if (vm.tradition != Tradition.Protestant) vm.changeTradition(Tradition.Protestant)
+        if (vm.verseLayout != VerseLayout.Lines) vm.changeVerseLayout(VerseLayout.Lines)
         vm.screen = Screen.Main
         if (!vm.list.isEmpty) {
             val old = vm.list.id
@@ -286,6 +288,36 @@ class UiAcceptanceTest {
         waitFor { vm.notes.isNotEmpty() }
         rule.onNodeWithText("Jehovah no Mpiandry ahy").tap()
         waitFor { Passage(19, 23, 1, 1).at() && vm.chapter?.book == 19 && vm.screen == Screen.Main }
+    }
+
+    /** Verses as running paragraphs: chosen in Settings; a tap still selects the verse under the finger. */
+    @Test fun paragraphLayout() {
+        ready()
+        vm.screen = Screen.Settings
+        rule.waitForIdle()
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
+        tag("settings-layout:Paragraphs").tap()
+        assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
+        vm.screen = Screen.Main
+        vm.openChapter(43, 1)
+        waitFor { vm.chapter?.book == 43 && vm.chapter?.chapter == 1 }
+        rule.waitForIdle()
+        // verses 1–51 in a few paragraphs, not one row each
+        tag("reader").performScrollToKey("p1")
+        tag("paragraph:1").assertExists()
+        assertTrue(rule.onAllNodesWithTag("verse:1", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+        // a tap on the first line selects verse 1 and brings up the verse actions
+        tag("paragraph:1").performTouchInput { click(androidx.compose.ui.geometry.Offset(width * 0.6f, 40f)) }
+        rule.waitForIdle()
+        tag("action:Note").assertExists()
+        // the setting is kept after a restart
+        Thread.sleep(300)
+        val old = vm
+        rule.activityRule.scenario.onActivity { it.viewModelStore.clear() }
+        rule.activityRule.scenario.recreate()
+        waitFor { vm !== old && vm.ready }
+        assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
+        vm.changeVerseLayout(VerseLayout.Lines)
     }
 
     /** Malagasy interface: chosen in Settings, applied at once and kept after a restart. */

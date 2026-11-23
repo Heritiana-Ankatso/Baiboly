@@ -64,6 +64,15 @@ class ScreenshotTest {
         settle { vm.chapter?.book == p.book && vm.chapter?.chapter == p.chapter }
     }
 
+    /** Verses as running paragraphs (Settings, Appearance, Verses). */
+    @Test fun paragraphs() {
+        settle { vm.ready && vm.chapter != null }
+        vm.changeVerseLayout(VerseLayout.Paragraphs)
+        open(Passage(43, 1, 10, 14))
+        shot("reader-paragraphs-mg")
+        vm.changeVerseLayout(VerseLayout.Lines)
+    }
+
     @Test fun screens() {
         settle { vm.ready && vm.chapter != null }
         // Casual mode: reading, with the bottom navigation

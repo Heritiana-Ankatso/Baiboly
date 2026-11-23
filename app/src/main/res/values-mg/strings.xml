@@ -241,6 +241,9 @@
     <string name="spacing_compact">Kely</string>
     <string name="spacing_normal">Antonony</string>
     <string name="spacing_airy">Malalaka</string>
+    <string name="verse_layout">Andininy</string>
+    <string name="layout_lines">Tsirairay</string>
+    <string name="layout_paragraphs">Mitohy</string>
     <string name="reset_appearance">Averina ilay endrika voalohany</string>
     <string name="style">Modely</string>
     <string name="style_manuscript">Sora-tanana</string>

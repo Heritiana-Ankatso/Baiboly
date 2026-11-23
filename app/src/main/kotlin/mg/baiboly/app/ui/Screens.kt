@@ -65,6 +65,7 @@ import mg.baiboly.app.Tradition
 import mg.baiboly.app.Palette
 import mg.baiboly.app.TextFont
 import mg.baiboly.app.LineSpacing
+import mg.baiboly.app.VerseLayout
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.foundation.layout.height
@@ -553,6 +554,14 @@ private fun AppearanceSettings(vm: AppViewModel) {
                 ),
                 selected = vm.lineSpacing, tag = "settings-spacing",
             ) { vm.changeLineSpacing(it) }
+            ChoiceRow(
+                label = stringResource(R.string.verse_layout),
+                options = listOf(
+                    VerseLayout.Lines to stringResource(R.string.layout_lines),
+                    VerseLayout.Paragraphs to stringResource(R.string.layout_paragraphs),
+                ),
+                selected = vm.verseLayout, tag = "settings-layout",
+            ) { vm.changeVerseLayout(it) }
         }
         Text(stringResource(R.string.text_size), style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 8.dp))

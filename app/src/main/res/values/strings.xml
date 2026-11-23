@@ -256,6 +256,9 @@
     <string name="spacing_compact">Compact</string>
     <string name="spacing_normal">Normal</string>
     <string name="spacing_airy">Airy</string>
+    <string name="verse_layout">Verses</string>
+    <string name="layout_lines">One per line</string>
+    <string name="layout_paragraphs">Paragraphs</string>
     <string name="reset_appearance">Restore the original look</string>
     <string name="style">Theme</string>
     <string name="style_manuscript">Manuscript</string>

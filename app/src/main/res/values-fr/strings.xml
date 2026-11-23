@@ -239,6 +239,9 @@
     <string name="spacing_compact">Serré</string>
     <string name="spacing_normal">Normal</string>
     <string name="spacing_airy">Aéré</string>
+    <string name="verse_layout">Versets</string>
+    <string name="layout_lines">Un par ligne</string>
+    <string name="layout_paragraphs">Paragraphes</string>
     <string name="reset_appearance">Rétablir l’apparence d’origine</string>
     <string name="style">Thème</string>
     <string name="style_manuscript">Manuscrit</string>
