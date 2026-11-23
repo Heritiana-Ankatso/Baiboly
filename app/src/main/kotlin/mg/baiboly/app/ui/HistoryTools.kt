@@ -78,7 +78,7 @@ private fun VerseChips(vm: AppViewModel, verses: List<Passage>, tag: String) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.testTag(tag)) {
         verses.forEach { p ->
             TextButton(onClick = { vm.openPassage(p) }, modifier = Modifier.heightIn(min = 40.dp)) {
-                Text(p.shortLabel(), color = LocalOrnament.current.rubric)
+                Text(p.label(), color = LocalOrnament.current.rubric)
             }
         }
     }
@@ -113,7 +113,7 @@ private fun relationTitle(kind: String): String = when (kind) {
 @Composable
 private fun personSubtitle(p: Person, father: Person? = null): String = listOfNotNull(
     father?.let { stringResource(R.string.child_of, it.name) },
-    p.first?.shortLabel(),
+    p.first?.label(),
     stringResource(R.string.place_mentions, p.mentions),
 ).joinToString(" · ")
 
@@ -268,7 +268,7 @@ private fun durationLabel(d: String): String? {
 private fun EventRow(vm: AppViewModel, e: BibleEvent) {
     Column(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { vm.openEvent(e.id) }.testTag("event:${e.id}").padding(vertical = 6.dp)) {
         Text(e.title, style = MaterialTheme.typography.bodyLarge)
-        Note(listOfNotNull(eventDates(e), e.first?.shortLabel()).joinToString(" · "))
+        Note(listOfNotNull(eventDates(e), e.first?.label()).joinToString(" · "))
     }
 }
 
@@ -477,7 +477,8 @@ internal fun CreedItemView(vm: AppViewModel, d: CreedDoc?, it: CreedItem, compac
             append(it.text.substring(pos))
         }
     }
-    val proofs = remember(it.proofs, ornament) {
+    val lang = refLang()
+    val proofs = remember(it.proofs, ornament, lang) {
         it.proofs.lines().filter { l -> l.isNotBlank() }.map { line ->
             val letter = line.substringBefore('⟦')
             buildAnnotatedString {
@@ -486,7 +487,7 @@ internal fun CreedItemView(vm: AppViewModel, d: CreedDoc?, it: CreedItem, compac
                     if (i > 0) append(", ")
                     val p = vm.library.osisToPassage(m.groupValues[1])
                     if (p == null) append(m.groupValues[1])
-                    else withLink(LinkAnnotation.Clickable("ref", link) { vm.openPassage(p) }) { append(p.shortLabel()) }
+                    else withLink(LinkAnnotation.Clickable("ref", link) { vm.openPassage(p) }) { append(p.shortLabel(lang)) }
                 }
             }
         }

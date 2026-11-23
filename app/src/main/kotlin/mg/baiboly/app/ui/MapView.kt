@@ -786,7 +786,7 @@ private fun PlaceCard(
         LazyColumn(Modifier.testTag("place-verses")) {
             items(verses, key = { it.first.toString() }) { (ps, line) ->
                 Column(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.openPassage(ps) }.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                    Text(ps.shortLabel(), fontWeight = FontWeight.Bold, color = LocalOrnament.current.rubric)
+                    Text(ps.label(), fontWeight = FontWeight.Bold, color = LocalOrnament.current.rubric)
                     Text(line, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             }
@@ -927,7 +927,7 @@ private fun RoutesPanel(
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Text(
-                            j.ref.shortLabel(), style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.rubric,
+                            j.ref.label(), style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.rubric,
                             modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(j.ref) }.padding(8.dp),
                         )
                     }
@@ -991,7 +991,7 @@ private fun JourneyBar(vm: AppViewModel, j: Journey, lang: String, onOpen: () ->
                 Text(stringResource(R.string.journey_length, j.stops.size, kmText(j.km)), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text(j.ref.shortLabel(), style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.rubric,
+            Text(j.ref.label(), style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.rubric,
                 modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(j.ref) }.padding(8.dp))
             IconButton(onClick = onClose) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
         }

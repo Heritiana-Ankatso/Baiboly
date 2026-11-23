@@ -29,3 +29,11 @@ fun translationNote(t: Translation): String? = when (t.id) {
     "dra" -> stringResource(R.string.note_dra)
     else -> t.notes
 }
+
+/** Language of Bible references: that of the interface (book abbreviations "Jao", "Jn", "John"). */
+@Composable
+fun refLang(): String = stringResource(R.string.ref_lang)
+
+/** A reference in the interface language: "Jao 3: 16", "Jn 3:16", "John 3:16". */
+@Composable
+fun mg.baiboly.core.ref.Passage.label(): String = shortLabel(refLang())

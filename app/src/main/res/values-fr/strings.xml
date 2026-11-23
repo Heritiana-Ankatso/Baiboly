@@ -451,4 +451,6 @@
     <string name="note_son_of_god">Luc 3:38 appelle Adam « fils de Dieu » : il a été créé par Dieu (Gn 2:7), non engendré. Dieu n’est pas présenté comme un parent dans l’arbre généalogique.</string>
     <string name="note_virgin_birth">Conçu du Saint-Esprit et né de la vierge Marie (Mt 1:18-25 ; Lc 1:35). Joseph était son père selon la loi, « comme on le croyait » (Lc 3:23) ; les généalogies de Matthieu 1 et de Luc 3 passent par lui.</string>
     <string name="note_no_family">Dieu est le Créateur, non l’une des familles des généalogies : aucun lien de famille n’est montré. Luc 3:38 appelle Adam « fils de Dieu » par la création.</string>
+    <!-- Language of Bible references (book abbreviations) -->
+    <string name="ref_lang">fr</string>
 </resources>

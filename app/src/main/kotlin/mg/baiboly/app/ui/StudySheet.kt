@@ -426,12 +426,13 @@ private fun FoundPage(vm: AppViewModel, strongs: String, onOpen: (VerseRef) -> U
     LazyColumn {
         items(list, key = { "${it.first.book}-${it.first.chapter}-${it.first.verse}" }) { (r, text) ->
             val p = Passage(r.book, r.chapter, r.verse, r.verse)
+            val label = p.label()
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f).clickable { onOpen(r) }.testTag("found:${r.book}-${r.chapter}-${r.verse}").padding(vertical = 8.dp)) {
-                    Text(p.shortLabel(), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text(p.label(), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     Text(text, maxLines = 2, overflow = TextOverflow.Ellipsis, fontFamily = TextSerif, fontStyle = FontStyle.Normal)
                 }
-                IconButton(onClick = { vm.addToList(listOf(p)); vm.message = vm.str(R.string.added_x, p.shortLabel()) }) {
+                IconButton(onClick = { vm.addToList(listOf(p)); vm.message = vm.str(R.string.added_x, label) }) {
                     Icon(Icons.Filled.Add, stringResource(R.string.add_to_list))
                 }
             }

@@ -236,7 +236,7 @@ fun MainScreen(vm: AppViewModel) {
                         icon = { Icon(Icons.AutoMirrored.Outlined.Undo, null) },
                         text = {
                             Text(
-                                stringResource(R.string.back_to_my_place) + "  " + (vm.list.currentItem?.passage?.shortLabel() ?: ""),
+                                stringResource(R.string.back_to_my_place) + "  " + (vm.list.currentItem?.passage?.label() ?: ""),
                                 style = MaterialTheme.typography.labelLarge,
                             )
                         },
@@ -352,7 +352,7 @@ private fun ServiceBar(vm: AppViewModel, onAdd: () -> Unit) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val prev = list.items.getOrNull(list.current - 1)
                 val next = list.items.getOrNull(list.current + 1)
-                ServiceStep(prev?.passage?.shortLabel(), forward = false, modifier = Modifier.weight(1f).testTag("service-prev")) {
+                ServiceStep(prev?.passage?.label(), forward = false, modifier = Modifier.weight(1f).testTag("service-prev")) {
                     vm.selectItem(list.current - 1)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 6.dp)) {
@@ -363,7 +363,7 @@ private fun ServiceBar(vm: AppViewModel, onAdd: () -> Unit) {
                     ) { Icon(Icons.Filled.Add, stringResource(R.string.add)) }
                     Text("${list.current + 1} / ${list.items.size}", style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.gold)
                 }
-                ServiceStep(next?.passage?.shortLabel(), forward = true, modifier = Modifier.weight(1f).testTag("service-next")) {
+                ServiceStep(next?.passage?.label(), forward = true, modifier = Modifier.weight(1f).testTag("service-next")) {
                     vm.selectItem(list.current + 1)
                 }
             }
@@ -522,7 +522,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
                             .testTag("chip:$i"),
                     ) {
                         Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(item.passage.shortLabel(), style = MaterialTheme.typography.bodyLarge, fontWeight = if (current) FontWeight.Bold else FontWeight.Normal)
+                            Text(item.passage.label(), style = MaterialTheme.typography.bodyLarge, fontWeight = if (current) FontWeight.Bold else FontWeight.Normal)
                             if (item.isSide) {
                                 Spacer(Modifier.width(6.dp))
                                 Text(

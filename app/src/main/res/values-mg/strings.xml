@@ -453,4 +453,6 @@
     <string name="note_son_of_god">Ny Lioka 3:38 dia milaza an’i Adama ho “zanak’Andriamanitra”: noforonin’Andriamanitra izy (Gen 2:7), fa tsy naterany. Tsy aseho ho ray aman-dreny ao amin’ny tetirazana Andriamanitra.</string>
     <string name="note_virgin_birth">Torontoronin’ny Fanahy Masina ary naterak’i Maria virjiny (Mat 1:18-25; Lio 1:35). Ray araka ny lalàna azy i Josefa, “araka ny ninoana” (Lio 3:23); aminy no andalovan’ny tetirazana ao amin’ny Matio 1 sy Lioka 3.</string>
     <string name="note_no_family">Andriamanitra no Mpamorona, fa tsy anisan’ny fianakaviana ao amin’ny tetirazana: tsy misy rohim-pianakaviana aseho. Ny Lioka 3:38 dia milaza an’i Adama ho “zanak’Andriamanitra” noho ny famoronana.</string>
+    <!-- Language of Bible references (book abbreviations) -->
+    <string name="ref_lang">mg</string>
 </resources>

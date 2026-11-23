@@ -22,6 +22,10 @@ data class Passage(val book: Int, val chapter: Int, val verseStart: Int = 0, val
     /** "Jao 3: 16", "Efe 2: 8-9", "Sal 23" (chip label, the user's own style). */
     fun shortLabel(): String = Canon.book(book).shortLabel + " " + numbers()
 
+    /** In the interface language: "Jao 3: 16" (mg), "Jn 3:16" (fr), "John 3:16" (en). */
+    fun shortLabel(lang: String): String =
+        if (lang == "mg" || lang.isEmpty()) shortLabel() else Canon.book(book).abbr(lang) + " " + numbers().replace(": ", ":")
+
     /** "Jaona 3: 16" */
     fun longLabel(lang: String = "mg"): String = Canon.book(book).name(lang) + " " + numbers()
 

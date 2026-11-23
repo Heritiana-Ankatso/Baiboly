@@ -322,7 +322,7 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant, fontStyle = if (u.modern) FontStyle.Italic else FontStyle.Normal)
                         u.ref?.let { r ->
                             Text(
-                                r.shortLabel(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
+                                r.label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
                                 modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(r) }
                                     .heightIn(min = 32.dp).padding(vertical = 6.dp).testTag("unit-ref:${u.id}"),
                             )
@@ -368,7 +368,7 @@ private fun TimeOfDay(vm: AppViewModel, lang: String) {
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.units_hour_n, h), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                 hours[h]?.let { r ->
-                    Text(r.shortLabel(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
+                    Text(r.label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
                         modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(r) }.padding(8.dp))
                 }
                 Text("≈ %d:00".format(6 + h), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
@@ -386,7 +386,7 @@ private fun TimeOfDay(vm: AppViewModel, lang: String) {
             Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 4.dp).testTag("watch:${i + 1}"),
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.units_watch_n, i + 1), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                if (i == 3) Text(Passage(41, 6, 48, 48).shortLabel(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
+                if (i == 3) Text(Passage(41, 6, 48, 48).label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
                     modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(Passage(41, 6, 48, 48)) }.padding(8.dp))
                 Text(watches[i], style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
             }
