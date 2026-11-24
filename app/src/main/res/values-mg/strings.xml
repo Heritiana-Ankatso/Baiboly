@@ -136,6 +136,15 @@
     <string name="part_of_speech">Karazan-teny</string>
     <string name="definition">Dikany (amin’ny teny anglisy)</string>
     <string name="kjv_usage">Fandikana azy ao amin’ny KJV</string>
+    <string name="original_text_hebrew">Teny hebreo (Testamenta Taloha)</string>
+    <string name="original_text_greek">Teny grika (Testamenta Vaovao)</string>
+    <string name="original_text_note">Andininy %1$s amin’ny soratra tany am-boalohany. Tsindrio ny teny iray mba hahitana ny fanazavana ny endriny, ny dikany ary ny andininy mampiasa azy.</string>
+    <string name="original_text_tr_note">Ny teny mikorontana dia ao amin’ny Textus Receptus (ny grika nanaovana ny KJV) fa tsy ao amin’ny soratra Nestlé-Aland.</string>
+    <string name="study_kjv_heading">Laharana Strong ao amin’ny KJV</string>
+    <string name="parsing">Famakafakana ny endrika</string>
+    <string name="fuller_definition_hebrew">Dikany feno kokoa (Brown-Driver-Briggs fohifohy, amin’ny teny anglisy)</string>
+    <string name="fuller_definition_greek">Dikany feno kokoa (Abbott-Smith sy hafa, amin’ny teny anglisy)</string>
+    <string name="fuller_definition_credit">STEP Bible (www.STEPBible.org), Tyndale House, Cambridge · CC BY 4.0</string>
     <string name="pronunciation">Fanononana</string>
     <string name="back">Hiverina</string>
     <string name="no_entry">Tsy misy ao amin’ny rakibolana ny %1$s.</string>

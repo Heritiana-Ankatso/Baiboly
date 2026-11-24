@@ -1176,12 +1176,20 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     suspend fun studyVerse(book: Int, chapter: Int, verse: Int): VerseStudy =
         withContext(io) { study.verse(VerseRef(book, chapter, verse)) }
 
-    suspend fun lexicon(strongs: String): Pair<LexiconEntry?, Int> =
-        withContext(io) { study.entry(strongs) to study.verseCount(strongs) }
+    /** The Hebrew or Greek words of a verse, with parsing. */
+    suspend fun studyOriginal(book: Int, chapter: Int, verse: Int): mg.baiboly.data.OriginalVerse =
+        withContext(io) { study.originalText(VerseRef(book, chapter, verse)) }
+
+    suspend fun extendedEntry(strongs: String, dstrong: String?): mg.baiboly.data.ExtendedEntry? =
+        withContext(io) { study.extendedEntry(strongs, dstrong) }
+
+    /** The lexicon entry and the number of verses; [inOriginal]: counted in the Hebrew or Greek text, not the KJV tagging. */
+    suspend fun lexicon(strongs: String, inOriginal: Boolean = false): Pair<LexiconEntry?, Int> =
+        withContext(io) { study.entry(strongs) to (if (inOriginal) study.originalVerseCount(strongs) else study.verseCount(strongs)) }
 
     /** Found N verses: references with their Malagasy text. */
-    suspend fun versesWith(strongs: String): List<Pair<VerseRef, String>> = withContext(io) {
-        study.versesWith(strongs).map { r ->
+    suspend fun versesWith(strongs: String, inOriginal: Boolean = false): List<Pair<VerseRef, String>> = withContext(io) {
+        (if (inOriginal) study.originalVersesWith(strongs) else study.versesWith(strongs)).map { r ->
             r to (bible.verses(BibleRepository.PRIMARY, r.book, r.chapter, r.verse, r.verse).firstOrNull()?.text ?: "")
         }
     }

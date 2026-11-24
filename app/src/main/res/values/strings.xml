@@ -142,6 +142,15 @@
     <string name="part_of_speech">Part of speech</string>
     <string name="definition">Definition</string>
     <string name="kjv_usage">KJV renderings</string>
+    <string name="original_text_hebrew">Hebrew text (Old Testament)</string>
+    <string name="original_text_greek">Greek text (New Testament)</string>
+    <string name="original_text_note">Verse %1$s of the original text. Tap a word for its parsing, dictionary entry and the verses that use it.</string>
+    <string name="original_text_tr_note">Faded words are in the Textus Receptus (the Greek behind the KJV) but not in the Nestlé-Aland text.</string>
+    <string name="study_kjv_heading">Strong’s numbers in the KJV</string>
+    <string name="parsing">Parsing</string>
+    <string name="fuller_definition_hebrew">Fuller definition (abridged Brown-Driver-Briggs)</string>
+    <string name="fuller_definition_greek">Fuller definition (Abbott-Smith and others)</string>
+    <string name="fuller_definition_credit">STEP Bible (www.STEPBible.org), Tyndale House, Cambridge · CC BY 4.0</string>
     <string name="pronunciation">Pronunciation</string>
     <string name="back">Back</string>
     <string name="no_entry">No dictionary entry for %1$s.</string>

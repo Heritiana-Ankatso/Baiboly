@@ -125,6 +125,15 @@
     <string name="part_of_speech">Nature du mot</string>
     <string name="definition">Définition (anglais)</string>
     <string name="kjv_usage">Traductions dans la KJV</string>
+    <string name="original_text_hebrew">Texte hébreu (Ancien Testament)</string>
+    <string name="original_text_greek">Texte grec (Nouveau Testament)</string>
+    <string name="original_text_note">Verset %1$s du texte original. Touchez un mot pour son analyse, son article de dictionnaire et les versets qui l’emploient.</string>
+    <string name="original_text_tr_note">Les mots estompés sont dans le Textus Receptus (le grec de la KJV) mais pas dans le texte de Nestlé-Aland.</string>
+    <string name="study_kjv_heading">Numéros de Strong dans la KJV</string>
+    <string name="parsing">Analyse grammaticale</string>
+    <string name="fuller_definition_hebrew">Définition plus complète (Brown-Driver-Briggs abrégé, en anglais)</string>
+    <string name="fuller_definition_greek">Définition plus complète (Abbott-Smith et autres, en anglais)</string>
+    <string name="fuller_definition_credit">STEP Bible (www.STEPBible.org), Tyndale House, Cambridge · CC BY 4.0</string>
     <string name="pronunciation">Prononciation</string>
     <string name="back">Retour</string>
     <string name="no_entry">Aucune entrée de dictionnaire pour %1$s.</string>

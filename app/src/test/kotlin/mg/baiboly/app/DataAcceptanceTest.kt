@@ -84,6 +84,35 @@ class DataAcceptanceTest {
         assertEquals(VerseRef(19, 3, 1), study.verse(VerseRef(19, 3, 2)).kjv)
     }
 
+    @Test fun task13b_originalText() {
+        val study = StudyRepository(dbs)
+        // Genesis 1:1 in Hebrew: בְּרֵאשִׁית בָּרָא אֱלֹהִים ..., right to left, with the parsing in words
+        val gen = study.originalText(VerseRef(1, 1, 1))
+        assertTrue(gen.hebrew)
+        assertEquals("בָּרָא", gen.words[1].word)
+        assertEquals("H1254", gen.words[1].strongs)
+        assertTrue(gen.words[1].parsing!!.contains("Qal"), gen.words[1].parsing)
+        assertEquals("H430", gen.words[2].strongs)
+        // John 3:16 in Greek: ἠγάπησεν, aorist active indicative
+        val jhn = study.originalText(VerseRef(43, 3, 16))
+        assertTrue(!jhn.hebrew)
+        val loved = jhn.words.first { it.strongs == "G25" }
+        assertEquals("ἠγάπησεν", loved.word)
+        assertEquals("verb, aorist active indicative, third person singular", loved.parsing)
+        // the Textus Receptus words that Nestle-Aland lacks are flagged (Acts 8:37)
+        assertTrue(study.originalText(VerseRef(44, 8, 37)).words.all { it.onlyInReceivedText })
+        // the fuller lexicon, and Found N verses by the Greek or Hebrew word
+        assertTrue(study.extendedEntry("G1922", null)!!.definition!!.contains("recognition"))
+        assertTrue(study.extendedEntry("H430", "H0430G")!!.definition!!.isNotBlank())
+        assertTrue(study.originalVerseCount("G1922") > 10)
+        assertTrue(study.originalVersesWith("G1922").contains(VerseRef(55, 2, 25)))
+        // a psalm's title is part of verse 1 (Malagasy verses 1 and 2): Psalm 3 begins "A psalm of David"
+        assertEquals("מִזְמוֹר", study.originalText(VerseRef(19, 3, 1)).words.first().word)
+        // Malagasy Exodus 7:26 is Exodus 8:1 in the KJV numbering (the Hebrew verse numbers, by TVTMS)
+        assertEquals(VerseRef(2, 8, 1), study.mgToKjv(VerseRef(2, 7, 26)))
+        assertEquals(VerseRef(2, 7, 26), study.kjvToMg(VerseRef(2, 8, 1)))
+    }
+
     @Test fun task12_backupRoundTrip() {
         val a = UserStore(ctx)
         var l = a.createList("Fanompoana", "2026-11-22")
