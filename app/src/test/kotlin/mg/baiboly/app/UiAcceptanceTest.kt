@@ -629,6 +629,28 @@ class UiAcceptanceTest {
         assertTrue(vm.quickLookItems.isEmpty())
     }
 
+    /**
+     * Requested: on Automatic, the quick look's Bible is in the app's language if it differs from the
+     * Bible being read, else in the phone's language (English under Robolectric) if it differs, else
+     * Malagasy (French when reading Malagasy).
+     */
+    @Test fun quickLookAutomaticBible() {
+        ready()
+        vm.changeQuickLookTranslation("")
+        fun target(ui: String, reading: String): String? {
+            vm.chooseUiLanguage(ui); vm.setTranslation(reading); rule.waitForIdle()
+            return vm.quickLookTarget()?.id
+        }
+        assertEquals("lsg1910", target("fr", "mg1865"))  // the app's language
+        assertEquals("kjv", target("mg", "mg1865"))      // same as the text: the phone's language
+        assertEquals("kjv", target("fr", "lsg1910"))     // same as the text: the phone's language
+        assertEquals("mg1865", target("en", "kjv"))      // neither helps: Malagasy
+        assertEquals("mg1865", target("en", "web"))
+        // a Bible chosen in Settings still wins
+        vm.changeQuickLookTranslation("darby_fr")
+        assertEquals("darby_fr", target("fr", "mg1865"))
+    }
+
     @Test fun passageStudyTools() {
         ready()
         // compact interface, text down to 10, screen kept awake: the defaults
