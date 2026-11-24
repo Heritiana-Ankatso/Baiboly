@@ -1,6 +1,13 @@
 package mg.baiboly.app.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -257,35 +264,57 @@ fun BooksScreen(vm: AppViewModel) {
                     Tab(selected = testament == 0, onClick = { testament = 0 }, text = { Text(stringResource(R.string.old_testament)) }, modifier = Modifier.testTag("testament:0"))
                     Tab(selected = testament == 1, onClick = { testament = 1 }, text = { Text(stringResource(R.string.new_testament)) }, modifier = Modifier.testTag("testament:1"))
                 }
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(150.dp),
-                    contentPadding = PaddingValues(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.testTag("books"),
+                // one column, grouped by section: a two-column grid under the two Testament tabs read as
+                // "Old Testament on the left, New on the right"
+                val shown = books.filter { it.isOldTestament == (testament == 0) }
+                // a section heading (string id) before the first book of each section
+                val rows: List<Any> = buildList {
+                    var last = 0
+                    shown.forEach { bk -> bookSection(bk.id).let { if (it != last) { last = it; add(it) } }; add(bk) }
+                }
+                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                LaunchedEffect(testament) {
+                    val i = rows.indexOfFirst { it is mg.baiboly.core.bible.BookInfo && it.id == vm.location.book }
+                    // open on the current book, its section heading above it
+                    listState.scrollToItem((i - 1).coerceAtLeast(0))
+                }
+                LazyColumn(
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = 16.dp),
+                    modifier = Modifier.fillMaxSize().testTag("books"),
                 ) {
-                    items(books.filter { it.isOldTestament == (testament == 0) }, key = { it.id }) { bk ->
-                        Surface(
-                            onClick = { book = bk.id },
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (bk.id == vm.location.book) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainerLowest,
-                            border = BorderStroke(1.dp, LocalOrnament.current.gold.copy(alpha = 0.4f)),
-                            modifier = Modifier.heightIn(min = 52.dp).testTag("book-item:${bk.id}"),
-                        ) {
-                            Row(Modifier.padding(horizontal = 12.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    items(rows, key = { r -> if (r is mg.baiboly.core.bible.BookInfo) r.id else "section-$r" }) { r ->
+                        if (r is Int) {
+                            Text(
+                                stringResource(r),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = LocalOrnament.current.rubric,
+                                modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 4.dp)
+                                    .semantics { heading() },
+                            )
+                        } else if (r is mg.baiboly.core.bible.BookInfo) {
+                            val current = r.id == vm.location.book
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                    .background(if (current) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent)
+                                    .clickable { book = r.id }
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                                    .testTag("book-item:${r.id}"),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
                                 Text(
-                                    bk.name(lang),
+                                    r.name(lang),
                                     style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = if (bk.id == vm.location.book) FontWeight.Bold else FontWeight.Normal,
+                                    fontWeight = if (current) FontWeight.Bold else FontWeight.Normal,
                                     modifier = Modifier.weight(1f), maxLines = 1,
                                 )
-                                if (bk.isDeuterocanonical) Text("✦", color = LocalOrnament.current.gold)
+                                if (r.isDeuterocanonical) Text("✦", color = LocalOrnament.current.gold)
                             }
                         }
                     }
-                    if (testament == 0 && books.any { it.isDeuterocanonical }) item(span = { GridItemSpan(maxLineSpan) }) {
+                    if (testament == 0 && books.any { it.isDeuterocanonical }) item(key = "deutero-note") {
                         Text("✦ " + stringResource(R.string.deuterocanonical), style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(4.dp))
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
                     }
                 }
             } else {
@@ -329,3 +358,19 @@ fun LibraryScreen(vm: AppViewModel) {
     }
 }
 
+/**
+ * The traditional section of a book, for the headings of the book list: Law, History, Poetry and
+ * wisdom, Major and Minor prophets; Gospels (with Acts), Letters of Paul, Other letters, Prophecy.
+ * The deuterocanonical books join the section they sit in in Catholic Bibles.
+ */
+fun bookSection(id: Int): Int = when (id) {
+    in 1..5 -> R.string.section_law
+    in 6..17, 67, 68, 69, 70 -> R.string.section_history
+    in 18..22, 71, 72 -> R.string.section_wisdom
+    in 23..27, 73 -> R.string.section_major_prophets
+    in 28..39 -> R.string.section_minor_prophets
+    in 40..44 -> R.string.section_gospels
+    in 45..57 -> R.string.section_paul
+    in 58..65 -> R.string.section_letters
+    else -> R.string.section_prophecy
+}

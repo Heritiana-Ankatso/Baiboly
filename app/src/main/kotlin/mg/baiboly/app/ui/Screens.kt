@@ -73,6 +73,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.border
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -152,15 +153,23 @@ fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, ta
                     }
                 }
             }
-            mg.baiboly.app.Style.Modern -> Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // one segmented track, the chosen option raised on it: separate black pills read as buttons to press
+            mg.baiboly.app.Style.Modern -> Row(
+                Modifier.fillMaxWidth().padding(top = 6.dp).clip(RoundedCornerShape(12.dp))
+                    .background(scheme.surfaceContainerHighest).padding(3.dp),
+            ) {
                 options.forEach { (value, text) ->
                     val on = value == selected
                     Box(
-                        Modifier.weight(1f).heightIn(min = 44.dp).clip(CircleShape).background(if (on) scheme.primary else scheme.surfaceContainerHighest)
+                        Modifier.weight(1f).heightIn(min = 40.dp)
+                            .then(if (on) Modifier.shadow(1.dp, RoundedCornerShape(10.dp)) else Modifier)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (on) scheme.surface else Color.Transparent)
                             .clickable { onSelect(value) }.testTag("$tag:$value"),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(text, style = MaterialTheme.typography.labelLarge, color = if (on) scheme.onPrimary else scheme.onSurface, maxLines = 1)
+                        Text(text, style = MaterialTheme.typography.labelLarge.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.Normal),
+                            color = if (on) scheme.onSurface else scheme.onSurfaceVariant, maxLines = 1)
                     }
                 }
             }
