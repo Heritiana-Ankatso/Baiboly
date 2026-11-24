@@ -101,6 +101,7 @@ class UiAcceptanceTest {
         if (vm.verseLayout != VerseLayout.Lines) vm.changeVerseLayout(VerseLayout.Lines)
         vm.changeJustify(true); vm.changeHyphenate(true)
         vm.changeParagraphBreak(ParagraphBreak.Indent); vm.changePageMargin(PageMargin.Normal)
+        if (vm.quickLookTranslation.isNotEmpty()) vm.changeQuickLookTranslation("") // Automatic
         vm.screen = Screen.Main
         if (!vm.list.isEmpty) {
             val old = vm.list.id
@@ -649,6 +650,7 @@ class UiAcceptanceTest {
         // a Bible chosen in Settings still wins
         vm.changeQuickLookTranslation("darby_fr")
         assertEquals("darby_fr", target("fr", "mg1865"))
+        vm.changeQuickLookTranslation("")
     }
 
     @Test fun passageStudyTools() {
