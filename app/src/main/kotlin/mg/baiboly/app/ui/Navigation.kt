@@ -359,8 +359,8 @@ fun LibraryScreen(vm: AppViewModel) {
 }
 
 /**
- * The traditional section of a book, for the headings of the book list: Law, History, Poetry and
- * wisdom, Major and Minor prophets; Gospels (with Acts), Letters of Paul, Other letters, Prophecy.
+ * The traditional section of a book, for the headings of the book list: Books of Moses, History, Poetry and
+ * wisdom, Major and Minor prophets; Gospels and Acts, Letters of Paul, Other letters, Revelation.
  * The deuterocanonical books join the section they sit in in Catholic Bibles.
  */
 fun bookSection(id: Int): Int = when (id) {

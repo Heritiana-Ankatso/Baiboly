@@ -493,14 +493,14 @@
     <string name="ql_bible">Baiboly hafa</string>
     <string name="ql_bible_auto">Ho azy</string>
     <string name="ql_settings_hint">Miseho eo ambonin’ny asa rehefa misy andininy voafidy; tsindrio raha hanokatra ny takelaka Fianarana feno.</string>
-    <string name="section_law">Lalàna</string>
+    <string name="section_law">Bokin’i Mosesy</string>
     <string name="section_history">Tantara</string>
     <string name="section_wisdom">Tononkira sy fahendrena</string>
     <string name="section_major_prophets">Mpaminany lehibe</string>
     <string name="section_minor_prophets">Mpaminany madinika</string>
-    <string name="section_gospels">Filazantsara</string>
+    <string name="section_gospels">Filazantsara sy Asan’ ny Apostoly</string>
     <string name="section_paul">Epistilin’i Paoly</string>
     <string name="section_letters">Epistily hafa</string>
-    <string name="section_prophecy">Faminaniana</string>
+    <string name="section_prophecy">Fanambarana</string>
     <string name="units_equals">%1$s %2$s =</string>
 </resources>
