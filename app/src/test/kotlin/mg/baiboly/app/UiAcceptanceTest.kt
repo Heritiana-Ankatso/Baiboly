@@ -301,7 +301,10 @@ class UiAcceptanceTest {
         rule.waitForIdle()
         // Settings lists its groups; Appearance opens on its own page
         tag("settings-cat:look").tap()
-        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
+        // one row per setting, its choices in a menu
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout"))
+        assertTrue(rule.onAllNodesWithTag("settings-layout:Paragraphs", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+        tag("settings-layout").tap()
         tag("settings-layout:Paragraphs").tap()
         assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
         // back to the list of groups; the typesetting details are under Advanced
@@ -490,7 +493,7 @@ class UiAcceptanceTest {
                 "${st.name}: Appearance choices shown on the Settings list")
             tag("settings-cat:look").tap()
             waitFor { vm.settingsPage == "look" }
-            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
+            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout"))
             vm.screen = Screen.Main
             rule.waitForIdle()
         }

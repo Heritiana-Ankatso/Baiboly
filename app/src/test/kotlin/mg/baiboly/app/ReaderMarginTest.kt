@@ -102,7 +102,7 @@ class ReaderMarginTest {
         if (bad.isNotEmpty()) fail("Uneven margins:\n" + bad.joinToString("\n") + "\n\nAll:\n" + report.joinToString("\n"))
     }
 
-    /** Reported: Settings › Appearance › Interface size ran to the screen edges; every choice is inset 20 dp. */
+    /** Reported: Settings › Appearance › Interface size ran to the screen edges; every setting's text is inset 16 dp or more. */
     @Test fun settingsChoicesAreInset() {
         for (i in 0 until 300) { if (vm.ready) break; pump(30) }
         vm.screen = Screen.Settings
@@ -111,14 +111,16 @@ class ReaderMarginTest {
         val view = rule.activity.window.decorView
         val minInset = 16 * rule.activity.resources.displayMetrics.density * vm.uiDensity.scale
         val bad = mutableListOf<String>()
-        // first and last option of each row
-        for ((first, last) in listOf("settings-density:Compact" to "settings-density:Normal",
-            "settings-spacing:Compact" to "settings-spacing:Airy", "settings-layout:Lines" to "settings-layout:Paragraphs")) {
-            rule.onNode(androidx.compose.ui.test.hasTestTag("settings-list")).performScrollToNode(androidx.compose.ui.test.hasTestTag(first))
+        // what each setting's row shows: its name, its value, its arrow
+        for (row in listOf("settings-density", "settings-spacing", "settings-layout", "settings-font")) {
+            rule.onNode(androidx.compose.ui.test.hasTestTag("settings-list")).performScrollToNode(androidx.compose.ui.test.hasTestTag(row))
             pump(300)
-            val l = rule.onNode(androidx.compose.ui.test.hasTestTag(first), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.left
-            val r = view.width - rule.onNode(androidx.compose.ui.test.hasTestTag(last), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.right
-            val line = "${first.substringBefore(':')}: left=${l.toInt()} right=${r.toInt()} (min ${minInset.toInt()})"
+            val inside = rule.onAllNodes(androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.hasTestTag(row)), useUnmergedTree = true)
+                .fetchSemanticsNodes().map { it.boundsInRoot }.filter { it.width > 0f }
+            if (inside.isEmpty()) { bad += "$row: nothing shown"; continue }
+            val l = inside.minOf { it.left }
+            val r = view.width - inside.maxOf { it.right }
+            val line = "$row: left=${l.toInt()} right=${r.toInt()} (min ${minInset.toInt()})"
             println(line)
             if (l < minInset || r < minInset) bad += line
         }
