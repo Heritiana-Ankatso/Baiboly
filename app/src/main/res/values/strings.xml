@@ -205,12 +205,10 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Quick look: select verses and a small card shows the passage in another Bible and the units it names. Settings › Advanced › Quick look chooses what it shows.</item>
-        <item>Timeline as a chart to scale, from Creation to the early church: eras, lifetimes and reigns side by side, events that appear as you zoom, and This chapter.</item>
-        <item>Confessions: Catholic and Orthodox documents (Trent, Vatican I, the Orthodox Catechism) and the seven ecumenical councils, with what each decided. Your tradition first; the others under Go deeper.</item>
-        <item>Settings in pages in every theme; the map’s Regions can be searched by name, listed A–Z or by kind.</item>
-        <item>References in the interface language (John 3:16, Jn 3:16, Jao 3: 16); Acts is “Asa” in Malagasy. Units in metric only; wages also as years and months of work.</item>
-        <item>Even margins on Android 15, an empty list no longer shown under Lists, and God no longer shown as a parent in the family tree (Luke 3:38 speaks of creation).</item>
+        <item>Books: one list per Testament, grouped into sections (Books of Moses, History, … Gospels and Acts, Letters of Paul, … Revelation), opening at the book you are reading.</item>
+        <item>Units: the list starts with “1 cubit =” and each row gives the same amount in its unit, the number beside the unit’s name; length, weight and the other kinds are tabs.</item>
+        <item>Settings › Appearance: a sample of the text with its size at the top, then one row per setting showing its value; a tap opens the choices.</item>
+        <item>Quick look on Automatic: the passage in the app’s language, else the phone’s, if it differs from the Bible you are reading; otherwise Malagasy (French when reading Malagasy).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>

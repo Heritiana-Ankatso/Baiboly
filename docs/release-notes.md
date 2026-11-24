@@ -1,3 +1,12 @@
+## Baiboly 1.8.0
+
+**Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept.
+
+* **Books:** under the Old and New Testament tabs, the books are one list grouped into sections (Books of Moses, History, Poetry and wisdom, Major prophets, Minor prophets; Gospels and Acts, Letters of Paul, Other letters, Revelation), opening at the book you are reading. The two-column grid under two tabs read as "Old Testament on the left, New on the right".
+* **Units:** the list is headed "1 cubit =" and each row gives the same amount in its unit, the number beside the unit's name; a unit's own facts start with "1" ("1 = 6 …", "1 ≈ 44.4 cm"). Length, weight, dry and liquid measures, money and time are tabs.
+* **Settings › Appearance:** a sample of the text with its size slider at the top, then one row per setting (Bible typeface, titles, line spacing, verses, interface size) showing its current value; a tap opens a short menu. It used to show every choice as a row of buttons.
+* **Quick look, Automatic Bible:** the passage in the app's language if it differs from the Bible being read, else in the phone's language, else Malagasy (French when reading Malagasy). A Bible chosen in Settings still comes first.
+
 ## Baiboly 1.7.0
 
 **Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept.

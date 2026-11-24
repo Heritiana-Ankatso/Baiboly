@@ -190,12 +190,10 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Topy maso: fidio ny andininy dia misy karatra kely mampiseho ilay andalan-teny amin’ny Baiboly hafa sy ny refy voatonony. Fikirana › Safidy hafa › Topy maso no mamaritra izay aseho.</item>
-        <item>Fotoana amin’ny sary mifanaraka amin’ny refy, hatramin’ny Famoronana ka hatramin’ny Fiangonana voalohany: vanim-potoana, fiainana sy fanjakana mifanila, zava-nitranga miseho rehefa manakaiky, ary Ity toko ity.</item>
-        <item>Fanekem-pinoana: antontan-taratasy katolika sy ortodoksa (Trente, Vatican I, Katesizy ortodoksa) sy ny konsily ekiomenika fito miaraka amin’ny nanapahany. Ny an’ny fivavahanao aloha; ny hafa ao amin’ny Fandalinana.</item>
-        <item>Fikirana mizara pejy amin’ny modely rehetra; ny Faritra amin’ny sarintany azo karohina amin’ny anarana, A–Z na araka ny karazany.</item>
-        <item>Andinin-teny amin’ny fiteny voafidy (John 3:16, Jn 3:16, Jao 3: 16); “Asa” ny Asan’ny Apostoly. Refy metrika ihany; karama aseho koa amin’ny taona sy volana niasana.</item>
-        <item>Sisiny mitovy amin’ny Android 15, tsy aseho intsony ao amin’ny Lisitra ny lisitra foana, ary tsy aseho ho ray aman-dreny ao amin’ny tetirazana intsony Andriamanitra (Lioka 3:38 dia miresaka famoronana).</item>
+        <item>Boky: lisitra iray isaky ny Testamenta, mizara fizarana (Bokin’i Mosesy, Tantara, … Filazantsara sy Asan’ ny Apostoly, Epistilin’i Paoly, … Fanambarana), misokatra eo amin’ny boky vakianao.</item>
+        <item>Refy: “1 hakiho =” no voalohany, avy eo “= 24 voantondro” isaky ny andalana; tabilao ny halavana, ny lanja ary ny karazany hafa.</item>
+        <item>Fikirana › Endrika: ohatra amin’ny soratra sy ny habeny eo ambony, avy eo andalana iray isaky ny fikirana miaraka amin’ny sandany; tsindrio dia miseho ny safidy.</item>
+        <item>Topy maso ho azy: ilay andalan-teny amin’ny fitenin’ny fampiharana, raha tsy izany amin’ny fitenin’ny finday, raha tsy mitovy amin’ny Baiboly vakianao; raha tsy izany amin’ny teny malagasy (frantsay raha malagasy no vakianao).</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
