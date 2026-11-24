@@ -267,9 +267,14 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
     val ornament = LocalOrnament.current
 
     Column(modifier.fillMaxSize().testTag("units")) {
-        LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(UnitKind.entries) { k ->
-                FilterChip(
+        // kinds as tabs: a second row of chips under the Dictionary's chips read as more buttons of the same level
+        androidx.compose.material3.ScrollableTabRow(
+            selectedTabIndex = UnitKind.entries.indexOf(kind),
+            containerColor = MaterialTheme.colorScheme.surface,
+            edgePadding = 12.dp,
+        ) {
+            UnitKind.entries.forEach { k ->
+                androidx.compose.material3.Tab(
                     selected = k == kind,
                     onClick = {
                         kind = k
@@ -279,7 +284,7 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                         }
                         text = "1"
                     },
-                    label = { Text(stringResource(k.label)) },
+                    text = { Text(stringResource(k.label), maxLines = 1) },
                     modifier = Modifier.heightIn(min = 48.dp).testTag("units-kind:${k.name}"),
                 )
             }
@@ -323,42 +328,53 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
         }
         Text(stringResource(R.string.units_pick_hint), style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp))
+        // "1 cubit =": every row below reads as the same amount in its unit ("= 24 fingers"), not a bare number
+        Text(
+            stringResource(R.string.units_equals, amount?.let { formatAmount(it, locale) } ?: "—", from.name(lang)),
+            style = MaterialTheme.typography.titleMedium, color = ornament.rubric,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp).testTag("units-equals"),
+        )
         LazyColumn(Modifier.weight(1f).testTag("units-list"), contentPadding = PaddingValues(bottom = 12.dp)) {
             items(BibleUnits.of(kind), key = { it.id }) { u ->
                 val on = u.id == from.id
                 val value = amount?.let { BibleUnits.convert(it, from, u) }
-                Row(
+                Column(
                     Modifier.fillMaxWidth().heightIn(min = 56.dp)
                         .background(if (on) ornament.gold.copy(alpha = 0.12f) else androidx.compose.ui.graphics.Color.Transparent)
                         .clickable { if (value != null && !on) text = formatAmount(value, Locale.ROOT).replace(",", ""); fromId = u.id }
                         .testTag("unit:${u.id}").padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(u.name(lang), style = MaterialTheme.typography.bodyLarge, fontWeight = if (on) FontWeight.Bold else FontWeight.Normal)
-                        val details = buildList {
-                            if (u.original.isNotEmpty()) add(u.original)
-                            u.rule?.let { (n, m, other) ->
-                                val o = BibleUnits.byId(other).name(lang)
-                                add(if (n == 1) "= $m $o" else if (m == 1) "1/$n $o" else "$n = $m $o")
-                            }
-                            if (!u.modern) modernText(kind, u.value, lang, locale)?.let { add("≈ $it") }
-                        }
-                        if (details.isNotEmpty()) Text(details.joinToString(" · "), style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontStyle = if (u.modern) FontStyle.Italic else FontStyle.Normal)
-                        u.ref?.let { r ->
-                            Text(
-                                r.label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
-                                modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(r) }
-                                    .heightIn(min = 32.dp).padding(vertical = 6.dp).testTag("unit-ref:${u.id}"),
-                            )
-                        }
+                    // the result first, as a quantity: "= 24 fingers"
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text("= ", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.alignByBaseline())
+                        Text(
+                            value?.let { formatAmount(it, locale) } ?: "—",
+                            style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
+                            color = if (on) ornament.rubric else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.alignByBaseline().testTag("unit-value:${u.id}"),
+                        )
+                        Text(" " + u.name(lang), style = MaterialTheme.typography.titleMedium,
+                            fontWeight = if (on) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.alignByBaseline().weight(1f, fill = false))
                     }
-                    Text(
-                        value?.let { formatAmount(it, locale) } ?: "—",
-                        style = MaterialTheme.typography.titleMedium, color = if (on) ornament.rubric else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(start = 12.dp).testTag("unit-value:${u.id}"),
-                    )
+                    val details = buildList {
+                        if (u.original.isNotEmpty()) add(u.original)
+                        // one unit of this kind, so it is not read as the result: "1 = 6 cubits", "1 ≈ 44.4 cm"
+                        u.rule?.let { (n, m, other) ->
+                            val o = BibleUnits.byId(other).name(lang)
+                            add(if (n == 1) "1 = $m $o" else if (m == 1) "1 = 1/$n $o" else "$n = $m $o")
+                        }
+                        if (!u.modern) modernText(kind, u.value, lang, locale)?.let { add("1 ≈ $it") }
+                    }
+                    if (details.isNotEmpty()) Text(details.joinToString(" · "), style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontStyle = if (u.modern) FontStyle.Italic else FontStyle.Normal)
+                    u.ref?.let { r ->
+                        Text(
+                            r.label(), style = MaterialTheme.typography.labelMedium, color = ornament.rubric,
+                            modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable { vm.openPassage(r) }
+                                .heightIn(min = 32.dp).padding(vertical = 6.dp).testTag("unit-ref:${u.id}"),
+                        )
+                    }
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
             }

@@ -508,4 +508,14 @@
     <string name="ql_bible">Other Bible</string>
     <string name="ql_bible_auto">Automatic</string>
     <string name="ql_settings_hint">Shown above the actions when verses are selected; a tap opens the full Study panel.</string>
+    <string name="section_law">Books of Moses</string>
+    <string name="section_history">History</string>
+    <string name="section_wisdom">Poetry and wisdom</string>
+    <string name="section_major_prophets">Major prophets</string>
+    <string name="section_minor_prophets">Minor prophets</string>
+    <string name="section_gospels">Gospels and Acts</string>
+    <string name="section_paul">Letters of Paul</string>
+    <string name="section_letters">Other letters</string>
+    <string name="section_prophecy">Revelation</string>
+    <string name="units_equals">%1$s %2$s =</string>
 </resources>

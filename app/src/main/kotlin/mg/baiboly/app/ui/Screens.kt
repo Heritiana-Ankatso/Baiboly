@@ -73,6 +73,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.border
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -152,15 +155,23 @@ fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, ta
                     }
                 }
             }
-            mg.baiboly.app.Style.Modern -> Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // one segmented track, the chosen option raised on it: separate black pills read as buttons to press
+            mg.baiboly.app.Style.Modern -> Row(
+                Modifier.fillMaxWidth().padding(top = 6.dp).clip(RoundedCornerShape(12.dp))
+                    .background(scheme.surfaceContainerHighest).padding(3.dp),
+            ) {
                 options.forEach { (value, text) ->
                     val on = value == selected
                     Box(
-                        Modifier.weight(1f).heightIn(min = 44.dp).clip(CircleShape).background(if (on) scheme.primary else scheme.surfaceContainerHighest)
+                        Modifier.weight(1f).heightIn(min = 40.dp)
+                            .then(if (on) Modifier.shadow(1.dp, RoundedCornerShape(10.dp)) else Modifier)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (on) scheme.surface else Color.Transparent)
                             .clickable { onSelect(value) }.testTag("$tag:$value"),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(text, style = MaterialTheme.typography.labelLarge, color = if (on) scheme.onPrimary else scheme.onSurface, maxLines = 1)
+                        Text(text, style = MaterialTheme.typography.labelLarge.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.Normal),
+                            color = if (on) scheme.onSurface else scheme.onSurfaceVariant, maxLines = 1)
                     }
                 }
             }
@@ -514,74 +525,133 @@ fun SettingsScreen(vm: AppViewModel) {
     }
 }
 
+/**
+ * Appearance: the theme and its colours, then what the text looks like (a live sample with its size),
+ * then one row per setting showing its current value; a tap opens the few choices. Every choice
+ * spelled out as a row of buttons filled the screen with ~20 buttons (reported).
+ */
 @Composable
 private fun AppearanceSettings(vm: AppViewModel) {
+    val scheme = MaterialTheme.colorScheme
     Column {
         Text(stringResource(R.string.style), style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 4.dp))
+            color = scheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 4.dp))
         StylePicker(vm)
         PalettePicker(vm)
-        Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            ChoiceRow(
-                label = stringResource(R.string.text_font),
-                options = listOf(
-                    TextFont.Classic to stringResource(R.string.font_classic),
-                    TextFont.Modern to stringResource(R.string.font_modern),
-                    TextFont.Sans to stringResource(R.string.font_sans),
-                ),
-                selected = vm.textFont, tag = "settings-font",
-            ) { vm.changeTextFont(it) }
-            ChoiceRow(
-                label = stringResource(R.string.titles),
-                options = listOf(true to stringResource(R.string.titles_engraved), false to stringResource(R.string.titles_plain)),
-                selected = vm.engravedTitles, tag = "settings-titles",
-            ) { vm.changeEngravedTitles(it) }
-            ChoiceRow(
-                label = stringResource(R.string.line_spacing),
-                options = listOf(
-                    LineSpacing.Compact to stringResource(R.string.spacing_compact),
-                    LineSpacing.Normal to stringResource(R.string.spacing_normal),
-                    LineSpacing.Airy to stringResource(R.string.spacing_airy),
-                ),
-                selected = vm.lineSpacing, tag = "settings-spacing",
-            ) { vm.changeLineSpacing(it) }
-            ChoiceRow(
-                label = stringResource(R.string.verse_layout),
-                options = listOf(
-                    VerseLayout.Lines to stringResource(R.string.layout_lines),
-                    VerseLayout.Paragraphs to stringResource(R.string.layout_paragraphs),
-                ),
-                selected = vm.verseLayout, tag = "settings-layout",
-            ) { vm.changeVerseLayout(it) }
-        }
-        Text(stringResource(R.string.text_size), style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 20.dp, top = 8.dp))
-        Slider(value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = mg.baiboly.app.MIN_TEXT..40f, steps = 14,
-            modifier = Modifier.padding(horizontal = 20.dp).testTag("settings-text-size"))
+
+        // the text as it will read, and its size, together
+        SettingsHeading(stringResource(R.string.text_size))
         val sample = vm.textSize * LocalTextScale.current
-        Text(stringResource(R.string.sample_text), fontSize = sample.sp, lineHeight = (sample * LocalReading.current.lineSpacing).sp,
-            fontFamily = TextSerif, modifier = Modifier.padding(horizontal = 20.dp))
-        // the size of everything else: bars, buttons, lists (inset like the other choices above)
-        Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-            ChoiceRow(
-                label = stringResource(R.string.ui_density),
-                options = listOf(mg.baiboly.app.UiDensity.Compact to stringResource(R.string.ui_compact), mg.baiboly.app.UiDensity.Normal to stringResource(R.string.ui_normal)),
-                selected = vm.uiDensity, tag = "settings-density",
-            ) { vm.changeUiDensity(it) }
+        Surface(
+            shape = RoundedCornerShape(14.dp), color = scheme.surfaceContainerLow,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).testTag("settings-sample"),
+        ) {
+            Text(stringResource(R.string.sample_text), fontSize = sample.sp, lineHeight = (sample * LocalReading.current.lineSpacing).sp,
+                fontFamily = TextSerif, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp))
         }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("A", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+            Slider(
+                value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = mg.baiboly.app.MIN_TEXT..40f, steps = 14,
+                // the 15 stops still snap, without a row of dots
+                colors = androidx.compose.material3.SliderDefaults.colors(activeTickColor = Color.Transparent, inactiveTickColor = Color.Transparent),
+                modifier = Modifier.weight(1f).padding(horizontal = 8.dp).testTag("settings-text-size"),
+            )
+            Text("A", style = MaterialTheme.typography.titleLarge, color = scheme.onSurfaceVariant)
+        }
+
+        SettingsHeading(stringResource(R.string.appearance))
+        SettingRow(
+            label = stringResource(R.string.text_font),
+            options = listOf(
+                TextFont.Classic to stringResource(R.string.font_classic),
+                TextFont.Modern to stringResource(R.string.font_modern),
+                TextFont.Sans to stringResource(R.string.font_sans),
+            ),
+            selected = vm.textFont, tag = "settings-font",
+        ) { vm.changeTextFont(it) }
+        SettingRow(
+            label = stringResource(R.string.titles),
+            options = listOf(true to stringResource(R.string.titles_engraved), false to stringResource(R.string.titles_plain)),
+            selected = vm.engravedTitles, tag = "settings-titles",
+        ) { vm.changeEngravedTitles(it) }
+        SettingRow(
+            label = stringResource(R.string.line_spacing),
+            options = listOf(
+                LineSpacing.Compact to stringResource(R.string.spacing_compact),
+                LineSpacing.Normal to stringResource(R.string.spacing_normal),
+                LineSpacing.Airy to stringResource(R.string.spacing_airy),
+            ),
+            selected = vm.lineSpacing, tag = "settings-spacing",
+        ) { vm.changeLineSpacing(it) }
+        SettingRow(
+            label = stringResource(R.string.verse_layout),
+            options = listOf(
+                VerseLayout.Lines to stringResource(R.string.layout_lines),
+                VerseLayout.Paragraphs to stringResource(R.string.layout_paragraphs),
+            ),
+            selected = vm.verseLayout, tag = "settings-layout",
+        ) { vm.changeVerseLayout(it) }
+        // the size of everything else: bars, buttons, lists
+        SettingRow(
+            label = stringResource(R.string.ui_density),
+            options = listOf(mg.baiboly.app.UiDensity.Compact to stringResource(R.string.ui_compact), mg.baiboly.app.UiDensity.Normal to stringResource(R.string.ui_normal)),
+            selected = vm.uiDensity, tag = "settings-density",
+        ) { vm.changeUiDensity(it) }
         Row(
-            Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { vm.changeKeepScreenOn(!vm.keepScreenOn) }
-                .padding(horizontal = 20.dp).testTag("settings-keep-awake"),
+            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.changeKeepScreenOn(!vm.keepScreenOn) }
+                .padding(horizontal = 20.dp, vertical = 8.dp).testTag("settings-keep-awake"),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f).padding(end = 12.dp)) {
                 Text(stringResource(R.string.keep_screen_on), style = MaterialTheme.typography.bodyLarge)
-                Text(stringResource(R.string.keep_screen_on_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.keep_screen_on_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
             }
             androidx.compose.material3.Switch(checked = vm.keepScreenOn, onCheckedChange = null)
         }
         TextButton(onClick = { vm.resetAppearance() }, modifier = Modifier.padding(start = 12.dp, top = 4.dp).testTag("settings-reset-look")) {
             Text(stringResource(R.string.reset_appearance))
+        }
+    }
+}
+
+@Composable
+private fun SettingsHeading(text: String) {
+    Text(text, style = MaterialTheme.typography.labelLarge, color = LocalOrnament.current.rubric,
+        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 6.dp).semantics { heading() })
+}
+
+/**
+ * One setting as one row: its name, its current value under it, and a menu of the choices on a tap
+ * (the usual Android list setting). The row is tagged [tag], each choice "[tag]:value".
+ */
+@Composable
+fun <T> SettingRow(label: String, options: List<Pair<T, String>>, selected: T, tag: String, onSelect: (T) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { open = true }
+                .padding(horizontal = 20.dp, vertical = 8.dp).testTag(tag),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(label, style = MaterialTheme.typography.bodyLarge)
+                Text(options.firstOrNull { it.first == selected }?.second.orEmpty(), style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary)
+            }
+            Icon(Icons.Filled.KeyboardArrowDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        androidx.compose.material3.DropdownMenu(expanded = open, onDismissRequest = { open = false },
+            offset = androidx.compose.ui.unit.DpOffset(20.dp, 0.dp)) {
+            options.forEach { (value, text) ->
+                androidx.compose.material3.DropdownMenuItem(
+                    text = { Text(text, fontWeight = if (value == selected) FontWeight.Bold else FontWeight.Normal) },
+                    leadingIcon = { if (value == selected) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },
+                    onClick = { onSelect(value); open = false },
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("$tag:$value"),
+                )
+            }
         }
     }
 }

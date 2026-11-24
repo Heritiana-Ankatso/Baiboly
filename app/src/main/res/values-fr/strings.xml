@@ -491,4 +491,14 @@
     <string name="ql_bible">Autre Bible</string>
     <string name="ql_bible_auto">Automatique</string>
     <string name="ql_settings_hint">Affiché au-dessus des actions quand des versets sont sélectionnés ; un toucher ouvre le panneau Étude complet.</string>
+    <string name="section_law">Livres de Moïse</string>
+    <string name="section_history">Livres historiques</string>
+    <string name="section_wisdom">Poésie et sagesse</string>
+    <string name="section_major_prophets">Grands prophètes</string>
+    <string name="section_minor_prophets">Petits prophètes</string>
+    <string name="section_gospels">Évangiles et Actes</string>
+    <string name="section_paul">Épîtres de Paul</string>
+    <string name="section_letters">Autres épîtres</string>
+    <string name="section_prophecy">Apocalypse</string>
+    <string name="units_equals">%1$s %2$s =</string>
 </resources>

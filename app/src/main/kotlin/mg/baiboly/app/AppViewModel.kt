@@ -774,18 +774,29 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * The other Bible for the quick look: the one chosen, unless it is the one being read; else one
-     * in the interface language (or French, then English, when reading in it), never the text being read.
+     * The other Bible for the quick look: the one chosen, unless it is the one being read. On
+     * Automatic, the first language that differs from the Bible being read and has a Bible here:
+     * 1. the app's language (Settings, at the top);
+     * 2. the phone's language;
+     * 3. otherwise Malagasy when reading another language, and French when reading Malagasy
+     *    (the two languages of Madagascar), then English, then any other Bible.
+     * In each language its main Bible: Malagasy 1865, Segond 1910, King James.
      */
     fun quickLookTarget(): Translation? {
         val current = translations.firstOrNull { it.id == translationId }
         val offered = visibleTranslations.filter { it.id != translationId }
         offered.firstOrNull { it.id == quickLookTranslation }?.let { return it }
-        val ui = uiLanguage.ifEmpty { java.util.Locale.getDefault().language }
-        val preferred = when (ui) { "fr" -> "lsg1910"; "en" -> "kjv"; else -> BibleRepository.PRIMARY }
-        return offered.firstOrNull { it.id == preferred && it.lang != current?.lang }
-            ?: offered.firstOrNull { it.lang != current?.lang }
-            ?: offered.firstOrNull()
+        val reading = current?.lang
+        val phone = runCatching { android.content.res.Resources.getSystem().configuration.locales[0].language }
+            .getOrNull().orEmpty().ifEmpty { java.util.Locale.getDefault().language }
+        val app = uiLanguage.ifEmpty { phone }
+        val fallback = if (reading == "mg") listOf("fr", "en") else listOf("mg", "fr", "en")
+        val main = mapOf("mg" to BibleRepository.PRIMARY, "fr" to "lsg1910", "en" to "kjv")
+        (listOf(app, phone) + fallback).distinct().filter { it.isNotEmpty() && it != reading }.forEach { lang ->
+            val inLang = offered.filter { it.lang == lang }
+            (inLang.firstOrNull { it.id == main[lang] } ?: inLang.firstOrNull())?.let { return it }
+        }
+        return offered.firstOrNull { it.lang != reading } ?: offered.firstOrNull()
     }
 
     /** The passage in one other Bible only (each Bible's file is copied on first use), numbering matched. */

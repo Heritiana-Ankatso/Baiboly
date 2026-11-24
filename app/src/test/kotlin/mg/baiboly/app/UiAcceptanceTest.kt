@@ -101,6 +101,7 @@ class UiAcceptanceTest {
         if (vm.verseLayout != VerseLayout.Lines) vm.changeVerseLayout(VerseLayout.Lines)
         vm.changeJustify(true); vm.changeHyphenate(true)
         vm.changeParagraphBreak(ParagraphBreak.Indent); vm.changePageMargin(PageMargin.Normal)
+        if (vm.quickLookTranslation.isNotEmpty()) vm.changeQuickLookTranslation("") // Automatic
         vm.screen = Screen.Main
         if (!vm.list.isEmpty) {
             val old = vm.list.id
@@ -300,7 +301,10 @@ class UiAcceptanceTest {
         rule.waitForIdle()
         // Settings lists its groups; Appearance opens on its own page
         tag("settings-cat:look").tap()
-        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
+        // one row per setting, its choices in a menu
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout"))
+        assertTrue(rule.onAllNodesWithTag("settings-layout:Paragraphs", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+        tag("settings-layout").tap()
         tag("settings-layout:Paragraphs").tap()
         assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
         // back to the list of groups; the typesetting details are under Advanced
@@ -489,7 +493,7 @@ class UiAcceptanceTest {
                 "${st.name}: Appearance choices shown on the Settings list")
             tag("settings-cat:look").tap()
             waitFor { vm.settingsPage == "look" }
-            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
+            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout"))
             vm.screen = Screen.Main
             rule.waitForIdle()
         }
@@ -627,6 +631,29 @@ class UiAcceptanceTest {
         assertTrue(rule.onAllNodesWithTag("quick-look").fetchSemanticsNodes().isEmpty())
         vm.changeQuickLookItem("translation", false)
         assertTrue(vm.quickLookItems.isEmpty())
+    }
+
+    /**
+     * Requested: on Automatic, the quick look's Bible is in the app's language if it differs from the
+     * Bible being read, else in the phone's language (English under Robolectric) if it differs, else
+     * Malagasy (French when reading Malagasy).
+     */
+    @Test fun quickLookAutomaticBible() {
+        ready()
+        vm.changeQuickLookTranslation("")
+        fun target(ui: String, reading: String): String? {
+            vm.chooseUiLanguage(ui); vm.setTranslation(reading); rule.waitForIdle()
+            return vm.quickLookTarget()?.id
+        }
+        assertEquals("lsg1910", target("fr", "mg1865"))  // the app's language
+        assertEquals("kjv", target("mg", "mg1865"))      // same as the text: the phone's language
+        assertEquals("kjv", target("fr", "lsg1910"))     // same as the text: the phone's language
+        assertEquals("mg1865", target("en", "kjv"))      // neither helps: Malagasy
+        assertEquals("mg1865", target("en", "web"))
+        // a Bible chosen in Settings still wins
+        vm.changeQuickLookTranslation("darby_fr")
+        assertEquals("darby_fr", target("fr", "mg1865"))
+        vm.changeQuickLookTranslation("")
     }
 
     @Test fun passageStudyTools() {
