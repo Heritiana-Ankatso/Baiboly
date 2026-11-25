@@ -293,20 +293,23 @@ fun DocumentScreen(vm: AppViewModel) {
         )
     }) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().imePadding()) {
-            OutlinedTextField(
-                value = doc.title, onValueChange = { doc = doc.copy(title = it) }, singleLine = true,
-                placeholder = { Text(stringResource(R.string.doc_title_hint)) },
-                textStyle = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).testTag("doc-title"),
-            )
-            // date and passages: recorded by default, changed with a tap
-            CollapsibleHeader(
-                title = stringResource(R.string.doc_details),
-                detail = listOf(formatDay(doc.date), doc.passages, doc.speaker).filter { it.isNotBlank() }.joinToString(" · "),
-                open = details, tag = "doc-details", onToggle = { details = !details }, horizontal = 16.dp,
-                style = MaterialTheme.typography.labelLarge,
-            )
-            if (details) DocumentDetails(vm, doc, study) { doc = it }
+            // the read view shows the title and the details itself
+            if (!preview) {
+                OutlinedTextField(
+                    value = doc.title, onValueChange = { doc = doc.copy(title = it) }, singleLine = true,
+                    placeholder = { Text(stringResource(R.string.doc_title_hint)) },
+                    textStyle = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).testTag("doc-title"),
+                )
+                // date and passages: recorded by default, changed with a tap
+                CollapsibleHeader(
+                    title = stringResource(R.string.doc_details),
+                    detail = listOf(formatDay(doc.date), doc.passages, doc.speaker).filter { it.isNotBlank() }.joinToString(" · "),
+                    open = details, tag = "doc-details", onToggle = { details = !details }, horizontal = 16.dp,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                if (details) DocumentDetails(vm, doc, study) { doc = it }
+            }
             if (preview) {
                 NotePreview(vm, current, Modifier.weight(1f))
                 return@Column
