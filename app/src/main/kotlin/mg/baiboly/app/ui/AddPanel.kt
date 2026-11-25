@@ -106,11 +106,12 @@ fun AddPanel(vm: AppViewModel, onDismiss: () -> Unit) {
         suggester.rankBooks(vm.recent, vm.bookUsage).filter { catholic || !it.isDeuterocanonical }
     }
     val error = parseErrorText(result.error)
+    val bookLang = refLang()
 
     fun submit() {
         if (result.isValid) {
             vm.addToList(result.passages)
-            lastAdded = result.preview()
+            lastAdded = result.preview(bookLang)
             input = ""
         }
     }
@@ -163,7 +164,7 @@ fun AddPanel(vm: AppViewModel, onDismiss: () -> Unit) {
             // live preview / error / confirmation
             val line = when {
                 error != null -> error
-                result.passages.isNotEmpty() -> stringResource(R.string.preview_x, result.preview())
+                result.passages.isNotEmpty() -> stringResource(R.string.preview_x, result.preview(bookLang))
                 lastAdded != null -> stringResource(R.string.added_x, lastAdded!!)
                 else -> ""
             }
@@ -199,7 +200,10 @@ fun AddPanel(vm: AppViewModel, onDismiss: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(books, key = { it.id }) { b ->
-                        Key(b.shortLabel, Modifier.width(72.dp).testTag("book:${b.shortLabel}"), tonal = true) { tapBook(b.shortLabel) }
+                        // shown in the Bible's language; typed as a name the parser cannot mistake ("Ésaïe", not "Es")
+                        Key(b.abbr(bookLang), Modifier.width(72.dp).testTag("book:${b.shortLabel}"), tonal = true) {
+                            tapBook(if (bookLang == "mg") b.shortLabel else b.name(bookLang))
+                        }
                     }
                 }
                 Spacer(Modifier.height(6.dp))

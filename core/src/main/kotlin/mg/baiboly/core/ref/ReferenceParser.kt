@@ -166,6 +166,11 @@ object ReferenceParser {
                 if (numbered.isNotEmpty()) return BookMatch.Ambiguous(numbered)
             }
         }
+        // last, the French and English abbreviations as written in those Bibles ("Jn", "1 Co", "Matt")
+        val abbr = Canon.books.filter { b ->
+            b.number == num && listOf("fr", "en").any { l -> b.baseKey(b.abbr(l)) == key }
+        }
+        if (abbr.size == 1) return BookMatch.Found(abbr[0])
         return BookMatch.NotFound
     }
 

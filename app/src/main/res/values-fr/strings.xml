@@ -188,10 +188,12 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Livres : une seule liste par Testament, regroupée par sections (Livres de Moïse, Livres historiques, … Évangiles et Actes, Épîtres de Paul, … Apocalypse), ouverte sur le livre en cours.</item>
-        <item>Unités : la liste commence par « 1 coudée = » et chaque ligne donne la même quantité dans son unité, le nombre à côté du nom ; longueur, poids et les autres sortes sont des onglets.</item>
-        <item>Réglages › Apparence : un extrait du texte et sa taille en haut, puis une ligne par réglage avec sa valeur ; un toucher ouvre les choix.</item>
-        <item>Aperçu en Automatique : le passage dans la langue de l’application, sinon celle du téléphone, si elle diffère de la Bible lue ; sinon en malgache (en français si vous lisez le malgache).</item>
+        <item>La lecture se poursuit d’un chapitre à l’autre en faisant défiler (Réglages › Apparence › Mise en forme du texte › Lecture continue ; activée par défaut).</item>
+        <item>Notes : en mode Église, une note de prédication en un geste (onglet Notes, ou le bouton de note sur la page du culte), avec la date et les passages du culte déjà remplis. En mode Étude, des études avec un plan, des modèles et des sections qui se déplacent. Liez des mots à des versets, des personnages et des événements ; enregistrez en Markdown, texte, HTML, Word ou PDF.</item>
+        <item>Commentaires dans le panneau d’étude : Calvin, les notes de la Bible de Genève et Matthew Henry (abrégé).</item>
+        <item>Chronologie : « Aller plus loin : jusqu’à aujourd’hui » continue des Pères à la Réforme et jusqu’à nos jours, avec l’Église à Madagascar ; la liste est groupée par époque, chacune se repliant.</item>
+        <item>Un nouveau thème, Marine : une page blanche et un menu latéral avec d’abord la recherche, les livres et vos notes.</item>
+        <item>Mise en forme du texte en un seul groupe, l’alignement avec ses icônes habituelles ; les abréviations des livres suivent la Bible lue ; les unités se convertissent dans les deux sens ; la même couleur sur un texte surligné retire le surlignage, même pour un seul verset.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
@@ -499,4 +501,84 @@
     <string name="section_letters">Autres épîtres</string>
     <string name="section_prophecy">Apocalypse</string>
     <string name="units_equals">%1$s %2$s =</string>
+    <string name="units_dir_bible">D’une unité de la Bible aux mesures d’aujourd’hui</string>
+    <string name="units_dir_modern">Des mesures d’aujourd’hui aux unités de la Bible</string>
+    <string name="units_swap">Inverser</string>
+    <string name="text_formatting">Mise en forme du texte</string>
+    <string name="shown">affiché</string>
+    <string name="hidden">masqué</string>
+    <string name="flow_continuous">continu</string>
+    <string name="flow_chapters">chapitre par chapitre</string>
+    <string name="continuous_reading">Lecture continue</string>
+    <string name="continuous_reading_hint">Le texte se poursuit d’un chapitre à l’autre en faisant défiler, sans coupure.</string>
+    <plurals name="n_events">
+        <item quantity="one">%d événement</item>
+        <item quantity="other">%d événements</item>
+    </plurals>
+    <string name="tl_to_today">Aller plus loin : jusqu’à aujourd’hui</string>
+    <string name="church_history_credit">Histoire de l’Église après les apôtres : dates des ouvrages de référence usuels, réunies pour Baiboly ; « vers » marque une date connue approximativement.</string>
+    <string name="madagascar">Madagascar</string>
+    <string name="commentary">Commentaire</string>
+    <string name="commentary_none">%1$s n’a pas de note sur ces versets.</string>
+    <string name="commentary_credit">Commentaires du domaine public (modules SWORD de CrossWire) : commentaires de Calvin (Calvin Translation Society), notes de la Bible de Genève (1599), commentaire abrégé de Matthew Henry. En anglais.</string>
+    <string name="sermon_of">Prédication du %1$s</string>
+    <string name="all">Tout</string>
+    <string name="sermon_notes">Notes de prédication</string>
+    <string name="studies">Études</string>
+    <string name="docs_empty">Aucune note pour l’instant. Commencez une note de prédication pendant le culte, ou une étude d’un passage.</string>
+    <string name="untitled">Sans titre</string>
+    <string name="new_sermon_note">Prédication</string>
+    <string name="new_study">Étude</string>
+    <string name="my_notes">Mes notes</string>
+    <string name="nav_notes">Notes</string>
+    <string name="tool_title">Titre</string>
+    <string name="tool_section">Section</string>
+    <string name="tool_subsection">Sous-section</string>
+    <string name="tool_point">Point</string>
+    <string name="tool_numbered">Point numéroté</string>
+    <string name="tool_bold">Gras</string>
+    <string name="tool_italic">Italique</string>
+    <string name="tool_quote">Citation</string>
+    <string name="tool_verse">Verset biblique</string>
+    <string name="tool_person">Personnage biblique</string>
+    <string name="tool_event">Événement biblique</string>
+    <string name="tool_rule">Séparateur</string>
+    <string name="export_done">Enregistré.</string>
+    <string name="export_failed">Le fichier n’a pas pu être enregistré.</string>
+    <string name="study">Étude</string>
+    <string name="sermon_note">Note de prédication</string>
+    <string name="edit">Modifier</string>
+    <string name="preview">Lire</string>
+    <string name="share_text">Partager en texte</string>
+    <string name="export_as">Enregistrer en %1$s</string>
+    <string name="delete_doc_q">Supprimer cette note ?</string>
+    <string name="doc_title_hint">Titre</string>
+    <string name="doc_details">Date, passages, prédicateur</string>
+    <string name="study_hint">Rédigez l’étude. La barre ci-dessus ajoute titres, sections, points, citations et liens vers des versets, des personnages et des événements.</string>
+    <string name="sermon_hint">Notes sur la prédication…</string>
+    <string name="word_count">%1$d mots</string>
+    <string name="format_text">Texte</string>
+    <string name="from_service_list">Depuis la liste du culte</string>
+    <string name="doc_passages">Passages</string>
+    <string name="doc_author">Auteur</string>
+    <string name="doc_preacher">Prédicateur</string>
+    <string name="doc_tags">Thèmes</string>
+    <string name="doc_church">Église</string>
+    <string name="outline">Plan</string>
+    <string name="start_from_template">Partir d’un plan :</string>
+    <string name="tpl_inductive">Observer · interpréter · appliquer</string>
+    <string name="tpl_inductive_body"># Observation\n- Qui, quoi, où, quand ?\n- Mots répétés\n\n# Interprétation\n- Que signifiait-il pour ses premiers lecteurs ?\n- Références croisées\n\n# Application\n- Qu’enseigne-t-il sur Dieu ?\n- Que me demande-t-il ?</string>
+    <string name="tpl_outline">Plan de prédication</string>
+    <string name="tpl_outline_body"># Introduction\n\n# 1. \n- \n\n# 2. \n- \n\n# 3. \n- \n\n# Conclusion\n</string>
+    <string name="tpl_word">Étude de mot</string>
+    <string name="tpl_word_body"># Le mot\n- Hébreu ou grec :\n- Sens :\n\n# Où il est employé\n- \n\n# Ce qu’il enseigne\n- </string>
+    <string name="tpl_person">Personnage biblique</string>
+    <string name="tpl_person_body"># Vie\n- \n\n# Foi et faiblesses\n- \n\n# Dans l’histoire du salut\n- \n\n# Leçons\n- </string>
+    <string name="reference">Référence</string>
+    <string name="insert_words">Le texte</string>
+    <string name="insert_link">Lien</string>
+    <string name="style_navy">Marine</string>
+    <string name="style_navy_desc">Simple et sobre : une page blanche, un titre centré, deux boutons ronds pour les chapitres, et un menu latéral bleu marine (☰) avec d’abord ce qui sert le plus : recherche, livres, vos notes.</string>
+    <string name="palette_navy">Marine</string>
+    <string name="books_of_the_bible">Livres de la Bible</string>
 </resources>

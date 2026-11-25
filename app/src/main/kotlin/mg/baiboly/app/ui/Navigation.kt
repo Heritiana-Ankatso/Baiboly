@@ -32,6 +32,7 @@ import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.Church
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.LibraryBooks
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.School
@@ -179,6 +180,8 @@ internal fun destinations(mode: AppMode): List<Destination> = when (mode) {
     AppMode.Church -> listOf(
         Destination(Screen.Main, Icons.Outlined.Church, R.string.nav_service),
         Destination(Screen.Books, Icons.Outlined.LibraryBooks, R.string.books),
+        // sermon notes, one tap away during the service
+        Destination(Screen.Documents, Icons.Outlined.EditNote, R.string.nav_notes),
         Destination(Screen.Lists, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.nav_lists),
     )
     AppMode.Study -> listOf(
@@ -194,6 +197,8 @@ internal fun destinations(mode: AppMode): List<Destination> = when (mode) {
 fun isTopLevel(style: mg.baiboly.app.Style, mode: AppMode, screen: Screen): Boolean = when (style) {
     // Page has no bars: only the reader and its menu are main pages
     mg.baiboly.app.Style.Page -> screen == Screen.Main || screen == Screen.Menu
+    // Navy: everything else is reached from the side menu, and goes back to the reader
+    mg.baiboly.app.Style.Navy -> screen == Screen.Main
     else -> destinations(mode).any { it.screen == screen } || screen == Screen.Books
 }
 
@@ -341,16 +346,17 @@ fun LibraryScreen(vm: AppViewModel) {
     Scaffold(topBar = { MainTopBar(vm, stringResource(R.string.nav_library)) }) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             androidx.compose.material3.ScrollableTabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.surface, edgePadding = 8.dp) {
-                listOf(R.string.notes, R.string.highlights, R.string.history, R.string.nav_lists).forEachIndexed { i, label ->
+                listOf(R.string.my_notes, R.string.notes, R.string.highlights, R.string.history, R.string.nav_lists).forEachIndexed { i, label ->
                     Tab(selected = tab == i, onClick = { tab = i }, text = { Text(stringResource(label), maxLines = 1) },
                         modifier = Modifier.testTag("library-tab:$i"))
                 }
             }
             CompositionLocalProvider(LocalEmbedded provides true) {
                 when (tab) {
-                    0 -> NotesScreen(vm)
-                    1 -> HighlightsScreen(vm)
-                    2 -> HistoryScreen(vm)
+                    0 -> DocumentsScreen(vm, embedded = true)
+                    1 -> NotesScreen(vm)
+                    2 -> HighlightsScreen(vm)
+                    3 -> HistoryScreen(vm)
                     else -> SavedListsScreen(vm)
                 }
             }

@@ -102,6 +102,8 @@ class UiAcceptanceTest {
         vm.changeJustify(true); vm.changeHyphenate(true)
         vm.changeParagraphBreak(ParagraphBreak.Indent); vm.changePageMargin(PageMargin.Normal)
         if (vm.quickLookTranslation.isNotEmpty()) vm.changeQuickLookTranslation("") // Automatic
+        // the Malagasy Bible: book keys and abbreviations follow the Bible being read
+        if (vm.translationId != "mg1865") { vm.setTranslation("mg1865"); waitFor { vm.chapter?.translation == "mg1865" } }
         vm.screen = Screen.Main
         if (!vm.list.isEmpty) {
             val old = vm.list.id
@@ -233,7 +235,7 @@ class UiAcceptanceTest {
         tag("mode-badge").tap()
         tag("mode:Study").tap()
         waitFor { vm.studyMode }
-        tag("reader").performScrollToKey("v25")
+        tag("reader").performScrollToKey("55:2:v25")
         tag("vnum:25").tap()
         waitFor { runCatching { tag("word:G1922").assertExists(); true }.getOrDefault(false) }
         rule.onNodeWithText("acknowledging").assertExists()
@@ -288,7 +290,7 @@ class UiAcceptanceTest {
         waitFor { vm.chapter?.book == 1 }
         vm.refreshNotes()
         tag("nav:Library").tap()
-        tag("library-tab:0").tap()       // Notes
+        tag("library-tab:1").tap()       // Notes (after My notes)
         waitFor { vm.notes.isNotEmpty() }
         rule.onNodeWithText("Jehovah no Mpiandry ahy").tap()
         waitFor { Passage(19, 23, 1, 1).at() && vm.chapter?.book == 19 && vm.screen == Screen.Main }
@@ -301,18 +303,14 @@ class UiAcceptanceTest {
         rule.waitForIdle()
         // Settings lists its groups; Appearance opens on its own page
         tag("settings-cat:look").tap()
-        // one row per setting, its choices in a menu
-        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout"))
+        // text formatting is one group that unfolds: layout, flow, alignment (icons), word breaks, margins, spacing
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
         assertTrue(rule.onAllNodesWithTag("settings-layout:Paragraphs", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
-        tag("settings-layout").tap()
+        tag("settings-text-formatting").tap()
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
         tag("settings-layout:Paragraphs").tap()
         assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
-        // back to the list of groups; the typesetting details are under Advanced
-        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        waitFor { vm.settingsPage == null }
-        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-advanced"))
-        assertTrue(rule.onAllNodesWithTag("settings-justify:false", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
-        tag("settings-advanced").tap()
+        assertTrue(vm.continuousReading, "continuous reading is on by default")
         for (t in listOf("settings-justify:false", "settings-hyphenate:false", "settings-paragraph-break:Space", "settings-margins:Wide")) {
             tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag(t))
             tag(t).tap()
@@ -324,7 +322,7 @@ class UiAcceptanceTest {
         waitFor { vm.chapter?.book == 43 && vm.chapter?.chapter == 1 }
         rule.waitForIdle()
         // verses 1–51 in a few paragraphs, not one row each
-        tag("reader").performScrollToKey("p1")
+        tag("reader").performScrollToKey("43:1:p1")
         tag("paragraph:1").assertExists()
         assertTrue(rule.onAllNodesWithTag("verse:1", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
         // a tap on the first line selects verse 1 and brings up the verse actions
@@ -457,6 +455,30 @@ class UiAcceptanceTest {
         tag("action:To list").assertExists()
     }
 
+    /**
+     * Continuous reading (the default): the chapters before and after run on above and below; a tap on a
+     * verse of the next chapter makes it the chapter being read and selects the verse there.
+     */
+    @Test fun continuousReading() {
+        ready()
+        assertTrue(vm.continuousReading)
+        vm.openChapter(19, 23)
+        waitFor { vm.chapter?.chapter == 23 && vm.nextBlock?.text?.chapter == 24 && vm.previousBlock?.text?.chapter == 22 }
+        rule.waitForIdle()
+        tag("reader").performScrollToKey("19:24:v1")
+        tag("verse:19:24:1").tap()
+        waitFor { vm.location.chapter == 24 && vm.chapter?.chapter == 24 }
+        tag("action:Note").assertExists()
+        waitFor { vm.nextBlock?.text?.chapter == 25 }
+        assertEquals(23, vm.previousBlock?.text?.chapter)
+        tag("verse:1").tap() // clears the selection
+        // chapter by chapter, as before
+        vm.changeContinuousReading(false)
+        waitFor { vm.nextBlock == null && vm.previousBlock == null }
+        vm.changeContinuousReading(true)
+        waitFor { vm.nextBlock != null }
+    }
+
     /** Every theme is a whole design: each can still reach a chapter, the verse actions and Settings. */
     @Test fun everyThemeWorks() {
         ready()
@@ -469,11 +491,11 @@ class UiAcceptanceTest {
             assertEquals(st.palettes.first(), vm.palette)
             tag("chapter-title").assertExists()
             // next chapter: Page puts the link after the last verse
-            if (st == Style.Page) tag("reader").performScrollToKey("footer")
-            tag("next-chapter").tap()
+            // Page reads on without a break (continuous reading): no chapter links after the text
+            if (st == Style.Page) vm.nextChapter() else tag("next-chapter").tap()
             waitFor { vm.chapter?.chapter == 24 }
             // verse actions
-            tag("reader").performScrollToKey("v1")
+            tag("reader").performScrollToKey("19:24:v1")
             tag("verse:1").tap()
             tag("action:Note").assertExists()
             tag("verse:1").tap()
@@ -484,6 +506,12 @@ class UiAcceptanceTest {
                 waitFor { vm.screen == Screen.Menu }
                 tag("menu-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("nav:Settings"))
                 tag("nav:Settings").tap()
+            } else if (st == Style.Navy) {
+                // Navy: Settings is in the side menu
+                tag("menu").tap()
+                waitFor { vm.drawerOpen }
+                tag("drawer").performScrollToNode(androidx.compose.ui.test.hasTestTag("drawer:settings"))
+                tag("drawer:settings").tap()
             } else tag("settings").tap()
             waitFor { vm.screen == Screen.Settings }
             tag("settings-list").assertExists()
@@ -493,7 +521,7 @@ class UiAcceptanceTest {
                 "${st.name}: Appearance choices shown on the Settings list")
             tag("settings-cat:look").tap()
             waitFor { vm.settingsPage == "look" }
-            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout"))
+            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
             vm.screen = Screen.Main
             rule.waitForIdle()
         }
@@ -612,7 +640,7 @@ class UiAcceptanceTest {
         vm.setTranslation("mg1865")
         vm.openPassage(Passage(1, 6, 15, 15))
         waitFor { vm.chapter?.book == 1 && vm.chapter?.chapter == 6 }
-        tag("reader").performScrollToKey("v15")
+        tag("reader").performScrollToKey("1:6:v15")
         tag("verse:15").tap()
         // the English Bible (interface language) and the cubit, converted
         waitFor { runCatching { tag("quick-look-translation").assertExists(); true }.getOrDefault(false) }
@@ -670,7 +698,7 @@ class UiAcceptanceTest {
         vm.setTranslation("mg1865")
         vm.openPassage(Passage(1, 6, 15, 15))
         waitFor { vm.chapter?.book == 1 && vm.chapter?.chapter == 6 }
-        tag("reader").performScrollToKey("v15")
+        tag("reader").performScrollToKey("1:6:v15")
         tag("verse:15").tap()
         tag("action:Study").tap()
         tag("passage-tools").assertExists()
@@ -686,7 +714,7 @@ class UiAcceptanceTest {
         // Acts 13:4: Seleucia and Cyprus, shown on the map
         vm.openPassage(Passage(44, 13, 4, 4))
         waitFor { vm.screen == Screen.Main && vm.chapter?.book == 44 && vm.chapter?.chapter == 13 }
-        tag("reader").performScrollToKey("v4")
+        tag("reader").performScrollToKey("44:13:v4")
         tag("verse:4").tap()
         tag("action:Study").tap()
         tag("tab-original").tap()

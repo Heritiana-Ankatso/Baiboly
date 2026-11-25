@@ -1,3 +1,24 @@
+## Baiboly 1.9.0
+
+**Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept (a new table for sermon notes and studies is added to your data; nothing is removed).
+
+* **Continuous reading** (default): the text runs on from one chapter to the next as you scroll; the chapter at the top of the screen is the one being read (title, selection, notes). *Settings › Appearance › Text formatting › Continuous reading* turns it off.
+* **Sermon notes** (Church mode): the *Notes* tab, or the note button on the service page, opens the day's note with the date and the passages of the service list already filled in (both can be changed). A short bar: title, section, point, bold, italic, Bible verse, person of the Bible.
+* **Studies** (Study mode; *Library › My notes* in every mode): the same, plus subsections, numbered points, quotations, the words of a verse quoted with its reference, events of the Bible, separators, an outline whose sections move up and down with what they contain, templates (observe · interpret · apply, sermon outline, word study, person of the Bible) and a word count.
+  * Links tie a part of a note to a verse, a person or an event; in *Read* view a tap opens it. The Study panel of a passage lists, under *My notes*, the notes that cite it.
+  * **Export:** share as text, or save as Markdown, plain text, HTML, Word (.docx) or PDF. Notes are part of the backup.
+* **Commentaries** (Study panel, *Commentary* tab): John Calvin's commentaries (Calvin Translation Society), the Geneva Bible notes (1599) and Matthew Henry's Concise Commentary, in English, public domain (CrossWire). With the Catholic tradition chosen they are marked as Reformed.
+* **Timeline:**
+  * *Go deeper: to today* carries the chart and the list on from the Church Fathers through the councils, the Middle Ages, the Reformation and the Puritans to missions and today: about 150 events and lives, with the church in Madagascar (the LMS missionaries of 1818, the Malagasy Bible of 1835, Rasalama, 1869, FJKM, FFKM). Each is marked with its tradition where it belongs to one. Malagasy titles are given for Madagascar's events; the others show in French.
+  * The list is grouped by era, each folded to one line with its dates and count; a tap unfolds it, a search opens them all.
+  * The chart no longer draws its bars over the buttons above it.
+* **Text formatting** in one group of *Appearance*, with its current values on one line: verse layout, continuous reading, alignment (left / justified, with the usual icons), word breaks, paragraphs, margins and line spacing. It used to be split between Appearance and Advanced.
+* **Folding sections** (▾) on a person's page (father line, family, events, verses), in Confessions (each family, the councils) and in *Advanced* (tradition, quick look, updates).
+* **New theme, Navy:** a white page, a centred title, two round chapter buttons and a navy side menu (☰): search, the books (a testament unfolds its books, a book its chapters), your notes, highlights and history first; the mode's tools next; Settings, Backup and About last.
+* **Book abbreviations follow the Bible you read:** *Jao* (Malagasy), *Jn* (French), *John* (English), in the book grids and references. The keypad accepts French and English abbreviations too (*Jn 3:16*, *1 Co 13:4*).
+* **Units both ways:** *Other way* converts from metres, kilograms or litres to the units of the Bible; each row also reads the other way round where that is clearer (*1 reed = 7 cubits*).
+* **Highlights:** the same colour on text already highlighted in it takes the highlight off, for one verse as for several; another colour replaces it.
+
 ## Baiboly 1.8.0
 
 **Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept.
