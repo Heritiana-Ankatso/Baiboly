@@ -1,3 +1,14 @@
+## Baiboly 1.10.1
+
+**Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept. No data change.
+
+* **Selecting verses:** four actions stay in view (Study, Copy, Note, Highlight; in Church, *To list* takes the fourth place and Highlight moves under *More*). The others (References, Listen, Words) are under **More**, so nothing scrolls out of the screen. All five themes.
+* **Modern theme:** previous and next chapter flank the page switcher in a slimmer bottom bar, instead of floating over the text.
+* **Glass theme:** the bottom bar no longer repeats the chapter name shown in the header; two wide Previous / Next buttons.
+* **Appearance › Text formatting:** each setting is a label with a segmented control, all the same width; margins show a drawn page (narrow, normal, wide).
+* **New app icon:** an open book with a cross between its pages (the cross is the gap), navy and cream; also a themed (monochrome) icon on Android 13+. The reading-aloud status-bar icon uses the same mark.
+* The Malagasy and French wording of the new labels is a draft to review.
+
 ## Baiboly 1.10.0
 
 **Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept.

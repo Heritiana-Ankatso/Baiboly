@@ -214,12 +214,11 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Hebrew and Greek text: in the Study panel each verse shows its original words one by one, with transliteration, gloss and parsing in plain words (for example “verb, Qal, perfect, third person singular masculine”).</item>
-        <item>Tap a Hebrew or Greek word for its Strong’s entry, a fuller definition (abridged Brown-Driver-Briggs or Abbott-Smith) and the verses that use the same word.</item>
-        <item>Greek words found only in the Textus Receptus (the Greek behind the KJV) are shown faded next to the Nestlé-Aland text.</item>
-        <item>Verse numbering: 63 more chapters are now matched to the Hebrew verse numbers (Exodus 7:26 is 8:1 in English Bibles), so the other Bibles line up in the Study panel.</item>
-        <item>Matthew Henry’s complete commentary joins the Concise one in the Commentary tab.</item>
-        <item>Introductions to all 66 books (author, date, setting, outline, message in Christ) and the storyline of Scripture, in the Introduction tab (English).</item>
+        <item>Selecting verses: four actions stay in view and the others (References, Listen, Words) are under “More”; nothing scrolls out of the screen any more.</item>
+        <item>Modern theme: the previous and next chapter buttons sit on either side of the bottom bar instead of floating over the text, and the bar is slimmer.</item>
+        <item>Glass theme: the bottom bar no longer repeats the chapter name already shown at the top.</item>
+        <item>Appearance › Text formatting: every setting is a label with a segmented control of the same width, and the margins show a small page drawing (narrow, normal, wide).</item>
+        <item>New app icon: an open book with a cross between its pages (navy and cream), also as a themed icon on Android 13 and later.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>

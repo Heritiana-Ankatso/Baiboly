@@ -197,12 +197,11 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Texte hébreu et grec : dans le panneau Étude, chaque verset montre ses mots originaux un à un, avec translittération, glose et analyse grammaticale en clair (par exemple « verbe, Qal, parfait, 3e personne du singulier masculin »).</item>
-        <item>Touchez un mot hébreu ou grec pour son article Strong, une définition plus complète (Brown-Driver-Briggs abrégé ou Abbott-Smith) et les versets qui emploient le même mot.</item>
-        <item>Les mots grecs présents seulement dans le Textus Receptus (le grec de la KJV) apparaissent estompés à côté du texte de Nestlé-Aland.</item>
-        <item>Numérotation : 63 chapitres de plus suivent maintenant la numérotation hébraïque (Exode 7:26 est 8:1 dans les Bibles anglaises), si bien que les autres Bibles s’alignent dans le panneau Étude.</item>
-        <item>Le commentaire complet de Matthew Henry rejoint l’abrégé dans l’onglet Commentaire.</item>
-        <item>Présentations des 66 livres (auteur, date, cadre, plan, message en Christ) et le fil de l’Écriture, dans l’onglet Présentation (en anglais).</item>
+        <item>Sélection de versets : quatre actions restent visibles, les autres (Références, Écouter, Mots) sont sous « Plus » ; plus rien ne défile hors de l’écran.</item>
+        <item>Thème Moderne : les boutons chapitre précédent et suivant encadrent la barre du bas au lieu de flotter sur le texte, et la barre est plus fine.</item>
+        <item>Thème Verre : la barre du bas ne répète plus le nom du chapitre déjà affiché en haut.</item>
+        <item>Apparence › Mise en forme du texte : chaque réglage est un libellé avec un sélecteur de même largeur, et les marges montrent un petit dessin de page (étroites, normales, larges).</item>
+        <item>Nouvelle icône : un livre ouvert avec une croix entre ses pages (bleu nuit et crème), aussi en icône thématique à partir d’Android 13.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>

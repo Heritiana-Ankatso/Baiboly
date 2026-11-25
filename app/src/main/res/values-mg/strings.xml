@@ -199,12 +199,11 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Teny hebreo sy grika: ao amin’ny tontonana Fianarana, ny andininy tsirairay dia mampiseho ny teny tany am-boalohany raha teny raha teny, miaraka amin’ny fanoratana amin’ny litera latina, ny dikany ary ny famakafakana ny endriny amin’ny teny mazava.</item>
-        <item>Tsindrio ny teny hebreo na grika iray mba hahitana ny Strong, ny dikany feno kokoa (Brown-Driver-Briggs fohifohy na Abbott-Smith) ary ny andininy mampiasa io teny io ihany.</item>
-        <item>Ny teny grika hita ao amin’ny Textus Receptus ihany (ny grika nanaovana ny KJV) dia aseho mikorontana eo anilan’ny soratra Nestlé-Aland.</item>
-        <item>Fanisana andininy: toko 63 hafa no mifanaraka amin’ny fanisana hebreo (Eksodosy 7:26 dia 8:1 amin’ny Baiboly anglisy), ka mifanaraka ny Baiboly hafa ao amin’ny tontonana Fianarana.</item>
-        <item>Ny fanehoan-kevitr’i Matthew Henry feno dia miaraka amin’ny fohifohy ao amin’ny tabilao Fanehoan-kevitra.</item>
-        <item>Fampidirana ny boky 66 (mpanoratra, daty, toerana, fandaharana, hafatra ao amin’i Kristy) sy ny tantaran’ny Soratra Masina, ao amin’ny tabilao Fampidirana (amin’ny teny anglisy).</item>
+        <item>Fisafidianana andininy: ny asa efatra dia hita foana, ny hafa (Fanovozan-kevitra, Henoy, Teny) dia ao ambanin’ny “Hafa koa”; tsy mandeha mivoaka ny efijery intsony.</item>
+        <item>Lohahevitra Modern: ny bokotra toko teo aloha sy manaraka dia eo amin’ny sisin’ny tsipika ambany fa tsy mitsingevana eo ambonin’ny soratra, ary lasa kely ny tsipika.</item>
+        <item>Lohahevitra Glass: ny tsipika ambany dia tsy mamerina ny anaran’ny toko efa hita eo ambony intsony.</item>
+        <item>Endrika › Famolavolana ny soratra: ny fanamboarana tsirairay dia misy anarana sy fisafidianana mitovy sakany, ary ny sisiny dia mampiseho sary kely (tery, antonony, malalaka).</item>
+        <item>Sary famantarana vaovao: boky misokatra misy hazofijaboana eo anelanelan’ny pejiny (manga maizina sy krema), azo ampiasaina ihany koa ho sary mifanaraka amin’ny lohahevitra amin’ny Android 13 sy ny taty aoriana.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
