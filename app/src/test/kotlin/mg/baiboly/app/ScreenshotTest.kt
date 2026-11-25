@@ -258,9 +258,12 @@ class ScreenshotTest {
         settle { vm.list.items.size >= 2 }
         vm.newDocument("sermon")
         settle { vm.screen == Screen.Document }
-        vm.saveDocument(vm.openDocument!!.copy(body = "# The golden chain\n- Foreknown, predestined, called\n- Justified, glorified: [Rom 8: 30](bible:45.8.30-30)\n## None is lost\n- [Jao 6: 39](bible:43.6.39-39): *I should lose nothing*"))
+        val draft = vm.openDocument!!
         vm.closeDocument(); settle()
-        vm.openDocument(vm.documents.first())
+        vm.saveDocument(draft.copy(body = "# The golden chain\n- Foreknown, predestined, called\n- Justified, glorified: [Rom 8: 30](bible:45.8.30-30)\n## None is lost\n- [Jao 6: 39](bible:43.6.39-39): *I should lose nothing*"))
+        settle { vm.documents.any { it.body.contains("golden chain") } }
+        vm.closeDocument(); settle()
+        vm.openDocument(vm.documents.first { it.body.contains("golden chain") })
         settle()
         shot("n1-sermon-note")
         rule.onNodeWithTag("doc-preview", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)

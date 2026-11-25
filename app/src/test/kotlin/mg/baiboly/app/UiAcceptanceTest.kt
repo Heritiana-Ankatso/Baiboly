@@ -506,6 +506,12 @@ class UiAcceptanceTest {
                 waitFor { vm.screen == Screen.Menu }
                 tag("menu-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("nav:Settings"))
                 tag("nav:Settings").tap()
+            } else if (st == Style.Navy) {
+                // Navy: Settings is in the side menu
+                tag("menu").tap()
+                waitFor { vm.drawerOpen }
+                tag("drawer").performScrollToNode(androidx.compose.ui.test.hasTestTag("drawer:settings"))
+                tag("drawer:settings").tap()
             } else tag("settings").tap()
             waitFor { vm.screen == Screen.Settings }
             tag("settings-list").assertExists()

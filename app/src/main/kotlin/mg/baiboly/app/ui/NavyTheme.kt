@@ -132,7 +132,6 @@ private fun NavyMenu(vm: AppViewModel, close: () -> Unit) {
     var openBook by remember { mutableStateOf<Int?>(null) }
     fun go(screen: Screen) { close(); navigateTo(vm, screen) }
     val first = buildList {
-        add(NavyItem(Icons.Outlined.Search, R.string.search, "drawer:search") { go(Screen.Search) })
         if (vm.mode == AppMode.Church) add(NavyItem(Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.nav_lists, "drawer:lists") { go(Screen.Lists) })
         add(NavyItem(Icons.Outlined.EditNote, R.string.my_notes, "drawer:documents") { go(Screen.Documents) })
         add(NavyItem(Icons.Outlined.BorderColor, R.string.highlights, "drawer:highlights") { go(Screen.Highlights) })
@@ -153,23 +152,33 @@ private fun NavyMenu(vm: AppViewModel, close: () -> Unit) {
             Text("Baiboly", style = MaterialTheme.typography.titleLarge, color = OnNavyDim,
                 modifier = Modifier.padding(start = 24.dp, top = 28.dp, bottom = 10.dp))
             // the mode, one tap each
-            Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            // three equal parts, so no name breaks over two lines
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 AppMode.entries.forEach { m ->
                     val on = m == vm.mode
                     Surface(
                         onClick = { vm.changeMode(m) }, shape = CircleShape,
                         color = if (on) OnNavy else Color.Transparent, contentColor = if (on) Color(0xFF1D3563) else OnNavy,
-                        border = BorderStroke(1.dp, if (on) OnNavy else NavyRule), modifier = Modifier.heightIn(min = 40.dp).testTag("drawer-mode:${m.name}"),
+                        border = BorderStroke(1.dp, if (on) OnNavy else NavyRule), modifier = Modifier.weight(1f).heightIn(min = 40.dp).testTag("drawer-mode:${m.name}"),
                     ) {
-                        Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(m.icon(), null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(m.label(), style = MaterialTheme.typography.labelLarge)
+                        Row(Modifier.padding(horizontal = 6.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                            Icon(m.icon(), null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text(m.label(), style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
                 }
             }
             HorizontalDivider(Modifier.padding(top = 12.dp), color = NavyRule)
+            // search first: the quickest way to any verse
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { go(Screen.Search) }.padding(horizontal = 24.dp).testTag("drawer:search"),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Outlined.Search, null, tint = OnNavy, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(28.dp))
+                Text(stringResource(R.string.search), style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.Normal), color = OnNavy)
+            }
         }
         // the Bible first: a testament unfolds its books, a book its chapters
         item {
@@ -276,7 +285,7 @@ fun BoxScope.NavyChapterButtons(vm: AppViewModel) {
     @Composable
     fun round(icon: ImageVector, label: String, tag: String, align: Alignment, onClick: () -> Unit) = Surface(
         onClick = onClick, shape = CircleShape, color = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.primary,
-        shadowElevation = 6.dp, modifier = Modifier.align(align).padding(16.dp).size(56.dp).testTag(tag),
+        shadowElevation = 6.dp, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), modifier = Modifier.align(align).padding(16.dp).size(56.dp).testTag(tag),
     ) { Box(contentAlignment = Alignment.Center) { Icon(icon, label, modifier = Modifier.size(30.dp)) } }
     round(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter), "prev-chapter", Alignment.BottomStart) { vm.previousChapter() }
     round(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter), "next-chapter", Alignment.BottomEnd) { vm.nextChapter() }
