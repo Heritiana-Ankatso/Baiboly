@@ -100,7 +100,7 @@ fun StudyContent(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismis
 fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, startOnCrossRefs: Boolean = false, onDismiss: () -> Unit) =
     PassageToolsSheet(vm, Passage(book, chapter, verse, verse), if (startOnCrossRefs) PassageTab.References else PassageTab.Original, onDismiss)
 
-enum class PassageTab { Translations, Original, References, People, Places, Units, Dictionary, Confessions }
+enum class PassageTab { Translations, Original, Commentary, References, People, Places, Units, Dictionary, Confessions, MyNotes }
 
 /**
  * Everything about the selected verses, in one panel (any mode: Study on the
@@ -122,6 +122,8 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
     var people by remember(passage) { mutableStateOf<List<mg.baiboly.data.Person>?>(null) }
     var events by remember(passage) { mutableStateOf<List<mg.baiboly.data.BibleEvent>?>(null) }
     var creeds by remember(passage) { mutableStateOf<List<mg.baiboly.data.CreedItem>?>(null) }
+    var myNotes by remember(passage) { mutableStateOf<List<mg.baiboly.data.NoteDocument>?>(null) }
+    LaunchedEffect(passage) { myNotes = vm.documentsCiting(vm.toMalagasy(passage)) }
     LaunchedEffect(passage) {
         people = vm.peopleInPassage(passage)
         events = vm.eventsInPassage(passage)
@@ -141,6 +143,8 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
             PassageTab.Dictionary -> !dict.isNullOrEmpty()
             PassageTab.People -> !people.isNullOrEmpty() || !events.isNullOrEmpty()
             PassageTab.Confessions -> !creeds.isNullOrEmpty()
+            PassageTab.Commentary -> vm.commentaries.available.isNotEmpty()
+            PassageTab.MyNotes -> !myNotes.isNullOrEmpty()
             else -> true
         }
     }
@@ -175,6 +179,8 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                                     PassageTab.Dictionary -> stringResource(R.string.dictionary)
                                     PassageTab.People -> stringResource(R.string.tab_people) + " (${(people?.size ?: 0) + (events?.size ?: 0)})"
                                     PassageTab.Confessions -> stringResource(R.string.tool_confessions) + " (${creeds?.size ?: 0})"
+                                    PassageTab.Commentary -> stringResource(R.string.commentary)
+                                    PassageTab.MyNotes -> stringResource(R.string.my_notes) + " (${myNotes?.size ?: 0})"
                                 },
                                 maxLines = 1,
                             )
@@ -199,6 +205,16 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                     PassageTab.Dictionary -> DictionaryPage(vm, dict.orEmpty())
                     PassageTab.People -> PassagePeoplePage(vm, people.orEmpty(), events.orEmpty(), onDismiss)
                     PassageTab.Confessions -> PassageConfessionsPage(vm, creeds.orEmpty(), onDismiss)
+                    PassageTab.Commentary -> CommentaryPage(vm, passage, onDismiss)
+                    PassageTab.MyNotes -> androidx.compose.foundation.lazy.LazyColumn(Modifier.testTag("my-notes")) {
+                        items(myNotes.orEmpty().size) { i ->
+                            val d = myNotes.orEmpty()[i]
+                            Column(Modifier.fillMaxWidth().clickable { onDismiss(); vm.openDocument(d) }.padding(vertical = 10.dp)) {
+                                Text(d.title, style = MaterialTheme.typography.bodyLarge)
+                                Text(d.passages, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
                 }
             }
         }

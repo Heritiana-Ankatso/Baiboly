@@ -1,0 +1,146 @@
+# Church history after the apostles, for the timeline's "Go deeper: to today" (compiled for Baiboly from standard reference dates).
+# kind: era | point | life | period. year/end: AD. approx: 1 = "about". family: all | reformed | catholic | orthodox | madagascar.
+# weight: how early the label shows when zoomed out (higher first). title_mg may be empty (French is shown then).
+# kind	year	end	approx	family	weight	key_or_id	title_en	title_fr	title_mg
+era	100	451	0	all	0	fathers	Church Fathers	Pères de l’Église	Rain’ny Fiangonana
+era	451	1054	0	all	0	early_middle	Early Middle Ages	Haut Moyen Âge	Vanim-potoana antenatenany voalohany
+era	1054	1517	0	all	0	middle	Later Middle Ages	Moyen Âge	Vanim-potoana antenatenany
+era	1517	1648	0	all	0	reformation	Reformation	Réforme	Fanavaozana
+era	1648	1789	0	all	0	puritans	Puritans and orthodoxy	Puritains et orthodoxie réformée	Ny Piritanina
+era	1789	1914	0	all	0	missions	Revival and missions	Réveil et missions	Fifohazana sy iraka
+era	1914	2027	0	all	0	today	20th century to today	Du XXe siècle à aujourd’hui	Taonjato faha-20 ka hatramin’izao
+point	108	0	1	all	20	ignatius	Ignatius of Antioch martyred	Martyre d’Ignace d’Antioche
+point	155	0	1	all	25	polycarp	Polycarp martyred at Smyrna	Martyre de Polycarpe à Smyrne
+point	165	0	1	all	15	justin	Justin Martyr executed in Rome	Exécution de Justin Martyr à Rome
+point	180	0	1	all	15	irenaeus_ah	Irenaeus writes Against Heresies	Irénée écrit Contre les hérésies
+point	250	0	0	all	15	decius	Persecution under Decius	Persécution de Dèce
+point	303	0	0	all	25	diocletian	Great Persecution under Diocletian	Grande persécution de Dioclétien
+point	313	0	0	all	40	milan	Edict of Milan: Christians tolerated	Édit de Milan : les chrétiens tolérés
+point	325	0	0	all	60	nicaea1	First Council of Nicaea	Premier concile de Nicée
+point	367	0	0	all	35	festal	Athanasius lists the 27 books of the New Testament	Athanase énumère les 27 livres du Nouveau Testament
+point	381	0	0	all	50	constantinople1	First Council of Constantinople	Premier concile de Constantinople
+point	397	0	0	all	30	carthage	Council of Carthage confirms the canon	Le concile de Carthage confirme le canon
+point	405	0	1	all	25	vulgate	Jerome completes the Vulgate	Jérôme achève la Vulgate
+point	410	0	0	all	20	rome410	Rome sacked by the Visigoths	Sac de Rome par les Wisigoths
+point	431	0	0	all	40	ephesus	Council of Ephesus	Concile d’Éphèse
+point	451	0	0	all	55	chalcedon	Council of Chalcedon	Concile de Chalcédoine
+life	130	202	1	all	10	irenaeus	Irenaeus of Lyon	Irénée de Lyon
+life	155	220	1	all	10	tertullian	Tertullian	Tertullien
+life	296	373	1	all	30	athanasius	Athanasius	Athanase
+life	347	407	1	all	15	chrysostom	John Chrysostom	Jean Chrysostome
+life	347	420	1	all	15	jerome	Jerome	Jérôme
+life	354	430	0	all	50	augustine	Augustine of Hippo	Augustin d’Hippone
+point	529	0	1	all	15	benedict	Benedict founds Monte Cassino	Benoît fonde le Mont-Cassin
+point	553	0	0	all	20	constantinople2	Second Council of Constantinople	Deuxième concile de Constantinople
+point	590	0	0	all	20	gregory	Gregory the Great becomes bishop of Rome	Grégoire le Grand devient évêque de Rome
+point	680	0	0	all	20	constantinople3	Third Council of Constantinople	Troisième concile de Constantinople
+point	787	0	0	all	25	nicaea2	Second Council of Nicaea	Deuxième concile de Nicée
+point	800	0	0	all	25	charlemagne	Charlemagne crowned emperor	Couronnement de Charlemagne
+point	863	0	0	orthodox	15	slavs	Cyril and Methodius go to the Slavs	Cyrille et Méthode chez les Slaves
+point	988	0	1	orthodox	15	rus	Baptism of Rus’ under Vladimir	Baptême de la Rus’ sous Vladimir
+point	1054	0	0	all	50	schism	East–West Schism	Schisme entre l’Orient et l’Occident
+life	540	604	1	all	10	gregory_life	Gregory the Great	Grégoire le Grand
+life	808	867	1	all	10	gottschalk	Gottschalk of Orbais (double predestination)	Gottschalk d’Orbais (double prédestination)
+point	1095	0	0	all	25	crusade	First Crusade proclaimed at Clermont	Première croisade prêchée à Clermont
+point	1098	0	1	all	15	curdeus	Anselm writes Why God Became Man	Anselme écrit Pourquoi Dieu s’est fait homme
+point	1215	0	0	catholic	20	lateran4	Fourth Lateran Council (transubstantiation defined)	Quatrième concile du Latran (transsubstantiation définie)
+point	1382	0	1	all	25	wycliffe_bible	Wycliffe’s English Bible	Bible anglaise de Wyclif
+point	1415	0	0	all	30	hus	Jan Hus burned at Constance	Jan Hus brûlé à Constance
+point	1453	0	0	all	20	constantinople1453	Fall of Constantinople	Chute de Constantinople
+point	1455	0	1	all	30	gutenberg	Gutenberg Bible printed	Impression de la Bible de Gutenberg
+point	1516	0	0	all	30	erasmus	Erasmus prints the Greek New Testament	Érasme imprime le Nouveau Testament grec
+life	1033	1109	0	all	10	anselm	Anselm of Canterbury	Anselme de Cantorbéry
+life	1090	1153	0	all	10	bernard	Bernard of Clairvaux	Bernard de Clairvaux
+life	1225	1274	0	all	20	aquinas	Thomas Aquinas	Thomas d’Aquin
+life	1328	1384	1	all	15	wycliffe	John Wycliffe	Jean Wyclif
+life	1372	1415	1	all	10	hus_life	Jan Hus	Jan Hus
+point	1517	0	0	all	80	theses	Luther posts the Ninety-five Theses	Luther affiche les 95 thèses
+point	1521	0	0	all	30	worms	Luther before the Diet of Worms	Luther devant la diète de Worms
+point	1526	0	0	all	20	tyndale	Tyndale’s English New Testament printed	Impression du Nouveau Testament anglais de Tyndale
+point	1529	0	0	all	15	marburg	Marburg Colloquy	Colloque de Marbourg
+point	1530	0	0	all	20	augsburg	Augsburg Confession	Confession d’Augsbourg
+point	1535	0	0	reformed	20	olivetan	Olivétan’s French Bible	Bible française d’Olivétan
+point	1536	0	0	reformed	50	institutes	Calvin’s Institutes, first edition	Institution de Calvin, première édition
+point	1541	0	0	reformed	20	geneva1541	Calvin returns to Geneva	Calvin revient à Genève
+period	1545	1563	0	catholic	30	trent	Council of Trent	Concile de Trente
+point	1559	0	0	reformed	30	gallican	French Confession of Faith	Confession de foi de La Rochelle
+point	1560	0	0	reformed	25	geneva_bible	Geneva Bible; Scots Confession	Bible de Genève ; Confession écossaise
+point	1561	0	0	reformed	30	belgic	Belgic Confession	Confession de foi des Pays-Bas
+point	1563	0	0	reformed	40	heidelberg	Heidelberg Catechism	Catéchisme de Heidelberg
+point	1566	0	0	reformed	20	helvetic2	Second Helvetic Confession	Seconde Confession helvétique
+point	1572	0	0	reformed	20	bartholomew	St Bartholomew’s Day massacre	Massacre de la Saint-Barthélemy
+point	1598	0	0	reformed	15	nantes	Edict of Nantes	Édit de Nantes
+point	1611	0	0	all	30	kjv	King James Version	Version du roi Jacques (King James)
+period	1618	1619	0	reformed	45	dort	Synod of Dort	Synode de Dordrecht
+period	1643	1653	0	reformed	45	westminster	Westminster Assembly	Assemblée de Westminster
+point	1646	0	0	reformed	45	wcf	Westminster Confession of Faith	Confession de foi de Westminster
+point	1648	0	0	all	15	westphalia	Peace of Westphalia	Paix de Westphalie
+life	1483	1546	0	all	50	luther	Martin Luther	Martin Luther
+life	1484	1531	0	reformed	25	zwingli	Huldrych Zwingli	Ulrich Zwingli
+life	1497	1560	0	all	15	melanchthon	Philip Melanchthon	Philippe Melanchthon
+life	1504	1575	0	reformed	20	bullinger	Heinrich Bullinger	Henri Bullinger
+life	1509	1564	0	reformed	50	calvin	John Calvin	Jean Calvin
+life	1514	1572	1	reformed	20	knox	John Knox	John Knox
+life	1519	1605	0	reformed	20	beza	Theodore Beza	Théodore de Bèze
+life	1534	1583	0	reformed	15	ursinus	Zacharias Ursinus	Zacharias Ursinus
+life	1560	1609	0	all	10	arminius	Jacobus Arminius	Jacobus Arminius
+point	1658	0	0	reformed	20	savoy	Savoy Declaration	Déclaration de Savoie
+point	1675	0	0	reformed	15	consensus	Helvetic Consensus	Formula Consensus helvétique
+point	1678	0	0	reformed	20	pilgrim	Bunyan’s Pilgrim’s Progress	Le Voyage du pèlerin de Bunyan
+point	1685	0	0	reformed	20	revocation	Revocation of the Edict of Nantes	Révocation de l’édit de Nantes
+point	1689	0	0	reformed	25	lbc1689	Second London Baptist Confession	Seconde Confession baptiste de Londres
+point	1734	0	1	all	30	awakening	Great Awakening begins	Début du Grand Réveil
+life	1600	1661	1	reformed	10	rutherford	Samuel Rutherford	Samuel Rutherford
+life	1615	1691	0	reformed	10	baxter	Richard Baxter	Richard Baxter
+life	1616	1683	0	reformed	30	owen	John Owen	John Owen
+life	1623	1687	0	reformed	20	turretin	Francis Turretin	François Turrettini
+life	1628	1688	0	reformed	15	bunyan	John Bunyan	John Bunyan
+life	1630	1706	0	reformed	10	mastricht	Petrus van Mastricht	Petrus van Mastricht
+life	1635	1711	0	reformed	10	brakel	Wilhelmus à Brakel	Wilhelmus à Brakel
+life	1703	1758	0	reformed	30	edwards	Jonathan Edwards	Jonathan Edwards
+life	1714	1770	0	reformed	15	whitefield	George Whitefield	George Whitefield
+point	1792	0	0	all	25	carey	William Carey’s Enquiry; Baptist Missionary Society	Enquiry de William Carey ; Société missionnaire baptiste
+point	1795	0	0	madagascar	30	lms	London Missionary Society founded	Fondation de la Société missionnaire de Londres	Niorina ny London Missionary Society (LMS)
+point	1804	0	0	all	20	bfbs	British and Foreign Bible Society founded	Fondation de la Société biblique britannique et étrangère
+point	1812	0	0	reformed	15	princeton	Princeton Theological Seminary founded	Fondation du séminaire de Princeton
+point	1818	0	0	madagascar	50	mg_1818	LMS missionaries David Jones and Thomas Bevan land in Madagascar	Les missionnaires David Jones et Thomas Bevan débarquent à Madagascar	Tonga teto Madagasikara ny misionera David Jones sy Thomas Bevan
+point	1820	0	0	madagascar	35	mg_1820	David Jones in Antananarivo; the first school opens	David Jones à Antananarivo ; première école	Tonga tao Antananarivo i David Jones; nisokatra ny sekoly voalohany
+point	1835	0	0	madagascar	50	mg_bible	The whole Bible printed in Malagasy	La Bible entière imprimée en malgache	Vita pirinty amin’ny teny malagasy ny Baiboly manontolo
+point	1835	0	0	madagascar	45	mg_ban	Ranavalona I forbids Christianity	Ranavalona Ire interdit le christianisme	Nandrara ny fivavahana kristiana i Ranavalona I
+point	1837	0	0	madagascar	50	rasalama	Rasalama, first Malagasy martyr	Rasalama, première martyre malgache	Rasalama, maritiora malagasy voalohany
+point	1843	0	0	reformed	15	disruption	Disruption of the Church of Scotland	Disruption de l’Église d’Écosse
+point	1849	0	0	madagascar	35	mg_1849	Great persecution: martyrs at Faravohitra and Ampamarinana	Grande persécution : martyrs de Faravohitra et d’Ampamarinana	Fanenjehana lehibe: maritiora tao Faravohitra sy Ampamarinana
+point	1854	0	0	catholic	15	immaculate	Immaculate Conception defined as dogma	Dogme de l’Immaculée Conception
+point	1861	0	0	madagascar	35	mg_1861	Radama II grants freedom of worship	Radama II accorde la liberté de culte	Nomen’i Radama II fahalalahana hivavaka
+point	1865	0	0	madagascar	30	mg_1865	Revised Malagasy Bible (the text of this app)	Bible malgache révisée (le texte de cette application)	Baiboly malagasy nohavaozina (ny soratra ato amin’ity fampiharana ity)
+point	1869	0	0	madagascar	50	mg_1869	Queen Ranavalona II and Rainilaiarivony baptised	Baptême de la reine Ranavalona II et de Rainilaiarivony	Natao batisa ny Mpanjakavavy Ranavalona II sy Rainilaiarivony
+point	1870	0	0	catholic	20	vatican1	First Vatican Council	Premier concile du Vatican
+point	1880	0	0	reformed	15	vu	Free University of Amsterdam founded	Fondation de l’Université libre d’Amsterdam
+point	1897	0	1	madagascar	25	mg_paris	The Paris Mission begins its work in Madagascar	La Mission de Paris commence son œuvre à Madagascar	Nanomboka niasa teto Madagasikara ny Misiona Paris
+point	1910	0	0	all	20	edinburgh	World Missionary Conference, Edinburgh	Conférence missionnaire mondiale d’Édimbourg
+life	1761	1834	0	all	20	carey_life	William Carey	William Carey
+life	1780	1847	0	reformed	10	chalmers	Thomas Chalmers	Thomas Chalmers
+life	1797	1878	0	reformed	15	hodge	Charles Hodge	Charles Hodge
+life	1813	1873	0	all	15	livingstone	David Livingstone	David Livingstone
+life	1832	1905	0	all	15	taylor	Hudson Taylor	Hudson Taylor
+life	1834	1892	0	all	25	spurgeon	Charles Spurgeon	Charles Spurgeon
+life	1837	1920	0	reformed	20	kuyper	Abraham Kuyper	Abraham Kuyper
+life	1851	1921	0	reformed	20	warfield	B. B. Warfield	B. B. Warfield
+life	1854	1921	0	reformed	20	bavinck	Herman Bavinck	Herman Bavinck
+point	1929	0	0	reformed	20	wts	Westminster Theological Seminary founded	Fondation du séminaire de Westminster
+point	1934	0	0	all	20	barmen	Barmen Declaration	Déclaration de Barmen
+point	1948	0	0	all	20	wcc	World Council of Churches founded	Fondation du Conseil œcuménique des Églises
+period	1962	1965	0	catholic	30	vatican2	Second Vatican Council	Deuxième concile du Vatican
+point	1968	0	0	madagascar	40	fjkm	FJKM founded (Church of Jesus Christ in Madagascar)	Fondation de la FJKM (Église de Jésus-Christ à Madagascar)	Niorina ny FJKM (Fiangonan’i Jesoa Kristy eto Madagasikara)
+point	1974	0	0	all	20	lausanne	Lausanne Congress on World Evangelization	Congrès de Lausanne pour l’évangélisation du monde
+point	1980	0	0	madagascar	25	ffkm	FFKM, the Council of Churches in Madagascar, founded	Fondation de la FFKM, conseil des Églises de Madagascar	Niorina ny FFKM (Fiombonan’ny Fiangonana Kristiana eto Madagasikara)
+life	1881	1937	0	reformed	20	machen	J. Gresham Machen	J. Gresham Machen
+life	1886	1968	0	all	15	barth	Karl Barth	Karl Barth
+life	1895	1987	0	reformed	20	vantil	Cornelius Van Til	Cornelius Van Til
+life	1898	1963	0	all	15	lewis	C. S. Lewis	C. S. Lewis
+life	1899	1981	0	reformed	20	mlj	Martyn Lloyd-Jones	Martyn Lloyd-Jones
+life	1906	1945	0	all	15	bonhoeffer	Dietrich Bonhoeffer	Dietrich Bonhoeffer
+life	1912	1984	0	reformed	15	schaeffer	Francis Schaeffer	Francis Schaeffer
+life	1918	2018	0	all	15	graham	Billy Graham	Billy Graham
+life	1926	2020	0	reformed	15	packer	J. I. Packer	J. I. Packer
+life	1939	2017	0	reformed	15	sproul	R. C. Sproul	R. C. Sproul

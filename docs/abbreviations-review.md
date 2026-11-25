@@ -10,6 +10,10 @@ Books 67–73 are the deuterocanonical books of Catholic Bibles; their Malagasy 
 
 To change one: edit `tools/abbreviations.tsv` and rebuild with `python3 tools/build_data.py`.
 
+**By Bible language (1.9.0).** The book grids and references now follow the Bible being read: Malagasy abbreviations below for the Malagasy Bibles, the usual French ones (*Gn, Ex, … Jn, Ac, Rm, 1 Co … Ap*) for the French Bibles and English ones from the OSIS names (*Gen, Exod, … John, Acts, Rom, 1 Cor … Rev*) for the English Bibles. The parser accepts the French and English abbreviations as well (*Jn 3:16*, *1 Co 13:4*).
+
+**Further research (November 2026).** A wider search for current Malagasy usage found little new: the Jehovah's Witnesses' Malagasy index writes *Le* (Levitikosy) and *Mpto* (Mpitoriteny), forms of that one publisher, not adopted here; the Malagasy dictionary sites (malagasyword.org, tenymalagasy.org) and the Malagasy Wikipedia could not be reached from the build environment. The list below is unchanged; it still awaits your review where it says so.
+
 | # | Book | Abbreviation | Also accepted | Status | Source |
 |---|---|---|---|---|---|
 | 1 | Genesisy | Gen |  | Malagasy Bible dictionary | Malagasy Bible dictionary (malagasyword.org) list, quoted in search results |

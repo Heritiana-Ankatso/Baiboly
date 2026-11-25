@@ -33,9 +33,11 @@ fun BaibolyApp(vm: AppViewModel) {
         // The Bible text keeps the size chosen in Settings (its sp are scaled back up).
         val d = androidx.compose.ui.platform.LocalDensity.current
         val scale = vm.uiDensity.scale
+        val bibleLang = vm.translations.firstOrNull { it.id == vm.translationId }?.lang
         CompositionLocalProvider(
             androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(d.density * scale, d.fontScale),
             LocalTextScale provides 1f / scale,
+            LocalBibleLang provides bibleLang,
         ) { AppContent(vm) }
         // the screen stays awake while the app is in use (Settings › Appearance; always in Church mode)
         val view = androidx.compose.ui.platform.LocalView.current
@@ -57,6 +59,14 @@ val LocalTextScale = androidx.compose.runtime.staticCompositionLocalOf { 1f }
 private fun AppContent(vm: AppViewModel) {
     BaibolyTheme(vm.theme, vm.style, vm.palette, vm.textFont, vm.engravedTitles, vm.lineSpacing) {
         Silent.Provide {
+            val app: @Composable () -> Unit = { AppFrame(vm) }
+            if (vm.style == mg.baiboly.app.Style.Navy) NavyDrawer(vm) { app() } else app()
+        }
+    }
+}
+
+@Composable
+private fun AppFrame(vm: AppViewModel) {
             Surface(Modifier.fillMaxSize()) {
                 // Back leads home to the reader (Page: to its menu first); from the reader it leaves the app.
                 BackHandler(enabled = vm.screen != Screen.Main) { vm.screen = backTarget(vm) }
@@ -77,6 +87,8 @@ private fun AppContent(vm: AppViewModel) {
                             Screen.Books -> BooksScreen(vm)
                             Screen.Library -> LibraryScreen(vm)
                             Screen.Menu -> PageMenuScreen(vm)
+                            Screen.Documents -> DocumentsScreen(vm)
+                            Screen.Document -> DocumentScreen(vm)
                         }
                     }
                     // the mode's main pages, one tap away (not over the full-screen map)
@@ -84,13 +96,12 @@ private fun AppContent(vm: AppViewModel) {
                     if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive && !fullMap) StyledNavigation(vm)
                 }
             }
-        }
-    }
 }
 
 /** Where Back goes: the reader, or in the Page theme the menu the page was opened from. */
 fun backTarget(vm: AppViewModel): Screen = when {
     vm.screen == Screen.Main || vm.screen == Screen.Menu -> Screen.Main
+    vm.screen == Screen.Document -> Screen.Documents
     vm.style == mg.baiboly.app.Style.Page && vm.screen != Screen.Books -> Screen.Menu
     else -> Screen.Main
 }

@@ -44,7 +44,10 @@ import java.util.Locale
 /** Where the reader is: the chapter shown and the verses to scroll to and mark. */
 data class ReaderLocation(val book: Int, val chapter: Int, val focus: Passage?)
 
-enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup, Dictionary, Map, Books, Library, Menu }
+/** A chapter with its highlights and notes: the neighbours shown above and below the one being read. */
+data class ChapterBlock(val text: ChapterText, val highlights: List<Highlight>, val notes: List<Note>)
+
+enum class Screen { Main, History, Notes, Highlights, Search, Lists, Settings, About, Backup, Dictionary, Map, Books, Library, Menu, Documents, Document }
 
 /**
  * How the app is used right now. Each mode has its own navigation:
@@ -69,7 +72,7 @@ enum class Tradition { Protestant, Catholic }
 enum class ThemeMode { System, Light, Dark }
 
 /** Colour themes, each with a day and a night version. Stored by name, so the order may change. */
-enum class Palette { Vellum, Lapis, Olive, Purple, Sepia, Paper, Slate }
+enum class Palette { Vellum, Lapis, Olive, Purple, Sepia, Paper, Slate, Navy }
 
 /**
  * Themes: each is a whole design of its own (layout, navigation, controls,
@@ -80,6 +83,8 @@ enum class Style(val palettes: List<Palette>, val font: TextFont, val engraved: 
     Modern(listOf(Palette.Slate, Palette.Paper), TextFont.Sans, false),
     Page(listOf(Palette.Sepia, Palette.Paper), TextFont.Modern, false),
     Glass(listOf(Palette.Lapis, Palette.Purple, Palette.Olive), TextFont.Classic, true),
+    /** White page, navy side menu that slides the page aside; the most used things first in it. */
+    Navy(listOf(Palette.Navy, Palette.Paper, Palette.Sepia), TextFont.Modern, false),
 }
 
 /** Typeface for the Bible text: Gentium (bundled), the phone's serif, or the phone's sans-serif. */
@@ -118,6 +123,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val study = StudyRepository(dbs)
     val library = LibraryRepository(dbs, study)
     val chronicle = mg.baiboly.data.HistoryRepository(dbs)
+    val commentaries = mg.baiboly.data.CommentaryRepository(dbs)
     private val user = UserStore(app)
     private val io = Dispatchers.IO.limitedParallelism(1)
 
@@ -204,6 +210,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         changeStyle(Style.Manuscript); changeLineSpacing(LineSpacing.Normal); changeVerseLayout(VerseLayout.Lines); changeTextSize(20f)
         changeJustify(true); changeHyphenate(true); changeParagraphBreak(ParagraphBreak.Indent); changePageMargin(PageMargin.Normal)
     }
+    /** Navy theme: the side menu is open. */
+    var drawerOpen by mutableStateOf(false)
+
     var mode by mutableStateOf(AppMode.entries[prefs.getInt("mode", 0).coerceIn(0, 2)])
         private set
 
@@ -259,6 +268,20 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var chapterNotes by mutableStateOf<List<Note>>(emptyList())
         private set
+
+    /** Continuous reading (default): the chapters before and after, so the text runs on without a break. */
+    var continuousReading by mutableStateOf(prefs.getBoolean("continuous_reading", true))
+        private set
+    var previousBlock by mutableStateOf<ChapterBlock?>(null)
+        private set
+    var nextBlock by mutableStateOf<ChapterBlock?>(null)
+        private set
+
+    fun changeContinuousReading(on: Boolean) {
+        continuousReading = on
+        prefs.edit().putBoolean("continuous_reading", on).apply()
+        if (on) loadNeighbours() else { previousBlock = null; nextBlock = null }
+    }
 
     /** Incremented whenever the reader must scroll to [ReaderLocation.focus]. */
     var scrollRequest by mutableIntStateOf(0)
@@ -409,10 +432,71 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             val (text, hl, notes) = withContext(io) {
                 Triple(bible.chapter(tid, loc.book, loc.chapter), user.highlightsIn(loc.book, loc.chapter), user.notesIn(loc.book, loc.chapter))
             }
+            // the neighbours with it, all set at once: the reader never shows the old neighbours beside the new chapter
+            val (p, n) = if (continuousReading) neighboursOf(tid, loc.book, loc.chapter) else null to null
+            neighbourJob?.cancel()
             chapter = text
             chapterHighlights = hl
             chapterNotes = notes
+            previousBlock = p; nextBlock = n
             scrollRequest++
+        }
+    }
+
+    private suspend fun blockOf(tid: String, book: Int, chapter: Int): ChapterBlock? = withContext(io) {
+        runCatching { ChapterBlock(bible.chapter(tid, book, chapter), user.highlightsIn(book, chapter), user.notesIn(book, chapter)) }.getOrNull()
+    }
+
+    private suspend fun neighboursOf(tid: String, book: Int, chapter: Int): Pair<ChapterBlock?, ChapterBlock?> {
+        val counts = chapterCounts.ifEmpty { null }
+        val p = Canon.previousChapter(book, chapter, counts)?.let { (b, c) -> blockOf(tid, b, c) }
+        val n = Canon.nextChapter(book, chapter, counts)?.let { (b, c) -> blockOf(tid, b, c) }
+        return p to n
+    }
+
+    private var neighbourJob: Job? = null
+
+    private fun loadNeighbours() {
+        val cur = chapter ?: return
+        neighbourJob?.cancel()
+        neighbourJob = viewModelScope.launch {
+            val (p, n) = neighboursOf(cur.translation, cur.book, cur.chapter)
+            if (chapter == cur) { previousBlock = p; nextBlock = n }
+        }
+    }
+
+    /**
+     * Continuous reading: the reader scrolled into the chapter before or after. It becomes the chapter
+     * being read (title, selection, notes) without moving the text; the next neighbour loads behind it.
+     */
+    fun scrolledInto(book: Int, chapterNo: Int) {
+        val cur = chapter ?: return
+        if (cur.book == book && cur.chapter == chapterNo) return
+        val here = ChapterBlock(cur, chapterHighlights, chapterNotes)
+        val target: ChapterBlock
+        val forward: Boolean
+        val n = nextBlock; val p = previousBlock
+        if (n != null && n.text.book == book && n.text.chapter == chapterNo) { target = n; forward = true }
+        else if (p != null && p.text.book == book && p.text.chapter == chapterNo) { target = p; forward = false }
+        else return
+        neighbourJob?.cancel()
+        chapter = target.text
+        chapterHighlights = target.highlights
+        chapterNotes = target.notes
+        if (forward) { previousBlock = here; nextBlock = null } else { nextBlock = here; previousBlock = null }
+        jumpedFromList = false
+        location = ReaderLocation(book, chapterNo, null)
+        persistState()
+        val tid = target.text.translation
+        neighbourJob = viewModelScope.launch {
+            val counts = chapterCounts.ifEmpty { null }
+            if (forward) {
+                val nb = Canon.nextChapter(book, chapterNo, counts)?.let { (b, c) -> blockOf(tid, b, c) }
+                if (chapter == target.text) nextBlock = nb
+            } else {
+                val pb = Canon.previousChapter(book, chapterNo, counts)?.let { (b, c) -> blockOf(tid, b, c) }
+                if (chapter == target.text) previousBlock = pb
+            }
         }
     }
 
@@ -1099,6 +1183,109 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch { notes = withContext(io) { user.notes() } }
     }
 
+    // ------------------------------------------------------------ sermon notes (Church) and studies (Study)
+
+    var documents by mutableStateOf<List<mg.baiboly.data.NoteDocument>>(emptyList())
+        private set
+
+    /** The document open in the editor ([Screen.Document]); 0 while a new one has not been saved yet. */
+    var openDocument by mutableStateOf<mg.baiboly.data.NoteDocument?>(null)
+        private set
+
+    /** Where the editor returns to. */
+    private var documentReturn: Screen = Screen.Main
+
+    fun refreshDocuments() {
+        viewModelScope.launch { documents = withContext(io) { user.documents() } }
+    }
+
+    /** The passages of the service list, as written in the Bible being read: "Jaona 3: 16; Romana 8: 28". */
+    fun servicePassagesText(): String {
+        val lang = translations.firstOrNull { it.id == translationId }?.lang ?: "mg"
+        return Passage.describe(list.items.map { it.passage }, lang)
+    }
+
+    /**
+     * A new sermon note (Church) or study (Study), opened in the editor. A sermon note records the date
+     * and the passages of the service list; a study starts from the passage being read. Both can be changed.
+     */
+    fun newDocument(kind: String, passage: Passage? = null) {
+        val now = System.currentTimeMillis()
+        val lang = translations.firstOrNull { it.id == translationId }?.lang ?: "mg"
+        val day = java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG, java.util.Locale(uiLanguage.ifEmpty { java.util.Locale.getDefault().language })).format(java.util.Date(now))
+        val doc = if (kind == "sermon") mg.baiboly.data.NoteDocument(
+            0, kind, str(R.string.sermon_of, day), now, servicePassagesText(), "", "", "", "", now, now,
+        ) else {
+            val p = passage ?: location.focus ?: Passage(location.book, location.chapter)
+            mg.baiboly.data.NoteDocument(0, kind, p.longLabel(lang), now, Passage.describe(listOf(p), lang), "", "", "", "", now, now)
+        }
+        openDocument(doc)
+    }
+
+    fun openDocument(d: mg.baiboly.data.NoteDocument) {
+        if (screen != Screen.Document) documentReturn = screen
+        openDocument = d
+        screen = Screen.Document
+    }
+
+    /** The sermon note of today, or a new one: one tap from the service. */
+    fun todaysSermonNote() {
+        viewModelScope.launch {
+            val all = withContext(io) { user.documents("sermon") }
+            val cal = java.util.Calendar.getInstance()
+            fun dayOf(ms: Long) = java.util.Calendar.getInstance().apply { timeInMillis = ms }.let { it.get(java.util.Calendar.YEAR) * 1000 + it.get(java.util.Calendar.DAY_OF_YEAR) }
+            val today = cal.get(java.util.Calendar.YEAR) * 1000 + cal.get(java.util.Calendar.DAY_OF_YEAR)
+            all.firstOrNull { dayOf(it.date) == today }?.let { openDocument(it) } ?: newDocument("sermon")
+        }
+    }
+
+    /** A new document's id once saved, by its creation time: later saves of the same draft update it. */
+    private val savedDraftIds = mutableMapOf<Long, Long>()
+
+    /**
+     * Saves the document (autosave); a new one gets its id. Empty new documents are not kept.
+     * [keepOpen]: false when the editor is closing (the save must not reopen it).
+     */
+    fun saveDocument(d: mg.baiboly.data.NoteDocument, keepOpen: Boolean = true) {
+        if (d.id == 0L && d.body.isBlank() && savedDraftIds[d.createdAt] == null) { if (keepOpen) openDocument = d; return }
+        if (keepOpen) openDocument = d
+        viewModelScope.launch {
+            // one thread for the database: the draft's id is looked up and recorded in the same step
+            val id = withContext(io) {
+                val known = if (d.id == 0L) savedDraftIds[d.createdAt] else null
+                user.saveDocument(if (known != null) d.copy(id = known) else d).also { if (d.id == 0L) savedDraftIds[d.createdAt] = it }
+            }
+            openDocument?.let { o -> if (o.id == 0L && o.createdAt == d.createdAt) openDocument = o.copy(id = id) }
+            documents = withContext(io) { user.documents() }
+        }
+    }
+
+    fun deleteDocument(id: Long) {
+        viewModelScope.launch {
+            withContext(io) { user.deleteDocument(id) }
+            documents = withContext(io) { user.documents() }
+        }
+        if (openDocument?.id == id) closeDocument()
+    }
+
+    fun closeDocument() {
+        openDocument = null
+        screen = documentReturn.takeIf { it != Screen.Document } ?: Screen.Main
+    }
+
+    /** Sermon notes and studies that cite verses of the passage (a link in the text or the passages line). */
+    suspend fun documentsCiting(p: Passage): List<mg.baiboly.data.NoteDocument> = withContext(io) {
+        user.documents().filter { d ->
+            val linked = mg.baiboly.core.notes.NoteMarkup.targets(d.body).any { t ->
+                t is mg.baiboly.core.notes.LinkTarget.Verse && t.passage.book == p.book && t.passage.chapter == p.chapter &&
+                    (p.isWholeChapter || t.passage.isWholeChapter || (t.passage.verseStart <= p.verseEnd && t.passage.verseEnd >= p.verseStart))
+            }
+            linked || mg.baiboly.core.ref.ReferenceParser.parse(d.passages).passages.any { q ->
+                q.book == p.book && q.chapter == p.chapter && (p.isWholeChapter || q.isWholeChapter || (q.verseStart <= p.verseEnd && q.verseEnd >= p.verseStart))
+            }
+        }
+    }
+
     fun refreshHighlights() {
         viewModelScope.launch { highlights = withContext(io) { user.highlights() } }
     }
@@ -1125,11 +1312,17 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Highlights whole verses (one row per contiguous range) or a character range of one verse. */
+    /**
+     * Highlights whole verses (one row per contiguous range) or a character range of one verse.
+     * The same colour on text already highlighted in it takes the highlight off (one verse or many);
+     * another colour replaces it.
+     */
     fun addHighlight(passages: List<Passage>, colour: Int, charRange: IntRange? = null) {
+        val (remove, add) = planHighlight(chapterHighlights, passages, colour, charRange)
         viewModelScope.launch {
             withContext(io) {
-                for (p in passages) user.addHighlight(p, charRange?.first, charRange?.let { it.last + 1 }, colour)
+                remove.forEach { user.deleteHighlight(it) }
+                if (add) for (p in passages) user.addHighlight(p, charRange?.first, charRange?.let { it.last + 1 }, colour)
             }
             refreshAnnotations(); refreshHighlights()
         }
@@ -1259,6 +1452,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         verseLayout = enumPref("verse_layout", VerseLayout.Lines)
         justify = prefs.getBoolean("text_justify", true)
         hyphenate = prefs.getBoolean("text_hyphenate", true)
+        continuousReading = prefs.getBoolean("continuous_reading", true)
         paragraphBreak = enumPref("paragraph_break", ParagraphBreak.Indent)
         pageMargin = enumPref("page_margin", PageMargin.Normal)
         uiDensity = enumPref("ui_density", UiDensity.Compact)
@@ -1276,6 +1470,33 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         location = ReaderLocation(prefs.getInt("loc_book", 43), prefs.getInt("loc_chapter", 1), restoreFocus())
         persistState()
         loadChapter()
-        refreshHistory(); refreshNotes(); refreshHighlights(); refreshSavedLists()
+        refreshHistory(); refreshNotes(); refreshHighlights(); refreshSavedLists(); refreshDocuments()
     }
+}
+
+/**
+ * What a tap on a highlight colour does to the chosen verses (or characters of one verse), given the
+ * chapter's highlights: the ids to delete, and whether to add the new highlight.
+ * Same colour over text already highlighted in that colour: off. Otherwise: replaces what lies inside.
+ */
+internal fun planHighlight(existing: List<Highlight>, passages: List<Passage>, colour: Int, charRange: IntRange?): Pair<List<Long>, Boolean> {
+    if (passages.isEmpty()) return emptyList<Long>() to false
+    val book = passages.first().book; val chapter = passages.first().chapter
+    val here = existing.filter { it.passage.book == book && it.passage.chapter == chapter }
+    val verses = passages.flatMap { p -> (p.firstVerse..maxOf(p.firstVerse, p.verseEnd)).toList() }.toSet()
+    if (charRange == null) {
+        val covered = verses.all { v -> here.any { it.charStart == null && it.colour == colour && it.passage.contains(v) } }
+        val touching = here.filter { h -> verses.any { h.passage.contains(it) } }
+        if (covered) return touching.map { it.id } to false
+        // a new colour: the highlights wholly inside the choice give way to it
+        val inside = touching.filter { h -> h.charStart != null || (h.passage.firstVerse..h.passage.verseEnd).all { it in verses } }
+        return inside.map { it.id } to true
+    }
+    val v = verses.first()
+    val end = charRange.last + 1
+    val sameChars = here.filter { h -> h.charStart != null && h.passage.contains(v) && h.colour == colour && (h.charStart ?: 0) <= charRange.first && (h.charEnd ?: 0) >= end }
+    if (sameChars.isNotEmpty()) return sameChars.map { it.id } to false
+    val wholeSame = here.filter { h -> h.charStart == null && h.colour == colour && h.passage.contains(v) && h.passage.firstVerse == h.passage.verseEnd }
+    if (wholeSame.isNotEmpty()) return wholeSame.map { it.id } to false
+    return here.filter { h -> h.charStart != null && h.passage.contains(v) && (h.charStart ?: 0) >= charRange.first && (h.charEnd ?: 0) <= end }.map { it.id } to true
 }

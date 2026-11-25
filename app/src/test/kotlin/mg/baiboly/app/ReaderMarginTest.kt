@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -112,7 +113,10 @@ class ReaderMarginTest {
         val minInset = 16 * rule.activity.resources.displayMetrics.density * vm.uiDensity.scale
         val bad = mutableListOf<String>()
         // what each setting's row shows: its name, its value, its arrow
-        for (row in listOf("settings-density", "settings-spacing", "settings-layout", "settings-font")) {
+        rule.onNode(androidx.compose.ui.test.hasTestTag("settings-list")).performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
+        rule.onNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting")).performClick()
+        pump(500)
+        for (row in listOf("settings-density", "settings-text-formatting", "settings-typesetting", "settings-font")) {
             rule.onNode(androidx.compose.ui.test.hasTestTag("settings-list")).performScrollToNode(androidx.compose.ui.test.hasTestTag(row))
             pump(300)
             val inside = rule.onAllNodes(androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.hasTestTag(row)), useUnmergedTree = true)

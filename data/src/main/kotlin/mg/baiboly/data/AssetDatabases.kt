@@ -41,7 +41,7 @@ class AssetDatabases(private val context: Context) {
         val dir = context.getDatabasePath("bible.db").parentFile ?: return
         dir.listFiles()?.forEach { f ->
             val name = f.name.removeSuffix("-journal").removeSuffix(".tmp")
-            val ours = name == "bible.db" || name == "study.db" || name == "original.db" || name == "library.db" || name.startsWith("text-")
+            val ours = name == "bible.db" || name == "study.db" || name == "original.db" || name == "library.db" || name.startsWith("text-") || name.startsWith("commentary-")
             if (ours && name !in bundled) f.delete()
         }
         prefs.edit().putInt("cleaned_for", dataVersion).apply()
@@ -58,6 +58,9 @@ class AssetDatabases(private val context: Context) {
     }
 
     fun isInstalled(name: String): Boolean = context.getDatabasePath(name).exists()
+
+    /** Shipped with this version of the app (listed in the manifest). */
+    fun isBundled(name: String): Boolean = name in bundled
 
     private fun installedVersion(file: File): Int = try {
         SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { db ->
