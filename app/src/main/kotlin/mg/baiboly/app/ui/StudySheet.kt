@@ -21,6 +21,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.testTag
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,15 +54,19 @@ import androidx.compose.ui.unit.sp
 import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.R
 import mg.baiboly.core.ref.Passage
+import mg.baiboly.data.ExtendedEntry
 import mg.baiboly.data.LexiconEntry
+import mg.baiboly.data.OriginalVerse
+import mg.baiboly.data.OriginalWord
 import mg.baiboly.data.VerseRef
 import mg.baiboly.data.VerseStudy
 import androidx.compose.material.icons.outlined.Map
 
 private sealed interface StudyPage {
     data object Words : StudyPage
-    data class Entry(val strongs: String) : StudyPage
-    data class Found(val strongs: String) : StudyPage
+    /** [word] is set when the entry was opened from a word of the Hebrew or Greek text (it adds the parsing). */
+    data class Entry(val strongs: String, val word: OriginalWord? = null) : StudyPage
+    data class Found(val strongs: String, val word: OriginalWord? = null) : StudyPage
 }
 
 /**
@@ -75,15 +82,15 @@ fun StudyContent(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismis
         if (page != StudyPage.Words) {
             IconButton(onClick = {
                 page = when (val p = page) {
-                    is StudyPage.Found -> StudyPage.Entry(p.strongs)
+                    is StudyPage.Found -> StudyPage.Entry(p.strongs, p.word)
                     else -> StudyPage.Words
                 }
             }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
         }
         when (val p = page) {
-            StudyPage.Words -> WordsPage(vm, book, chapter, verse) { page = StudyPage.Entry(it) }
-            is StudyPage.Entry -> EntryPage(vm, p.strongs) { page = StudyPage.Found(p.strongs) }
-            is StudyPage.Found -> FoundPage(vm, p.strongs, onOpen = { r -> vm.openInMalagasy(r); onDismiss() })
+            StudyPage.Words -> WordsPage(vm, book, chapter, verse) { strongs, word -> page = StudyPage.Entry(strongs, word) }
+            is StudyPage.Entry -> EntryPage(vm, p.strongs, p.word) { page = StudyPage.Found(p.strongs, p.word) }
+            is StudyPage.Found -> FoundPage(vm, p.strongs, p.word != null, onOpen = { r -> vm.openInMalagasy(r); onDismiss() })
         }
     }
 }
@@ -93,7 +100,7 @@ fun StudyContent(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismis
 fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, startOnCrossRefs: Boolean = false, onDismiss: () -> Unit) =
     PassageToolsSheet(vm, Passage(book, chapter, verse, verse), if (startOnCrossRefs) PassageTab.References else PassageTab.Original, onDismiss)
 
-enum class PassageTab { Translations, Original, Commentary, References, People, Places, Units, Dictionary, Confessions, MyNotes }
+enum class PassageTab { Translations, Introduction, Original, Commentary, References, People, Places, Units, Dictionary, Confessions, MyNotes }
 
 /**
  * Everything about the selected verses, in one panel (any mode: Study on the
@@ -165,6 +172,7 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                             Text(
                                 when (t) {
                                     PassageTab.Translations -> stringResource(R.string.tab_translations)
+                                    PassageTab.Introduction -> stringResource(R.string.tab_book_intro)
                                     PassageTab.Original -> studySymbol(passage.book) + " " + stringResource(R.string.original_words)
                                     PassageTab.References -> stringResource(R.string.cross_references)
                                     PassageTab.Places -> stringResource(R.string.tab_places) + " (${places?.size ?: 0})"
@@ -191,6 +199,7 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                 val m = mg
                 when (shown) {
                     PassageTab.Translations -> TranslationsPage(vm, passage, onDismiss)
+                    PassageTab.Introduction -> BookIntroPage(vm, passage.book)
                     PassageTab.Original -> if (m == null) Text(stringResource(R.string.loading)) else OriginalPage(vm, m, onDismiss)
                     PassageTab.References -> CrossRefContent(vm, passage.verseStart.coerceAtLeast(1), onDismiss)
                     PassageTab.Places -> PlacesPage(vm, places.orEmpty(), onDismiss)
@@ -353,32 +362,92 @@ private fun DictionaryPage(vm: AppViewModel, matches: List<AppViewModel.DictMatc
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun WordsPage(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onWord: (String) -> Unit) {
+private fun WordsPage(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onWord: (String, OriginalWord?) -> Unit) {
     var data by remember { mutableStateOf<VerseStudy?>(null) }
-    LaunchedEffect(book, chapter, verse) { data = vm.studyVerse(book, chapter, verse) }
+    var original by remember { mutableStateOf<OriginalVerse?>(null) }
+    LaunchedEffect(book, chapter, verse) {
+        data = vm.studyVerse(book, chapter, verse)
+        original = runCatching { vm.studyOriginal(book, chapter, verse) }.getOrNull()
+    }
     val d = data ?: return Text(stringResource(R.string.loading))
     Column(Modifier.verticalScroll(rememberScrollState())) {
+        if (d.numberingUncertain) {
+            Text(
+                stringResource(R.string.study_numbering_warning),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+        }
+        original?.takeIf { it.words.isNotEmpty() }?.let { o ->
+            Text(
+                stringResource(if (o.hebrew) R.string.original_text_hebrew else R.string.original_text_greek),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+            Text(
+                stringResource(R.string.original_text_note, "${o.kjv.chapter}:${o.kjv.verse}"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
+            // Hebrew is read from right to left: the first word is on the right
+            CompositionLocalProvider(LocalLayoutDirection provides if (o.hebrew) LayoutDirection.Rtl else LayoutDirection.Ltr) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    o.words.forEach { w ->
+                        val tint = if (w.onlyInReceivedText) 0.6f else 1f
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            modifier = Modifier.clip(RoundedCornerShape(12.dp))
+                                .clickable(enabled = w.strongs != null) { w.strongs?.let { onWord(it, w) } }
+                                .heightIn(min = 48.dp).testTag("orig:${w.strongs}"),
+                        ) {
+                            Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(w.word, fontFamily = TextSerif, fontSize = 24.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = tint))
+                                w.translit?.takeIf { it.isNotBlank() }?.let {
+                                    Text(it, style = MaterialTheme.typography.labelMedium, fontStyle = FontStyle.Italic, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                w.gloss?.takeIf { it.isNotBlank() }?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                                w.strongs?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary) }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!o.hebrew && o.words.any { it.onlyInReceivedText }) {
+                Text(
+                    stringResource(R.string.original_text_tr_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
+            }
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+        }
+        Text(
+            stringResource(R.string.study_kjv_heading),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
         Text(
             stringResource(R.string.study_kjv_note, "${d.kjv.chapter}:${d.kjv.verse}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(vertical = 6.dp),
         )
-        if (d.numberingUncertain) {
-            Text(
-                stringResource(R.string.study_numbering_warning),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 6.dp),
-            )
-        }
         if (d.words.isEmpty()) Text(stringResource(R.string.study_no_words))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             d.words.forEach { w ->
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { onWord(w.strongs) }.heightIn(min = 48.dp).testTag("word:${w.strongs}"),
+                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { onWord(w.strongs, null) }.heightIn(min = 48.dp).testTag("word:${w.strongs}"),
                 ) {
                     Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                         Row(verticalAlignment = Alignment.Bottom) {
@@ -399,11 +468,25 @@ private fun WordsPage(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onW
 }
 
 @Composable
-private fun EntryPage(vm: AppViewModel, strongs: String, onFound: () -> Unit) {
+private fun EntryPage(vm: AppViewModel, strongs: String, word: OriginalWord?, onFound: () -> Unit) {
     var data by remember { mutableStateOf<Pair<LexiconEntry?, Int>?>(null) }
-    LaunchedEffect(strongs) { data = vm.lexicon(strongs) }
+    var fuller by remember { mutableStateOf<ExtendedEntry?>(null) }
+    LaunchedEffect(strongs, word) {
+        data = vm.lexicon(strongs, word != null)
+        fuller = runCatching { vm.extendedEntry(strongs, word?.dstrong) }.getOrNull()
+    }
     val (e, count) = data ?: return Text(stringResource(R.string.loading))
     Column(Modifier.verticalScroll(rememberScrollState()).padding(top = 8.dp)) {
+        if (word != null) {
+            Text(word.word, fontFamily = TextSerif, fontSize = 34.sp)
+            Text(
+                listOfNotNull(word.translit?.takeIf { it.isNotBlank() }, word.gloss?.takeIf { it.isNotBlank() }?.let { "“$it”" }).joinToString(" · "),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            word.parsing?.let { Field(stringResource(R.string.parsing), it) }
+            HorizontalDivider(Modifier.padding(top = 12.dp))
+        }
         if (e == null) {
             Text(stringResource(R.string.no_entry, strongs))
         } else {
@@ -416,6 +499,18 @@ private fun EntryPage(vm: AppViewModel, strongs: String, onFound: () -> Unit) {
             e.partOfSpeech?.let { Field(stringResource(R.string.part_of_speech), it) }
             e.definition?.takeIf { it.isNotBlank() }?.let { Field(stringResource(R.string.definition), it) }
             e.kjvUsage?.takeIf { it.isNotBlank() }?.let { Field(stringResource(R.string.kjv_usage), it) }
+        }
+        fuller?.let { f ->
+            val text = listOfNotNull(f.gloss?.takeIf { it.isNotBlank() }, f.definition?.takeIf { it.isNotBlank() }).joinToString("\n\n")
+            if (text.isNotBlank()) {
+                Field(stringResource(if (strongs.startsWith("H")) R.string.fuller_definition_hebrew else R.string.fuller_definition_greek), text)
+                Text(
+                    stringResource(R.string.fuller_definition_credit),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
         }
         Button(onClick = onFound, enabled = count > 0, modifier = Modifier.padding(vertical = 12.dp).heightIn(min = 48.dp).testTag("found")) {
             Text(stringResource(R.string.found_n_verses, count))
@@ -430,9 +525,9 @@ private fun Field(label: String, value: String) {
 }
 
 @Composable
-private fun FoundPage(vm: AppViewModel, strongs: String, onOpen: (VerseRef) -> Unit) {
+private fun FoundPage(vm: AppViewModel, strongs: String, inOriginal: Boolean, onOpen: (VerseRef) -> Unit) {
     var data by remember { mutableStateOf<List<Pair<VerseRef, String>>?>(null) }
-    LaunchedEffect(strongs) { data = vm.versesWith(strongs) }
+    LaunchedEffect(strongs, inOriginal) { data = vm.versesWith(strongs, inOriginal) }
     val list = data ?: return Text(stringResource(R.string.loading))
     Text(
         stringResource(R.string.found_n_verses, list.size) + " · " + strongs,

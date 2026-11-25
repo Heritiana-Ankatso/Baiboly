@@ -136,6 +136,15 @@
     <string name="part_of_speech">Karazan-teny</string>
     <string name="definition">Dikany (amin’ny teny anglisy)</string>
     <string name="kjv_usage">Fandikana azy ao amin’ny KJV</string>
+    <string name="original_text_hebrew">Teny hebreo (Testamenta Taloha)</string>
+    <string name="original_text_greek">Teny grika (Testamenta Vaovao)</string>
+    <string name="original_text_note">Andininy %1$s amin’ny soratra tany am-boalohany. Tsindrio ny teny iray mba hahitana ny fanazavana ny endriny, ny dikany ary ny andininy mampiasa azy.</string>
+    <string name="original_text_tr_note">Ny teny mikorontana dia ao amin’ny Textus Receptus (ny grika nanaovana ny KJV) fa tsy ao amin’ny soratra Nestlé-Aland.</string>
+    <string name="study_kjv_heading">Laharana Strong ao amin’ny KJV</string>
+    <string name="parsing">Famakafakana ny endrika</string>
+    <string name="fuller_definition_hebrew">Dikany feno kokoa (Brown-Driver-Briggs fohifohy, amin’ny teny anglisy)</string>
+    <string name="fuller_definition_greek">Dikany feno kokoa (Abbott-Smith sy hafa, amin’ny teny anglisy)</string>
+    <string name="fuller_definition_credit">STEP Bible (www.STEPBible.org), Tyndale House, Cambridge · CC BY 4.0</string>
     <string name="pronunciation">Fanononana</string>
     <string name="back">Hiverina</string>
     <string name="no_entry">Tsy misy ao amin’ny rakibolana ny %1$s.</string>
@@ -190,12 +199,12 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Mitohy avy amin’ny toko iray mankany amin’ny manaraka ny famakiana rehefa ampidinina (Fikirana › Endrika › Fandrafetana ny soratra › Famakiana mitohy; mandeha raha tsy ovaina).</item>
-        <item>Naoty: amin’ny maodely Fiangonana, naoty toriteny amin’ny tsindry iray (tabilao Naoty, na ny bokotra naoty eo amin’ny pejin’ny fotoam-pivavahana), efa misy ny daty sy ny andalan-tenin’ny fotoam-pivavahana. Amin’ny maodely Fianarana, fianarana misy drafitra, modely ary fizarana azo afindra. Ampifandraiso amin’ny andininy, olona ary zava-nitranga ny teny; tahirizo ho Markdown, soratra, HTML, Word na PDF.</item>
-        <item>Fanazavana ao amin’ny tontonana fianarana: Calvin, ny fanamarihana ao amin’ny Baibolin’i Genève ary Matthew Henry (fohy).</item>
-        <item>Tantara: “Lalina kokoa: hatramin’izao” dia mitohy avy amin’ny Rain’ny Fiangonana, amin’ny Fanavaozana ka hatramin’izao, miaraka amin’ny Fiangonana eto Madagasikara; voavondrona isaky ny vanim-potoana ny lisitra, ary azo afenina tsirairay.</item>
-        <item>Endrika vaovao, Manga maizina: pejy fotsy sy lisitry ny safidy eo amin’ny sisiny, ka ny fikarohana, ny boky ary ny naotinao no aloha.</item>
-        <item>Fandrafetana ny soratra ao anaty vondrona iray, ny fandaharana miaraka amin’ny sary mahazatra; manaraka ny Baiboly vakiana ny fanafohezana ny anaran’ny boky; azo avadika amin’ny lafiny roa ny refy; ny loko mitovy amin’ny soratra efa voaloko dia manala azy, na dia andininy iray aza.</item>
+        <item>Teny hebreo sy grika: ao amin’ny tontonana Fianarana, ny andininy tsirairay dia mampiseho ny teny tany am-boalohany raha teny raha teny, miaraka amin’ny fanoratana amin’ny litera latina, ny dikany ary ny famakafakana ny endriny amin’ny teny mazava.</item>
+        <item>Tsindrio ny teny hebreo na grika iray mba hahitana ny Strong, ny dikany feno kokoa (Brown-Driver-Briggs fohifohy na Abbott-Smith) ary ny andininy mampiasa io teny io ihany.</item>
+        <item>Ny teny grika hita ao amin’ny Textus Receptus ihany (ny grika nanaovana ny KJV) dia aseho mikorontana eo anilan’ny soratra Nestlé-Aland.</item>
+        <item>Fanisana andininy: toko 63 hafa no mifanaraka amin’ny fanisana hebreo (Eksodosy 7:26 dia 8:1 amin’ny Baiboly anglisy), ka mifanaraka ny Baiboly hafa ao amin’ny tontonana Fianarana.</item>
+        <item>Ny fanehoan-kevitr’i Matthew Henry feno dia miaraka amin’ny fohifohy ao amin’ny tabilao Fanehoan-kevitra.</item>
+        <item>Fampidirana ny boky 66 (mpanoratra, daty, toerana, fandaharana, hafatra ao amin’i Kristy) sy ny tantaran’ny Soratra Masina, ao amin’ny tabilao Fampidirana (amin’ny teny anglisy).</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -521,6 +530,14 @@
     <string name="church_history_credit">Tantaran’ny Fiangonana taorian’ny apostoly: daty avy amin’ny boky fanovozan-kevitra, natambatra ho an’i Baiboly; ‘tokony ho’ raha tsy fantatra tsara ny daty.</string>
     <string name="madagascar">Madagasikara</string>
     <string name="commentary">Fanazavana</string>
+    <string name="tab_book_intro">Fampidirana</string>
+    <string name="intro_english_note">Amin’ny teny anglisy ny fampidirana.</string>
+    <string name="intro_author">Mpanoratra sy daty</string>
+    <string name="intro_setting">Toerana sy mpamaky</string>
+    <string name="intro_structure">Fandaharana</string>
+    <string name="intro_message">Hafatra sy Kristy</string>
+    <string name="intro_storyline">Ny tantaran’ny Soratra Masina</string>
+    <string name="intro_storyline_note">Fanekena iray ihany amin’ny fahasoavana hatrany Genesisy ka hatrany Fanambarana, tsikelikely. ▸ manondro ny toerana misy ity boky ity.</string>
     <string name="commentary_none">Tsy manana fanamarihana momba ireo andininy ireo ny %1$s.</string>
     <string name="commentary_credit">Fanazavana tsy misy zon’ny mpamorona (modules SWORD an’i CrossWire): an’i Calvin, ny fanamarihana ao amin’ny Baibolin’i Genève (1599), ary ny fanazavana fohy nataon’i Matthew Henry. Amin’ny teny anglisy.</string>
     <string name="sermon_of">Toriteny tamin’ny %1$s</string>

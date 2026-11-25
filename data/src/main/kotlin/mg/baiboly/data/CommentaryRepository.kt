@@ -8,7 +8,7 @@ data class CommentNote(val commentary: Commentary, val book: Int, val chapter: I
 
 /**
  * Commentaries in the public domain: the Geneva Bible notes (1599), Calvin's commentaries and Matthew
- * Henry's Concise Commentary, all of the Reformed tradition. Each is its own database
+ * Henry's Concise and Complete Commentaries, all of the Reformed tradition. Each is its own database
  * (commentary-<id>.db), unpacked on the phone only when first opened.
  */
 class CommentaryRepository(private val dbs: AssetDatabases) {
@@ -29,6 +29,7 @@ class CommentaryRepository(private val dbs: AssetDatabases) {
             Commentary("calvin", "Calvin’s Commentaries", "John Calvin", "1540–1564", "reformed"),
             Commentary("geneva", "Geneva Bible notes", "Translators of the Geneva Bible", "1560–1599", "reformed"),
             Commentary("mhcc", "Matthew Henry’s Concise Commentary", "Matthew Henry", "1706–1721", "reformed"),
+            Commentary("mhc", "Matthew Henry’s Complete Commentary", "Matthew Henry (Romans to Revelation completed by other ministers)", "1706–1721", "reformed"),
         )
     }
 }

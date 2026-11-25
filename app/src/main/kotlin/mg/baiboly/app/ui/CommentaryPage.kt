@@ -57,7 +57,7 @@ fun CommentaryPage(vm: AppViewModel, passage: Passage, onDismiss: () -> Unit) {
     Column(Modifier.fillMaxSize().testTag("commentary")) {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             items(all, key = { it.id }) { k ->
-                FilterChip(selected = k.id == c.id, onClick = { chosen = k.id }, label = { Text(k.author.substringAfterLast(' ').let { if (k.id == "geneva") "Geneva" else it }) },
+                FilterChip(selected = k.id == c.id, onClick = { chosen = k.id }, label = { Text(when (k.id) { "geneva" -> "Geneva"; "calvin" -> "Calvin"; "mhcc" -> "Henry (concise)"; "mhc" -> "Henry (complete)"; else -> k.title }) },
                     modifier = Modifier.testTag("commentary:${k.id}"))
             }
         }

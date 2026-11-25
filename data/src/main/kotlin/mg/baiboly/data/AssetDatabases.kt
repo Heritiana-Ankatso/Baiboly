@@ -41,7 +41,7 @@ class AssetDatabases(private val context: Context) {
         val dir = context.getDatabasePath("bible.db").parentFile ?: return
         dir.listFiles()?.forEach { f ->
             val name = f.name.removeSuffix("-journal").removeSuffix(".tmp")
-            val ours = name == "bible.db" || name == "study.db" || name == "library.db" || name.startsWith("text-") || name.startsWith("commentary-")
+            val ours = name == "bible.db" || name == "study.db" || name == "original.db" || name == "library.db" || name.startsWith("text-") || name.startsWith("commentary-")
             if (ours && name !in bundled) f.delete()
         }
         prefs.edit().putInt("cleaned_for", dataVersion).apply()

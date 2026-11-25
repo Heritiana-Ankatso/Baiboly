@@ -19,6 +19,37 @@ data class LexiconEntry(
     val kjvUsage: String?,
 )
 
+/** A word of the Hebrew (OT) or Greek (NT) text of a verse, with its parsing in words. */
+data class OriginalWord(
+    val word: String,
+    val translit: String?,
+    val gloss: String?,
+    /** Strong's number (H7225, G976): the lexicon key. */
+    val strongs: String?,
+    /** Extended Strong's number (H7225G): the key of the fuller STEPBible lexicon. */
+    val dstrong: String?,
+    /** The parsing, e.g. "Verb : Qal (Simple, Active) Perfect ... Third Singular Masculine"; null if unknown. */
+    val parsing: String?,
+    /** Greek only: the word is in the Textus Receptus but not in the Nestle-Aland text. */
+    val onlyInReceivedText: Boolean,
+)
+
+data class OriginalVerse(
+    val kjv: VerseRef,
+    val hebrew: Boolean,
+    val words: List<OriginalWord>,
+)
+
+/** The fuller lexicon of STEPBible: abridged BDB (Hebrew) or Abbott-Smith and others (Greek). */
+data class ExtendedEntry(
+    val dstrong: String,
+    val lemma: String?,
+    val translit: String?,
+    val partOfSpeech: String?,
+    val gloss: String?,
+    val definition: String?,
+)
+
 /** A verse in Malagasy numbering. */
 data class VerseRef(val book: Int, val chapter: Int, val verse: Int)
 
@@ -78,6 +109,46 @@ class StudyRepository(private val dbs: AssetDatabases) {
         }
         return VerseStudy(kjv, words, uncertain)
     }
+
+    private val original get() = dbs.get("original.db")
+
+    /** The Hebrew or Greek words of a verse (Malagasy numbering in; the text itself is numbered as the KJV). */
+    fun originalText(mg: VerseRef): OriginalVerse {
+        val kjv = toKjv(mg).first
+        // a psalm's title is verse 0 of the original text and verse 1 of the KJV numbering used here
+        val first = if (kjv.book == 19 && kjv.verse == 1) 0 else kjv.verse
+        val words = original.rawQuery(
+            "SELECT w.word, w.translit, w.gloss, w.strongs, w.dstrong, m.label, w.flag FROM orig_word w " +
+                "LEFT JOIN morph_label m ON m.code = w.morph WHERE w.book=? AND w.chapter=? AND w.verse BETWEEN ? AND ? " +
+                "ORDER BY w.verse, w.position",
+            arrayOf(kjv.book.toString(), kjv.chapter.toString(), first.toString(), kjv.verse.toString()),
+        ).use { c ->
+            buildList {
+                while (c.moveToNext()) add(
+                    OriginalWord(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getString(6) == "K"),
+                )
+            }
+        }
+        return OriginalVerse(kjv, kjv.book <= 39, words)
+    }
+
+    /** The STEPBible lexicon entry of an extended Strong's number, else the first entry of the plain number. */
+    fun extendedEntry(strongs: String, dstrong: String?): ExtendedEntry? {
+        fun read(sql: String, arg: String): ExtendedEntry? = original.rawQuery(sql, arrayOf(arg)).use { c ->
+            if (c.moveToFirst()) ExtendedEntry(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5)) else null
+        }
+        val cols = "SELECT dstrong, lemma, translit, pos, gloss, definition FROM lexicon_ext"
+        return dstrong?.let { read("$cols WHERE dstrong=?", it) } ?: read("$cols WHERE strongs=? ORDER BY dstrong LIMIT 1", strongs)
+    }
+
+    fun originalVerseCount(strongs: String): Int =
+        original.rawQuery("SELECT COUNT(*) FROM orig_strongs_verse WHERE strongs=?", arrayOf(strongs)).use { c -> c.moveToFirst(); c.getInt(0) }
+
+    /** Every verse whose Hebrew or Greek text has a word with [strongs], in Malagasy numbering, canonical order. */
+    fun originalVersesWith(strongs: String): List<VerseRef> = original.rawQuery(
+        "SELECT book, chapter, verse FROM orig_strongs_verse WHERE strongs=? AND verse>0 ORDER BY book, chapter, verse",
+        arrayOf(strongs),
+    ).use { c -> buildList { while (c.moveToNext()) add(fromKjv(VerseRef(c.getInt(0), c.getInt(1), c.getInt(2)))) } }
 
     fun entry(strongs: String): LexiconEntry? = db.rawQuery(
         "SELECT strongs, lemma, translit, pron, part_of_speech, definition_en, kjv_usage FROM lexicon WHERE strongs=?",

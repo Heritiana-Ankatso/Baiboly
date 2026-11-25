@@ -5,6 +5,8 @@ Reformed commentaries in the public domain, from CrossWire SWORD modules (zCom):
   * Geneva Bible Translation Notes (1599): the notes of the Genevan exiles' Bible.
   * Calvin's Collected Commentaries (Calvin Translation Society, 1840s-1850s).
   * Matthew Henry's Concise Commentary (1706-1721; abridged edition).
+  * Matthew Henry's Complete Commentary on the Whole Bible (1706-1721; Romans to Revelation completed by
+    other nonconformist ministers after his death in 1714).
 
 Each becomes its own database, commentary-<id>.db, unpacked on the phone only when first opened:
     comment(book, chapter, v1, v2, body)   -- verses in Malagasy 1865 numbering
@@ -24,10 +26,11 @@ COMMENTARIES = [
     ("geneva", "Geneva", "Geneva Bible notes", "Translators of the Geneva Bible", "1599", "reformed"),
     ("calvin", "CalvinCommentaries", "Calvin’s Commentaries", "John Calvin", "1540–1564", "reformed"),
     ("mhcc", "MHCC", "Matthew Henry’s Concise Commentary", "Matthew Henry", "1706–1721", "reformed"),
+    ("mhc", "MHC", "Matthew Henry’s Complete Commentary", "Matthew Henry (Romans to Revelation completed by other ministers)", "1706–1721", "reformed"),
 ]
 
 
-def _entries(zf, data_path, canon, osis_ids):
+def _entries(zf, data_path, canon, osis_ids, wide=False):
     """(book, chapter, verse, key, raw): key identifies the stored text, shared by linked verses."""
     data_path = data_path.lstrip("./").rstrip("/") + "/"
     for t in ("ot", "nt"):
@@ -38,7 +41,8 @@ def _entries(zf, data_path, canon, osis_ids):
         cache = {}
 
         def entry(i):
-            b, o, s = struct.unpack("<IIH", bzv[i * 10:i * 10 + 10])
+            # zCom: 4+4+2 bytes per verse; zCom4 (the complete Henry): 4+4+4
+            b, o, s = struct.unpack("<III", bzv[i * 12:i * 12 + 12]) if wide else struct.unpack("<IIH", bzv[i * 10:i * 10 + 10])
             if s == 0:
                 return None, ""
             if b not in cache:
@@ -130,7 +134,7 @@ def build_commentaries(fetch, crosswire_url, conf_of, check_crosswire, canons, o
         v11n = conf.get("Versification", "KJV").lower()
         rows = []
         last_key, start = None, None
-        for book, ch, v, key, raw in _entries(zf, conf["DataPath"], canons[v11n], osis_ids):
+        for book, ch, v, key, raw in _entries(zf, conf["DataPath"], canons[v11n], osis_ids, conf.get("ModDrv") == "zCom4"):
             if key is not None and key == last_key and start and start[0] == book and start[1] == ch:
                 rows[-1][3] = v          # linked verse: the same note runs on
                 continue

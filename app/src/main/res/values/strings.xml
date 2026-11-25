@@ -142,6 +142,15 @@
     <string name="part_of_speech">Part of speech</string>
     <string name="definition">Definition</string>
     <string name="kjv_usage">KJV renderings</string>
+    <string name="original_text_hebrew">Hebrew text (Old Testament)</string>
+    <string name="original_text_greek">Greek text (New Testament)</string>
+    <string name="original_text_note">Verse %1$s of the original text. Tap a word for its parsing, dictionary entry and the verses that use it.</string>
+    <string name="original_text_tr_note">Faded words are in the Textus Receptus (the Greek behind the KJV) but not in the Nestlé-Aland text.</string>
+    <string name="study_kjv_heading">Strong’s numbers in the KJV</string>
+    <string name="parsing">Parsing</string>
+    <string name="fuller_definition_hebrew">Fuller definition (abridged Brown-Driver-Briggs)</string>
+    <string name="fuller_definition_greek">Fuller definition (Abbott-Smith and others)</string>
+    <string name="fuller_definition_credit">STEP Bible (www.STEPBible.org), Tyndale House, Cambridge · CC BY 4.0</string>
     <string name="pronunciation">Pronunciation</string>
     <string name="back">Back</string>
     <string name="no_entry">No dictionary entry for %1$s.</string>
@@ -205,12 +214,12 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Reading runs on from chapter to chapter as you scroll (Settings › Appearance › Text formatting › Continuous reading; on by default).</item>
-        <item>Notes: in Church mode a sermon note in one tap (Notes tab, or the note button on the service page), with the date and the service’s passages filled in. In Study mode, studies with an outline, templates and sections that move. Link words to verses, people and events; save as Markdown, text, HTML, Word or PDF.</item>
-        <item>Commentaries in the Study panel: Calvin, the Geneva Bible notes and Matthew Henry (Concise).</item>
-        <item>Timeline: “Go deeper: to today” runs on from the Fathers through the Reformation to today, with the church in Madagascar; the list is grouped by era, each one folding away.</item>
-        <item>A new theme, Navy: a white page and a side menu with search, the books and your notes first.</item>
-        <item>Text formatting in one group, alignment with its usual icons; book abbreviations follow the Bible you read; units convert both ways; the same highlight colour on highlighted text takes it off, one verse included.</item>
+        <item>Hebrew and Greek text: in the Study panel each verse shows its original words one by one, with transliteration, gloss and parsing in plain words (for example “verb, Qal, perfect, third person singular masculine”).</item>
+        <item>Tap a Hebrew or Greek word for its Strong’s entry, a fuller definition (abridged Brown-Driver-Briggs or Abbott-Smith) and the verses that use the same word.</item>
+        <item>Greek words found only in the Textus Receptus (the Greek behind the KJV) are shown faded next to the Nestlé-Aland text.</item>
+        <item>Verse numbering: 63 more chapters are now matched to the Hebrew verse numbers (Exodus 7:26 is 8:1 in English Bibles), so the other Bibles line up in the Study panel.</item>
+        <item>Matthew Henry’s complete commentary joins the Concise one in the Commentary tab.</item>
+        <item>Introductions to all 66 books (author, date, setting, outline, message in Christ) and the storyline of Scripture, in the Introduction tab (English).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -536,6 +545,14 @@
     <string name="church_history_credit">Church history after the apostles: dates from standard reference works, compiled for Baiboly; ‘about’ marks a date known only roughly.</string>
     <string name="madagascar">Madagascar</string>
     <string name="commentary">Commentary</string>
+    <string name="tab_book_intro">Introduction</string>
+    <string name="intro_english_note">Introductions are in English.</string>
+    <string name="intro_author">Author and date</string>
+    <string name="intro_setting">Setting and readers</string>
+    <string name="intro_structure">Outline</string>
+    <string name="intro_message">Message and Christ</string>
+    <string name="intro_storyline">The storyline of Scripture</string>
+    <string name="intro_storyline_note">One covenant of grace from Genesis to Revelation, in stages. ▸ marks where this book belongs.</string>
     <string name="commentary_none">%1$s has no note on these verses.</string>
     <string name="commentary_credit">Commentaries in the public domain (CrossWire SWORD modules): Calvin’s Commentaries (Calvin Translation Society), the Geneva Bible notes (1599), Matthew Henry’s Concise Commentary. In English.</string>
     <string name="sermon_of">Sermon of %1$s</string>
