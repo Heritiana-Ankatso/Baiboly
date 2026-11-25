@@ -886,7 +886,7 @@ private fun TextFormattingSettings(vm: AppViewModel) {
             ),
             selected = vm.paragraphBreak, tag = "settings-paragraph-break",
         ) { vm.changeParagraphBreak(it) }
-        ChoiceRow(
+        SegmentedChoiceRow(
             label = stringResource(R.string.margins),
             options = listOf(
                 ChoiceOption(PageMargin.Narrow, stringResource(R.string.margin_narrow)) { c -> MarginGlyph(0.14f, c) },
@@ -907,7 +907,7 @@ private fun TextFormattingSettings(vm: AppViewModel) {
     }
 }
 
-/** One choice of a [ChoiceRow]: its value, the word under it and the drawing above it (tinted with the colour given). */
+/** One choice of a [SegmentedChoiceRow]: its value, the word under it and the drawing above it (tinted with the colour given). */
 class ChoiceOption<T>(val value: T, val label: String, val glyph: @Composable (Color) -> Unit)
 
 /** Width of every segmented control, whatever the number of choices, so all rows line up. */
@@ -918,7 +918,7 @@ private val ChoiceControlWidth = 216.dp
  * width and height (two or three equal segments), so the section reads as one column.
  */
 @Composable
-fun <T> ChoiceRow(label: String, options: List<ChoiceOption<T>>, selected: T, tag: String, onSelect: (T) -> Unit) {
+fun <T> SegmentedChoiceRow(label: String, options: List<ChoiceOption<T>>, selected: T, tag: String, onSelect: (T) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).padding(end = 12.dp))
@@ -946,10 +946,10 @@ fun <T> ChoiceRow(label: String, options: List<ChoiceOption<T>>, selected: T, ta
     }
 }
 
-/** Same as [ChoiceRow] with a Material icon as the drawing. */
+/** Same as [SegmentedChoiceRow] with a Material icon as the drawing. */
 @Composable
 fun <T> IconChoiceRow(label: String, options: List<Triple<T, androidx.compose.ui.graphics.vector.ImageVector, String>>, selected: T, tag: String, onSelect: (T) -> Unit) =
-    ChoiceRow(label, options.map { (v, icon, text) -> ChoiceOption(v, text) { c -> Icon(icon, null, tint = c, modifier = Modifier.size(22.dp)) } }, selected, tag, onSelect)
+    SegmentedChoiceRow(label, options.map { (v, icon, text) -> ChoiceOption(v, text) { c -> Icon(icon, null, tint = c, modifier = Modifier.size(22.dp)) } }, selected, tag, onSelect)
 
 /** A page seen from the front: the text block sits [inset] (share of the width) from each side, so the margin is what is drawn. */
 @Composable
