@@ -1,3 +1,12 @@
+## Baiboly 1.9.0
+
+**Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept.
+
+* **Hebrew and Greek text** (Study panel, any mode): each verse's original words one by one: Old Testament from the Leningrad codex, New Testament from the Nestlé-Aland text with the Textus Receptus words faded. Each word has its transliteration, gloss, Strong's number and parsing in plain words.
+* **Word entries:** Strong's, then a fuller definition (abridged Brown-Driver-Briggs for Hebrew, Abbott-Smith and others for Greek, in English), and *Found N verses* by the Hebrew or Greek word itself.
+* **Verse numbering:** 63 of the 85 chapters that had a numbering warning are now matched by the Hebrew verse numbers (Exodus 7:26 is 8:1 in English Bibles); 22 keep the warning.
+* **Data:** about 14 MB more in the APK; the Hebrew and Greek data is unpacked on the phone only when the Study panel is first opened. Sources: STEPBible-Data, Tyndale House, Cambridge (CC BY 4.0), credited on the About screen. The Malagasy and French wording of the new labels is a draft to review.
+
 ## Baiboly 1.8.0
 
 **Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept.

@@ -199,10 +199,10 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Boky: lisitra iray isaky ny Testamenta, mizara fizarana (Bokin’i Mosesy, Tantara, … Filazantsara sy Asan’ ny Apostoly, Epistilin’i Paoly, … Fanambarana), misokatra eo amin’ny boky vakianao.</item>
-        <item>Refy: “1 hakiho =” no voalohany, avy eo “= 24 voantondro” isaky ny andalana; tabilao ny halavana, ny lanja ary ny karazany hafa.</item>
-        <item>Fikirana › Endrika: ohatra amin’ny soratra sy ny habeny eo ambony, avy eo andalana iray isaky ny fikirana miaraka amin’ny sandany; tsindrio dia miseho ny safidy.</item>
-        <item>Topy maso ho azy: ilay andalan-teny amin’ny fitenin’ny fampiharana, raha tsy izany amin’ny fitenin’ny finday, raha tsy mitovy amin’ny Baiboly vakianao; raha tsy izany amin’ny teny malagasy (frantsay raha malagasy no vakianao).</item>
+        <item>Teny hebreo sy grika: ao amin’ny tontonana Fianarana, ny andininy tsirairay dia mampiseho ny teny tany am-boalohany raha teny raha teny, miaraka amin’ny fanoratana amin’ny litera latina, ny dikany ary ny famakafakana ny endriny amin’ny teny mazava.</item>
+        <item>Tsindrio ny teny hebreo na grika iray mba hahitana ny Strong, ny dikany feno kokoa (Brown-Driver-Briggs fohifohy na Abbott-Smith) ary ny andininy mampiasa io teny io ihany.</item>
+        <item>Ny teny grika hita ao amin’ny Textus Receptus ihany (ny grika nanaovana ny KJV) dia aseho mikorontana eo anilan’ny soratra Nestlé-Aland.</item>
+        <item>Fanisana andininy: toko 63 hafa no mifanaraka amin’ny fanisana hebreo (Eksodosy 7:26 dia 8:1 amin’ny Baiboly anglisy), ka mifanaraka ny Baiboly hafa ao amin’ny tontonana Fianarana.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>

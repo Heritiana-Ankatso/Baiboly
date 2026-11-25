@@ -214,10 +214,10 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Books: one list per Testament, grouped into sections (Books of Moses, History, … Gospels and Acts, Letters of Paul, … Revelation), opening at the book you are reading.</item>
-        <item>Units: the list starts with “1 cubit =” and each row gives the same amount in its unit, the number beside the unit’s name; length, weight and the other kinds are tabs.</item>
-        <item>Settings › Appearance: a sample of the text with its size at the top, then one row per setting showing its value; a tap opens the choices.</item>
-        <item>Quick look on Automatic: the passage in the app’s language, else the phone’s, if it differs from the Bible you are reading; otherwise Malagasy (French when reading Malagasy).</item>
+        <item>Hebrew and Greek text: in the Study panel each verse shows its original words one by one, with transliteration, gloss and parsing in plain words (for example “verb, Qal, perfect, third person singular masculine”).</item>
+        <item>Tap a Hebrew or Greek word for its Strong’s entry, a fuller definition (abridged Brown-Driver-Briggs or Abbott-Smith) and the verses that use the same word.</item>
+        <item>Greek words found only in the Textus Receptus (the Greek behind the KJV) are shown faded next to the Nestlé-Aland text.</item>
+        <item>Verse numbering: 63 more chapters are now matched to the Hebrew verse numbers (Exodus 7:26 is 8:1 in English Bibles), so the other Bibles line up in the Study panel.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
