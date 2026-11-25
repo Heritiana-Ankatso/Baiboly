@@ -201,6 +201,7 @@
         <item>Thème Moderne : les boutons chapitre précédent et suivant encadrent la barre du bas au lieu de flotter sur le texte, et la barre est plus fine.</item>
         <item>Thème Verre : la barre du bas ne répète plus le nom du chapitre déjà affiché en haut.</item>
         <item>Apparence › Mise en forme du texte : chaque réglage est un libellé avec un sélecteur de même largeur, et les marges montrent un petit dessin de page (étroites, normales, larges).</item>
+        <item>Nouvelle icône : un livre ouvert avec une croix entre ses pages (bleu nuit et crème), aussi en icône thématique à partir d’Android 13.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>

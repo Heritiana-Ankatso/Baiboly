@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed (monochrome) launcher icon: the same open book and cross. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FF000000"
+        android:pathData="M21,36 C32,32 43,33 51.5,39 V48 H38 V53 H51.5 V80 C43,75 32,75 21,79Z" />
+    <path android:fillColor="#FF000000"
+        android:pathData="M87,36 C76,32 65,33 56.5,39 V48 H70 V53 H56.5 V80 C65,75 76,75 87,79Z" />
+</vector>

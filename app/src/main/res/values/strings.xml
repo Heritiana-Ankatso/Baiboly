@@ -218,6 +218,7 @@
         <item>Modern theme: the previous and next chapter buttons sit on either side of the bottom bar instead of floating over the text, and the bar is slimmer.</item>
         <item>Glass theme: the bottom bar no longer repeats the chapter name already shown at the top.</item>
         <item>Appearance › Text formatting: every setting is a label with a segmented control of the same width, and the margins show a small page drawing (narrow, normal, wide).</item>
+        <item>New app icon: an open book with a cross between its pages (navy and cream), also as a themed icon on Android 13 and later.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
