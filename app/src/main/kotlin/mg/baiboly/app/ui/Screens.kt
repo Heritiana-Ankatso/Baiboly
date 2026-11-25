@@ -3,6 +3,14 @@ package mg.baiboly.app.ui
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -878,12 +886,12 @@ private fun TextFormattingSettings(vm: AppViewModel) {
             ),
             selected = vm.paragraphBreak, tag = "settings-paragraph-break",
         ) { vm.changeParagraphBreak(it) }
-        IconChoiceRow(
+        SegmentedChoiceRow(
             label = stringResource(R.string.margins),
             options = listOf(
-                Triple(PageMargin.Narrow, Icons.Filled.UnfoldMore, stringResource(R.string.margin_narrow)),
-                Triple(PageMargin.Normal, Icons.Filled.CropPortrait, stringResource(R.string.margin_normal)),
-                Triple(PageMargin.Wide, Icons.Filled.UnfoldLess, stringResource(R.string.margin_wide)),
+                ChoiceOption(PageMargin.Narrow, stringResource(R.string.margin_narrow)) { c -> MarginGlyph(0.14f, c) },
+                ChoiceOption(PageMargin.Normal, stringResource(R.string.margin_normal)) { c -> MarginGlyph(0.26f, c) },
+                ChoiceOption(PageMargin.Wide, stringResource(R.string.margin_wide)) { c -> MarginGlyph(0.38f, c) },
             ),
             selected = vm.pageMargin, tag = "settings-margins",
         ) { vm.changePageMargin(it) }
@@ -899,31 +907,60 @@ private fun TextFormattingSettings(vm: AppViewModel) {
     }
 }
 
-/** Mutually exclusive choices shown as icons with a short word under each (alignment, spacing…). */
+/** One choice of a [SegmentedChoiceRow]: its value, the word under it and the drawing above it (tinted with the colour given). */
+class ChoiceOption<T>(val value: T, val label: String, val glyph: @Composable (Color) -> Unit)
+
+/** Width of every segmented control, whatever the number of choices, so all rows line up. */
+private val ChoiceControlWidth = 216.dp
+
+/**
+ * A setting as a label on the left and a segmented control on the right. The controls all have the same
+ * width and height (two or three equal segments), so the section reads as one column.
+ */
 @Composable
-fun <T> IconChoiceRow(label: String, options: List<Triple<T, androidx.compose.ui.graphics.vector.ImageVector, String>>, selected: T, tag: String, onSelect: (T) -> Unit) {
+fun <T> SegmentedChoiceRow(label: String, options: List<ChoiceOption<T>>, selected: T, tag: String, onSelect: (T) -> Unit) {
     val scheme = MaterialTheme.colorScheme
-    Column {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant)
-        Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            options.forEach { (value, icon, text) ->
-                val on = value == selected
-                Surface(
-                    onClick = { onSelect(value) },
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (on) scheme.primaryContainer else Color.Transparent,
-                    contentColor = if (on) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, if (on) scheme.primary else scheme.outlineVariant),
-                    modifier = Modifier.weight(1f).heightIn(min = 56.dp).testTag("$tag:$value")
-                        .semantics { setSelectedState(on) },
+    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).padding(end = 12.dp))
+        Row(
+            Modifier.width(ChoiceControlWidth).height(56.dp).clip(RoundedCornerShape(14.dp))
+                .border(1.dp, scheme.outlineVariant, RoundedCornerShape(14.dp)).selectableGroup(),
+        ) {
+            options.forEachIndexed { i, o ->
+                val on = o.value == selected
+                if (i > 0) Box(Modifier.fillMaxHeight().width(1.dp).background(scheme.outlineVariant))
+                Column(
+                    Modifier.weight(1f).fillMaxHeight()
+                        .background(if (on) scheme.primaryContainer else Color.Transparent)
+                        .selectable(selected = on, role = Role.RadioButton, onClick = { onSelect(o.value) })
+                        .testTag("$tag:${o.value}"),
+                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,
                 ) {
-                    Column(Modifier.padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                        Icon(icon, null, modifier = Modifier.size(22.dp))
-                        Text(text, style = MaterialTheme.typography.labelSmall, maxLines = 1,
-                            fontWeight = if (on) FontWeight.Bold else FontWeight.Normal)
-                    }
+                    val c = if (on) scheme.onPrimaryContainer else scheme.onSurfaceVariant
+                    o.glyph(c)
+                    Text(o.label, style = MaterialTheme.typography.labelSmall, color = c, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        fontWeight = if (on) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.padding(horizontal = 2.dp))
                 }
             }
+        }
+    }
+}
+
+/** Same as [SegmentedChoiceRow] with a Material icon as the drawing. */
+@Composable
+fun <T> IconChoiceRow(label: String, options: List<Triple<T, androidx.compose.ui.graphics.vector.ImageVector, String>>, selected: T, tag: String, onSelect: (T) -> Unit) =
+    SegmentedChoiceRow(label, options.map { (v, icon, text) -> ChoiceOption(v, text) { c -> Icon(icon, null, tint = c, modifier = Modifier.size(22.dp)) } }, selected, tag, onSelect)
+
+/** A page seen from the front: the text block sits [inset] (share of the width) from each side, so the margin is what is drawn. */
+@Composable
+private fun MarginGlyph(inset: Float, color: Color) {
+    Canvas(Modifier.size(width = 24.dp, height = 22.dp)) {
+        val w = size.width; val h = size.height
+        drawRoundRect(color, Offset.Zero, Size(w, h), CornerRadius(3.dp.toPx()), style = androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
+        val x0 = w * inset; val x1 = w - x0
+        for (i in 0 until 4) {
+            val y = h * (0.24f + i * 0.17f)
+            drawLine(color, Offset(x0, y), Offset(if (i == 3) x0 + (x1 - x0) * 0.6f else x1, y), strokeWidth = 1.5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
         }
     }
 }

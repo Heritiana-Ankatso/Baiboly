@@ -220,7 +220,7 @@ fun MainScreen(vm: AppViewModel) {
                 Column {
                     if (!church) ReadingBar(vm)
                     if (church) ServiceBar(vm, onAdd = { showAdd = true })
-                    if (style == Style.Glass && !church) ChapterBottomBar(vm, readerTitle(vm))
+                    if (style == Style.Glass && !church) ChapterBottomBar(vm)
                 }
             }
         },
@@ -1103,14 +1103,17 @@ private fun SelectionBar(
     onClear: () -> Unit,
 ) {
     var colours by remember { mutableStateOf(false) }
+    // The first four stay in view; the rest go under "More" (see StyledSelectionActions).
+    // Church puts "To list" among the first four, as it is what that mode is for.
+    val study = VerseAction(Icons.Outlined.School, stringResource(R.string.study_action), onStudy) // the passage in other Bibles, its original words, places, units, dictionary
+    val copy = VerseAction(Icons.Outlined.ContentCopy, stringResource(R.string.copy), onCopy)
+    val note = VerseAction(Icons.Outlined.EditNote, stringResource(R.string.note_action), onNote)
+    val highlight = VerseAction(Icons.Outlined.BorderColor, stringResource(R.string.highlight)) { colours = !colours }
     val actions = buildList {
-        // the passage in other Bibles, its original words, places, units, dictionary
-        add(VerseAction(Icons.Outlined.School, stringResource(R.string.study_action), onStudy))
-        add(VerseAction(Icons.Outlined.ContentCopy, stringResource(R.string.copy), onCopy))
-        add(VerseAction(Icons.Outlined.EditNote, stringResource(R.string.note_action), onNote))
-        add(VerseAction(Icons.Outlined.BorderColor, stringResource(R.string.highlight)) { colours = !colours })
-        if (onCrossRefs != null) add(VerseAction(Icons.Outlined.Link, stringResource(R.string.references_action), onCrossRefs))
+        add(study); add(copy); add(note)
         if (onAddToList != null) add(VerseAction(Icons.AutoMirrored.Outlined.PlaylistAdd, stringResource(R.string.add_to_list_short), onAddToList))
+        add(highlight)
+        if (onCrossRefs != null) add(VerseAction(Icons.Outlined.Link, stringResource(R.string.references_action), onCrossRefs))
         if (onListen != null) add(VerseAction(Icons.Outlined.Headphones, stringResource(R.string.listen), onListen))
         if (onWords != null) add(VerseAction(Icons.Outlined.FormatQuote, stringResource(R.string.words_action), onWords))
     }
