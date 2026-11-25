@@ -35,6 +35,14 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,36 +108,48 @@ fun StyledNavigation(vm: AppViewModel) {
     }
 }
 
-/** Modern: a floating capsule; the current page shows its name, the others only their icon. */
+/**
+ * Modern: one slim bar at the foot. The pages sit in a capsule (the current one shows its
+ * name); in the reader the previous / next chapter buttons flank it, so nothing floats over the text.
+ */
 @Composable
 private fun FloatingNavigation(vm: AppViewModel) {
-    Box(
-        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).navigationBarsPadding().padding(horizontal = 20.dp, vertical = 10.dp),
-        contentAlignment = Alignment.Center,
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        Modifier.fillMaxWidth().background(scheme.surface).navigationBarsPadding().padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surfaceContainerHighest, shadowElevation = 6.dp) {
-            Row(Modifier.padding(6.dp), horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
+        val reader = vm.screen == Screen.Main
+        if (reader) IconButton(onClick = { vm.previousChapter() }, modifier = Modifier.testTag("prev-chapter")) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter))
+        } else Spacer(Modifier.size(48.dp))
+        Surface(shape = CircleShape, color = scheme.surfaceContainerHighest) {
+            Row(Modifier.padding(3.dp), horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
                 destinations(vm.mode).forEach { d ->
                     val on = vm.screen == d.screen
                     val label = stringResource(d.label)
                     Row(
                         Modifier.clip(CircleShape)
-                            .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
+                            .background(if (on) scheme.primary else Color.Transparent)
                             .clickable { navigateTo(vm, d.screen) }
-                            .heightIn(min = 48.dp)
-                            .padding(horizontal = if (on) 18.dp else 14.dp)
+                            .heightIn(min = 44.dp)
+                            .padding(horizontal = if (on) 16.dp else 14.dp)
                             .testTag("nav:${d.screen.name}"),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(d.icon, if (on) null else label, tint = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(d.icon, if (on) null else label, tint = if (on) scheme.onPrimary else scheme.onSurfaceVariant)
                         if (on) {
                             Spacer(Modifier.width(8.dp))
-                            Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary, maxLines = 1)
+                            Text(label, style = MaterialTheme.typography.labelLarge, color = scheme.onPrimary, maxLines = 1)
                         }
                     }
                 }
             }
         }
+        if (reader) IconButton(onClick = { vm.nextChapter() }, modifier = Modifier.testTag("next-chapter")) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter))
+        } else Spacer(Modifier.size(48.dp))
     }
 }
 
@@ -408,22 +428,8 @@ fun BoxScope.ChapterOverlay(vm: AppViewModel) {
             ChapterDisc(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter),
                 Modifier.align(Alignment.BottomEnd).padding(14.dp).testTag("next-chapter")) { vm.nextChapter() }
         }
-        Style.Modern -> Surface(
-            shape = CircleShape, color = MaterialTheme.colorScheme.surfaceContainerHighest, shadowElevation = 4.dp,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { vm.previousChapter() }, modifier = Modifier.testTag("prev-chapter")) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter))
-                }
-                Box(Modifier.width(1.dp).height(24.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                IconButton(onClick = { vm.nextChapter() }, modifier = Modifier.testTag("next-chapter")) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter))
-                }
-            }
-        }
         Style.Navy -> NavyChapterButtons(vm)
-        Style.Page, Style.Glass -> Unit
+        Style.Modern, Style.Page, Style.Glass -> Unit
     }
 }
 
@@ -449,20 +455,18 @@ fun ChapterFooterLinks(vm: AppViewModel) {
     }
 }
 
-/** Glass: a bottom bar with two square buttons and the chapter between them. */
+/** Glass: a bottom bar with two wide buttons. The chapter is already the header's title, so it is not repeated here. */
 @Composable
-fun ChapterBottomBar(vm: AppViewModel, title: String) {
+fun ChapterBottomBar(vm: AppViewModel) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            FilledTonalButton(onClick = { vm.previousChapter() }, shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 14.dp),
-                modifier = Modifier.heightIn(min = 48.dp).testTag("prev-chapter")) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter))
+        Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilledTonalButton(onClick = { vm.previousChapter() }, shape = MaterialTheme.shapes.small, modifier = Modifier.weight(1f).heightIn(min = 44.dp).testTag("prev-chapter")) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null)
+                Text(stringResource(R.string.previous_chapter), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Text(title, style = MaterialTheme.typography.titleSmall, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp))
-            FilledTonalButton(onClick = { vm.nextChapter() }, shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 14.dp),
-                modifier = Modifier.heightIn(min = 48.dp).testTag("next-chapter")) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter))
+            FilledTonalButton(onClick = { vm.nextChapter() }, shape = MaterialTheme.shapes.small, modifier = Modifier.weight(1f).heightIn(min = 44.dp).testTag("next-chapter")) {
+                Text(stringResource(R.string.next_chapter), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
             }
         }
     }
@@ -508,9 +512,36 @@ fun dropCaps(): Boolean = LocalStyle.current.let { it == Style.Manuscript || it 
 
 class VerseAction(val icon: ImageVector, val label: String, val onClick: () -> Unit)
 
+/** At most this many actions are shown; when there are more, the last slot is a "More" menu holding the rest. */
+private const val INLINE_ACTIONS = 5
+
+/** The actions split into those shown directly and those in the "More" menu. */
+private fun List<VerseAction>.split(): Pair<List<VerseAction>, List<VerseAction>> =
+    if (size <= INLINE_ACTIONS) this to emptyList() else take(INLINE_ACTIONS - 1) to drop(INLINE_ACTIONS - 1)
+
+/** The "More" button and its menu (icon and word on each line). */
+@Composable
+private fun MoreActions(more: List<VerseAction>, button: @Composable (onClick: () -> Unit) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        button { open = true }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            more.forEach { a ->
+                DropdownMenuItem(
+                    text = { Text(a.label) },
+                    leadingIcon = { Icon(a.icon, null) },
+                    onClick = { open = false; a.onClick() },
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("action:${a.label}"),
+                )
+            }
+        }
+    }
+}
+
 /**
  * Actions on the selected verses, in the theme's form. Page draws them as the
- * top bar (see [MainScreen]); the others at the foot of the reader.
+ * top bar (see [MainScreen]); the others at the foot of the reader. Five slots at most
+ * (four actions and "More"), so nothing scrolls out of sight.
  */
 @Composable
 fun StyledSelectionActions(
@@ -521,40 +552,50 @@ fun StyledSelectionActions(
     onClear: () -> Unit,
 ) {
     val countText = stringResource(R.string.n_selected, "$count")
+    val moreLabel = stringResource(R.string.more)
+    val (shown, more) = actions.split()
     when (LocalStyle.current) {
         Style.Manuscript -> Surface(color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
                 GoldRule()
                 if (colours) swatches()
-                // one row: close, the count, then the actions (scrolling when they do not fit)
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(end = 4.dp, top = 2.dp, bottom = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+                // close and count on the left, the actions share the rest of the row
+                Row(Modifier.fillMaxWidth().padding(end = 4.dp, top = 2.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
-                    Text(countText, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(end = 4.dp))
-                    actions.forEach { a ->
-                        Column(
-                            Modifier.clip(RoundedCornerShape(12.dp)).clickable(onClick = a.onClick).widthIn(min = 52.dp)
-                                .padding(horizontal = 4.dp, vertical = 4.dp).testTag("action:${a.label}"),
+                    Text("$count", style = MaterialTheme.typography.titleMedium, color = LocalOrnament.current.gold, modifier = Modifier.padding(end = 6.dp).semantics { contentDescription = countText })
+                    @Composable fun slot(icon: ImageVector, label: String, tag: String, onClick: () -> Unit) = Column(
+                        Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).padding(vertical = 4.dp).testTag(tag),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+                        Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    shown.forEach { a -> slot(a.icon, a.label, "action:${a.label}", a.onClick) }
+                    if (more.isNotEmpty()) Box(Modifier.weight(1f)) {
+                        MoreActions(more) { open -> Column(
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable(onClick = open).padding(vertical = 4.dp).testTag("action:more"),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Icon(a.icon, null, tint = MaterialTheme.colorScheme.primary)
-                            Text(a.label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
-                        }
+                            Icon(Icons.Filled.MoreHoriz, null, tint = MaterialTheme.colorScheme.primary)
+                            Text(moreLabel, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                        } }
                     }
                 }
             }
         }
-        Style.Modern, Style.Navy -> Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 10.dp), contentAlignment = Alignment.Center) {
+        Style.Modern, Style.Navy -> Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), contentAlignment = Alignment.Center) {
             Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.inverseSurface, contentColor = MaterialTheme.colorScheme.inverseOnSurface, shadowElevation = 8.dp) {
                 Column(Modifier.padding(horizontal = 6.dp, vertical = 4.dp)) {
                     if (colours) swatches()
-                    Row(Modifier.horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
-                        Text(countText, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(end = 6.dp))
-                        actions.forEach { a ->
+                        Text("$count", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(end = 6.dp).semantics { contentDescription = countText })
+                        Spacer(Modifier.weight(1f))
+                        shown.forEach { a ->
                             IconButton(onClick = a.onClick, modifier = Modifier.testTag("action:${a.label}")) { Icon(a.icon, a.label) }
+                        }
+                        if (more.isNotEmpty()) MoreActions(more) { open ->
+                            IconButton(onClick = open, modifier = Modifier.testTag("action:more")) { Icon(Icons.Filled.MoreVert, moreLabel) }
                         }
                     }
                 }
@@ -566,10 +607,11 @@ fun StyledSelectionActions(
                     IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
                     Text(countText, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(end = 4.dp))
                     Spacer(Modifier.weight(1f))
-                    Row(Modifier.horizontalScroll(rememberScrollState())) {
-                        actions.forEach { a ->
-                            IconButton(onClick = a.onClick, modifier = Modifier.testTag("action:${a.label}")) { Icon(a.icon, a.label) }
-                        }
+                    shown.forEach { a ->
+                        IconButton(onClick = a.onClick, modifier = Modifier.testTag("action:${a.label}")) { Icon(a.icon, a.label) }
+                    }
+                    if (more.isNotEmpty()) MoreActions(more) { open ->
+                        IconButton(onClick = open, modifier = Modifier.testTag("action:more")) { Icon(Icons.Filled.MoreVert, moreLabel) }
                     }
                 }
                 if (colours) swatches()
@@ -583,22 +625,21 @@ fun StyledSelectionActions(
                     IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.close)) }
                 }
                 if (colours) swatches()
-                // large tiles, four to a row
-                actions.chunked(4).forEach { row ->
-                    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        row.forEach { a ->
-                            Surface(
-                                onClick = a.onClick, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.weight(1f).heightIn(min = 64.dp).testTag("action:${a.label}"),
-                            ) {
-                                Column(Modifier.padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                    Icon(a.icon, null)
-                                    Text(a.label, style = MaterialTheme.typography.labelSmall, maxLines = 1, modifier = Modifier.padding(top = 4.dp))
-                                }
-                            }
+                // tiles in one row; the rest are in "More"
+                Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    @Composable fun tile(icon: ImageVector, label: String, tag: String, onClick: () -> Unit, modifier: Modifier = Modifier) = Surface(
+                        onClick = onClick, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = modifier.heightIn(min = 60.dp).testTag(tag),
+                    ) {
+                        Column(Modifier.padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                            Icon(icon, null)
+                            Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp))
                         }
-                        repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
+                    shown.forEach { a -> tile(a.icon, a.label, "action:${a.label}", a.onClick, Modifier.weight(1f)) }
+                    if (more.isNotEmpty()) Box(Modifier.weight(1f)) {
+                        MoreActions(more) { open -> tile(Icons.Filled.MoreHoriz, moreLabel, "action:more", open, Modifier.fillMaxWidth()) }
                     }
                 }
             }
