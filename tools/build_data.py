@@ -51,7 +51,7 @@ EBIBLE = "https://ebible.org/Scriptures/{}"
 
 # Bump when the schema or content of bible.db / study.db changes, so the app
 # replaces its installed copy.
-DATA_VERSION = 11
+DATA_VERSION = 12
 
 # ---------------------------------------------------------------------------
 # Translations. `num` is a stable small integer used to build verse ids:
@@ -892,6 +892,11 @@ def build(offline, openscriptures=True):
 
     # ---------------- reports ----------------
     build_study_library(offline)
+    import build_commentaries as C
+    import build_library as L
+    print("Commentaries")
+    sizes.update(C.build_commentaries(fetch, CROSSWIRE, conf_of, check_crosswire, CANONS, OSIS_IDS, L.Numbering(VMAP),
+                                      ASSETS, DATA_VERSION, LICENCES, offline))
     write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map)
     sizes["study.db"] = os.path.getsize(sp)
     sizes["library.db"] = os.path.getsize(os.path.join(ASSETS, "library.db"))

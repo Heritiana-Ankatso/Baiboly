@@ -179,6 +179,8 @@ private fun Crumb(label: String, enabled: Boolean, onClick: () -> Unit) {
 @Composable
 fun BookGrid(available: List<Int>, onBook: (Int) -> Unit) {
     val books = available.map { Canon.book(it) }
+    // abbreviations in the language of the Bible being read: "Jao" (Malagasy), "Jn" (French), "John" (English)
+    val lang = refLang()
     LazyVerticalGrid(
         modifier = Modifier.testTag("browse-books"),
         columns = GridCells.Adaptive(76.dp),
@@ -188,10 +190,10 @@ fun BookGrid(available: List<Int>, onBook: (Int) -> Unit) {
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) { SectionLabel(stringResource(R.string.old_testament)) }
         items(books.filter { it.isOldTestament }, key = { it.id }) { b ->
-            Key(b.shortLabel + if (b.isDeuterocanonical) " ✦" else "", Modifier.testTag("browse-book:${b.id}"), tonal = false) { onBook(b.id) }
+            Key(b.abbr(lang) + if (b.isDeuterocanonical) " ✦" else "", Modifier.testTag("browse-book:${b.id}"), tonal = false) { onBook(b.id) }
         }
         item(span = { GridItemSpan(maxLineSpan) }) { SectionLabel(stringResource(R.string.new_testament)) }
-        items(books.filter { !it.isOldTestament }, key = { it.id }) { b -> Key(b.shortLabel, Modifier.testTag("browse-book:${b.id}"), tonal = true) { onBook(b.id) } }
+        items(books.filter { !it.isOldTestament }, key = { it.id }) { b -> Key(b.abbr(lang), Modifier.testTag("browse-book:${b.id}"), tonal = true) { onBook(b.id) } }
     }
 }
 

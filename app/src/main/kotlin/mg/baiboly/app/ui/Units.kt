@@ -104,6 +104,7 @@ object BibleUnits {
         BibleUnit("stadion", UnitKind.Length, "stadio", "stade", "furlong", "stadion", 185.0, p(42, 24, 13)),
         BibleUnit("sabbath", UnitKind.Length, "dia azo aleha amin’ny Sabata", "chemin de sabbat", "sabbath day’s journey", "sabbatou hodos", 2000 * CUBIT, p(44, 1, 12)),
         BibleUnit("mile", UnitKind.Length, "maily", "mille", "mile", "milion", 1480.0, p(40, 5, 41)),
+        BibleUnit("cm", UnitKind.Length, "santimetatra", "centimètre", "centimetre", "", 0.01, modern = true),
         BibleUnit("m", UnitKind.Length, "metatra", "mètre", "metre", "", 1.0, modern = true),
         BibleUnit("km", UnitKind.Length, "kilometatra", "kilomètre", "kilometre", "", 1000.0, modern = true),
         // weight (grams)
@@ -125,6 +126,7 @@ object BibleUnits {
         BibleUnit("choinix", UnitKind.Dry, "fatam-bary kely", "mesure (chénice)", "measure (choinix)", "choinix", 1.1, p(66, 6, 6)),
         BibleUnit("modius", UnitKind.Dry, "vata famarana", "boisseau", "bushel", "modios", 8.75, p(40, 5, 15)),
         BibleUnit("l_dry", UnitKind.Dry, "litatra", "litre", "litre", "", 1.0, modern = true),
+        BibleUnit("ml_dry", UnitKind.Dry, "mililitatra", "millilitre", "millilitre", "", 0.001, modern = true),
         // liquid measures (litres)
         BibleUnit("log", UnitKind.Liquid, "loga", "log", "log", "log", EPHAH / 72, p(3, 14, 10)),
         BibleUnit("hin", UnitKind.Liquid, "hina", "hin", "hin", "hin", EPHAH / 6, p(2, 29, 40)),
@@ -132,6 +134,7 @@ object BibleUnits {
         BibleUnit("cor", UnitKind.Liquid, "kora", "cor", "cor", "kor · koros", 10 * EPHAH, p(26, 45, 14)),
         BibleUnit("metretes", UnitKind.Liquid, "vata (metreta)", "mesure (métrète)", "firkin (metretes)", "metrētēs", 39.0, p(43, 2, 6)),
         BibleUnit("l", UnitKind.Liquid, "litatra", "litre", "litre", "", 1.0, modern = true),
+        BibleUnit("ml", UnitKind.Liquid, "mililitatra", "millilitre", "millilitre", "", 0.001, modern = true),
         // money (denarii: a day's wage)
         BibleUnit("lepton", UnitKind.Money, "farantsakely (lepta)", "petite pièce (lepte)", "mite (lepton)", "lepton", 1.0 / 128, p(41, 12, 42), Triple(2, 1, "quadrans")),
         BibleUnit("quadrans", UnitKind.Money, "variroaventy (kodranta)", "quart de sou (quadrant)", "farthing (quadrans)", "kodrantēs", 1.0 / 64, p(41, 12, 42)),
@@ -242,6 +245,28 @@ fun unitSummary(u: BibleUnit, locale: Locale): String? = when (u.kind) {
 
 // ---------------------------------------------------------------- screen
 
+private fun defaultBiblical(k: UnitKind): String = when (k) {
+    UnitKind.Length -> "cubit"; UnitKind.Weight -> "shekel"; UnitKind.Dry -> "ephah"
+    UnitKind.Liquid -> "bath"; UnitKind.Money -> "denarius"; UnitKind.Time -> ""
+}
+
+private fun defaultModern(k: UnitKind): String? = when (k) {
+    UnitKind.Length -> "m"; UnitKind.Weight -> "kg"; UnitKind.Dry -> "l_dry"; UnitKind.Liquid -> "l"; else -> null
+}
+
+/** The metric unit that reads best for a quantity in the kind's base (metres, grams, litres). */
+private fun bestModern(k: UnitKind, base: Double): String = when (k) {
+    UnitKind.Length -> if (base >= 1000) "km" else if (base >= 1) "m" else "cm"
+    UnitKind.Weight -> if (base >= 1000) "kg" else "g"
+    UnitKind.Dry -> if (base >= 1) "l_dry" else "ml_dry"
+    UnitKind.Liquid -> if (base >= 1) "l" else "ml"
+    else -> defaultBiblical(k)
+}
+
+private fun modernSymbol(id: String): String = when (id) {
+    "l_dry", "l" -> "L"; "ml_dry", "ml" -> "mL"; else -> id
+}
+
 /**
  * Units of the Bible (Study mode, Dictionary page, "Units" chip): type an
  * amount, choose its unit, and read it in every other unit of the same kind and
@@ -255,10 +280,12 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
     var kind by rememberSaveable { mutableStateOf(UnitKind.Length) }
     var fromId by rememberSaveable { mutableStateOf("cubit") }
     var text by rememberSaveable { mutableStateOf("1") }
+    // both ways: from a unit of the Bible to today's measures, or from today's measures to the Bible's
+    var fromModern by rememberSaveable { mutableStateOf(false) }
     // opened from a passage: start from the unit it names
     androidx.compose.runtime.LaunchedEffect(vm.unitsRequest) {
         vm.unitsRequest?.let { id ->
-            BibleUnits.all.firstOrNull { it.id == id }?.let { kind = it.kind; fromId = it.id; text = "1" }
+            BibleUnits.all.firstOrNull { it.id == id }?.let { kind = it.kind; fromId = it.id; text = "1"; fromModern = false }
             vm.unitsRequest = null
         }
     }
@@ -278,10 +305,8 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                     selected = k == kind,
                     onClick = {
                         kind = k
-                        fromId = when (k) {
-                            UnitKind.Length -> "cubit"; UnitKind.Weight -> "shekel"; UnitKind.Dry -> "ephah"
-                            UnitKind.Liquid -> "bath"; UnitKind.Money -> "denarius"; UnitKind.Time -> ""
-                        }
+                        fromId = if (fromModern) defaultModern(k) ?: defaultBiblical(k) else defaultBiblical(k)
+                        if (defaultModern(k) == null) fromModern = false
                         text = "1"
                     },
                     text = { Text(stringResource(k.label), maxLines = 1) },
@@ -292,6 +317,35 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
         if (kind == UnitKind.Time || from == null) {
             TimeOfDay(vm, lang)
             return@Column
+        }
+        // direction: the Bible's units to today's, or the other way round (money has no modern unit)
+        if (defaultModern(kind) != null) {
+            Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(if (fromModern) R.string.units_dir_modern else R.string.units_dir_bible),
+                    style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f),
+                )
+                androidx.compose.material3.OutlinedButton(
+                    onClick = {
+                        // the same quantity, now typed in the other kind of unit
+                        val next = if (fromModern) defaultBiblical(kind) else bestModern(kind, (amount ?: 1.0) * from.value)
+                        val nu = BibleUnits.byId(next)
+                        amount?.let { a -> text = formatAmount(a * from.value / nu.value, Locale.ROOT).replace(",", "") }
+                        fromId = next; fromModern = !fromModern
+                    },
+                    modifier = Modifier.heightIn(min = 40.dp).testTag("units-swap"),
+                ) { Text("⇄  " + stringResource(R.string.units_swap)) }
+            }
+            if (fromModern) {
+                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    items(BibleUnits.of(kind).filter { it.modern }, key = { "m-" + it.id }) { u ->
+                        FilterChip(selected = u.id == from.id, onClick = {
+                            amount?.let { a -> text = formatAmount(a * from.value / u.value, Locale.ROOT).replace(",", "") }
+                            fromId = u.id
+                        }, label = { Text(modernSymbol(u.id)) }, modifier = Modifier.testTag("units-modern-unit:${u.id}"))
+                    }
+                }
+            }
         }
         // the amount and its unit
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -335,7 +389,7 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp).testTag("units-equals"),
         )
         LazyColumn(Modifier.weight(1f).testTag("units-list"), contentPadding = PaddingValues(bottom = 12.dp)) {
-            items(BibleUnits.of(kind), key = { it.id }) { u ->
+            items(BibleUnits.of(kind).sortedBy { if (fromModern) it.modern else false }, key = { it.id }) { u ->
                 val on = u.id == from.id
                 val value = amount?.let { BibleUnits.convert(it, from, u) }
                 Column(
@@ -365,6 +419,15 @@ fun UnitsView(vm: AppViewModel, modifier: Modifier = Modifier) {
                             add(if (n == 1) "1 = $m $o" else if (m == 1) "1 = 1/$n $o" else "$n = $m $o")
                         }
                         if (!u.modern) modernText(kind, u.value, lang, locale)?.let { add("1 ≈ $it") }
+                    }
+                    // the other way round, where it reads better: "1 reed = 7 cubits" rather than "0.143 reed"
+                    if (!on && u.rule == null) {
+                        val back = BibleUnits.convert(1.0, u, from)
+                        if (back > 1.0 && back.isFinite()) Text(
+                            "1 ${u.name(lang)} = ${formatAmount(back, locale)} ${from.name(lang)}",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.testTag("unit-back:${u.id}"),
+                        )
                     }
                     if (details.isNotEmpty()) Text(details.joinToString(" · "), style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant, fontStyle = if (u.modern) FontStyle.Italic else FontStyle.Normal)

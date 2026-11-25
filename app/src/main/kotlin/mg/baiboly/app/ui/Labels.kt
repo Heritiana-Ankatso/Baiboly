@@ -30,9 +30,15 @@ fun translationNote(t: Translation): String? = when (t.id) {
     else -> t.notes
 }
 
-/** Language of Bible references: that of the interface (book abbreviations "Jao", "Jn", "John"). */
+/** Language of the Bible being read ("mg", "fr", "en"): book names and abbreviations follow it. */
+val LocalBibleLang = androidx.compose.runtime.compositionLocalOf<String?> { null }
+
+/**
+ * Language of Bible references: that of the Bible being read (book abbreviations "Jao", "Jn", "John"),
+ * or the interface's where no Bible is known.
+ */
 @Composable
-fun refLang(): String = stringResource(R.string.ref_lang)
+fun refLang(): String = LocalBibleLang.current ?: stringResource(R.string.ref_lang)
 
 /** A reference in the interface language: "Jao 3: 16", "Jn 3:16", "John 3:16". */
 @Composable

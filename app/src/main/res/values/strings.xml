@@ -205,10 +205,12 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Books: one list per Testament, grouped into sections (Books of Moses, History, … Gospels and Acts, Letters of Paul, … Revelation), opening at the book you are reading.</item>
-        <item>Units: the list starts with “1 cubit =” and each row gives the same amount in its unit, the number beside the unit’s name; length, weight and the other kinds are tabs.</item>
-        <item>Settings › Appearance: a sample of the text with its size at the top, then one row per setting showing its value; a tap opens the choices.</item>
-        <item>Quick look on Automatic: the passage in the app’s language, else the phone’s, if it differs from the Bible you are reading; otherwise Malagasy (French when reading Malagasy).</item>
+        <item>Reading runs on from chapter to chapter as you scroll (Settings › Appearance › Text formatting › Continuous reading; on by default).</item>
+        <item>Notes: in Church mode a sermon note in one tap (Notes tab, or the note button on the service page), with the date and the service’s passages filled in. In Study mode, studies with an outline, templates and sections that move. Link words to verses, people and events; save as Markdown, text, HTML, Word or PDF.</item>
+        <item>Commentaries in the Study panel: Calvin, the Geneva Bible notes and Matthew Henry (Concise).</item>
+        <item>Timeline: “Go deeper: to today” runs on from the Fathers through the Reformation to today, with the church in Madagascar; the list is grouped by era, each one folding away.</item>
+        <item>A new theme, Navy: a white page and a side menu with search, the books and your notes first.</item>
+        <item>Text formatting in one group, alignment with its usual icons; book abbreviations follow the Bible you read; units convert both ways; the same highlight colour on highlighted text takes it off, one verse included.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -516,4 +518,84 @@
     <string name="section_letters">Other letters</string>
     <string name="section_prophecy">Revelation</string>
     <string name="units_equals">%1$s %2$s =</string>
+    <string name="units_dir_bible">From a unit of the Bible to today’s measures</string>
+    <string name="units_dir_modern">From today’s measures to the units of the Bible</string>
+    <string name="units_swap">Other way</string>
+    <string name="text_formatting">Text formatting</string>
+    <string name="shown">shown</string>
+    <string name="hidden">hidden</string>
+    <string name="flow_continuous">continuous</string>
+    <string name="flow_chapters">chapter by chapter</string>
+    <string name="continuous_reading">Continuous reading</string>
+    <string name="continuous_reading_hint">The text runs on from one chapter to the next as you scroll, without a break.</string>
+    <plurals name="n_events">
+        <item quantity="one">%d event</item>
+        <item quantity="other">%d events</item>
+    </plurals>
+    <string name="tl_to_today">Go deeper: to today</string>
+    <string name="church_history_credit">Church history after the apostles: dates from standard reference works, compiled for Baiboly; ‘about’ marks a date known only roughly.</string>
+    <string name="madagascar">Madagascar</string>
+    <string name="commentary">Commentary</string>
+    <string name="commentary_none">%1$s has no note on these verses.</string>
+    <string name="commentary_credit">Commentaries in the public domain (CrossWire SWORD modules): Calvin’s Commentaries (Calvin Translation Society), the Geneva Bible notes (1599), Matthew Henry’s Concise Commentary. In English.</string>
+    <string name="sermon_of">Sermon of %1$s</string>
+    <string name="all">All</string>
+    <string name="sermon_notes">Sermon notes</string>
+    <string name="studies">Studies</string>
+    <string name="docs_empty">No notes yet. Start a sermon note during the service, or a study of a passage.</string>
+    <string name="untitled">Untitled</string>
+    <string name="new_sermon_note">Sermon</string>
+    <string name="new_study">Study</string>
+    <string name="my_notes">My notes</string>
+    <string name="nav_notes">Notes</string>
+    <string name="tool_title">Title</string>
+    <string name="tool_section">Section</string>
+    <string name="tool_subsection">Subsection</string>
+    <string name="tool_point">Point</string>
+    <string name="tool_numbered">Numbered point</string>
+    <string name="tool_bold">Bold</string>
+    <string name="tool_italic">Italic</string>
+    <string name="tool_quote">Quotation</string>
+    <string name="tool_verse">Bible verse</string>
+    <string name="tool_person">Person of the Bible</string>
+    <string name="tool_event">Event of the Bible</string>
+    <string name="tool_rule">Separator</string>
+    <string name="export_done">Saved.</string>
+    <string name="export_failed">The file could not be saved.</string>
+    <string name="study">Study</string>
+    <string name="sermon_note">Sermon note</string>
+    <string name="edit">Edit</string>
+    <string name="preview">Read</string>
+    <string name="share_text">Share as text</string>
+    <string name="export_as">Save as %1$s</string>
+    <string name="delete_doc_q">Delete this note?</string>
+    <string name="doc_title_hint">Title</string>
+    <string name="doc_details">Date, passages, preacher</string>
+    <string name="study_hint">Write the study. The bar above adds titles, sections, points, quotations and links to verses, people and events.</string>
+    <string name="sermon_hint">Notes on the sermon…</string>
+    <string name="word_count">%1$d words</string>
+    <string name="format_text">Text</string>
+    <string name="from_service_list">From the service list</string>
+    <string name="doc_passages">Passages</string>
+    <string name="doc_author">Author</string>
+    <string name="doc_preacher">Preacher</string>
+    <string name="doc_tags">Topics</string>
+    <string name="doc_church">Church</string>
+    <string name="outline">Outline</string>
+    <string name="start_from_template">Start from a plan:</string>
+    <string name="tpl_inductive">Observe · interpret · apply</string>
+    <string name="tpl_inductive_body"># Observation\n- Who, what, where, when?\n- Repeated words\n\n# Interpretation\n- What did it mean for its first readers?\n- Cross-references\n\n# Application\n- What does it teach about God?\n- What does it ask of me?</string>
+    <string name="tpl_outline">Sermon outline</string>
+    <string name="tpl_outline_body"># Introduction\n\n# 1. \n- \n\n# 2. \n- \n\n# 3. \n- \n\n# Conclusion\n</string>
+    <string name="tpl_word">Word study</string>
+    <string name="tpl_word_body"># The word\n- Hebrew or Greek:\n- Meaning:\n\n# Where it is used\n- \n\n# What it teaches\n- </string>
+    <string name="tpl_person">Person of the Bible</string>
+    <string name="tpl_person_body"># Life\n- \n\n# Faith and failings\n- \n\n# In the history of redemption\n- \n\n# Lessons\n- </string>
+    <string name="reference">Reference</string>
+    <string name="insert_words">The words</string>
+    <string name="insert_link">Link</string>
+    <string name="style_navy">Navy</string>
+    <string name="style_navy_desc">Simple and quiet: a white page, a centred title, two round chapter buttons, and a navy side menu (☰) with the most used things first: search, the books, your notes.</string>
+    <string name="palette_navy">Navy</string>
+    <string name="books_of_the_bible">Books of the Bible</string>
 </resources>

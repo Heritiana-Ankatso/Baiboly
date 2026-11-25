@@ -80,12 +80,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import mg.baiboly.app.ChapterBlock
 import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.automirrored.outlined.Undo
 import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.BorderColor
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.FormatQuote
@@ -155,7 +158,12 @@ fun MainScreen(vm: AppViewModel) {
 
     // the screen is kept awake for the whole app (BaibolyApp), always in Church mode
     val church = vm.mode == AppMode.Church
-    LaunchedEffect(vm.location.book, vm.location.chapter, vm.translationId) { selected = emptySet() }
+    // the selection belongs to one chapter: it goes when another becomes the chapter being read
+    var selectedAt by remember { mutableStateOf(0 to 0) }
+    LaunchedEffect(vm.location.book, vm.location.chapter, vm.translationId) {
+        if (selectedAt != (vm.location.book to vm.location.chapter)) selected = emptySet()
+    }
+    LaunchedEffect(vm.translationId) { selected = emptySet() }
     // the selection actions take the place of the navigation bar
     LaunchedEffect(selected.isNotEmpty()) { vm.selectionActive = selected.isNotEmpty() }
     DisposableEffect(Unit) { onDispose { vm.selectionActive = false } }
@@ -224,10 +232,20 @@ fun MainScreen(vm: AppViewModel) {
                 Reader(
                     vm = vm,
                     selected = selected,
-                    onVerseTap = { v -> selected = if (v in selected) selected - v else selected + v },
+                    onVerseTap = { v ->
+                        val at = vm.location.book to vm.location.chapter
+                        val base = if (selectedAt == at) selected else emptySet()
+                        selectedAt = at
+                        selected = if (v in base) base - v else base + v
+                    },
                     onNumberTap = { v ->
                         if (vm.mode == AppMode.Study) studyVerse = v
-                        else selected = if (v in selected) selected - v else selected + v
+                        else {
+                            val at = vm.location.book to vm.location.chapter
+                            val base = if (selectedAt == at) selected else emptySet()
+                            selectedAt = at
+                            selected = if (v in base) base - v else base + v
+                        }
                     },
                     onNoteTap = { n -> noteDraft = NoteDraft(n.passage, n.text, n.id) },
                 )
@@ -331,6 +349,18 @@ private fun ReaderTopBar(vm: AppViewModel) {
             Box {
                 TranslationChip(t?.shortName ?: "") { menu = true }
                 TranslationMenu(vm, menu, onDismiss = { menu = false })
+            }
+            // Navy has no bar at the foot: search sits in the top bar, as the most used tool
+            if (LocalStyle.current == Style.Navy) {
+                IconButton(onClick = { navigateTo(vm, Screen.Search) }, modifier = Modifier.testTag("top-search")) {
+                    Icon(Icons.Outlined.Search, stringResource(R.string.search), tint = MaterialTheme.colorScheme.primary)
+                }
+            }
+            // Church: the day's sermon note, one tap from the service (date and passages already filled in)
+            if (vm.mode == AppMode.Church) {
+                IconButton(onClick = { vm.todaysSermonNote() }, modifier = Modifier.testTag("sermon-note")) {
+                    Icon(Icons.Outlined.EditNote, stringResource(R.string.sermon_note))
+                }
             }
             if (vm.readAloudEnabled && vm.mode != AppMode.Church) {
                 IconButton(onClick = { vm.startReading() }, modifier = Modifier.testTag("listen")) {
@@ -604,6 +634,9 @@ private sealed interface ReaderRow {
     data class Paragraph(val verses: List<Verse>) : ReaderRow
 }
 
+/** A row of the reader and the chapter it belongs to (continuous reading shows three). */
+private data class Placed(val book: Int, val chapter: Int, val index: Int, val row: ReaderRow)
+
 private fun ReaderRow.holds(verse: Int): Boolean = when (this) {
     is ReaderRow.Verse -> this.verse == verse
     is ReaderRow.Paragraph -> verses.any { it.verse == verse }
@@ -646,30 +679,55 @@ private fun Reader(
         margin = when (vm.pageMargin) { PageMargin.Narrow -> 8.dp; PageMargin.Normal -> 14.dp; PageMargin.Wide -> 26.dp },
         lang = lang,
     )
-    val rows = remember(ch, lang, paragraphs) {
-        if (ch == null) emptyList() else buildList {
-            add(ReaderRow.Title(Canon.book(ch.book).name(lang), ch.chapter))
-            val section = mutableListOf<ReaderRow.Verse>()
-            for (v in ch.verses) {
-                val heads = ch.headings[v.verse]
-                if (paragraphs && heads != null && section.isNotEmpty()) { addParagraphs(section); section.clear() }
-                heads?.forEach { add(ReaderRow.Heading(it)) }
-                if (paragraphs) section += ReaderRow.Verse(v.verse, v.text) else add(ReaderRow.Verse(v.verse, v.text))
+    // continuous reading: the chapters before and after run on above and below the one being read
+    val blocks = listOfNotNull(
+        vm.previousBlock?.takeIf { vm.continuousReading && ch != null },
+        ch?.let { ChapterBlock(it, vm.chapterHighlights, vm.chapterNotes) },
+        vm.nextBlock?.takeIf { vm.continuousReading && ch != null },
+    ).filter { it.text.translation == ch?.translation }.distinctBy { it.text.book to it.text.chapter }
+    val rows: List<Placed> = remember(blocks.map { System.identityHashCode(it.text) }, lang, paragraphs) {
+        buildList {
+            for (b in blocks) {
+                val c = b.text
+                val out = mutableListOf<ReaderRow>()
+                out.add(ReaderRow.Title(Canon.book(c.book).name(lang), c.chapter))
+                val section = mutableListOf<ReaderRow.Verse>()
+                for (v in c.verses) {
+                    val heads = c.headings[v.verse]
+                    if (paragraphs && heads != null && section.isNotEmpty()) { out.addParagraphs(section); section.clear() }
+                    heads?.forEach { out.add(ReaderRow.Heading(it)) }
+                    if (paragraphs) section += ReaderRow.Verse(v.verse, v.text) else out.add(ReaderRow.Verse(v.verse, v.text))
+                }
+                if (section.isNotEmpty()) out.addParagraphs(section)
+                out.forEachIndexed { i, r -> add(Placed(c.book, c.chapter, i, r)) }
             }
-            if (section.isNotEmpty()) addParagraphs(section)
         }
     }
+    val annotations = blocks.associate { (it.text.book to it.text.chapter) to it }
+    fun isCurrent(r: Placed) = ch != null && r.book == ch.book && r.chapter == ch.chapter
     val focus = vm.location.focus?.takeIf { it.book == vm.location.book && it.chapter == vm.location.chapter && !it.isWholeChapter }
-    LaunchedEffect(vm.scrollRequest, rows) {
-        if (rows.isEmpty()) return@LaunchedEffect
-        val target = focus?.let { f ->
+    val latestRows by rememberUpdatedState(rows)
+    val latestFocus by rememberUpdatedState(focus)
+    LaunchedEffect(vm.scrollRequest) {
+        val rs = latestRows
+        if (rs.isEmpty()) return@LaunchedEffect
+        val start = rs.indexOfFirst { isCurrent(it) }.coerceAtLeast(0)
+        val target = latestFocus?.let { f ->
             // scroll to the heading above the verse when there is one
-            val idx = rows.indexOfFirst { it.holds(f.verseStart) }
+            val idx = rs.indexOfFirst { isCurrent(it) && it.row.holds(f.verseStart) }
             var i = idx
-            while (i > 0 && rows[i - 1] is ReaderRow.Heading) i--
+            while (i > start && rs[i - 1].row is ReaderRow.Heading) i--
             i
-        } ?: 0
+        } ?: start
         state.scrollToItem(maxOf(0, target))
+    }
+    // the chapter at the top of the screen is the one being read: title, selection, notes follow the scroll
+    LaunchedEffect(state) {
+        snapshotFlow { state.isScrollInProgress to state.firstVisibleItemIndex }.collect { (scrolling, first) ->
+            if (!scrolling) return@collect
+            val r = latestRows.getOrNull(first) ?: return@collect
+            vm.scrolledInto(r.book, r.chapter)
+        }
     }
     val swipeThreshold = with(LocalDensity.current) { 96.dp.toPx() }
     val onSwipe by rememberUpdatedState<(Boolean) -> Unit> { forward -> vm.swipe(forward) }
@@ -682,7 +740,7 @@ private fun Reader(
     val reading = if (rs.active && rs.book == ch?.book && rs.chapter == ch.chapter && rs.translation == vm.translationId) rs.verse else null
     LaunchedEffect(reading, rows) {
         if (reading != null) {
-            val idx = rows.indexOfFirst { it.holds(reading) }
+            val idx = rows.indexOfFirst { isCurrent(it) && it.row.holds(reading) }
             if (idx >= 0 && state.layoutInfo.visibleItemsInfo.none { it.index == idx }) state.animateScrollToItem(idx)
         }
     }
@@ -707,17 +765,34 @@ private fun Reader(
         contentPadding = PaddingValues(start = 0.dp, end = 6.dp, top = 2.dp, bottom = if (pageStyle) 24.dp else 88.dp),
     ) {
         items(rows.size, key = { i ->
-            rows[i].let { r ->
-                when (r) {
-                    is ReaderRow.Verse -> "v${r.verse}"
-                    is ReaderRow.Paragraph -> "p${r.verses.first().verse}"
-                    else -> "r$i"
+            rows[i].let { pl ->
+                val at = "${pl.book}:${pl.chapter}:"
+                when (val r = pl.row) {
+                    is ReaderRow.Verse -> at + "v${r.verse}"
+                    is ReaderRow.Paragraph -> at + "p${r.verses.first().verse}"
+                    else -> at + "r${pl.index}"
                 }
             }
         }) { i ->
-            when (val r = rows[i]) {
+            val pl = rows[i]
+            val current = isCurrent(pl)
+            val block = annotations[pl.book to pl.chapter]
+            val hls = if (current) highlights else block?.highlights.orEmpty()
+            val nts = if (current) notes else block?.notes.orEmpty()
+            val sel = if (current) selected else emptySet()
+            val foc: (Int) -> Boolean = { v -> current && (focus?.contains(v) == true || reading == v) }
+            // a tap in the chapter above or below makes it the chapter being read, then acts on it
+            val tap: (Int) -> Unit = { v -> if (!current) vm.scrolledInto(pl.book, pl.chapter); onVerseTap(v) }
+            val numberTap: (Int) -> Unit = { v -> if (!current) vm.scrolledInto(pl.book, pl.chapter); onNumberTap(v) }
+            when (val r = pl.row) {
                 is ReaderRow.Title -> StyledChapterHeader(r.book, r.chapter)
-                is ReaderRow.Heading -> Text(
+                is ReaderRow.Heading -> if (LocalStyle.current == Style.Navy) Text(
+                    // Navy: headings as in a printed Bible, in capitals at the left
+                    r.text.uppercase(),
+                    style = MaterialTheme.typography.labelLarge, letterSpacing = 1.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = 20.dp, bottom = 4.dp),
+                ) else Text(
                     r.text,
                     style = MaterialTheme.typography.bodyLarge,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
@@ -731,36 +806,38 @@ private fun Reader(
                     textSize = textSize,
                     // the typesetting details are for running text; one verse per line stays as it was
                     typeset = typeset.copy(justify = false, hyphenate = false),
-                    focused = focus?.contains(r.verse) == true || reading == r.verse,
-                    selected = r.verse in selected,
-                    highlights = highlights.filter { it.passage.contains(r.verse) }.map { h ->
+                    focused = foc(r.verse),
+                    selected = r.verse in sel,
+                    highlights = hls.filter { it.passage.contains(r.verse) }.map { h ->
                         Triple(if (charHighlights) h.charStart else null, if (charHighlights) h.charEnd else null, h.colour)
                     },
-                    note = notes.firstOrNull { it.passage.firstVerse == r.verse },
+                    note = nts.firstOrNull { it.passage.firstVerse == r.verse },
                     studyMode = vm.studyMode,
-                    onTap = { onVerseTap(r.verse) },
-                    onNumberTap = { onNumberTap(r.verse) },
+                    onTap = { tap(r.verse) },
+                    onNumberTap = { numberTap(r.verse) },
                     onNoteTap = onNoteTap,
+                    tagPrefix = if (current) "" else "${pl.book}:${pl.chapter}:",
                 )
                 is ReaderRow.Paragraph -> ParagraphBlock(
                     verses = r.verses,
                     typeset = typeset,
                     textSize = textSize,
-                    focused = { v -> focus?.contains(v) == true || reading == v },
-                    selected = selected,
+                    focused = foc,
+                    selected = sel,
                     highlights = { v ->
-                        highlights.filter { it.passage.contains(v) }.map { h ->
+                        hls.filter { it.passage.contains(v) }.map { h ->
                             Triple(if (charHighlights) h.charStart else null, if (charHighlights) h.charEnd else null, h.colour)
                         }
                     },
-                    notes = r.verses.mapNotNull { v -> notes.firstOrNull { it.passage.firstVerse == v.verse }?.let { v.verse to it } }.toMap(),
-                    onTap = onVerseTap,
-                    onNumberTap = onNumberTap,
+                    notes = r.verses.mapNotNull { v -> nts.firstOrNull { it.passage.firstVerse == v.verse }?.let { v.verse to it } }.toMap(),
+                    onTap = tap,
+                    onNumberTap = numberTap,
                     onNoteTap = onNoteTap,
+                    tagPrefix = if (current) "" else "${pl.book}:${pl.chapter}:",
                 )
             }
         }
-        if (pageStyle) item(key = "footer") { ChapterFooterLinks(vm) }
+        if (pageStyle && !vm.continuousReading) item(key = "footer") { ChapterFooterLinks(vm) }
     }
 }
 
@@ -778,6 +855,8 @@ private fun VerseRow(
     onTap: () -> Unit,
     onNumberTap: () -> Unit,
     onNoteTap: (Note) -> Unit,
+    /** "" for the chapter being read; "book:chapter:" for the chapters around it (continuous reading). */
+    tagPrefix: String = "",
 ) {
     val ornament = LocalOrnament.current
     val bg = when {
@@ -821,7 +900,7 @@ private fun VerseRow(
                 .widthIn(min = 34.dp)
                 .fillMaxHeight()
                 .clickable(onClick = onNumberTap)
-                .testTag("vnum:$verse")
+                .testTag("vnum:$tagPrefix$verse")
                 .padding(top = (textSize * 0.36f).dp, end = 4.dp),
             contentAlignment = Alignment.TopEnd,
         ) {
@@ -846,7 +925,7 @@ private fun VerseRow(
             modifier = Modifier
                 .weight(1f)
                 .clickable(onClick = onTap)
-                .testTag("verse:$verse")
+                .testTag("verse:$tagPrefix$verse")
                 .padding(start = 2.dp, top = 3.dp, bottom = 3.dp, end = 2.dp),
         )
         if (note != null) {
@@ -903,6 +982,8 @@ private fun ParagraphBlock(
     onTap: (Int) -> Unit,
     onNumberTap: (Int) -> Unit,
     onNoteTap: (Note) -> Unit,
+    /** "" for the chapter being read; "book:chapter:" for the chapters around it (continuous reading). */
+    tagPrefix: String = "",
 ) {
     val ornament = LocalOrnament.current
     val selectedWash = MaterialTheme.colorScheme.secondaryContainer
@@ -977,7 +1058,7 @@ private fun ParagraphBlock(
         onTextLayout = { layout = it },
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("paragraph:$first")
+            .testTag("paragraph:$tagPrefix$first")
             // inside the padding, so tap positions match the text layout
             // the list adds 0 dp on the left and 6 on the right: equal margins on both sides
             .padding(

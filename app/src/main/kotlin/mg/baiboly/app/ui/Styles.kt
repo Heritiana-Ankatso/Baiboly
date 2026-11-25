@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -95,7 +96,7 @@ fun StyledNavigation(vm: AppViewModel) {
     when (LocalStyle.current) {
         Style.Manuscript -> AppNavigationBar(vm)
         Style.Modern -> FloatingNavigation(vm)
-        Style.Page, Style.Glass -> Unit
+        Style.Page, Style.Glass, Style.Navy -> Unit
     }
 }
 
@@ -227,6 +228,7 @@ fun StyledTopBar(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
             }
         }
+        Style.Navy -> NavyTopBar(vm, title, titleModifier, back = null, actions = actions)
         Style.Glass -> Surface(color = glassHeader(), contentColor = onGlassHeader(), shadowElevation = 4.dp) {
             Column(Modifier.statusBarsPadding()) {
                 Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(start = 6.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -279,6 +281,7 @@ fun StyledSubBar(title: String, onBack: () -> Unit, actions: @Composable () -> U
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
             }
         }
+        Style.Navy -> NavyTopBar(null, title, Modifier, back = onBack, actions = actions)
         Style.Glass -> TopAppBar(
             title = { Text(title) }, navigationIcon = back, actions = { actions() },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -342,6 +345,7 @@ fun PageMenuScreen(vm: AppViewModel) {
         ))
         add(R.string.group_saved to listOf(
             MenuEntry(Screen.Lists, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.nav_lists),
+            MenuEntry(Screen.Documents, Icons.Outlined.EditNote, R.string.my_notes),
             MenuEntry(Screen.Notes, Icons.Outlined.EditNote, R.string.notes),
             MenuEntry(Screen.Highlights, Icons.Outlined.BorderColor, R.string.highlights),
             MenuEntry(Screen.History, Icons.Outlined.History, R.string.history),
@@ -418,6 +422,7 @@ fun BoxScope.ChapterOverlay(vm: AppViewModel) {
                 }
             }
         }
+        Style.Navy -> NavyChapterButtons(vm)
         Style.Page, Style.Glass -> Unit
     }
 }
@@ -482,6 +487,7 @@ fun StyledChapterHeader(book: String, chapter: Int) {
             Text("$chapter", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface)
             Box(Modifier.padding(top = 10.dp).width(36.dp).height(1.dp).background(MaterialTheme.colorScheme.outline))
         }
+        Style.Navy -> NavyChapterHeader(book, chapter)
         Style.Glass -> Surface(
             color = MaterialTheme.colorScheme.primaryContainer, shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 14.dp, bottom = 10.dp),
@@ -540,7 +546,7 @@ fun StyledSelectionActions(
                 }
             }
         }
-        Style.Modern -> Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 10.dp), contentAlignment = Alignment.Center) {
+        Style.Modern, Style.Navy -> Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 10.dp), contentAlignment = Alignment.Center) {
             Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.inverseSurface, contentColor = MaterialTheme.colorScheme.inverseOnSurface, shadowElevation = 8.dp) {
                 Column(Modifier.padding(horizontal = 6.dp, vertical = 4.dp)) {
                     if (colours) swatches()
@@ -609,6 +615,7 @@ fun Style.label(): String = stringResource(
         Style.Modern -> R.string.style_modern
         Style.Page -> R.string.style_page
         Style.Glass -> R.string.style_glass
+        Style.Navy -> R.string.style_navy
     },
 )
 
@@ -619,6 +626,7 @@ fun Style.description(): String = stringResource(
         Style.Modern -> R.string.style_modern_desc
         Style.Page -> R.string.style_page_desc
         Style.Glass -> R.string.style_glass_desc
+        Style.Navy -> R.string.style_navy_desc
     },
 )
 
@@ -693,6 +701,18 @@ private fun StyleThumbnail(style: Style, dark: Boolean, modifier: Modifier) {
                 text(11f * u, 10)
                 line(h - 4 * u, 3 * u, 9 * u, accent.copy(alpha = 0.7f))
                 line(h - 4 * u, w - 9 * u, w - 3 * u, accent.copy(alpha = 0.7f))
+            }
+            Style.Navy -> {
+                // the side menu half open over the page, a centred title, two round buttons
+                line(1.8f * u, 8 * u, 18 * u, accent.copy(alpha = 0.8f))
+                drawRect(ink.copy(alpha = 0.1f), Offset(0f, 4.4f * u), Size(w, u * 0.15f))
+                drawRect(ink.copy(alpha = 0.7f), Offset(3 * u, 7f * u), Size(4 * u, 4 * u))
+                text(7.5f * u, 2)
+                text(12f * u, 7)
+                drawCircle(Color.White, u * 1.8f, Offset(3.5f * u, h - 4 * u)); drawCircle(accent, u * 1.8f, Offset(3.5f * u, h - 4 * u), style = androidx.compose.ui.graphics.drawscope.Stroke(u * 0.2f))
+                drawCircle(Color.White, u * 1.8f, Offset(w - 3.5f * u, h - 4 * u)); drawCircle(accent, u * 1.8f, Offset(w - 3.5f * u, h - 4 * u), style = androidx.compose.ui.graphics.drawscope.Stroke(u * 0.2f))
+                drawRect(Brush.verticalGradient(listOf(Color(0xFF1D3563), Color(0xFF2E4B7E))), Offset.Zero, Size(w * 0.42f, h))
+                for (i in 0 until 6) drawRoundRect(Color.White.copy(alpha = 0.75f), Offset(2 * u, (6 + i * 3.2f) * u), Size(w * 0.28f, u * 0.7f), CornerRadius(u / 3))
             }
             Style.Glass -> {
                 drawRect(accent, Offset.Zero, Size(w, 8 * u))

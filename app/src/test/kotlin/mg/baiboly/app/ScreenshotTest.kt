@@ -161,6 +161,16 @@ class ScreenshotTest {
             settle()
             shot("t${i + 1}d-${st.name.lowercase()}-night")
             vm.changeTheme(ThemeMode.Light)
+            if (st == Style.Navy) {
+                // the side menu, the Old Testament unfolded
+                vm.drawerOpen = true
+                pump(1200)
+                rule.onNodeWithTag("drawer-testament:0", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+                pump(600)
+                shot("t${i + 1}e-navy-menu")
+                vm.drawerOpen = false
+                pump(800)
+            }
         }
         vm.changeStyle(Style.Manuscript)
         settle()
@@ -235,5 +245,68 @@ class ScreenshotTest {
         pump(800)
         shot("p1-selection-bar")
         // the Study panel opens in a sheet (its own window, not in these screenshots): see UiAcceptanceTest.passageStudyTools
+    }
+
+    /** Sermon notes and studies, the church-history timeline, the text formatting group, units both ways. */
+    @Test fun newTools() {
+        settle { vm.ready && vm.chapter != null }
+        vm.chooseUiLanguage("en")
+        vm.setTranslation("mg1865")
+        // a sermon note in Church mode: date and the service's passages recorded
+        vm.changeMode(AppMode.Church)
+        vm.addToList(listOf(Passage(45, 8, 28, 30), Passage(43, 6, 37, 40)))
+        settle { vm.list.items.size >= 2 }
+        vm.newDocument("sermon")
+        settle { vm.screen == Screen.Document }
+        vm.saveDocument(vm.openDocument!!.copy(body = "# The golden chain\n- Foreknown, predestined, called\n- Justified, glorified: [Rom 8: 30](bible:45.8.30-30)\n## None is lost\n- [Jao 6: 39](bible:43.6.39-39): *I should lose nothing*"))
+        vm.closeDocument(); settle()
+        vm.openDocument(vm.documents.first())
+        settle()
+        shot("n1-sermon-note")
+        rule.onNodeWithTag("doc-preview", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        pump(800)
+        shot("n2-sermon-note-read")
+        vm.closeDocument()
+        // a study in Study mode, its outline and tools
+        vm.changeMode(AppMode.Study)
+        vm.newDocument("study", Passage(45, 8, 28, 30))
+        settle { vm.screen == Screen.Document }
+        pump(800)
+        shot("n3-study-new")
+        vm.closeDocument()
+        vm.screen = Screen.Documents
+        settle()
+        shot("n4-my-notes")
+        // the timeline on to today
+        vm.dictionaryTool = StudyTool.Timeline
+        vm.screen = Screen.Dictionary
+        pump(2000)
+        rule.onNodeWithTag("tl-to-today", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        pump(2500)
+        shot("h6-timeline-to-today")
+        rule.onNodeWithTag("tl-mode-list", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        pump(1500)
+        shot("h7-timeline-list-by-era")
+        // text formatting, in one group with the usual icons
+        vm.screen = Screen.Settings
+        vm.settingsPage = "look"
+        settle()
+        rule.onNodeWithTag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
+        rule.onNodeWithTag("settings-text-formatting", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        pump(800)
+        rule.onNodeWithTag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-justify:true"))
+        pump(400)
+        shot("s1-text-formatting")
+        vm.settingsPage = null
+        // units, from today's measures to the Bible's
+        vm.dictionaryTool = StudyTool.Units
+        vm.screen = Screen.Dictionary
+        pump(1500)
+        rule.onNodeWithTag("units-swap", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        pump(800)
+        shot("u2-units-from-metres")
+        vm.screen = Screen.Main
+        vm.changeMode(AppMode.Casual)
+        settle()
     }
 }

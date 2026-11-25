@@ -89,6 +89,16 @@ class ReferenceParserTest {
         assertEquals(listOf(Passage(62, 4, 8, 8)), ok("1 Jaona 4:8"))
     }
 
+    /** French and English Bible abbreviations, as the book grids show them when reading those Bibles. */
+    @Test fun frenchAndEnglishAbbreviations() {
+        assertEquals(listOf(Passage(43, 3, 16, 16)), ok("Jn 3:16"))
+        assertEquals(listOf(Passage(46, 13, 4, 4)), ok("1 Co 13:4"))
+        assertEquals(listOf(Passage(40, 5, 3, 3)), ok("Matt 5:3"))
+        assertEquals(listOf(Passage(1, 1, 1, 1)), ok("Gn 1:1"))
+        // Malagasy first: "Mat" is still Matio
+        assertEquals(listOf(Passage(40, 1, 1, 1)), ok("Mat 1:1"))
+    }
+
     @Test fun ambiguousAndUnknownBooks() {
         assertIs<ParseError.AmbiguousBook>(ReferenceParser.parse("Jo 1:1").error)
         assertIs<ParseError.AmbiguousBook>(ReferenceParser.parse("Tim 1:1").error) // needs 1 or 2

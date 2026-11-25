@@ -187,6 +187,7 @@ private fun shapes(style: Style) = when (style) {
     Style.Modern -> Shapes(RoundedCornerShape(8.dp), RoundedCornerShape(14.dp), RoundedCornerShape(20.dp), RoundedCornerShape(28.dp), RoundedCornerShape(32.dp))
     Style.Page -> Shapes(RoundedCornerShape(0.dp), RoundedCornerShape(2.dp), RoundedCornerShape(2.dp), RoundedCornerShape(4.dp), RoundedCornerShape(4.dp))
     Style.Glass -> Shapes(RoundedCornerShape(2.dp), RoundedCornerShape(4.dp), RoundedCornerShape(6.dp), RoundedCornerShape(8.dp), RoundedCornerShape(10.dp))
+    Style.Navy -> Shapes(RoundedCornerShape(4.dp), RoundedCornerShape(8.dp), RoundedCornerShape(12.dp), RoundedCornerShape(16.dp), RoundedCornerShape(24.dp))
 }
 
 /** The theme in use: every component asks it how to look and where to sit. */
@@ -276,6 +277,11 @@ private val palettes: Map<Palette, PaletteColours> by lazy {
         Palette.Slate to palette(
             arrayOf(c(0xFFF7F8FA), c(0xFF191C21), c(0xFF2C5BCF), c(0xFFFFFFFF), c(0xFF98A2B0), c(0xFF2C5BCF), c(0xFF0F7C6E), c(0xFFB3261E)),
             arrayOf(c(0xFF0F1114), c(0xFFE5E8EC), c(0xFFA8C0FF), c(0xFF0B2367), c(0xFF5D6673), c(0xFFA8C0FF), c(0xFF7FD6C6), c(0xFFFF8A80)),
+        ),
+        // Navy: white page, navy ink for titles and the side menu; at night deep blue-black
+        Palette.Navy to palette(
+            arrayOf(c(0xFFFFFFFF), c(0xFF1B1D22), c(0xFF1F3A6E), c(0xFFFFFFFF), c(0xFF7F8BA3), c(0xFF1F3A6E), c(0xFF2E6B5E), c(0xFFB3261E)),
+            arrayOf(c(0xFF0D1320), c(0xFFE4E8F0), c(0xFFA9C0EE), c(0xFF0E1A33), c(0xFF6E7A93), c(0xFFA9C0EE), c(0xFF8ACFBF), c(0xFFFF8A80)),
         ),
         // Paper: plain black on white; at night true black (saves power on OLED screens)
         Palette.Paper to palette(

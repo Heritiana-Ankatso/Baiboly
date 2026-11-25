@@ -1,5 +1,8 @@
 package mg.baiboly.app.ui
 
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -172,6 +175,8 @@ private fun PersonView(vm: AppViewModel, id: Int, modifier: Modifier, onPerson: 
     }
     val p = person ?: return Text(stringResource(R.string.loading), modifier.padding(20.dp))
     val ornament = LocalOrnament.current
+    // folded[k] = true when the reader folded section k, false when they unfolded it
+    var folded by remember(id) { mutableStateOf(mapOf<String, Boolean>()) }
     LazyColumn(modifier.fillMaxSize().padding(horizontal = 20.dp).testTag("person-view")) {
         item {
             Text(p.name, style = MaterialTheme.typography.headlineSmall, color = ornament.rubric, modifier = Modifier.padding(top = 12.dp))
@@ -191,53 +196,53 @@ private fun PersonView(vm: AppViewModel, id: Int, modifier: Modifier, onPerson: 
             }
             Fleuron()
         }
+        // each part folds away (the father line and the verses start folded: they are long)
+        val shut = mutableSetOf<String>().also { if (line.size > 6) it += "line"; if (verses.size > 12) it += "verses" }
+        fun isOpen(k: String) = folded[k]?.let { !it } ?: (k !in shut)
+        fun toggle(k: String) { folded = folded + (k to isOpen(k)) }
         // Father line, from the farthest ancestor down to the person (a column, not a count of generations)
         if (line.isNotEmpty()) {
-            item { SectionTitle(stringResource(R.string.father_line)) }
-            items(line.reversed(), key = { "line${it.id}" }) { a ->
+            collapsibleSection("line", { stringResource(R.string.father_line) }, isOpen("line"), { toggle("line") },
+                rows = line.reversed(), rowKey = { "line${it.id}" }, detail = { "${line.size}" }) { a ->
                 Text(
                     "↓ " + a.name, style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 40.dp).clickable { onPerson(a.id) }.testTag("line:${a.id}").padding(vertical = 8.dp),
                 )
             }
-            item {
+            if (isOpen("line")) item {
                 Text("✠ " + p.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = ornament.rubric, modifier = Modifier.padding(vertical = 6.dp))
                 // the first ancestor's note (Adam: "the son of God" by creation, Luke 3:38)
                 line.last().note.let { k -> personNote(k)?.let { Note(line.last().name + ": " + it, Modifier.padding(bottom = 4.dp)) } }
                 Note(stringResource(R.string.genealogy_note))
             }
         }
-        val father = relatives.firstOrNull { it.kind == "father" }?.person
         RELATION_ORDER.forEach { kind ->
             val group = relatives.filter { it.kind == kind }.map { it.person }.distinctBy { it.id }
             if (group.isNotEmpty()) {
-                item(key = "rel-$kind") { SectionTitle(relationTitle(kind) + " (${group.size})") }
-                items(group, key = { "$kind${it.id}" }) { r ->
+                collapsibleSection("rel-$kind", { relationTitle(kind) + " (${group.size})" }, isOpen("rel-$kind"), { toggle("rel-$kind") },
+                    rows = group, rowKey = { "$kind${it.id}" }) { r ->
                     Column(
                         Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onPerson(r.id) }.testTag("relative:${r.id}").padding(vertical = 6.dp),
                     ) {
                         Text(r.name, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-                        Note(personSubtitle(r, if (kind == "child" || kind == "sibling") null else null))
+                        Note(personSubtitle(r))
                     }
                 }
             }
         }
         if (relatives.isEmpty() && line.isEmpty()) item { Note(stringResource(R.string.no_family), Modifier.padding(top = 8.dp)) }
         if (events.isNotEmpty()) {
-            item { SectionTitle(stringResource(R.string.events)) }
-            items(events, key = { "ev${it.id}" }) { e -> EventRow(vm, e) }
+            collapsibleSection("events", { stringResource(R.string.events) + " (${events.size})" }, isOpen("events"), { toggle("events") },
+                rows = events, rowKey = { "ev${it.id}" }) { e -> EventRow(vm, e) }
         }
         if (verses.isNotEmpty()) {
-            item {
-                SectionTitle(stringResource(R.string.verses_x, p.mentions))
-                VerseChips(vm, verses, "person-verses")
-            }
+            collapsibleSection("verses", { stringResource(R.string.verses_x, p.mentions) }, isOpen("verses"), { toggle("verses") },
+                rows = listOf(verses), rowKey = { "verses" }) { vs -> VerseChips(vm, vs, "person-verses") }
         }
         item {
             Note(stringResource(R.string.names_note), Modifier.padding(top = 16.dp))
             Note(stringResource(R.string.theographic_credit), Modifier.padding(vertical = 16.dp))
         }
-        @Suppress("UNUSED_EXPRESSION") father
     }
 }
 
@@ -265,43 +270,64 @@ private fun durationLabel(d: String): String? {
 }
 
 @Composable
-private fun EventRow(vm: AppViewModel, e: BibleEvent) {
+private fun EventRow(vm: AppViewModel, e: BibleEvent, family: String? = null) {
     Column(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { vm.openEvent(e.id) }.testTag("event:${e.id}").padding(vertical = 6.dp)) {
         Text(e.title, style = MaterialTheme.typography.bodyLarge)
-        Note(listOfNotNull(eventDates(e), e.first?.label()).joinToString(" · "))
+        Note(listOfNotNull(eventDates(e), e.first?.label(), churchFamilyLabel(family)).joinToString(" · "))
     }
 }
 
 @Composable
 fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
-    var all by remember { mutableStateOf<List<BibleEvent>>(emptyList()) }
-    var eras by remember { mutableStateOf<List<mg.baiboly.data.Era>>(emptyList()) }
+    var bible by remember { mutableStateOf<List<BibleEvent>>(emptyList()) }
+    var bibleEras by remember { mutableStateOf<List<mg.baiboly.data.Era>>(emptyList()) }
     var query by remember { mutableStateOf("") }
     var open by remember { mutableStateOf(vm.eventRequest) }
     // the chart by default; the list is its table view (and the place to search)
     var asList by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(Unit) { vm.onIo { all = vm.chronicle.timeline; eras = vm.chronicle.eras } }
+    // Go deeper: on past the apostles to today (the Fathers, the councils, the Reformation, missions, Madagascar)
+    var toToday by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val lang = refLang()
+    var church by remember { mutableStateOf<ChurchHistory?>(null) }
+    LaunchedEffect(Unit) { vm.onIo { bible = vm.chronicle.timeline; bibleEras = vm.chronicle.eras } }
+    LaunchedEffect(lang) { church = vm.onIo { ChurchHistory.load(ctx, lang) } }
     LaunchedEffect(vm.eventRequest) { vm.eventRequest?.let { open = it; vm.eventRequest = null } }
     androidx.activity.compose.BackHandler(enabled = open != null) { open = null }
+    val ch = church
+    val all = if (toToday && ch != null) bible + ch.events else bible
+    val eras = remember(bibleEras, toToday, ch) {
+        if (!toToday || ch == null || bibleEras.isEmpty()) bibleEras
+        else {
+            // the Bible's last era (the early church) ends where church history takes over
+            val handover = ch.eras.first().start
+            bibleEras.dropLast(1) + bibleEras.last().let { mg.baiboly.data.Era(it.key, it.start, maxOf(it.start + 1, minOf(it.end, handover))) } + ch.eras
+        }
+    }
+    val extraNames = ch?.eraNames.orEmpty()
     val id = open
     if (id != null) {
-        all.firstOrNull { it.id == id }?.let { EventView(vm, it, modifier) } ?: Text(stringResource(R.string.loading), modifier.padding(20.dp))
+        (all.firstOrNull { it.id == id } ?: ch?.events?.firstOrNull { it.id == id })
+            ?.let { EventView(vm, it, modifier, ch?.family?.get(it.id)) } ?: Text(stringResource(R.string.loading), modifier.padding(20.dp))
         return
     }
     val q = mg.baiboly.core.text.TextNorm.norm(query.trim())
     val shown = remember(all, q) { if (q.isEmpty()) all else all.filter { mg.baiboly.core.text.TextNorm.norm(it.title).contains(q) } }
-    val ornament = LocalOrnament.current
     Column(modifier) {
-        Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             androidx.compose.material3.FilterChip(selected = !asList, onClick = { asList = false },
                 label = { Text(stringResource(R.string.tl_chart)) }, modifier = Modifier.testTag("tl-mode-chart"))
             androidx.compose.material3.FilterChip(selected = asList, onClick = { asList = true },
                 label = { Text(stringResource(R.string.tl_list)) }, modifier = Modifier.testTag("tl-mode-list"))
+            Spacer(Modifier.weight(1f))
+            androidx.compose.material3.FilterChip(selected = toToday, onClick = { toToday = !toToday },
+                label = { Text(stringResource(R.string.tl_to_today)) }, modifier = Modifier.testTag("tl-to-today"))
         }
         if (!asList) {
             Note(stringResource(R.string.tl_hint), Modifier.padding(horizontal = 16.dp))
-            TimelineChart(vm, all, eras, Modifier.weight(1f))
-            Note(stringResource(R.string.theographic_credit), Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            TimelineChart(vm, all, eras, Modifier.weight(1f), extraNames)
+            Note(stringResource(if (toToday) R.string.church_history_credit else R.string.theographic_credit),
+                Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
             return@Column
         }
         OutlinedTextField(
@@ -309,29 +335,46 @@ fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
             placeholder = { Text(stringResource(R.string.timeline_search_hint)) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).testTag("timeline-search"),
         )
+        // condensed: one line per era with its count; a tap unfolds it (a search unfolds them all)
+        var openEras by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(setOf<String>()) }
+        val byEra = remember(shown, eras) {
+            shown.groupBy { e -> eras.lastOrNull { e.year >= it.start }?.key ?: eras.firstOrNull()?.key ?: "" }
+        }
         LazyColumn(Modifier.weight(1f).padding(horizontal = 20.dp).testTag("timeline")) {
             item { Note(stringResource(R.string.timeline_note), Modifier.padding(vertical = 6.dp)) }
-            var lastBook = -1
-            shown.forEach { e ->
-                val testament = if ((e.first?.book ?: 1) >= 40) 2 else 1
-                if (testament != lastBook) {
-                    lastBook = testament
-                    item(key = "t$testament") {
-                        Text(
-                            stringResource(if (testament == 1) R.string.old_testament else R.string.new_testament),
-                            style = MaterialTheme.typography.titleMedium, color = ornament.rubric, modifier = Modifier.padding(top = 12.dp),
-                        )
-                    }
-                }
-                item(key = e.id) { EventRow(vm, e); HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant) }
+            eras.filter { byEra[it.key]?.isNotEmpty() == true }.forEach { era ->
+                val rows = byEra.getValue(era.key)
+                val isOpen = q.isNotEmpty() || era.key in openEras
+                collapsibleSection(
+                    key = "era-${era.key}",
+                    title = { extraNames[era.key] ?: eraName(era.key) },
+                    detail = { yearLabel(era.start) + " – " + yearLabel(era.end - 1) + " · " + pluralStringResource(R.plurals.n_events, rows.size, rows.size) },
+                    open = isOpen,
+                    onToggle = { openEras = if (era.key in openEras) openEras - era.key else openEras + era.key },
+                    rows = rows,
+                    rowKey = { it.id },
+                ) { e -> EventRow(vm, e, ch?.family?.get(e.id)); HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant) }
             }
-            item { Note(stringResource(R.string.theographic_credit), Modifier.padding(vertical = 16.dp)) }
+            item {
+                Note(stringResource(R.string.theographic_credit), Modifier.padding(top = 16.dp))
+                if (toToday) Note(stringResource(R.string.church_history_credit), Modifier.padding(vertical = 8.dp))
+            }
         }
     }
 }
 
+/** The tradition an event of church history belongs to, when it is not common to all. */
 @Composable
-private fun EventView(vm: AppViewModel, e: BibleEvent, modifier: Modifier) {
+private fun churchFamilyLabel(f: String?): String? = when (f) {
+    "reformed" -> stringResource(R.string.tradition_reformed)
+    "catholic" -> stringResource(R.string.catholic)
+    "orthodox" -> stringResource(R.string.tradition_orthodox)
+    "madagascar" -> stringResource(R.string.madagascar)
+    else -> null
+}
+
+@Composable
+private fun EventView(vm: AppViewModel, e: BibleEvent, modifier: Modifier, family: String? = null) {
     var people by remember(e.id) { mutableStateOf<List<Person>>(emptyList()) }
     var verses by remember(e.id) { mutableStateOf<List<Passage>>(emptyList()) }
     LaunchedEffect(e.id) { vm.onIo { people = vm.chronicle.eventPeople(e.id); verses = vm.chronicle.eventVerses(e.id) } }
@@ -340,14 +383,17 @@ private fun EventView(vm: AppViewModel, e: BibleEvent, modifier: Modifier) {
         item {
             Text(e.title, style = MaterialTheme.typography.headlineSmall, color = ornament.rubric, modifier = Modifier.padding(top = 12.dp))
             Fleuron()
+            val churchEvent = e.id < 0
             Text(
-                (if (e.approximate) stringResource(R.string.approx) + " " else "") + yearLabel(e.year) + " " + stringResource(R.string.after_jones),
+                (if (e.approximate) stringResource(R.string.approx) + " " else "") + yearLabel(e.year) +
+                    (if (churchEvent) (if (e.endYear > e.year) " – " + yearLabel(e.endYear.toInt()) else "") else " " + stringResource(R.string.after_jones)),
                 style = MaterialTheme.typography.bodyLarge,
             )
+            if (churchEvent) churchFamilyLabel(family)?.let { Note(it, Modifier.padding(top = 4.dp)) }
             e.ussher?.let { Text(stringResource(R.string.ussher_x, yearLabel(it)) + " " + stringResource(R.string.after_tsk), style = MaterialTheme.typography.bodyMedium) }
             durationLabel(e.duration)?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
             if (e.notes.isNotEmpty()) Text(e.notes, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic, modifier = Modifier.padding(top = 8.dp))
-            Note(stringResource(R.string.dates_reconstructed), Modifier.padding(top = 8.dp))
+            if (!churchEvent) Note(stringResource(R.string.dates_reconstructed), Modifier.padding(top = 8.dp))
         }
         if (verses.isNotEmpty()) item { SectionTitle(stringResource(R.string.verses_x, verses.size)); VerseChips(vm, verses, "event-verses") }
         if (people.isNotEmpty()) {
@@ -359,7 +405,7 @@ private fun EventView(vm: AppViewModel, e: BibleEvent, modifier: Modifier) {
                 )
             }
         }
-        item { Note(stringResource(R.string.theographic_credit), Modifier.padding(vertical = 16.dp)) }
+        item { Note(stringResource(if (e.id < 0) R.string.church_history_credit else R.string.theographic_credit), Modifier.padding(vertical = 16.dp)) }
     }
 }
 
@@ -384,6 +430,7 @@ fun ConfessionsView(vm: AppViewModel, modifier: Modifier = Modifier) {
     var councils by remember { mutableStateOf<List<mg.baiboly.data.Council>>(emptyList()) }
     var open by remember { mutableStateOf(vm.creedRequest) }
     var deeper by remember { mutableStateOf(false) }
+    var shutParts by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(setOf<String>()) }
     LaunchedEffect(Unit) { vm.onIo { docs = vm.chronicle.creedDocs; councils = vm.chronicle.councils } }
     LaunchedEffect(vm.creedRequest) { vm.creedRequest?.let { open = it; vm.creedRequest = null } }
     androidx.activity.compose.BackHandler(enabled = open != null) { open = null }
@@ -403,15 +450,18 @@ fun ConfessionsView(vm: AppViewModel, modifier: Modifier = Modifier) {
             )
         }
         listOf("creed", "reformed", "catholic", "orthodox").filter { it in own }.forEach { fam ->
-            item(key = "fam-$fam") { SectionTitle(familyLabel(fam)) }
-            items(docs.filter { it.family == fam }, key = { it.id }) { d -> DocRow(d, marked = false) { open = d.id to -1 } }
+            val famDocs = docs.filter { it.family == fam }
+            collapsibleSection("fam-$fam", { familyLabel(fam) + " (${famDocs.size})" }, "fam-$fam" !in shutParts,
+                { shutParts = if ("fam-$fam" in shutParts) shutParts - "fam-$fam" else shutParts + "fam-$fam" },
+                rows = famDocs, rowKey = { it.id }) { d -> DocRow(d, marked = false) { open = d.id to -1 } }
         }
         // councils received by the chosen tradition (the ecumenical ones by all); the others under Go deeper
         val councilsShown = councils.filter { c -> c.families.any { it in own } }
         if (councilsShown.isNotEmpty()) {
-            item { SectionTitle(stringResource(R.string.councils)) }
-            items(councilsShown, key = { "c-" + it.id }) { c -> CouncilRow(c, docs) { open = it to -1 } }
-            item { Note(stringResource(R.string.councils_note), Modifier.padding(top = 4.dp)) }
+            collapsibleSection("councils", { stringResource(R.string.councils) + " (${councilsShown.size})" }, "councils" !in shutParts,
+                { shutParts = if ("councils" in shutParts) shutParts - "councils" else shutParts + "councils" },
+                rows = councilsShown, rowKey = { "c-" + it.id }) { c -> CouncilRow(c, docs) { open = it to -1 } }
+            if ("councils" !in shutParts) item { Note(stringResource(R.string.councils_note), Modifier.padding(top = 4.dp)) }
         }
         // Go deeper: documents and councils of the other traditions, each marked with its tradition
         // (left out altogether when there is none)

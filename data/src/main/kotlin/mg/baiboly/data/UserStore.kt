@@ -28,6 +28,24 @@ data class SavedListSummary(val id: Long, val title: String, val date: String, v
 data class RecentPassage(val passage: Passage, val openedAt: Long)
 
 /**
+ * A sermon note or a study. [passages]: the references as written ("Jaona 3: 16; Rom 8: 28"), kept in
+ * Malagasy 1865 numbering by the app; [body]: the notes' Markdown (core.notes.NoteMarkup).
+ */
+data class NoteDocument(
+    val id: Long,
+    val kind: String,
+    val title: String,
+    val date: Long,
+    val passages: String,
+    val speaker: String,
+    val place: String,
+    val body: String,
+    val tags: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+)
+
+/**
  * The user's own data (brief section 3), in plain SQLite. All verse numbers
  * are Malagasy 1865 numbers. Call from a background thread.
  */
@@ -56,6 +74,7 @@ class UserStore(context: Context) : SQLiteOpenHelper(context, "user.db", null, S
         )
         db.execSQL("CREATE INDEX note_by_chapter ON note(book, chapter)")
         db.execSQL("CREATE INDEX highlight_by_chapter ON highlight(book, chapter)")
+        createDocuments(db)
     }
 
     /**
@@ -282,13 +301,61 @@ class UserStore(context: Context) : SQLiteOpenHelper(context, "user.db", null, S
         return json.optJSONObject("app_state") ?: JSONObject()
     }
 
-    companion object {
-        const val SCHEMA_VERSION = 1
+    // ------------------------------------------------------------ sermon notes and studies
 
-        /** schema version -> step that brings the previous version up to it (none yet). */
-        private val MIGRATIONS: Map<Int, (SQLiteDatabase) -> Unit> = mapOf()
+    private fun Cursor.document() = NoteDocument(
+        getLong(0), getString(1), getString(2), getLong(3), getString(4), getString(5), getString(6), getString(7), getString(8), getLong(9), getLong(10),
+    )
+
+    private val docCols = "id, kind, title, date, passages, speaker, place, body, tags, created_at, updated_at"
+
+    fun documents(kind: String? = null): List<NoteDocument> = db.rawQuery(
+        "SELECT $docCols FROM document" + (if (kind != null) " WHERE kind=?" else "") + " ORDER BY date DESC, updated_at DESC",
+        if (kind != null) arrayOf(kind) else null,
+    ).use { c -> buildList { while (c.moveToNext()) add(c.document()) } }
+
+    fun document(id: Long): NoteDocument? = db.rawQuery("SELECT $docCols FROM document WHERE id=?", arrayOf(id.toString()))
+        .use { c -> if (c.moveToFirst()) c.document() else null }
+
+    /** Inserts ([NoteDocument.id] == 0) or updates; returns the id. */
+    fun saveDocument(d: NoteDocument): Long {
+        val now = System.currentTimeMillis()
+        val v = ContentValues().apply {
+            put("kind", d.kind); put("title", d.title); put("date", d.date); put("passages", d.passages); put("speaker", d.speaker)
+            put("place", d.place); put("body", d.body); put("tags", d.tags); put("updated_at", now)
+        }
+        return if (d.id == 0L) {
+            v.put("created_at", now)
+            db.insert("document", null, v)
+        } else {
+            db.update("document", v, "id=?", arrayOf(d.id.toString()))
+            d.id
+        }
+    }
+
+    fun deleteDocument(id: Long) {
+        db.delete("document", "id=?", arrayOf(id.toString()))
+    }
+
+    companion object {
+        const val SCHEMA_VERSION = 2
+
+        /** Sermon notes (kind "sermon", Church mode) and studies (kind "study", Study mode). */
+        private fun createDocuments(db: SQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE document(id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, title TEXT NOT NULL, date INTEGER NOT NULL, " +
+                    "passages TEXT NOT NULL, speaker TEXT NOT NULL, place TEXT NOT NULL, body TEXT NOT NULL, tags TEXT NOT NULL, " +
+                    "created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)"
+            )
+            db.execSQL("CREATE INDEX document_by_date ON document(kind, date DESC)")
+        }
+
+        /** schema version -> step that brings the previous version up to it. */
+        private val MIGRATIONS: Map<Int, (SQLiteDatabase) -> Unit> = mapOf(
+            2 to ::createDocuments,
+        )
 
         /** Parent tables first. */
-        val TABLES = listOf("service_list", "list_item", "recent_passage", "note", "highlight")
+        val TABLES = listOf("service_list", "list_item", "recent_passage", "note", "highlight", "document")
     }
 }

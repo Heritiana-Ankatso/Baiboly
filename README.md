@@ -37,16 +37,18 @@ A free, silent Malagasy Bible for Android that works fully offline, built for tw
 
 **Design.** Vellum and ink by day, warm black and gilt by night; Gentium Book Plus for the text and Cormorant SC small capitals for titles (both SIL Open Font License); chapter openings with a rubricated initial and a gilt fleuron. Screenshots: [docs/screenshots](docs/screenshots) (01 Casual, 03 Church, 07 Study, 04 Settings, 06 Books, 10 Library; regenerate with `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*'`).
 
-**Themes.** Four complete designs, chosen in Settings › Appearance › Theme; each has its own colours, type, navigation, controls and layout of actions and settings:
+**Themes.** Five complete designs, chosen in Settings › Appearance › Theme; each has its own colours, type, navigation, controls and layout of actions and settings:
 
-| | Manuscript (default) | Modern | Page | Stained glass |
-|---|---|---|---|---|
-| Colours | Vellum · Purple · Olive | Slate · Paper | Sepia · Paper (true black at night) | Lapis · Purple · Olive |
-| Type | Gentium, engraved small capitals | Phone's sans-serif, plain titles | Phone's serif, plain | Gentium, engraved |
-| Navigation | Bottom tab bar | Floating capsule | No bars: ☰ opens one grouped menu (Bible · Study tools · My library · App) | Coloured header with tabs |
-| Chapters | Gilt discs over the text | Floating ‹ › pill | Links after the last verse | Bottom bar ‹ chapter › |
-| Verse actions | Bottom bar, icon + label | Floating dark toolbar | Top action bar | Panel of large tiles |
-| Settings (groups, each on its own page) | Rows with gilt icons | Rounded cards | Flat list with hairlines | Coloured tiles |
+| | Manuscript (default) | Modern | Page | Stained glass | Navy |
+|---|---|---|---|---|---|
+| Colours | Vellum · Purple · Olive | Slate · Paper | Sepia · Paper (true black at night) | Lapis · Purple · Olive | Navy · Paper · Sepia |
+| Type | Gentium, engraved small capitals | Phone's sans-serif, plain titles | Phone's serif, plain | Gentium, engraved | Phone's serif, headings in capitals at the left |
+| Navigation | Bottom tab bar | Floating capsule | No bars: ☰ opens one grouped menu (Bible · Study tools · My library · App) | Coloured header with tabs | ☰ side menu in navy: search, the books (testament › book › chapter), notes, highlights, history first; the mode's tools; Settings, Backup, About last |
+| Chapters | Gilt discs over the text | Floating ‹ › pill | Links after the last verse | Bottom bar ‹ chapter › | Two round white buttons at the foot |
+| Verse actions | Bottom bar, icon + label | Floating dark toolbar | Top action bar | Panel of large tiles | Floating dark toolbar |
+| Settings (groups, each on its own page) | Rows with gilt icons | Rounded cards | Flat list with hairlines | Coloured tiles | Flat list with hairlines |
+
+**Continuous reading** (default): the text runs on from chapter to chapter as you scroll; the chapter at the top of the screen is the one being read. *Settings › Appearance › Text formatting* holds it with the verse layout, alignment (left / justified, with the usual icons), word breaks, paragraphs, margins and line spacing.
 
 Within a theme, the reader can also change the colour variant, the Bible typeface (classic Gentium / modern serif / sans-serif), engraved or plain titles, line spacing and text size; *Restore the original look* undoes it all.
 
@@ -58,12 +60,16 @@ Within a theme, the reader can also change the colour variant, the Bible typefac
 
 **Screen space.** Settings › Appearance › *Interface size*: *Compact* (default, 88 %) or *Normal*; it scales bars, buttons and lists, not the Bible text. Text size 10 to 40. *Keep the screen on* (default on; always in Church mode).
 
+**Sermon notes and studies.** Church mode: the *Notes* tab, or the note button on the service page, opens the day's sermon note with the date and the service list's passages filled in, and a short bar (title, section, point, bold, italic, verse, person). Study mode (and *Library › My notes*): studies with subsections, numbered points, quotations, the words of a verse, events, an outline whose sections move, and templates. Links tie a part of a note to a verse, a person or an event; the Study panel lists the notes citing a passage. Export: text to share, Markdown, plain text, HTML, Word (.docx), PDF. Notes are stored in `user.db` (table `document`) and included in backups.
+
 **Study tools (all offline).**
 * **Cross-references** for any verse (Study mode: tap the verse number, or select the verse and tap *References*): the Treasury of Scripture Knowledge, public domain, in Malagasy 1865 numbering.
 * **Dictionary and topics** (Study mode, *Dictionary* tab): Easton's Bible Dictionary and Nave's Topical Bible (English, public domain) and the Glossaire de la Bible Martin (French, ~1,000 older Bible words, free with credit to biblemartin.com). Bible references in entries open the verse. No free Malagasy Bible dictionary was found; the French Westphal dictionary is licensed only for CrossWire's own format.
 * **Units** (Study mode, *Dictionary* tab, *Units* chip; in the Page theme, its own menu entry): length, weight, dry and liquid measures, money and time. Type an amount and tap a unit to read it in every other unit of the same kind and in metric units (metres, grams, litres, with the prefix that reads best: km, cm, kg, mL); money also in days' wages (Mt 20:2). Each unit carries its name in the Malagasy 1865, Segond 1910 and KJV texts, its Hebrew or Greek word and a verse that opens the text. Relations the text states are marked "=" (Ex 30:13, 38:25-26, 16:36; Ezek 40:5, 45:11, 45:14; Mk 12:42); the modern values are the usual estimates (cubit ≈ 44.4 cm, shekel ≈ 11.4 g, ephah = bath ≈ 22 L) and say so. *Time* gives the hours of the day from sunrise and the four watches of the night.
 * **People** (Study mode, *Dictionary* tab, *People* chip): 3,068 people of the Bible with their father, mother, spouses, brothers and sisters and children, the father line upwards (genealogies can skip generations, and the page says so), the events they take part in and every verse that names them. Names in English (KJV). Theographic Bible Metadata, CC BY-SA 4.0.
 * **Timeline** (*Timeline* chip): a chart to scale, from Creation (4004 BC) to the early church, after F. N. Jones's chronology. Twelve eras shade the background (Creation to the Flood, the patriarchs, the Exodus, the judges, the kingdom, Israel and Judah, the exile, the return, between the Testaments, the life of Jesus, the early church). Lifetimes, reigns, judgeships and other periods are bars side by side, so overlaps show (Noah's life overlaps Abraham's; the kings of Israel and Judah reign in parallel), and 371 other events are dots on the axis. Labels appear as you zoom (pinch or double-tap), the most-told first; *This chapter* goes to the events of the chapter being read, picked out in red; an era chip frames that era. A tap opens the event. *List* shows the same events as a searchable list, with Ussher's year where it differs; every date is labelled as a reconstruction.
+* **Commentaries** (Study panel, *Commentary* tab): John Calvin's commentaries, the Geneva Bible notes (1599) and Matthew Henry's Concise Commentary, public domain, from CrossWire; one database each (`commentary-*.db`), unpacked only when first opened. With the Catholic tradition they are marked as Reformed.
+* **Church history** (*Timeline*, *Go deeper: to today*): about 150 events and lives from the Church Fathers through the councils, the Reformation and missions to today, with the church in Madagascar (`app/src/main/assets/church_history.tsv`, compiled for the app; each marked with its tradition where it has one). The timeline list is grouped by era, each folding away.
 * **Confessions** (*Confessions* chip): the Apostles', Nicene and Athanasian Creeds and the Reformed confessions and catechisms (Belgic, Heidelberg, Dort, Westminster Confession, Larger and Shorter Catechisms, French Confession, Savoy, 1689 Baptist) in historic public-domain English, with their proof texts opening the verse, cited as `WCF 1.2`, `HC Q&A 23`. They are listed with the councils and assemblies that issued them. The **Tradition** setting decides what shows: Protestant shows creeds and Reformed documents; Catholic shows the creeds, with the Reformed documents under *Go deeper: other traditions*, each marked as such. Catholic and Orthodox documents are not included yet (no freely licensed source).
 * The **Study panel** of a passage adds *People and events* and *Confessions* (the articles and answers that cite it).
 * **Map** (Study mode, *Map* tab; *This chapter* / *All places*): 1,300 Bible places from OpenBible.info (CC BY 4.0), drawn offline by the app; tap a place for its verses and the periods in which it appears.

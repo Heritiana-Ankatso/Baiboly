@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -81,7 +82,7 @@ private enum class SpanKind(val key: String, val label: Int, val light: Color, v
 }
 
 @Composable
-private fun eraName(key: String): String = stringResource(
+internal fun eraName(key: String): String = stringResource(
     when (key) {
         "creation" -> R.string.era_creation
         "flood" -> R.string.era_flood
@@ -120,7 +121,7 @@ private fun lanes(events: List<BibleEvent>): Pair<List<Span>, Int> {
 private val STEPS = intArrayOf(1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000)
 
 @Composable
-fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, modifier: Modifier = Modifier) {
+fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, modifier: Modifier = Modifier, extraNames: Map<String, String> = emptyMap()) {
     if (events.isEmpty() || eras.isEmpty()) return
     val density = LocalDensity.current
     val dark = MaterialTheme.colorScheme.background.let { 0.2126f * it.red + 0.7152f * it.green + 0.0722f * it.blue } < 0.5f
@@ -151,6 +152,8 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
         top = a - (heightPx * 0.04) / pxPerYear
         clampTop()
     }
+    // a new range of years (church history switched on or off) is framed whole
+    LaunchedEffect(first, last) { if (heightPx > 0) fit(first, last) }
     val lifeEra = remember(chapterIds) { events.filter { it.id in chapterIds } }
 
     // layout: year gutter | span lanes | axis | labels
@@ -218,7 +221,7 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
             }
             items(eras, key = { it.key }) { era ->
                 FilterChip(selected = false, onClick = { fit(era.start.toDouble(), era.end.toDouble()) },
-                    label = { Text(eraName(era.key)) }, modifier = Modifier.testTag("tl-era:${era.key}"))
+                    label = { Text(extraNames[era.key] ?: eraName(era.key)) }, modifier = Modifier.testTag("tl-era:${era.key}"))
             }
         }
         // legend: identity never by colour alone
@@ -232,14 +235,14 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 }
             }
         }
-        val eraNames = eras.associate { it.key to eraName(it.key) }
+        val eraNames = eras.associate { it.key to (extraNames[it.key] ?: eraName(it.key)) }
         // year labels as the interface writes them ("1491 BC", "AD 30"), from the same strings
         val bcPattern = stringResource(R.string.year_bc, 999999)
         val adPattern = stringResource(R.string.year_ad, 999999)
         val yearOne = androidx.compose.ui.res.pluralStringResource(R.plurals.work_years, 1, 1)
         val yearsPattern = androidx.compose.ui.res.pluralStringResource(R.plurals.work_years, 999999, 999999)
         Canvas(
-            Modifier.fillMaxWidth().weight(1f).testTag("timeline-chart")
+            Modifier.fillMaxWidth().weight(1f).clipToBounds().testTag("timeline-chart")
                 .onSizeChanged {
                     val firstLayout = heightPx == 0f
                     heightPx = it.height.toFloat(); widthPx = it.width.toFloat()

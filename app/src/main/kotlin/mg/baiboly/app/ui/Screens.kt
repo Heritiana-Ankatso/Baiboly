@@ -23,6 +23,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
+import androidx.compose.material.icons.automirrored.filled.FormatIndentIncrease
+import androidx.compose.material.icons.automirrored.filled.WrapText
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
+import androidx.compose.material.icons.automirrored.outlined.Notes
+import androidx.compose.material.icons.filled.CropPortrait
+import androidx.compose.material.icons.filled.DensityLarge
+import androidx.compose.material.icons.filled.DensityMedium
+import androidx.compose.material.icons.filled.DensitySmall
+import androidx.compose.material.icons.filled.FormatAlignJustify
+import androidx.compose.material.icons.filled.FormatLineSpacing
+import androidx.compose.material.icons.filled.HorizontalRule
+import androidx.compose.material.icons.filled.UnfoldLess
+import androidx.compose.material.icons.filled.UnfoldMore
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
@@ -156,7 +170,7 @@ fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, ta
                 }
             }
             // one segmented track, the chosen option raised on it: separate black pills read as buttons to press
-            mg.baiboly.app.Style.Modern -> Row(
+            mg.baiboly.app.Style.Modern, mg.baiboly.app.Style.Navy -> Row(
                 Modifier.fillMaxWidth().padding(top = 6.dp).clip(RoundedCornerShape(12.dp))
                     .background(scheme.surfaceContainerHighest).padding(3.dp),
             ) {
@@ -517,7 +531,12 @@ fun SettingsScreen(vm: AppViewModel) {
                     // rarely changed: kept out of the way
                     SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { vm.settingsPage = "advanced" }
                 }
-                "advanced" -> { traditionContent(); QuickLookSettings(vm); TypesettingSettings(vm); UpdateSettings(vm) }
+                "advanced" -> {
+                    Collapsible(stringResource(R.string.tradition), "advanced-tradition", initiallyOpen = true, horizontal = 20.dp,
+                        detail = stringResource(if (vm.tradition == Tradition.Protestant) R.string.protestant else R.string.catholic)) { traditionContent() }
+                    Collapsible(stringResource(R.string.ql_title), "advanced-quick-look", horizontal = 20.dp) { QuickLookSettings(vm) }
+                    Collapsible(stringResource(R.string.updates), "advanced-updates", horizontal = 20.dp) { UpdateSettings(vm) }
+                }
                 else -> groups.firstOrNull { it.key == current }?.content?.invoke()
             }
             Spacer(Modifier.height(16.dp))
@@ -576,23 +595,9 @@ private fun AppearanceSettings(vm: AppViewModel) {
             options = listOf(true to stringResource(R.string.titles_engraved), false to stringResource(R.string.titles_plain)),
             selected = vm.engravedTitles, tag = "settings-titles",
         ) { vm.changeEngravedTitles(it) }
-        SettingRow(
-            label = stringResource(R.string.line_spacing),
-            options = listOf(
-                LineSpacing.Compact to stringResource(R.string.spacing_compact),
-                LineSpacing.Normal to stringResource(R.string.spacing_normal),
-                LineSpacing.Airy to stringResource(R.string.spacing_airy),
-            ),
-            selected = vm.lineSpacing, tag = "settings-spacing",
-        ) { vm.changeLineSpacing(it) }
-        SettingRow(
-            label = stringResource(R.string.verse_layout),
-            options = listOf(
-                VerseLayout.Lines to stringResource(R.string.layout_lines),
-                VerseLayout.Paragraphs to stringResource(R.string.layout_paragraphs),
-            ),
-            selected = vm.verseLayout, tag = "settings-layout",
-        ) { vm.changeVerseLayout(it) }
+        // how the text is set on the page, in one group that unfolds: layout, flow, alignment, word breaks, spacing
+        Collapsible(stringResource(R.string.text_formatting), "settings-text-formatting", horizontal = 20.dp,
+            detail = textFormattingSummary(vm)) { TextFormattingSettings(vm) }
         // the size of everything else: bars, buttons, lists
         SettingRow(
             label = stringResource(R.string.ui_density),
@@ -735,6 +740,7 @@ fun Palette.label(): String = stringResource(
         Palette.Sepia -> R.string.palette_sepia
         Palette.Paper -> R.string.palette_paper
         Palette.Slate -> R.string.palette_slate
+        Palette.Navy -> R.string.palette_navy
     },
 )
 
@@ -769,7 +775,7 @@ private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, 
             }
         }
         else -> {
-            val page = LocalStyle.current == mg.baiboly.app.Style.Page
+            val page = LocalStyle.current == mg.baiboly.app.Style.Page || LocalStyle.current == mg.baiboly.app.Style.Navy
             Row(
                 Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onClick).testTag(tag).padding(horizontal = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -816,43 +822,109 @@ private fun ReadAloudSettings(vm: AppViewModel) {
  * runs on a tap; the switch (off by default) checks about once a day and shows
  * a silent notification when a new version is out.
  */
-/** The fine details of the reading page, kept out of the way under Advanced. */
+/** One line saying how the text is set now: "Paragraphs · continuous · justified". */
 @Composable
-private fun TypesettingSettings(vm: AppViewModel) {
-    Column(
-        Modifier.padding(horizontal = 20.dp, vertical = 8.dp).testTag("settings-typesetting"),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(stringResource(R.string.typesetting), style = MaterialTheme.typography.titleMedium)
-        Text(stringResource(R.string.typesetting_hint), style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        ChoiceRow(
+private fun textFormattingSummary(vm: AppViewModel): String = listOf(
+    stringResource(if (vm.verseLayout == VerseLayout.Paragraphs) R.string.layout_paragraphs else R.string.layout_lines),
+    stringResource(if (vm.continuousReading) R.string.flow_continuous else R.string.flow_chapters),
+    stringResource(if (vm.justify) R.string.align_justify else R.string.align_left),
+).joinToString(" · ")
+
+/** Text formatting: verse layout, continuous reading, alignment (with the usual icons), word breaks, paragraphs, margins, spacing. */
+@Composable
+private fun TextFormattingSettings(vm: AppViewModel) {
+    val scheme = MaterialTheme.colorScheme
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 4.dp).testTag("settings-typesetting"), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        IconChoiceRow(
+            label = stringResource(R.string.verse_layout),
+            options = listOf(
+                Triple(VerseLayout.Lines, Icons.AutoMirrored.Outlined.FormatListBulleted, stringResource(R.string.layout_lines)),
+                Triple(VerseLayout.Paragraphs, Icons.AutoMirrored.Outlined.Notes, stringResource(R.string.layout_paragraphs)),
+            ),
+            selected = vm.verseLayout, tag = "settings-layout",
+        ) { vm.changeVerseLayout(it) }
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { vm.changeContinuousReading(!vm.continuousReading) }.testTag("settings-continuous"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                Text(stringResource(R.string.continuous_reading), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.continuous_reading_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+            }
+            androidx.compose.material3.Switch(checked = vm.continuousReading, onCheckedChange = null)
+        }
+        Text(stringResource(R.string.typesetting_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+        IconChoiceRow(
             label = stringResource(R.string.text_align),
-            options = listOf(false to stringResource(R.string.align_left), true to stringResource(R.string.align_justify)),
+            options = listOf(
+                Triple(false, Icons.AutoMirrored.Filled.FormatAlignLeft, stringResource(R.string.align_left)),
+                Triple(true, Icons.Filled.FormatAlignJustify, stringResource(R.string.align_justify)),
+            ),
             selected = vm.justify, tag = "settings-justify",
         ) { vm.changeJustify(it) }
-        ChoiceRow(
+        IconChoiceRow(
             label = stringResource(R.string.hyphenation),
-            options = listOf(false to stringResource(R.string.hyph_off), true to stringResource(R.string.hyph_on)),
+            options = listOf(
+                Triple(false, Icons.AutoMirrored.Filled.WrapText, stringResource(R.string.hyph_off)),
+                Triple(true, Icons.Filled.HorizontalRule, stringResource(R.string.hyph_on)),
+            ),
             selected = vm.hyphenate, tag = "settings-hyphenate",
         ) { vm.changeHyphenate(it) }
-        ChoiceRow(
+        IconChoiceRow(
             label = stringResource(R.string.paragraph_break),
             options = listOf(
-                ParagraphBreak.Indent to stringResource(R.string.break_indent),
-                ParagraphBreak.Space to stringResource(R.string.break_space),
+                Triple(ParagraphBreak.Indent, Icons.AutoMirrored.Filled.FormatIndentIncrease, stringResource(R.string.break_indent)),
+                Triple(ParagraphBreak.Space, Icons.Filled.FormatLineSpacing, stringResource(R.string.break_space)),
             ),
             selected = vm.paragraphBreak, tag = "settings-paragraph-break",
         ) { vm.changeParagraphBreak(it) }
-        ChoiceRow(
+        IconChoiceRow(
             label = stringResource(R.string.margins),
             options = listOf(
-                PageMargin.Narrow to stringResource(R.string.margin_narrow),
-                PageMargin.Normal to stringResource(R.string.margin_normal),
-                PageMargin.Wide to stringResource(R.string.margin_wide),
+                Triple(PageMargin.Narrow, Icons.Filled.UnfoldMore, stringResource(R.string.margin_narrow)),
+                Triple(PageMargin.Normal, Icons.Filled.CropPortrait, stringResource(R.string.margin_normal)),
+                Triple(PageMargin.Wide, Icons.Filled.UnfoldLess, stringResource(R.string.margin_wide)),
             ),
             selected = vm.pageMargin, tag = "settings-margins",
         ) { vm.changePageMargin(it) }
+        IconChoiceRow(
+            label = stringResource(R.string.line_spacing),
+            options = listOf(
+                Triple(LineSpacing.Compact, Icons.Filled.DensitySmall, stringResource(R.string.spacing_compact)),
+                Triple(LineSpacing.Normal, Icons.Filled.DensityMedium, stringResource(R.string.spacing_normal)),
+                Triple(LineSpacing.Airy, Icons.Filled.DensityLarge, stringResource(R.string.spacing_airy)),
+            ),
+            selected = vm.lineSpacing, tag = "settings-spacing",
+        ) { vm.changeLineSpacing(it) }
+    }
+}
+
+/** Mutually exclusive choices shown as icons with a short word under each (alignment, spacing…). */
+@Composable
+fun <T> IconChoiceRow(label: String, options: List<Triple<T, androidx.compose.ui.graphics.vector.ImageVector, String>>, selected: T, tag: String, onSelect: (T) -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    Column {
+        Text(label, style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant)
+        Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            options.forEach { (value, icon, text) ->
+                val on = value == selected
+                Surface(
+                    onClick = { onSelect(value) },
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (on) scheme.primaryContainer else Color.Transparent,
+                    contentColor = if (on) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, if (on) scheme.primary else scheme.outlineVariant),
+                    modifier = Modifier.weight(1f).heightIn(min = 56.dp).testTag("$tag:$value")
+                        .semantics { setSelectedState(on) },
+                ) {
+                    Column(Modifier.padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                        Icon(icon, null, modifier = Modifier.size(22.dp))
+                        Text(text, style = MaterialTheme.typography.labelSmall, maxLines = 1,
+                            fontWeight = if (on) FontWeight.Bold else FontWeight.Normal)
+                    }
+                }
+            }
+        }
     }
 }
 
