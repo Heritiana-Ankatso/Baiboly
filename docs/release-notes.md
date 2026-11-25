@@ -5,7 +5,10 @@
 * **Hebrew and Greek text** (Study panel, any mode): each verse's original words one by one: Old Testament from the Leningrad codex, New Testament from the Nestlé-Aland text with the Textus Receptus words faded. Each word has its transliteration, gloss, Strong's number and parsing in plain words.
 * **Word entries:** Strong's, then a fuller definition (abridged Brown-Driver-Briggs for Hebrew, Abbott-Smith and others for Greek, in English), and *Found N verses* by the Hebrew or Greek word itself.
 * **Verse numbering:** 63 of the 85 chapters that had a numbering warning are now matched by the Hebrew verse numbers (Exodus 7:26 is 8:1 in English Bibles); 22 keep the warning.
-* **Data:** about 14 MB more in the APK; the Hebrew and Greek data is unpacked on the phone only when the Study panel is first opened. Sources: STEPBible-Data, Tyndale House, Cambridge (CC BY 4.0), credited on the About screen. The Malagasy and French wording of the new labels is a draft to review.
+* **Matthew Henry's Complete Commentary** (Study panel, *Commentary* tab) beside the Concise one: 4,249 notes on the whole Bible. Henry wrote to the end of Acts; Romans to Revelation were completed after his death in 1714 by other ministers.
+* **Book introductions** (Study panel, *Introduction* tab): for each of the 66 books, the author and date, the setting and readers, an outline, and its message in Christ, from a Reformed standpoint; where Reformed Christians differ (the date of the Exodus, Daniel's seventy weeks, the millennium) the text says so. In English only.
+* **The storyline of Scripture:** under each introduction, ten stages of the one covenant of grace, from creation to the new creation, citing the Westminster Confession and the Heidelberg Catechism; the stage of the book you are in opens.
+* **Data:** about 14 MB more in the APK for the Hebrew and Greek data, and about 15 MB for the complete Henry; the Hebrew and Greek data is unpacked on the phone only when the Study panel is first opened. Sources: STEPBible-Data, Tyndale House, Cambridge (CC BY 4.0), credited on the About screen. The Malagasy and French wording of the new labels is a draft to review.
 
 ## Baiboly 1.9.0
 

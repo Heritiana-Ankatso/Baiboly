@@ -39,5 +39,6 @@ Every source below passed the automatic licence check in `tools/build_data.py` (
 | CrossWire SWORD module Geneva | Geneva Bible Translation Notes | Public domain by age (notes first printed 1560-1599); the module's .conf states no licence | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/Geneva.zip | CrossWire Bible Society |
 | CrossWire SWORD module CalvinCommentaries | Calvin's Collected Commentaries | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/CalvinCommentaries.zip | http://www.ccel.org/ |
 | CrossWire SWORD module MHCC | Matthew Henry's Concise Commentary on the Whole Bible | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/MHCC.zip | https://ccel.org/ccel/h/henry/mhcc/cache/mhcc.txt |
+| CrossWire SWORD module MHC | Matthew Henry's Complete Commentary on the Whole Bible | Public Domain (DistributionLicense in module .conf) | https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/MHC.zip | http://www.ccel.org/ |
 
 Tools: versification tables from PySword 0.2.8 (MIT licence), `tools/vendor/sword_canons.py`.

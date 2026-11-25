@@ -18,7 +18,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/** The Reformed commentaries: Calvin, the Geneva notes, Matthew Henry (Concise), in the Study panel. */
+/** The Reformed commentaries: Calvin, the Geneva notes, Matthew Henry (Concise and Complete), and the book introductions, in the Study panel. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w400dp-h860dp-xxhdpi")
 class CommentaryTest {
@@ -34,7 +34,7 @@ class CommentaryTest {
         waitFor { vm.ready && vm.chapter != null }
         val repo = vm.commentaries
         val model = vm
-        assertEquals(listOf("calvin", "geneva", "mhcc"), repo.available.map { it.id })
+        assertEquals(listOf("calvin", "geneva", "mhcc", "mhc"), repo.available.map { it.id })
         val calvin = repo.available.first()
         val rom828 = runBlocking { model.onIo { repo.notes(calvin, 45, 8, 28, 28) } }
         assertTrue(rom828.isNotEmpty())
@@ -43,6 +43,11 @@ class CommentaryTest {
         val mh = repo.available.first { it.id == "mhcc" }
         val j316 = runBlocking { model.onIo { repo.notes(mh, 43, 3, 16, 16) } }
         assertEquals(1, j316.size); assertEquals(1, j316[0].v1); assertEquals(21, j316[0].v2)
+        // the complete Henry also has a note on Romans 8:30 (that part was completed by other ministers)
+        val full = repo.available.first { it.id == "mhc" }
+        val rom830 = runBlocking { model.onIo { repo.notes(full, 45, 8, 30, 30) } }
+        assertTrue(rom830.isNotEmpty())
+        assertContains(rom830.first().body, "predestinate")
         // in the Study panel
         if (vm.uiLanguage != "en") vm.chooseUiLanguage("en") // the English labels below
         vm.setTranslation("mg1865")
@@ -56,5 +61,22 @@ class CommentaryTest {
         waitFor { runCatching { tag("comment:0").assertExists(); true }.getOrDefault(false) }
         tag("commentary:geneva").tap()
         waitFor { runCatching { tag("comment:0").assertExists(); true }.getOrDefault(false) }
+    }
+
+    @Test fun bookIntroductionAndStoryline() {
+        waitFor { vm.ready && vm.chapter != null }
+        if (vm.uiLanguage != "en") vm.chooseUiLanguage("en")
+        vm.setTranslation("mg1865")
+        vm.openPassage(Passage(43, 3, 16, 16))
+        waitFor { vm.chapter?.book == 43 && vm.chapter?.chapter == 3 }
+        rule.waitForIdle()
+        tag("reader").performScrollToKey("43:3:v16")
+        tag("verse:16").tap()
+        tag("action:Study").tap()
+        tag("tab-introduction").tap()
+        waitFor { runCatching { tag("book-intro").assertExists(); true }.getOrDefault(false) }
+        // John belongs to the stage of Christ, whose section opens; the storyline lists the ten stages
+        tag("stage:8").assertExists()
+        tag("stage:10").tap()
     }
 }

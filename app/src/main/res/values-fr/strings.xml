@@ -201,6 +201,8 @@
         <item>Touchez un mot hébreu ou grec pour son article Strong, une définition plus complète (Brown-Driver-Briggs abrégé ou Abbott-Smith) et les versets qui emploient le même mot.</item>
         <item>Les mots grecs présents seulement dans le Textus Receptus (le grec de la KJV) apparaissent estompés à côté du texte de Nestlé-Aland.</item>
         <item>Numérotation : 63 chapitres de plus suivent maintenant la numérotation hébraïque (Exode 7:26 est 8:1 dans les Bibles anglaises), si bien que les autres Bibles s’alignent dans le panneau Étude.</item>
+        <item>Le commentaire complet de Matthew Henry rejoint l’abrégé dans l’onglet Commentaire.</item>
+        <item>Présentations des 66 livres (auteur, date, cadre, plan, message en Christ) et le fil de l’Écriture, dans l’onglet Présentation (en anglais).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
@@ -526,6 +528,14 @@
     <string name="church_history_credit">Histoire de l’Église après les apôtres : dates des ouvrages de référence usuels, réunies pour Baiboly ; « vers » marque une date connue approximativement.</string>
     <string name="madagascar">Madagascar</string>
     <string name="commentary">Commentaire</string>
+    <string name="tab_book_intro">Présentation</string>
+    <string name="intro_english_note">Les présentations sont en anglais.</string>
+    <string name="intro_author">Auteur et date</string>
+    <string name="intro_setting">Cadre et destinataires</string>
+    <string name="intro_structure">Plan</string>
+    <string name="intro_message">Message et Christ</string>
+    <string name="intro_storyline">Le fil de l’Écriture</string>
+    <string name="intro_storyline_note">Une seule alliance de grâce de la Genèse à l’Apocalypse, en étapes. ▸ marque la place de ce livre.</string>
     <string name="commentary_none">%1$s n’a pas de note sur ces versets.</string>
     <string name="commentary_credit">Commentaires du domaine public (modules SWORD de CrossWire) : commentaires de Calvin (Calvin Translation Society), notes de la Bible de Genève (1599), commentaire abrégé de Matthew Henry. En anglais.</string>
     <string name="sermon_of">Prédication du %1$s</string>

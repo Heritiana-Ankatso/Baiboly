@@ -218,6 +218,8 @@
         <item>Tap a Hebrew or Greek word for its Strong’s entry, a fuller definition (abridged Brown-Driver-Briggs or Abbott-Smith) and the verses that use the same word.</item>
         <item>Greek words found only in the Textus Receptus (the Greek behind the KJV) are shown faded next to the Nestlé-Aland text.</item>
         <item>Verse numbering: 63 more chapters are now matched to the Hebrew verse numbers (Exodus 7:26 is 8:1 in English Bibles), so the other Bibles line up in the Study panel.</item>
+        <item>Matthew Henry’s complete commentary joins the Concise one in the Commentary tab.</item>
+        <item>Introductions to all 66 books (author, date, setting, outline, message in Christ) and the storyline of Scripture, in the Introduction tab (English).</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -543,6 +545,14 @@
     <string name="church_history_credit">Church history after the apostles: dates from standard reference works, compiled for Baiboly; ‘about’ marks a date known only roughly.</string>
     <string name="madagascar">Madagascar</string>
     <string name="commentary">Commentary</string>
+    <string name="tab_book_intro">Introduction</string>
+    <string name="intro_english_note">Introductions are in English.</string>
+    <string name="intro_author">Author and date</string>
+    <string name="intro_setting">Setting and readers</string>
+    <string name="intro_structure">Outline</string>
+    <string name="intro_message">Message and Christ</string>
+    <string name="intro_storyline">The storyline of Scripture</string>
+    <string name="intro_storyline_note">One covenant of grace from Genesis to Revelation, in stages. ▸ marks where this book belongs.</string>
     <string name="commentary_none">%1$s has no note on these verses.</string>
     <string name="commentary_credit">Commentaries in the public domain (CrossWire SWORD modules): Calvin’s Commentaries (Calvin Translation Society), the Geneva Bible notes (1599), Matthew Henry’s Concise Commentary. In English.</string>
     <string name="sermon_of">Sermon of %1$s</string>

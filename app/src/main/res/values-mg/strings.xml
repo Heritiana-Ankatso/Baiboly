@@ -203,6 +203,8 @@
         <item>Tsindrio ny teny hebreo na grika iray mba hahitana ny Strong, ny dikany feno kokoa (Brown-Driver-Briggs fohifohy na Abbott-Smith) ary ny andininy mampiasa io teny io ihany.</item>
         <item>Ny teny grika hita ao amin’ny Textus Receptus ihany (ny grika nanaovana ny KJV) dia aseho mikorontana eo anilan’ny soratra Nestlé-Aland.</item>
         <item>Fanisana andininy: toko 63 hafa no mifanaraka amin’ny fanisana hebreo (Eksodosy 7:26 dia 8:1 amin’ny Baiboly anglisy), ka mifanaraka ny Baiboly hafa ao amin’ny tontonana Fianarana.</item>
+        <item>Ny fanehoan-kevitr’i Matthew Henry feno dia miaraka amin’ny fohifohy ao amin’ny tabilao Fanehoan-kevitra.</item>
+        <item>Fampidirana ny boky 66 (mpanoratra, daty, toerana, fandaharana, hafatra ao amin’i Kristy) sy ny tantaran’ny Soratra Masina, ao amin’ny tabilao Fampidirana (amin’ny teny anglisy).</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -528,6 +530,14 @@
     <string name="church_history_credit">Tantaran’ny Fiangonana taorian’ny apostoly: daty avy amin’ny boky fanovozan-kevitra, natambatra ho an’i Baiboly; ‘tokony ho’ raha tsy fantatra tsara ny daty.</string>
     <string name="madagascar">Madagasikara</string>
     <string name="commentary">Fanazavana</string>
+    <string name="tab_book_intro">Fampidirana</string>
+    <string name="intro_english_note">Amin’ny teny anglisy ny fampidirana.</string>
+    <string name="intro_author">Mpanoratra sy daty</string>
+    <string name="intro_setting">Toerana sy mpamaky</string>
+    <string name="intro_structure">Fandaharana</string>
+    <string name="intro_message">Hafatra sy Kristy</string>
+    <string name="intro_storyline">Ny tantaran’ny Soratra Masina</string>
+    <string name="intro_storyline_note">Fanekena iray ihany amin’ny fahasoavana hatrany Genesisy ka hatrany Fanambarana, tsikelikely. ▸ manondro ny toerana misy ity boky ity.</string>
     <string name="commentary_none">Tsy manana fanamarihana momba ireo andininy ireo ny %1$s.</string>
     <string name="commentary_credit">Fanazavana tsy misy zon’ny mpamorona (modules SWORD an’i CrossWire): an’i Calvin, ny fanamarihana ao amin’ny Baibolin’i Genève (1599), ary ny fanazavana fohy nataon’i Matthew Henry. Amin’ny teny anglisy.</string>
     <string name="sermon_of">Toriteny tamin’ny %1$s</string>

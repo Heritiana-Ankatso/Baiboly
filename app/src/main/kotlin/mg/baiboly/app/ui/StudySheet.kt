@@ -100,7 +100,7 @@ fun StudyContent(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onDismis
 fun VerseToolsSheet(vm: AppViewModel, book: Int, chapter: Int, verse: Int, startOnCrossRefs: Boolean = false, onDismiss: () -> Unit) =
     PassageToolsSheet(vm, Passage(book, chapter, verse, verse), if (startOnCrossRefs) PassageTab.References else PassageTab.Original, onDismiss)
 
-enum class PassageTab { Translations, Original, Commentary, References, People, Places, Units, Dictionary, Confessions, MyNotes }
+enum class PassageTab { Translations, Introduction, Original, Commentary, References, People, Places, Units, Dictionary, Confessions, MyNotes }
 
 /**
  * Everything about the selected verses, in one panel (any mode: Study on the
@@ -172,6 +172,7 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                             Text(
                                 when (t) {
                                     PassageTab.Translations -> stringResource(R.string.tab_translations)
+                                    PassageTab.Introduction -> stringResource(R.string.tab_book_intro)
                                     PassageTab.Original -> studySymbol(passage.book) + " " + stringResource(R.string.original_words)
                                     PassageTab.References -> stringResource(R.string.cross_references)
                                     PassageTab.Places -> stringResource(R.string.tab_places) + " (${places?.size ?: 0})"
@@ -198,6 +199,7 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
                 val m = mg
                 when (shown) {
                     PassageTab.Translations -> TranslationsPage(vm, passage, onDismiss)
+                    PassageTab.Introduction -> BookIntroPage(vm, passage.book)
                     PassageTab.Original -> if (m == null) Text(stringResource(R.string.loading)) else OriginalPage(vm, m, onDismiss)
                     PassageTab.References -> CrossRefContent(vm, passage.verseStart.coerceAtLeast(1), onDismiss)
                     PassageTab.Places -> PlacesPage(vm, places.orEmpty(), onDismiss)
