@@ -200,7 +200,7 @@
         <item>Nouvelle icône : une Bible ouverte avec une croix entre ses pages.</item>
         <item>Les Bibles sont classées par langue, chacune de la plus ancienne à la plus récente (menu des textes, Réglages et Aperçu).</item>
         <item>La frise défile sans à-coups : elle ne rame plus, et un geste rapide continue sur sa lancée puis ralentit ; un toucher l’arrête.</item>
-        <item>Frise › Histoire de l’Église (hors Bible), pour l’étude approfondie : les faits que l’Écriture ne raconte pas, de l’époque entre les Testaments (Septante, Maccabées, Pompée, Temple d’Hérode) et de l’âge apostolique (Néron, chute de Jérusalem en 70) jusqu’aux conciles et à aujourd’hui. Ils sont dessinés en cercles vides et marqués « Hors Bible ».</item>
+        <item>Frise › Histoire de l’Église (hors Bible), pour l’étude approfondie : les faits que l’Écriture ne raconte pas, de l’époque entre les Testaments (Septante, Maccabées, Pompée, Temple d’Hérode) et de l’âge apostolique (Néron, chute de Jérusalem en 70) jusqu’aux conciles et à aujourd’hui. Ils se placent à gauche de l’axe, sous « Hors Bible », en cercles vides et barres creuses ; les faits de la Bible restent à droite.</item>
         <item>L’application est beaucoup plus légère (environ 21 Mo au lieu de 118 Mo) : les mises à jour se téléchargent vite. Malagasy 1865 est toujours sur le téléphone.</item>
         <item>Les autres Bibles, le texte hébreu et grec et les commentaires ne sont téléchargés que si vous les choisissez : dans le menu des textes (marqués ⤓ avec leur taille) ou dans Réglages › Bible › Téléchargements. Chaque fichier est vérifié avant usage.</item>
         <item>Les Bibles que vous aviez déjà ouvertes restent sur le téléphone ; rien n’est à télécharger de nouveau. Une Bible jamais ouverte doit être téléchargée une fois.</item>
@@ -646,4 +646,5 @@
     <string name="commentary_not_downloaded">Ce commentaire n’est pas encore sur ce téléphone.</string>
     <string name="catholic_needs_download">Ce livre est dans les Bibles catholiques : téléchargez-en une dans Réglages › Bible › Téléchargements.</string>
     <string name="tl_outside_bible">Hors Bible</string>
+    <string name="tl_in_bible">Dans la Bible</string>
 </resources>

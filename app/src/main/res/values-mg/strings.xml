@@ -202,7 +202,7 @@
         <item>Sary famantarana vaovao: Baiboly misokatra misy hazofijaliana eo anelanelan’ny pejiny.</item>
         <item>Voalahatra araka ny fiteny ny Baiboly, avy amin’ny tranainy indrindra ka hatramin’ny vaovao indrindra (lisitry ny dikan-teny, Fikirana ary Topy maso).</item>
         <item>Mandeha malama ny tetiandro: tsy miadana intsony, ary manohy mandeha mandra-pihena ny hafainganany rehefa notosehina haingana; ny fitsindriana iray no mampijanona azy.</item>
-        <item>Tetiandro › Tantaran’ny Fiangonana (ivelan’ny Baiboly), ho an’ny fandalinana lalina: ireo zava-nitranga tsy notantarain’ny Soratra Masina, hatramin’ny elanelan’ny Testamenta roa (Septanta, Makabeo, Pompée, tempolin’i Heroda) sy ny andron’ny apostoly (Nero, ny faharavan’i Jerosalema tamin’ny taona 70) ka hatramin’ny konsily sy izao. Faribolana foana no anehoana azy ireo ary voamarika hoe “Ivelan’ny Baiboly”.</item>
+        <item>Tetiandro › Tantaran’ny Fiangonana (ivelan’ny Baiboly), ho an’ny fandalinana lalina: ireo zava-nitranga tsy notantarain’ny Soratra Masina, hatramin’ny elanelan’ny Testamenta roa (Septanta, Makabeo, Pompée, tempolin’i Heroda) sy ny andron’ny apostoly (Nero, ny faharavan’i Jerosalema tamin’ny taona 70) ka hatramin’ny konsily sy izao. Eo ankavian’ny tsipika izy ireo, eo ambanin’ny “Ivelan’ny Baiboly”, amin’ny faribolana foana sy tsipika banga; eo ankavanana kosa ny zava-nitranga ao amin’ny Baiboly.</item>
         <item>Kely lavitra ny fampiharana (eo amin’ny 21 Mo fa tsy 118 Mo intsony), ka haingana ny fakana fanavaozana. Ao amin’ny finday foana ny Malagasy 1865.</item>
         <item>Ireo Baiboly hafa, ny soratra hebreo sy grika ary ireo fanazavana dia alaina raha ifidiananao ihany: ao amin’ny lisitry ny dikan-teny (misy ⤓ sy ny habeny) na ao amin’ny Fikirana › Baiboly › Azo alaina. Hamarinina aloha ny rakitra tsirairay vao ampiasaina.</item>
         <item>Mijanona ao amin’ny finday ireo Baiboly efa nosokafanao; tsy mila alaina indray. Ny Baiboly mbola tsy nosokafana dia tsy maintsy alaina indray mandeha.</item>
@@ -648,4 +648,5 @@
     <string name="commentary_not_downloaded">Mbola tsy ao amin’ity finday ity io fanazavana io.</string>
     <string name="catholic_needs_download">Ao amin’ny Baiboly katolika ity boky ity: alaivo ny iray ao amin’ny Fikirana › Baiboly › Azo alaina.</string>
     <string name="tl_outside_bible">Ivelan’ny Baiboly</string>
+    <string name="tl_in_bible">Ao amin’ny Baiboly</string>
 </resources>

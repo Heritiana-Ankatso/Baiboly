@@ -217,7 +217,7 @@
         <item>New app icon: an open Bible with a cross between its pages.</item>
         <item>The Bibles are listed by language, each from the oldest to the most recent (in the translation menu, Settings and the Quick look).</item>
         <item>The timeline scrolls smoothly: it no longer lags, and a quick swipe carries on and slows down; a touch stops it.</item>
-        <item>Timeline › Church history (outside the Bible), for advanced study: events Scripture does not tell, from the time between the Testaments (Septuagint, Maccabees, Pompey, Herod’s temple) and the apostolic age (Nero, the fall of Jerusalem in AD 70) through the councils to today. They are drawn as hollow rings and marked “Outside the Bible”.</item>
+        <item>Timeline › Church history (outside the Bible), for advanced study: events Scripture does not tell, from the time between the Testaments (Septuagint, Maccabees, Pompey, Herod’s temple) and the apostolic age (Nero, the fall of Jerusalem in AD 70) through the councils to today. They stand on the left of the axis, under “Outside the Bible”, as hollow rings and outlined bars; the Bible’s events stay on the right.</item>
         <item>The app is much smaller (about 21 MB instead of 118 MB), so updates download quickly. Malagasy 1865 is always on the phone.</item>
         <item>The other Bibles, the Hebrew and Greek text and the commentaries are downloaded only when you choose them: in the translation menu (marked ⤓ with their size) or in Settings › Bible › Downloads. Each file is checked before use.</item>
         <item>Bibles you had already opened are kept on the phone; nothing needs downloading again. A Bible you never opened must be downloaded once.</item>
@@ -663,4 +663,5 @@
     <string name="commentary_not_downloaded">This commentary is not on this phone yet.</string>
     <string name="catholic_needs_download">This book is in the Catholic Bibles: download one in Settings › Bible › Downloads.</string>
     <string name="tl_outside_bible">Outside the Bible</string>
+    <string name="tl_in_bible">In the Bible</string>
 </resources>

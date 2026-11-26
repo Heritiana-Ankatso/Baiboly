@@ -188,13 +188,21 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
     var fling by remember { mutableStateOf<Job?>(null) }
     var swallowTap by remember { mutableStateOf(false) }
 
-    // layout: year gutter | span lanes | axis | labels
+    // Church history outside the Bible shown too: the two never mix. Events the Bible tells stay on the right
+    // of the axis; the others go to its left (their labels ending at the axis), and the axis moves to the middle.
+    val outside = remember(events) { events.any { it.id < 0 } }
+    fun isOutside(e: BibleEvent) = outside && e.id < 0
+
+    // layout: year gutter | span lanes | [outside the Bible] axis | labels of the Bible's events
     val gutter = with(density) { 56.dp.toPx() }
     val laneW = with(density) { 6.dp.toPx() }
     val laneGap = with(density) { 2.dp.toPx() }
     val lanesX = gutter + with(density) { 6.dp.toPx() }
-    val axisX = lanesX + laneCount * (laneW + laneGap) + with(density) { 6.dp.toPx() }
+    val lanesEnd = lanesX + laneCount * (laneW + laneGap) + with(density) { 6.dp.toPx() }
+    val axisX = if (outside && widthPx > 0f) lanesEnd + (widthPx - lanesEnd) / 2 else lanesEnd
     val labelX = axisX + with(density) { 10.dp.toPx() }
+    val leftEnd = axisX - with(density) { 10.dp.toPx() }
+    val leftStart = lanesEnd + with(density) { 2.dp.toPx() }
     val rowH = with(density) { 18.dp.toPx() }
 
     fun yOf(year: Double) = ((year - top) * pxPerYear).toFloat()
@@ -212,14 +220,23 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
         return out
     }
 
-    /** Labels that fit, most important first: (event, y, is span). A span's label is pinned to the top of the view while it lasts. */
+    /** An era of church history after the apostles: its name goes in the left column with the events outside the Bible. */
+    fun eraOnLeft(era: Era) = outside && era.key in extraNames
+
+    /**
+     * Labels that fit, most important first: (event, y, is span). A span's label is pinned to the top of the view while
+     * it lasts. Each column (the Bible's on the right, outside the Bible on the left) places its own labels.
+     */
     fun placedLabels(eraRows: List<Pair<Era, Float>> = placedEras()): List<Triple<BibleEvent, Float, Boolean>> {
-        val taken = ArrayList<ClosedFloatingPointRange<Float>>(64)
-        eraRows.forEach { taken += (it.second - rowH / 2)..(it.second + rowH / 2) }
+        val right = ArrayList<ClosedFloatingPointRange<Float>>(64)
+        val left = ArrayList<ClosedFloatingPointRange<Float>>(64)
+        eraRows.forEach { (era, y) -> (if (eraOnLeft(era)) left else right) += (y - rowH / 2)..(y + rowH / 2) }
         val out = mutableListOf<Triple<BibleEvent, Float, Boolean>>()
         val room = (heightPx / rowH).toInt() + 1 // no more labels than lines on the screen
         for (c in ranked) {
-            if (taken.size >= room) break
+            if (right.size >= room && (!outside || left.size >= room)) break
+            val taken = if (isOutside(c.event)) left else right
+            if (taken.size >= room) continue
             val y = if (c.span) {
                 val y0 = yOf(c.event.year.toDouble()); val y1 = yOf(c.event.endYear)
                 if (y1 <= 0 || y0 >= heightPx) continue
@@ -257,7 +274,6 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
             }
         }
         // legend: identity never by colour alone
-        val outside = remember(events) { events.any { it.id < 0 } }
         androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             SpanKind.entries.forEach { k ->
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -273,6 +289,14 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 Spacer(Modifier.width(4.dp))
                 Text(stringResource(R.string.tl_outside_bible), style = legendStyle, color = muted, maxLines = 1)
             }
+        }
+        // the two columns, named over the chart: outside the Bible on the left of the axis, the Bible on the right
+        if (outside) Row(Modifier.fillMaxWidth().padding(top = 2.dp).testTag("tl-columns"), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Spacer(Modifier.width(with(density) { lanesEnd.toDp() }))
+            Text("← " + stringResource(R.string.tl_outside_bible), Modifier.weight(1f), style = legendStyle, color = muted,
+                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic, textAlign = androidx.compose.ui.text.style.TextAlign.End, maxLines = 2)
+            Spacer(Modifier.width(20.dp))
+            Text(stringResource(R.string.tl_in_bible) + " →", Modifier.weight(1f), style = legendStyle, color = ink, fontWeight = FontWeight.SemiBold, maxLines = 2)
         }
         val eraNames = eras.associate { it.key to (extraNames[it.key] ?: eraName(it.key)) }
         // year labels as the interface writes them ("1491 BC", "AD 30"), from the same strings
@@ -353,7 +377,10 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                                 val sx = lanesX + s.lane * (laneW + laneGap)
                                 p.x in (sx - 8f)..(sx + laneW + 8f) && p.y in yOf(s.event.year.toDouble())..max(yOf(s.event.endYear), yOf(s.event.year.toDouble()) + 12f)
                             }
-                            val hitLabel = placedLabels().minByOrNull { abs(it.second - p.y) }?.takeIf { abs(it.second - p.y) < rowH && p.x > axisX - 16f }
+                            // the label column the tap is in: outside the Bible on the left of the axis, the Bible on the right
+                            val onLeft = outside && p.x < axisX
+                            val hitLabel = placedLabels().filter { isOutside(it.first) == onLeft }.minByOrNull { abs(it.second - p.y) }
+                                ?.takeIf { abs(it.second - p.y) < rowH && (if (onLeft) p.x > leftStart - 8f else p.x > axisX - 16f) }
                             (hitSpan?.event ?: hitLabel?.first)?.let { vm.openEvent(it.id) }
                         },
                     )
@@ -370,14 +397,17 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
             }
             val eraRows = placedEras()
             val eraW = (size.width - labelX - 8f).toInt().coerceAtLeast(1)
+            val eraLeftW = (leftEnd - leftStart).toInt().coerceAtLeast(1)
             for ((era, y) in eraRows) {
-                val name = textCache.getOrPut("E|${era.key}|$eraW") {
+                val onLeft = eraOnLeft(era)
+                val width = if (onLeft) eraLeftW else eraW
+                val name = textCache.getOrPut("E|${era.key}|$width") {
                     measurer.measure(eraNames.getValue(era.key).uppercase(),
                         TextStyle(fontSize = 10.sp, letterSpacing = 1.2.sp, color = accent, fontWeight = FontWeight.SemiBold),
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        constraints = androidx.compose.ui.unit.Constraints(maxWidth = eraW))
+                        constraints = androidx.compose.ui.unit.Constraints(maxWidth = width))
                 }
-                drawText(name, topLeft = Offset(labelX, y - name.size.height / 2))
+                drawText(name, topLeft = Offset(if (onLeft) leftEnd - name.size.width else labelX, y - name.size.height / 2))
             }
             // year ticks: the smallest round step at least 56dp apart
             val minGap = 56.dp.toPx()
@@ -404,7 +434,11 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 val sx = lanesX + s.lane * (laneW + laneGap)
                 val c = if (dark) s.kind.dark else s.kind.light
                 val strong = s.event.id in chapterIds
-                drawRoundRect(if (strong) c else c.copy(alpha = 0.85f), Offset(sx, y0), Size(laneW, y1 - y0), CornerRadius(min(4.dp.toPx(), laneW / 2)))
+                val corner = CornerRadius(min(4.dp.toPx(), laneW / 2))
+                // a span outside the Bible (a Father's life, a council's years) is an outline, the Bible's are filled
+                if (s.event.id < 0) drawRoundRect(c, Offset(sx + 0.75f, y0), Size(laneW - 1.5f, y1 - y0), corner,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
+                else drawRoundRect(if (strong) c else c.copy(alpha = 0.85f), Offset(sx, y0), Size(laneW, y1 - y0), corner)
             }
             // point events: dots on the axis with a surface ring; the chapter's events larger, in the accent
             for (e in points) {
@@ -417,9 +451,12 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 else drawCircle(if (strong) accent else ink.copy(alpha = 0.7f), r, Offset(axisX, y))
             }
             // labels in ink, a swatch for spans
-            val w = (size.width - labelX - 4f).toInt().coerceAtLeast(1)
+            val wRight = (size.width - labelX - 4f).toInt().coerceAtLeast(1)
+            val wLeft = (leftEnd - leftStart - 16f).toInt().coerceAtLeast(1)
             for ((e, y, span) in placedLabels(eraRows)) {
                 val strong = e.id in chapterIds
+                val onLeft = isOutside(e)
+                val w = if (onLeft) wLeft else wRight
                 val m = textCache.getOrPut("L|${e.id}|$strong|$span|$w") {
                     val years = if (span) yearsOf(e)?.let { " · " + if (it == 1) yearOne else yearsPattern.replace("999999", "$it") } ?: "" else ""
                     // church history outside the Bible: muted and in italics, so it is never read as Scripture's own
@@ -428,15 +465,28 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                         fontStyle = if (e.id < 0) androidx.compose.ui.text.font.FontStyle.Italic else null), maxLines = 1, overflow = TextOverflow.Ellipsis,
                         constraints = androidx.compose.ui.unit.Constraints(maxWidth = w))
                 }
-                var lx = labelX
-                if (span) {
-                    val k = SpanKind.entries.first { it.key == e.kind }
-                    drawRoundRect(if (dark) k.dark else k.light, Offset(labelX, y - 5f), Size(10f, 10f), CornerRadius(3f))
-                    lx += 16f
+                val k = if (span) SpanKind.entries.first { it.key == e.kind } else null
+                if (onLeft) {
+                    // left column: the label ends at the axis; a span's swatch (an outline) sits between them
+                    var rx = leftEnd
+                    if (k != null) {
+                        drawRoundRect(if (dark) k.dark else k.light, Offset(leftEnd - 10f, y - 5f), Size(10f, 10f), CornerRadius(3f),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(1.5f))
+                        rx -= 16f
+                    } else {
+                        drawLine(hairline, Offset(leftEnd + 2f, y), Offset(axisX - 5f, y), 1f)
+                    }
+                    drawText(m, topLeft = Offset(rx - m.size.width, y - m.size.height / 2))
                 } else {
-                    drawLine(hairline, Offset(axisX + 5f, y), Offset(labelX - 2f, y), 1f)
+                    var lx = labelX
+                    if (k != null) {
+                        drawRoundRect(if (dark) k.dark else k.light, Offset(labelX, y - 5f), Size(10f, 10f), CornerRadius(3f))
+                        lx += 16f
+                    } else {
+                        drawLine(hairline, Offset(axisX + 5f, y), Offset(labelX - 2f, y), 1f)
+                    }
+                    drawText(m, topLeft = Offset(lx, y - m.size.height / 2))
                 }
-                drawText(m, topLeft = Offset(lx, y - m.size.height / 2))
             }
         }
     }

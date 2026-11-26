@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import mg.baiboly.core.ref.Passage
@@ -150,6 +151,11 @@ class HistoryToolsTest {
         pump(800)
         click("tl-to-today")                       // Church history (outside the Bible)
         rule.onNodeWithTag("tl-legend-outside", useUnmergedTree = true).assertExists()
+        // two columns: outside the Bible on the left of the axis, the Bible on the right
+        rule.onNodeWithTag("tl-columns", useUnmergedTree = true).assertExists()
+        shot("h3d-timeline-outside-bible")
+        repeat(3) { rule.onNodeWithTag("timeline-chart").performTouchInput { doubleClick(Offset(center.x, height * 0.93f)) }; pump(400) }
+        shot("h3e-timeline-outside-bible-zoom")
         click("tl-mode-list")
         val pompey = ev("Pompey takes Jerusalem").id
         val birth = vm.chronicle.timeline.first { it.title == "Birth of Jesus" }.id

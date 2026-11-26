@@ -11,7 +11,7 @@
   * the martyrdom of James (AD 62, Josephus), the fire of Rome and Nero's persecution (64), the Jewish revolt (66), Peter and Paul martyred (about 67, tradition), the fall of Jerusalem and the temple (70), Masada (about 73), Clement's letter (about 96), the death of John (about 100, tradition);
   * then, as before, the Fathers, the councils, the Reformation, missions and Madagascar to today.
 
-  On the chart they are hollow rings with muted italic labels and a legend entry; in the list and on their page they are marked *Outside the Bible*. Malagasy titles of the new events fall back to French until translated.
+  On the chart the two never mix: the Bible's events stay on the right of the axis, and those outside the Bible move to its left, under the headings *Outside the Bible* and *In the Bible*. Outside-the-Bible events are hollow rings, outlined bars and muted italic labels. In the list and on their page they are marked *Outside the Bible*. Malagasy titles of the new events fall back to French until translated.
 * Everything in 1.12.0 below (a much smaller app, optional downloads).
 
 ## Baiboly 1.12.0
