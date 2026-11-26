@@ -130,6 +130,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.Style
@@ -167,6 +168,8 @@ fun MainScreen(vm: AppViewModel) {
     // Notes (a verse's, or the day's sermon note) come up from the foot of the screen into a panel that rests
     // at half height, the passage still in view above it, or at full height, and tuck back down.
     val panel = remember { PanelState() }
+    // the chapter buttons step aside while the text scrolls
+    var scrolling by remember { mutableStateOf(false) }
     val panelShown = noteDraft != null || vm.documentDocked
     fun openNote(d: NoteDraft) {
         if (vm.documentDocked) vm.closeDocument()
@@ -273,8 +276,9 @@ fun MainScreen(vm: AppViewModel) {
                         }
                     },
                     onNoteTap = { n -> openNote(NoteDraft(n.passage, n.text, n.id)) },
+                    onScrolling = { scrolling = it },
                 )
-                ChapterOverlay(vm)
+                ChapterOverlay(vm, shown = !scrolling)
                 // quick look: the passage in another language, its units… (Settings, Advanced, Quick look)
                 LaunchedEffect(selected) { quickLookClosed = false }
                 if (selected.isNotEmpty() && !quickLookClosed && toolsPassage == null && noteDraft == null) {
@@ -707,6 +711,7 @@ private fun Reader(
     onVerseTap: (Int) -> Unit,
     onNumberTap: (Int) -> Unit,
     onNoteTap: (Note) -> Unit,
+    onScrolling: (Boolean) -> Unit,
 ) {
     val ch = vm.chapter
     val pageStyle = LocalStyle.current == Style.Page
@@ -761,6 +766,12 @@ private fun Reader(
             i
         } ?: start
         state.scrollToItem(maxOf(0, target))
+    }
+    // hidden at once when a scroll starts, back a moment after it stops
+    LaunchedEffect(state) {
+        snapshotFlow { state.isScrollInProgress }.collectLatest { moving ->
+            if (moving) onScrolling(true) else { kotlinx.coroutines.delay(700); onScrolling(false) }
+        }
     }
     // the chapter at the top of the screen is the one being read: title, selection, notes follow the scroll
     LaunchedEffect(state) {

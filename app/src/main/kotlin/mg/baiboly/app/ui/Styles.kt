@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -418,9 +419,22 @@ fun PageMenuScreen(vm: AppViewModel) {
 
 // ---------------------------------------------------------------- chapters
 
-/** Previous / next chapter laid over the text (Manuscript, Modern). */
+/**
+ * Previous / next chapter laid over the text. They fade away while the text is being scrolled ([shown] false)
+ * and come back when it rests; swiping sideways still turns the chapter whether they show or not.
+ */
 @Composable
-fun BoxScope.ChapterOverlay(vm: AppViewModel) {
+fun BoxScope.ChapterOverlay(vm: AppViewModel, shown: Boolean = true) {
+    val fade by androidx.compose.animation.core.animateFloatAsState(
+        if (shown) 1f else 0f, androidx.compose.animation.core.tween(180), label = "chapter-buttons",
+    )
+    // fully faded: not drawn and not touchable
+    if (fade <= 0.01f) return
+    Box(Modifier.matchParentSize().alpha(fade)) { ChapterButtons(vm) }
+}
+
+@Composable
+private fun BoxScope.ChapterButtons(vm: AppViewModel) {
     when (LocalStyle.current) {
         Style.Manuscript -> {
             ChapterDisc(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter),
