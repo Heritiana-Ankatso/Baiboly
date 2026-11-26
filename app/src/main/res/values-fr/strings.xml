@@ -197,11 +197,11 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Sélection de versets : quatre actions restent visibles, les autres (Références, Écouter, Mots) sont sous « Plus » ; plus rien ne défile hors de l’écran.</item>
-        <item>Thème Moderne : les boutons chapitre précédent et suivant encadrent la barre du bas au lieu de flotter sur le texte, et la barre est plus fine.</item>
-        <item>Thème Verre : la barre du bas ne répète plus le nom du chapitre déjà affiché en haut.</item>
-        <item>Apparence › Mise en forme du texte : chaque réglage est un libellé avec un sélecteur de même largeur, et les marges montrent un petit dessin de page (étroites, normales, larges).</item>
-        <item>Nouvelle icône : un livre ouvert avec une croix entre ses pages (bleu nuit et crème), aussi en icône thématique à partir d’Android 13.</item>
+        <item>Les réglages sont regroupés en six pages courtes dans trois sections (Apparence, Texte, Mise en page ; Bible, Aides à la lecture ; Mises à jour), chaque ligne indiquant sa valeur. Les pages glissent depuis le côté et les choix se déplient sous leur ligne, dans le style du thème.</item>
+        <item>Les notes montent depuis le bas de l’écran, comme le menu de Navy depuis le côté : à mi-hauteur pour voir le passage et votre note ensemble, ou en pleine hauteur. Faites glisser la poignée pour la redimensionner, ou vers le bas pour la ranger. La note de prédication (mode Église) fonctionne de la même façon.</item>
+        <item>Les boutons chapitre précédent / suivant s’effacent pendant le défilement ; un balayage latéral change toujours de chapitre. Le thème Vitrail n’a plus de barre en bas pour eux.</item>
+        <item>Mode Église : l’ajout d’un passage est un petit ＋ dans la liste du culte, et la ligne passage précédent / suivant est plus fine.</item>
+        <item>Le surlignage du passage ouvert disparaît au toucher ou au défilement. Les menus contextuels suivent maintenant le thème.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>

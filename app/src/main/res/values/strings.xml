@@ -214,11 +214,11 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Selecting verses: four actions stay in view and the others (References, Listen, Words) are under “More”; nothing scrolls out of the screen any more.</item>
-        <item>Modern theme: the previous and next chapter buttons sit on either side of the bottom bar instead of floating over the text, and the bar is slimmer.</item>
-        <item>Glass theme: the bottom bar no longer repeats the chapter name already shown at the top.</item>
-        <item>Appearance › Text formatting: every setting is a label with a segmented control of the same width, and the margins show a small page drawing (narrow, normal, wide).</item>
-        <item>New app icon: an open book with a cross between its pages (navy and cream), also as a themed icon on Android 13 and later.</item>
+        <item>Settings are regrouped into six short pages in three sections (Appearance, Text, Page layout; Bible, Reading aids; Updates), each row showing what it is set to. Pages slide in from the side, and choices unfold under their row in the theme’s own style.</item>
+        <item>Notes come up from the foot of the screen, like Navy’s menu from the side: half height to see the passage and your note together, or full height. Drag the grip to resize or swipe down to put it away. The Church sermon note works the same way.</item>
+        <item>The previous and next chapter buttons fade away while you scroll; swiping sideways still turns the chapter. Glass no longer has a bottom bar for them.</item>
+        <item>Church mode: the add-passage button is a small ＋ in the list strip, and the previous / next passage row is slimmer.</item>
+        <item>The shading of the passage you opened goes away when you tap or scroll. Pop-up menus now follow the theme.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>

@@ -199,11 +199,11 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Fisafidianana andininy: ny asa efatra dia hita foana, ny hafa (Fanovozan-kevitra, Henoy, Teny) dia ao ambanin’ny “Hafa koa”; tsy mandeha mivoaka ny efijery intsony.</item>
-        <item>Lohahevitra Modern: ny bokotra toko teo aloha sy manaraka dia eo amin’ny sisin’ny tsipika ambany fa tsy mitsingevana eo ambonin’ny soratra, ary lasa kely ny tsipika.</item>
-        <item>Lohahevitra Glass: ny tsipika ambany dia tsy mamerina ny anaran’ny toko efa hita eo ambony intsony.</item>
-        <item>Endrika › Famolavolana ny soratra: ny fanamboarana tsirairay dia misy anarana sy fisafidianana mitovy sakany, ary ny sisiny dia mampiseho sary kely (tery, antonony, malalaka).</item>
-        <item>Sary famantarana vaovao: boky misokatra misy hazofijaboana eo anelanelan’ny pejiny (manga maizina sy krema), azo ampiasaina ihany koa ho sary mifanaraka amin’ny lohahevitra amin’ny Android 13 sy ny taty aoriana.</item>
+        <item>Nalamina ho pejy fohy enina ao amin’ny ampahany telo ny fikirana (Endrika, Soratra, Fandrafetana ny pejy ; Baiboly, Fanampiana amin’ny famakiana ; Fanavaozana), ary aseho isaky ny andalana ny safidiny ankehitriny. Mihisatra avy eo amin’ny sisiny ny pejy, ary mivelatra eo ambanin’ny andalana ny safidy araka ny endrik’ilay lohahevitra.</item>
+        <item>Miakatra avy eo ambany ny fanamarihana, tahaka ny menio Navy avy eo amin’ny sisiny : antsasa-pahavony mba hahitana miaraka ny andalan-tsoratra sy ny fanamarihanao, na avo tanteraka. Alefaso ambony na ambany ny tanana mba hanova ny habeny, na ambany mihitsy mba hanafenana azy. Toy izany koa ny fanamarihana ny toriteny (Fiangonana).</item>
+        <item>Mikisaka ny bokotra toko teo aloha / manaraka rehefa mamakivaky ny soratra ; mbola mifamadika toko ny fanosehana mankany amin’ny sisiny. Tsy misy tsipika ambany intsony ho an’izy ireo ao amin’ny lohahevitra Glass.</item>
+        <item>Fiangonana : bokotra ＋ kely ao amin’ny lisitra no manampy andalan-tsoratra, ary lafi-kely kokoa ny andalana teo aloha / manaraka.</item>
+        <item>Miala ny loko eo amin’ny andalan-tsoratra nosokafana rehefa tsindriana na hodinihina. Mifanaraka amin’ny lohahevitra ny menio miseho.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
