@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
@@ -319,49 +321,54 @@ private fun DocumentEditor(vm: AppViewModel, requestClose: (finish: () -> Unit) 
                 }
     }
     val editorBody: @Composable ColumnScope.() -> Unit = editor@{
-            // the read view shows the title and the details itself
-            if (!preview) {
-                OutlinedTextField(
-                    value = doc.title, onValueChange = { doc = doc.copy(title = it) }, singleLine = true,
-                    placeholder = { Text(stringResource(R.string.doc_title_hint)) },
-                    textStyle = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).testTag("doc-title"),
-                )
-                // date and passages: recorded by default, changed with a tap
-                CollapsibleHeader(
-                    title = stringResource(R.string.doc_details),
-                    detail = listOf(formatDay(doc.date), doc.passages, doc.speaker).filter { it.isNotBlank() }.joinToString(" · "),
-                    open = details, tag = "doc-details", onToggle = { details = !details }, horizontal = 16.dp,
-                    style = MaterialTheme.typography.labelLarge,
-                )
-                if (details) DocumentDetails(vm, doc, study) { doc = it }
-            }
             if (preview) {
+                // the read view shows the title and the details itself
                 NotePreview(vm, current, Modifier.weight(1f))
                 return@editor
             }
-            // the bar of tools: scrolls sideways when it does not fit
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 4.dp).testTag("doc-tools"),
-                verticalAlignment = Alignment.CenterVertically) {
-                tools.forEach { t ->
-                    IconButton(onClick = t.onClick, modifier = Modifier.testTag(t.tag)) {
-                        if (t.icon != null) Icon(t.icon, t.label) else Text(t.text ?: "", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            // The whole editor scrolls, so that with the keyboard up (or in the half-height panel) the writing
+            // area is never squeezed to nothing: it keeps at least a few lines, and fills the room when there is plenty.
+            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
+                val bodyMin = (maxHeight * 0.6f).coerceAtLeast(180.dp)
+                Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                    OutlinedTextField(
+                        value = doc.title, onValueChange = { doc = doc.copy(title = it) }, singleLine = true,
+                        placeholder = { Text(stringResource(R.string.doc_title_hint)) },
+                        textStyle = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).testTag("doc-title"),
+                    )
+                    // date and passages: recorded by default, changed with a tap
+                    CollapsibleHeader(
+                        title = stringResource(R.string.doc_details),
+                        detail = listOf(formatDay(doc.date), doc.passages, doc.speaker).filter { it.isNotBlank() }.joinToString(" · "),
+                        open = details, tag = "doc-details", onToggle = { details = !details }, horizontal = 16.dp,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    if (details) DocumentDetails(vm, doc, study) { doc = it }
+                    // the bar of tools: scrolls sideways when it does not fit
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 4.dp).testTag("doc-tools"),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        tools.forEach { t ->
+                            IconButton(onClick = t.onClick, modifier = Modifier.testTag(t.tag)) {
+                                if (t.icon != null) Icon(t.icon, t.label) else Text(t.text ?: "", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            }
+                        }
                     }
+                    if (study) StudyOutline(body.text) { line, up -> body = TextFieldValue(NoteMarkup.moveSection(body.text, line, up), body.selection) }
+                    if (study && body.text.isBlank()) StudyTemplates { body = TextFieldValue(it, TextRange(it.length)) }
+                    OutlinedTextField(
+                        value = body, onValueChange = { body = it },
+                        placeholder = { Text(stringResource(if (study) R.string.study_hint else R.string.sermon_hint)) },
+                        keyboardOptions = KeyboardOptions(capitalization = androidx.compose.ui.text.input.KeyboardCapitalization.Sentences),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = bodyMin).padding(horizontal = 12.dp, vertical = 4.dp).testTag("doc-body"),
+                    )
+                    if (study) Text(
+                        stringResource(R.string.word_count, Regex("\\S+").findAll(NoteMarkup.parse(body.text).joinToString(" ") { plainOf(it) }).count()),
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 16.dp, bottom = 4.dp),
+                    )
                 }
             }
-            if (study) StudyOutline(body.text) { line, up -> body = TextFieldValue(NoteMarkup.moveSection(body.text, line, up), body.selection) }
-            if (study && body.text.isBlank()) StudyTemplates { body = TextFieldValue(it, TextRange(it.length)) }
-            OutlinedTextField(
-                value = body, onValueChange = { body = it },
-                placeholder = { Text(stringResource(if (study) R.string.study_hint else R.string.sermon_hint)) },
-                keyboardOptions = KeyboardOptions(capitalization = androidx.compose.ui.text.input.KeyboardCapitalization.Sentences),
-                modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp, vertical = 4.dp).testTag("doc-body"),
-            )
-            if (study) Text(
-                stringResource(R.string.word_count, Regex("\\S+").findAll(NoteMarkup.parse(body.text).joinToString(" ") { plainOf(it) }).count()),
-                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 16.dp, bottom = 4.dp),
-            )
     }
     chrome(title, actions, { close() }, editorBody)
     when (dialog) {
