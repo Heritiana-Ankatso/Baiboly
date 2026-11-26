@@ -1,28 +1,42 @@
 # APK size report
 
-Release build (`./gradlew :app:assembleRelease`, R8 minified, resources shrunk), measured on 2026-11-19.
+## Release APK
 
-| Part | In the APK (compressed) | On the device once unpacked |
+Release build (`./gradlew :app:assembleRelease`, R8 minified, resources shrunk).
+
+| | v1.11.0 (everything bundled) | Now (optional downloads) |
 |---|---|---|
-| **Whole release APK** | **62.3 MB** | |
-| App code (`classes.dex`) | 1.1 MB | |
-| `bible.db`: catalogue + Malagasy 1865 + search index | 4.2 MB | 13.7 MB |
-| 11 other reading texts (`text-*.db`), about 4–5 MB each | ≈ 48 MB | 12–16 MB each |
-| Fonts (Gentium Book Plus, Cormorant SC) | ≈ 1.6 MB | |
-| **Study data (`study.db`)** | **5.5 MB** | **15.5 MB** |
+| **Whole release APK** | **117.9 MB** | **≈ 20.5 MB (estimate; to be measured)** |
 
-What the study data adds: **5.5 MB to the APK** and 15.5 MB on the device, once the
-α panel is first used. Inside `study.db`: `kjv_word` (348,884 tagged words),
-`strongs_verse` (310,076 rows), `lexicon` (14,375 entries: public-domain CrossWire base plus Open Scriptures Hebrew lemmas and missing entries) and `verse_map`.
+What the release APK carries now (compressed, as measured in the v1.11.0 APK):
 
-Notes
+| Part | In the APK | On the device once unpacked |
+|---|---|---|
+| `bible.db`: catalogue, Malagasy 1865, search index | 4.2 MB | 13.7 MB |
+| `study.db`: KJV Strong's tagging, lexicon, verse mapping | 5.5 MB | 15.5 MB |
+| `library.db`: cross-references, Easton/Nave/Martin, places, people, timeline, confessions | 6.0 MB | 19.6 MB |
+| App code, resources and fonts (Gentium Book Plus, Cormorant SC), map | ≈ 4.8 MB | |
 
-* The 25 MB soft target was lifted by the user. Without the 11 extra translations the APK
-  would be about 11 MB.
-* Device storage: `bible.db` is unpacked on first launch. Each other translation is
-  unpacked only when it is first opened, and `study.db` only when α is first used. On a
-  phone that reads only Malagasy, storage use is about 14 MB.
-* Ways to shrink later, if needed: drop the prebuilt search index of the extra
-  translations (about 1.8 MB each, compressed) and build it on the device; drop
-  `strongs_verse` in favour of an index on `kjv_word`; ship rarely used translations as
-  optional downloads (this needs the INTERNET permission, which is the user's decision).
+## Optional downloads
+
+Data release `data-13`. Each download is a gzipped database; the size is what the phone downloads.
+
+| Download | Download size | On the phone |
+|---|---|---|
+| Each of the 12 other reading texts | 3.9–5.5 MB | 12–16 MB |
+| All 12 texts | 53.2 MB | 166 MB |
+| Hebrew and Greek text (`original.db`, STEPBible) | 14.4 MB | 45.5 MB |
+| Calvin's Commentaries | 12.8 MB | 42.9 MB |
+| Matthew Henry, Complete | 13.6 MB | 42.1 MB |
+| Geneva Bible notes | 1.8 MB | 5.1 MB |
+| Matthew Henry, Concise | 1.5 MB | 4.9 MB |
+| **All downloads** | **97.1 MB** | |
+
+## Notes
+
+* **Updates are small now.** The in-app updater downloads the whole APK, so an update now costs about 20 MB instead of 118 MB. Downloaded packs are kept across updates and are downloaded again only when their `PACK_VERSION` changes (see [RELEASING.md](RELEASING.md)).
+* **Device storage.** A phone that reads only Malagasy stores about 49 MB once every bundled database is unpacked: `bible.db` at first launch, `study.db` and `library.db` when first used.
+* **Why `study.db` and `library.db` stay in the APK.** They hold the verse mapping (Quick look and comparisons), the cross-references, the map, the dictionaries, people, timeline and confessions. Together they cost 11.5 MB of the APK. The smallest possible APK (bible.db only) would be about 9 MB, but every study tool would then need a download first.
+* **Ways to shrink further, if needed:**
+  * drop the prebuilt search index of the downloaded texts (about 1.8 MB each, compressed) and build it on the device;
+  * drop `strongs_verse` in favour of an index on `kjv_word`.
