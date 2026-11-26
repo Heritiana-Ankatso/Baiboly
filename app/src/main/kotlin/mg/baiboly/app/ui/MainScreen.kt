@@ -520,18 +520,30 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
                 onClick = { open = if (isOpen) open - lang else open + lang },
                 modifier = Modifier.heightIn(min = 56.dp).testTag("lang:$lang"),
             )
-            if (isOpen) ts.forEach { t ->
+            // the Bibles on the phone first, then those that can be downloaded (with their size)
+            if (isOpen) ts.sortedBy { if (vm.isAvailable(it)) 0 else 1 }.forEach { t ->
+                val available = vm.isAvailable(t)
+                val pack = if (available) null else vm.packOf(t)
+                val progress = pack?.let { vm.downloads[it.file] }
                 DropdownMenuItem(
                     text = {
                         Column {
                             Text(
                                 t.name,
                                 fontWeight = if (t.id == vm.translationId) FontWeight.Bold else FontWeight.Normal,
+                                color = if (available) androidx.compose.ui.graphics.Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(
                                 styleNote(t) + if (t.catholic) " · " + stringResource(R.string.catholic_tag) else "",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            if (pack != null) Text(
+                                if (progress != null) stringResource(R.string.pack_downloading, (progress * 100).toInt())
+                                else "⤓ " + stringResource(R.string.not_downloaded, sizeText(pack.gzSize)),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.testTag("not-downloaded:${t.id}"),
                             )
                         }
                     },
@@ -543,8 +555,8 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
                         Box(
                             Modifier.size(48.dp).clip(CircleShape)
                                 .clickable(onClickLabel = setDefault) {
-                                    vm.setDefaultTranslation(t.id)
-                                    vm.message = vm.str(R.string.default_set, t.name)
+                                    vm.setDefaultTranslation(t.id) // asks to download it first when it is not on the phone
+                                    if (available) vm.message = vm.str(R.string.default_set, t.name)
                                     onDismiss()
                                 }
                                 .testTag("default:${t.id}"),
@@ -557,8 +569,9 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
                             )
                         }
                     },
+                    // a text not on the phone: the tap asks to download it, then opens it
                     onClick = { vm.setTranslation(t.id); onDismiss() },
-                    modifier = Modifier.heightIn(min = 56.dp),
+                    modifier = Modifier.heightIn(min = 56.dp).testTag("bible:${t.id}"),
                 )
             }
         }

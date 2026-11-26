@@ -230,7 +230,13 @@ private fun TranslationsPage(vm: AppViewModel, passage: Passage, onDismiss: () -
     LaunchedEffect(passage, vm.translationId) { list = vm.compareTranslations(passage) }
     val items = list ?: return Text(stringResource(R.string.loading))
     val ornament = LocalOrnament.current
+    val notOnPhone = vm.visibleTranslations.count { !vm.isAvailable(it) }
     LazyColumn(Modifier.testTag("compare-list")) {
+        // only the Bibles on the phone are compared; the others can be downloaded
+        if (notOnPhone > 0) item(key = "more") {
+            Text(stringResource(R.string.more_to_download), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 6.dp).testTag("compare-more"))
+        }
         items(items, key = { it.translation.id }) { c ->
             val current = c.translation.id == vm.translationId
             Column(
@@ -365,9 +371,9 @@ private fun DictionaryPage(vm: AppViewModel, matches: List<AppViewModel.DictMatc
 private fun WordsPage(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onWord: (String, OriginalWord?) -> Unit) {
     var data by remember { mutableStateOf<VerseStudy?>(null) }
     var original by remember { mutableStateOf<OriginalVerse?>(null) }
-    LaunchedEffect(book, chapter, verse) {
+    LaunchedEffect(book, chapter, verse, vm.originalAvailable) {
         data = vm.studyVerse(book, chapter, verse)
-        original = runCatching { vm.studyOriginal(book, chapter, verse) }.getOrNull()
+        original = if (vm.originalAvailable) runCatching { vm.studyOriginal(book, chapter, verse) }.getOrNull() else null
     }
     val d = data ?: return Text(stringResource(R.string.loading))
     Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -378,6 +384,12 @@ private fun WordsPage(vm: AppViewModel, book: Int, chapter: Int, verse: Int, onW
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(vertical = 6.dp),
             )
+        }
+        // the Hebrew and Greek text is an optional download; the KJV's Strong's tagging below is always there
+        if (!vm.originalAvailable) vm.originalPack?.let { p ->
+            Text(stringResource(R.string.original_not_downloaded), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp).testTag("original-not-downloaded"))
+            PackRow(vm, p, note = stringResource(R.string.pack_original_note), removable = false)
         }
         original?.takeIf { it.words.isNotEmpty() }?.let { o ->
             Text(

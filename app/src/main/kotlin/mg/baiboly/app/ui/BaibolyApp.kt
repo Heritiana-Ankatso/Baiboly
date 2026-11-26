@@ -71,6 +71,8 @@ private fun AppContent(vm: AppViewModel) {
         Silent.Provide {
             val app: @Composable () -> Unit = { AppFrame(vm) }
             if (vm.style == mg.baiboly.app.Style.Navy) NavyDrawer(vm) { app() } else app()
+            // asked for from any menu: a download starts only after this confirmation
+            DownloadConfirmDialog(vm)
         }
     }
 }

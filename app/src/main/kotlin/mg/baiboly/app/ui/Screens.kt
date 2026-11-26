@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.material.icons.outlined.SystemUpdate
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.ui.draw.rotate
@@ -400,11 +401,12 @@ fun SearchScreen(vm: AppViewModel) {
             )
             LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(vm.visibleTranslations, key = { it.id }) { t ->
+                    // a Bible not downloaded yet is marked ⤓; a tap offers the download, then searches it
                     FilterChip(
                         selected = t.id == vm.searchTranslation,
                         onClick = { vm.search(vm.searchQuery, t.id) },
-                        label = { Text(t.shortName) },
-                        modifier = Modifier.heightIn(min = 48.dp),
+                        label = { Text(if (vm.isAvailable(t)) t.shortName else t.shortName + " ⤓") },
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("search-bible:${t.id}"),
                     )
                 }
             }
@@ -547,6 +549,9 @@ fun SettingsScreen(vm: AppViewModel) {
                 SettingsGroup("bible", Icons.Outlined.AutoStories, stringResource(R.string.settings_bible),
                     listOf(defaultBible, stringResource(if (vm.tradition == Tradition.Protestant) R.string.protestant else R.string.catholic))
                         .filter { it.isNotEmpty() }.joinToString(" · ")) { BibleSettings(vm) },
+                SettingsGroup("downloads", Icons.Outlined.Download, stringResource(R.string.downloads),
+                    stringResource(R.string.downloads_on_phone, sizeText(vm.allPacks.filter { vm.packState(it) != mg.baiboly.data.PackState.NotInstalled }.sumOf { it.size })))
+                    { DownloadsSettings(vm) },
                 SettingsGroup("aids", Icons.Outlined.Headphones, stringResource(R.string.settings_aids),
                     listOfNotNull(
                         if (vm.readAloudEnabled) stringResource(R.string.read_aloud) else null,
@@ -763,7 +768,10 @@ private fun DefaultBibleSettings(vm: AppViewModel) {
                     Column {
                         Text("${t.name} (${t.shortName})", style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            listOfNotNull(styleNote(t), translationNote(t)).joinToString(". "),
+                            listOfNotNull(
+                                styleNote(t), translationNote(t),
+                                if (vm.isAvailable(t)) null else vm.packOf(t)?.let { stringResource(R.string.not_downloaded, sizeText(it.gzSize)) },
+                            ).joinToString(". "),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -1269,8 +1277,10 @@ private fun QuickLookSettings(vm: AppViewModel) {
                 androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation.isEmpty(), onClick = { vm.changeQuickLookTranslation("") },
                     label = { Text(stringResource(R.string.ql_bible_auto)) }, modifier = Modifier.testTag("settings-ql-bible:auto"))
                 vm.visibleTranslations.forEach { t ->
-                    androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation == t.id, onClick = { vm.changeQuickLookTranslation(t.id) },
-                        label = { Text(t.shortName) }, modifier = Modifier.testTag("settings-ql-bible:${t.id}"))
+                    // a Bible not downloaded yet (⤓) is offered for download; until then the quick look chooses automatically
+                    androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation == t.id,
+                        onClick = { vm.changeQuickLookTranslation(t.id); if (!vm.isAvailable(t)) vm.packOf(t)?.let { vm.requestDownload(it) } },
+                        label = { Text(if (vm.isAvailable(t)) t.shortName else t.shortName + " ⤓") }, modifier = Modifier.testTag("settings-ql-bible:${t.id}"))
                 }
             }
         }
