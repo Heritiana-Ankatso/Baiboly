@@ -9,14 +9,22 @@ data class CommentNote(val commentary: Commentary, val book: Int, val chapter: I
 /**
  * Commentaries in the public domain: the Geneva Bible notes (1599), Calvin's commentaries and Matthew
  * Henry's Concise and Complete Commentaries, all of the Reformed tradition. Each is its own database
- * (commentary-<id>.db), unpacked on the phone only when first opened.
+ * (commentary-<id>.db), an optional download (tools/packs.py).
  */
 class CommentaryRepository(private val dbs: AssetDatabases) {
-    val available: List<Commentary> by lazy { KNOWN.filter { runCatching { dbs.isBundled("commentary-${it.id}.db") }.getOrDefault(false) } }
+    /** The commentaries offered (bundled or as a download), whether on the phone yet or not. */
+    val available: List<Commentary> by lazy { KNOWN.filter { runCatching { dbs.isOffered(file(it)) }.getOrDefault(false) } }
+
+    fun file(c: Commentary) = "commentary-${c.id}.db"
+
+    /** On the phone now; otherwise [pack] is offered for download. */
+    fun isInstalled(c: Commentary): Boolean = dbs.isUsable(file(c))
+
+    fun pack(c: Commentary): Pack? = dbs.catalogue.pack(file(c))
 
     /** The notes of [c] on verses [from]..[to] of a chapter, in order. */
     fun notes(c: Commentary, book: Int, chapter: Int, from: Int, to: Int): List<CommentNote> {
-        val db = dbs.get("commentary-${c.id}.db")
+        val db = dbs.get(file(c))
         return db.rawQuery(
             "SELECT book, chapter, v1, v2, body FROM comment WHERE book=? AND chapter=? AND v1 <= ? AND v2 >= ? ORDER BY v1, v2",
             arrayOf(book.toString(), chapter.toString(), to.toString(), from.toString()),

@@ -67,6 +67,10 @@ data class VerseStudy(
  * here are Malagasy 1865 numbers; the KJV numbering is handled via verse_map.
  */
 class StudyRepository(private val dbs: AssetDatabases) {
+    companion object {
+        const val ORIGINAL = "original.db"
+    }
+
     private val db get() = dbs.get("study.db")
 
     /** verse_map is small (one row per verse of a remapped chapter): keep it in memory. */
@@ -110,7 +114,21 @@ class StudyRepository(private val dbs: AssetDatabases) {
         return VerseStudy(kjv, words, uncertain)
     }
 
-    private val original get() = dbs.get("original.db")
+    private val original get() = dbs.get(ORIGINAL)
+
+    /** The Hebrew and Greek text is an optional download: true once it is on the phone. */
+    val hasOriginal: Boolean get() = dbs.isUsable(ORIGINAL)
+
+    val originalPack: Pack? get() = dbs.catalogue.pack(ORIGINAL)
+
+    /**
+     * The English words of the KJV for a passage (KJV numbering), from its Strong's tagging in the
+     * bundled study.db: used to find dictionary entries and units without the KJV text being downloaded.
+     */
+    fun kjvWords(book: Int, chapter: Int, from: Int, to: Int): String = db.rawQuery(
+        "SELECT word_en FROM kjv_word WHERE book=? AND chapter=? AND verse BETWEEN ? AND ? ORDER BY verse, position",
+        arrayOf(book.toString(), chapter.toString(), from.toString(), to.toString()),
+    ).use { c -> buildList { while (c.moveToNext()) c.getString(0)?.let { add(it) } }.joinToString(" ") }
 
     /** The Hebrew or Greek words of a verse (Malagasy numbering in; the text itself is numbered as the KJV). */
     fun originalText(mg: VerseRef): OriginalVerse {
