@@ -197,11 +197,10 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages, réglages et Bibles téléchargées. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Les réglages sont regroupés en six pages courtes dans trois sections (Apparence, Texte, Mise en page ; Bible, Aides à la lecture ; Mises à jour), chaque ligne indiquant sa valeur. Les pages glissent depuis le côté et les choix se déplient sous leur ligne, dans le style du thème.</item>
-        <item>Les notes montent depuis le bas de l’écran, comme le menu de Navy depuis le côté : à mi-hauteur pour voir le passage et votre note ensemble, ou en pleine hauteur. Faites glisser la poignée pour la redimensionner, ou vers le bas pour la ranger. La note de prédication (mode Église) fonctionne de la même façon.</item>
-        <item>Les boutons chapitre précédent / suivant s’effacent pendant le défilement ; un balayage latéral change toujours de chapitre. Le thème Vitrail n’a plus de barre en bas pour eux.</item>
-        <item>Mode Église : l’ajout d’un passage est un petit ＋ dans la liste du culte, et la ligne passage précédent / suivant est plus fine.</item>
-        <item>Le surlignage du passage ouvert disparaît au toucher ou au défilement. Les menus contextuels suivent maintenant le thème.</item>
+        <item>L’application est beaucoup plus légère (environ 21 Mo au lieu de 118 Mo) : les mises à jour se téléchargent vite. Malagasy 1865 est toujours sur le téléphone.</item>
+        <item>Les autres Bibles, le texte hébreu et grec et les commentaires ne sont téléchargés que si vous les choisissez : dans le menu des textes (marqués ⤓ avec leur taille) ou dans Réglages › Bible › Téléchargements. Chaque fichier est vérifié avant usage.</item>
+        <item>Les Bibles que vous aviez déjà ouvertes restent sur le téléphone ; rien n’est à télécharger de nouveau. Une Bible jamais ouverte doit être téléchargée une fois.</item>
+        <item>Réglages › Bible › Téléchargements permet aussi de retirer une Bible ou un commentaire pour libérer de la place. Vos notes, surlignages, listes et historique sont conservés.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>

@@ -199,11 +199,10 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko, ny fikiranao ary ny Baiboly nalainao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Nalamina ho pejy fohy enina ao amin’ny ampahany telo ny fikirana (Endrika, Soratra, Fandrafetana ny pejy ; Baiboly, Fanampiana amin’ny famakiana ; Fanavaozana), ary aseho isaky ny andalana ny safidiny ankehitriny. Mihisatra avy eo amin’ny sisiny ny pejy, ary mivelatra eo ambanin’ny andalana ny safidy araka ny endrik’ilay lohahevitra.</item>
-        <item>Miakatra avy eo ambany ny fanamarihana, tahaka ny menio Navy avy eo amin’ny sisiny : antsasa-pahavony mba hahitana miaraka ny andalan-tsoratra sy ny fanamarihanao, na avo tanteraka. Alefaso ambony na ambany ny tanana mba hanova ny habeny, na ambany mihitsy mba hanafenana azy. Toy izany koa ny fanamarihana ny toriteny (Fiangonana).</item>
-        <item>Mikisaka ny bokotra toko teo aloha / manaraka rehefa mamakivaky ny soratra ; mbola mifamadika toko ny fanosehana mankany amin’ny sisiny. Tsy misy tsipika ambany intsony ho an’izy ireo ao amin’ny lohahevitra Glass.</item>
-        <item>Fiangonana : bokotra ＋ kely ao amin’ny lisitra no manampy andalan-tsoratra, ary lafi-kely kokoa ny andalana teo aloha / manaraka.</item>
-        <item>Miala ny loko eo amin’ny andalan-tsoratra nosokafana rehefa tsindriana na hodinihina. Mifanaraka amin’ny lohahevitra ny menio miseho.</item>
+        <item>Kely lavitra ny fampiharana (eo amin’ny 21 Mo fa tsy 118 Mo intsony), ka haingana ny fakana fanavaozana. Ao amin’ny finday foana ny Malagasy 1865.</item>
+        <item>Ireo Baiboly hafa, ny soratra hebreo sy grika ary ireo fanazavana dia alaina raha ifidiananao ihany: ao amin’ny lisitry ny dikan-teny (misy ⤓ sy ny habeny) na ao amin’ny Fikirana › Baiboly › Azo alaina. Hamarinina aloha ny rakitra tsirairay vao ampiasaina.</item>
+        <item>Mijanona ao amin’ny finday ireo Baiboly efa nosokafanao; tsy mila alaina indray. Ny Baiboly mbola tsy nosokafana dia tsy maintsy alaina indray mandeha.</item>
+        <item>Ao amin’ny Fikirana › Baiboly › Azo alaina koa no anesorana Baiboly na fanazavana mba hanafahana toerana. Tsy voakitika ny fanamarihana, ny voaloko, ny lisitra ary ny tantaran’ny famakianao.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>

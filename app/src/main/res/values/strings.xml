@@ -214,11 +214,10 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights, settings and downloaded Bibles. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Settings are regrouped into six short pages in three sections (Appearance, Text, Page layout; Bible, Reading aids; Updates), each row showing what it is set to. Pages slide in from the side, and choices unfold under their row in the theme’s own style.</item>
-        <item>Notes come up from the foot of the screen, like Navy’s menu from the side: half height to see the passage and your note together, or full height. Drag the grip to resize or swipe down to put it away. The Church sermon note works the same way.</item>
-        <item>The previous and next chapter buttons fade away while you scroll; swiping sideways still turns the chapter. Glass no longer has a bottom bar for them.</item>
-        <item>Church mode: the add-passage button is a small ＋ in the list strip, and the previous / next passage row is slimmer.</item>
-        <item>The shading of the passage you opened goes away when you tap or scroll. Pop-up menus now follow the theme.</item>
+        <item>The app is much smaller (about 21 MB instead of 118 MB), so updates download quickly. Malagasy 1865 is always on the phone.</item>
+        <item>The other Bibles, the Hebrew and Greek text and the commentaries are downloaded only when you choose them: in the translation menu (marked ⤓ with their size) or in Settings › Bible › Downloads. Each file is checked before use.</item>
+        <item>Bibles you had already opened are kept on the phone; nothing needs downloading again. A Bible you never opened must be downloaded once.</item>
+        <item>Settings › Bible › Downloads also removes a Bible or commentary to free space. Your notes, highlights, lists and history are kept.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
