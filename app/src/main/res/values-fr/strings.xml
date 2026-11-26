@@ -111,7 +111,7 @@
     <string name="backup_restored">Sauvegarde restaurée.</string>
     <string name="backup_failed">Impossible de lire ce fichier : %1$s</string>
 
-    <string name="about_text">Baiboly est une Bible gratuite et hors ligne pour les cultes et l’étude personnelle. Elle fonctionne entièrement hors ligne, n’émet aucun son et ne demande aucun compte. Elle ne se connecte que pour rechercher les mises à jour, et seulement si vous le demandez (Réglages › Avancé).</string>
+    <string name="about_text">Baiboly est une Bible gratuite et hors ligne pour les cultes et l’étude personnelle. Elle fonctionne entièrement hors ligne, n’émet aucun son et ne demande aucun compte. Elle ne se connecte que pour rechercher les mises à jour, et seulement si vous le demandez (Réglages › Mises à jour).</string>
     <string name="sources_licences">Textes, données et licences</string>
     <string name="reading_texts">Textes de lecture</string>
     <string name="study_data">Données d’étude</string>
@@ -226,6 +226,20 @@
     <string name="all_places">Tous les lieux</string>
     <string name="appearance">Apparence</string>
     <string name="advanced">Avancé</string>
+    <string name="settings_sec_look">Aspect</string>
+    <string name="settings_sec_bible">Bible et lecture</string>
+    <string name="settings_sec_app">L’application</string>
+    <string name="settings_text">Texte</string>
+    <string name="settings_page">Mise en page</string>
+    <string name="settings_bible">Bible</string>
+    <string name="settings_aids">Aides à la lecture</string>
+    <string name="settings_screen">Écran</string>
+    <string name="settings_verses">Versets</string>
+    <string name="settings_paragraphs">Paragraphes</string>
+    <string name="settings_page_margins">Page</string>
+    <string name="panel_half">Demi-hauteur</string>
+    <string name="panel_full">Pleine hauteur</string>
+    <string name="panel_tuck">Ranger</string>
     <string name="tradition">Tradition</string>
     <string name="protestant">Protestante</string>
     <string name="catholic">Catholique</string>
@@ -313,7 +327,7 @@
     <string name="realm_hasmonean">Royaume hasmonéen (v. 140–37 av. J.-C.)</string>
     <string name="realm_herod">Royaume d’Hérode le Grand</string>
     <string name="realm_rome">Provinces romaines (v. 200 apr. J.-C.)</string>
-    <!-- Update check (Settings › Advanced) -->
+    <!-- Update check (Settings › Updates) -->
     <string name="updates">Mises à jour</string>
     <string name="update_auto">Rechercher les mises à jour automatiquement</string>
     <string name="update_auto_hint">Environ une fois par jour, quand le téléphone est connecté. Une notification apparaît quand une nouvelle version paraît.</string>

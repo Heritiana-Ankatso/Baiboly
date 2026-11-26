@@ -127,7 +127,7 @@
     <string name="backup_failed">Could not read this file: %1$s</string>
 
     <!-- About -->
-    <string name="about_text">Baiboly is a free, offline Bible for church services and personal study. It works fully offline, makes no sound and needs no account. It connects only to check for updates, and only if you ask it to (Settings › Advanced).</string>
+    <string name="about_text">Baiboly is a free, offline Bible for church services and personal study. It works fully offline, makes no sound and needs no account. It connects only to check for updates, and only if you ask it to (Settings › Updates).</string>
     <string name="sources_licences">Texts, data and licences</string>
     <string name="reading_texts">Reading texts</string>
     <string name="study_data">Study data</string>
@@ -243,6 +243,20 @@
     <string name="all_places">All places</string>
     <string name="appearance">Appearance</string>
     <string name="advanced">Advanced</string>
+    <string name="settings_sec_look">Look</string>
+    <string name="settings_sec_bible">Bible and reading</string>
+    <string name="settings_sec_app">The app</string>
+    <string name="settings_text">Text</string>
+    <string name="settings_page">Page layout</string>
+    <string name="settings_bible">Bible</string>
+    <string name="settings_aids">Reading aids</string>
+    <string name="settings_screen">Screen</string>
+    <string name="settings_verses">Verses</string>
+    <string name="settings_paragraphs">Paragraphs</string>
+    <string name="settings_page_margins">Page</string>
+    <string name="panel_half">Half height</string>
+    <string name="panel_full">Full height</string>
+    <string name="panel_tuck">Put away</string>
     <string name="tradition">Tradition</string>
     <string name="protestant">Protestant</string>
     <string name="catholic">Catholic</string>
@@ -330,7 +344,7 @@
     <string name="realm_hasmonean">Hasmonean kingdom (c. 140–37 BC)</string>
     <string name="realm_herod">Kingdom of Herod the Great</string>
     <string name="realm_rome">Roman provinces (c. AD 200)</string>
-    <!-- Update check (Settings › Advanced) -->
+    <!-- Update check (Settings › Updates) -->
     <string name="updates">Updates</string>
     <string name="update_auto">Check for updates automatically</string>
     <string name="update_auto_hint">About once a day, when the phone is online. A notification appears when a new version is out.</string>

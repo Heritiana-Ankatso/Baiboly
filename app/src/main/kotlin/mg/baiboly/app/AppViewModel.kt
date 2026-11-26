@@ -1195,6 +1195,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** Where the editor returns to. */
     private var documentReturn: Screen = Screen.Main
 
+    /**
+     * The document is open in a panel under the reader (the sermon note, from the reader's button) instead of
+     * on a page of its own: the passage stays in view above it, and the panel tucks back where it came from.
+     */
+    var documentDocked by mutableStateOf(false)
+        private set
+
     fun refreshDocuments() {
         viewModelScope.launch { documents = withContext(io) { user.documents() } }
     }
@@ -1209,7 +1216,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
      * A new sermon note (Church) or study (Study), opened in the editor. A sermon note records the date
      * and the passages of the service list; a study starts from the passage being read. Both can be changed.
      */
-    fun newDocument(kind: String, passage: Passage? = null) {
+    fun newDocument(kind: String, passage: Passage? = null, docked: Boolean = false) {
         val now = System.currentTimeMillis()
         val lang = translations.firstOrNull { it.id == translationId }?.lang ?: "mg"
         val day = java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG, java.util.Locale(uiLanguage.ifEmpty { java.util.Locale.getDefault().language })).format(java.util.Date(now))
@@ -1219,12 +1226,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             val p = passage ?: location.focus ?: Passage(location.book, location.chapter)
             mg.baiboly.data.NoteDocument(0, kind, p.longLabel(lang), now, Passage.describe(listOf(p), lang), "", "", "", "", now, now)
         }
-        openDocument(doc)
+        openDocument(doc, docked)
     }
 
-    fun openDocument(d: mg.baiboly.data.NoteDocument) {
-        if (screen != Screen.Document) documentReturn = screen
+    fun openDocument(d: mg.baiboly.data.NoteDocument, docked: Boolean = false) {
         openDocument = d
+        if (docked && screen == Screen.Main) { documentDocked = true; return }
+        documentDocked = false
+        if (screen != Screen.Document) documentReturn = screen
         screen = Screen.Document
     }
 
@@ -1235,7 +1244,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             val cal = java.util.Calendar.getInstance()
             fun dayOf(ms: Long) = java.util.Calendar.getInstance().apply { timeInMillis = ms }.let { it.get(java.util.Calendar.YEAR) * 1000 + it.get(java.util.Calendar.DAY_OF_YEAR) }
             val today = cal.get(java.util.Calendar.YEAR) * 1000 + cal.get(java.util.Calendar.DAY_OF_YEAR)
-            all.firstOrNull { dayOf(it.date) == today }?.let { openDocument(it) } ?: newDocument("sermon")
+            all.firstOrNull { dayOf(it.date) == today }?.let { openDocument(it, docked = true) } ?: newDocument("sermon", docked = true)
         }
     }
 
@@ -1269,8 +1278,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun closeDocument() {
+        val docked = documentDocked
         openDocument = null
-        screen = documentReturn.takeIf { it != Screen.Document } ?: Screen.Main
+        documentDocked = false
+        if (!docked) screen = documentReturn.takeIf { it != Screen.Document } ?: Screen.Main
     }
 
     /** Sermon notes and studies that cite verses of the passage (a link in the text or the passages line). */

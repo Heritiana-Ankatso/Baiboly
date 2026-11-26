@@ -11,6 +11,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -180,9 +181,38 @@ private class Tool(val icon: ImageVector?, val text: String?, val label: String,
  * point, bold, verse, person) and nothing else in the way. Study: the details, an outline whose sections
  * move up and down, templates for a new study, numbered points, quotations, the text of a verse, events.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+/** What surrounds the editor: its title, the actions of the bar, what closes it, and the editing area itself. */
+private typealias EditorChrome = @Composable (title: String, actions: @Composable () -> Unit, onClose: () -> Unit, body: @Composable ColumnScope.() -> Unit) -> Unit
+
+/** The editor on a page of its own (a study, a note opened from the list). */
 @Composable
 fun DocumentScreen(vm: AppViewModel) {
+    DocumentEditor(vm, requestClose = { finish -> finish() }) { title, actions, onClose, body ->
+        Scaffold(topBar = { StyledSubBar(title, onBack = onClose, actions = actions) }) { padding ->
+            Column(Modifier.padding(padding).fillMaxSize().imePadding()) { body() }
+        }
+    }
+}
+
+/**
+ * The editor in a panel under the reader (the sermon note, opened from the reader): it slides up from the
+ * foot of the screen, rests at half height with the passage still in view, or at full height, and tucks back down.
+ */
+@Composable
+fun ColumnScope.DocumentDock(vm: AppViewModel, panel: PanelState) {
+    val scope = rememberCoroutineScope()
+    DocumentEditor(vm, requestClose = { finish -> panel.animateTo(scope, 0f) { finish() } }) { title, actions, onClose, body ->
+        SlidePanel(panel, title, onTuck = onClose, actions = { actions() }) { body() }
+    }
+}
+
+/**
+ * The editing itself, the same on a page or in the panel. [requestClose] is how the surroundings leave
+ * (a page goes at once, the panel slides down first and then calls what it is given).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DocumentEditor(vm: AppViewModel, requestClose: (finish: () -> Unit) -> Unit, chrome: EditorChrome) {
     val start = vm.openDocument ?: run { LaunchedEffect(Unit) { vm.closeDocument() }; return }
     val study = start.kind == "study"
     var doc by remember(start.kind, start.createdAt) { mutableStateOf(start) }
@@ -203,7 +233,8 @@ fun DocumentScreen(vm: AppViewModel) {
         if (current.copy(id = 0) != vm.openDocument?.copy(id = 0)) vm.saveDocument(current)
     }
     DisposableEffect(Unit) { onDispose { vm.saveDocument(current, keepOpen = false) } }
-    BackHandler { vm.saveDocument(current, keepOpen = false); vm.closeDocument() }
+    fun close() { vm.saveDocument(current, keepOpen = false); requestClose { vm.closeDocument() } }
+    BackHandler { close() }
 
     fun insert(text: String, block: Boolean = false) {
         val t = body.text
@@ -261,11 +292,8 @@ fun DocumentScreen(vm: AppViewModel) {
         pendingExport = null
     }
 
-    Scaffold(topBar = {
-        StyledSubBar(
-            stringResource(if (study) R.string.study else R.string.sermon_note),
-            onBack = { vm.saveDocument(current, keepOpen = false); vm.closeDocument() },
-            actions = {
+    val title = stringResource(if (study) R.string.study else R.string.sermon_note)
+    val actions: @Composable () -> Unit = {
                 IconButton(onClick = { preview = !preview }, modifier = Modifier.testTag("doc-preview")) {
                     Icon(if (preview) Icons.Outlined.Edit else Icons.Outlined.Visibility, stringResource(if (preview) R.string.edit else R.string.preview))
                 }
@@ -289,10 +317,8 @@ fun DocumentScreen(vm: AppViewModel) {
                             modifier = Modifier.testTag("doc-delete"))
                     }
                 }
-            },
-        )
-    }) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize().imePadding()) {
+    }
+    val editorBody: @Composable ColumnScope.() -> Unit = editor@{
             // the read view shows the title and the details itself
             if (!preview) {
                 OutlinedTextField(
@@ -312,7 +338,7 @@ fun DocumentScreen(vm: AppViewModel) {
             }
             if (preview) {
                 NotePreview(vm, current, Modifier.weight(1f))
-                return@Column
+                return@editor
             }
             // the bar of tools: scrolls sideways when it does not fit
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 4.dp).testTag("doc-tools"),
@@ -336,8 +362,8 @@ fun DocumentScreen(vm: AppViewModel) {
                 style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 16.dp, bottom = 4.dp),
             )
-        }
     }
+    chrome(title, actions, { close() }, editorBody)
     when (dialog) {
         "verse" -> VerseLinkDialog(vm, study, onDismiss = { dialog = null }) { insert(it); dialog = null }
         "person" -> PickDialog(vm, "person", onDismiss = { dialog = null }) { insert(it); dialog = null }

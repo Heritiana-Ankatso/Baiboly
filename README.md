@@ -10,7 +10,7 @@ A free, silent Malagasy Bible for Android that works fully offline, built for tw
 | Mode | For | Bottom tabs | What changes |
 |---|---|---|---|
 | **Casual** (*Tsotra*) | Everyday reading | Read · Search · Library | Plain reading; Listen button if reading aloud is on |
-| **Church** (*Fiangonana*) | The service | Service · Books · Lists | Silent (no Listen), screen kept on; service list strip, large *previous / next passage* bar, *Back to my place*; selected verses go *To list* |
+| **Church** (*Fiangonana*) | The service | Service · Books · Lists | Silent (no Listen), screen kept on; service list strip (a small ＋ adds a passage), one slim *previous / next passage* row (none until there is a list), *Back to my place*; selected verses go *To list* |
 | **Study** (*Fianarana*) | Study | Read · Search · Dictionary · Map · Library | Tapping a verse number opens the original words (א / α) and the cross-references; *References* in the selection bar |
 
 **Navigation.** Standard Android patterns: a bottom navigation bar for the main pages, the chapter title opens the books (Old / New Testament tabs, then a chapter grid), the translation chip switches text, the gear opens Settings. *Library* gathers Notes, Highlights, History and Lists in tabs. Selecting verses replaces the tabs with an icon action bar (Copy, Note, Highlight, …).
@@ -44,7 +44,7 @@ A free, silent Malagasy Bible for Android that works fully offline, built for tw
 | Colours | Vellum · Purple · Olive | Slate · Paper | Sepia · Paper (true black at night) | Lapis · Purple · Olive | Navy · Paper · Sepia |
 | Type | Gentium, engraved small capitals | Phone's sans-serif, plain titles | Phone's serif, plain | Gentium, engraved | Phone's serif, headings in capitals at the left |
 | Navigation | Bottom tab bar | Floating capsule | No bars: ☰ opens one grouped menu (Bible · Study tools · My library · App) | Coloured header with tabs | ☰ side menu in navy: search, the books (testament › book › chapter), notes, highlights, history first; the mode's tools; Settings, Backup, About last |
-| Chapters | Gilt discs over the text | Floating ‹ › pill | Links after the last verse | Bottom bar ‹ chapter › | Two round white buttons at the foot |
+| Chapters | Gilt discs over the text | Floating ‹ › pill | Links after the last verse | Two small tonal squares over the text | Two round white buttons at the foot |
 | Verse actions | Bottom bar, icon + label | Floating dark toolbar | Top action bar | Panel of large tiles | Floating dark toolbar |
 | Settings (groups, each on its own page) | Rows with gilt icons | Rounded cards | Flat list with hairlines | Coloured tiles | Flat list with hairlines |
 
@@ -52,9 +52,11 @@ A free, silent Malagasy Bible for Android that works fully offline, built for tw
 
 Within a theme, the reader can also change the colour variant, the Bible typeface (classic Gentium / modern serif / sans-serif), engraved or plain titles, line spacing and text size; *Restore the original look* undoes it all.
 
-**Settings** (gear icon): theme and language at the top, then one row per group, each opening its own page: Appearance (style, colours, typeface, line spacing, verses, text size, interface size); Default Bible; Reading aloud; Backup; About. **Advanced** holds the **Tradition** choice: *Protestant* (default: 66 books, Catholic translations hidden) or *Catholic* (adds the Catholic translations and the deuterocanonical books); and **Updates**: *Check now*, *Download and install* (in the app), and *Check automatically* (off by default).
+**Settings** (gear icon): theme and language at the top, then three sections of groups, each row saying what it is set to now and opening a page that slides in from the side. *Look*: **Appearance** (style, colours, interface size, keep the screen on), **Text** (size, typeface, titles, line spacing), **Page layout** (verses and continuous reading; alignment, word breaks, paragraphs; margins). *Bible and reading*: **Bible** (the **Tradition** choice, *Protestant* by default: 66 books, Catholic translations hidden, or *Catholic*: adds the Catholic translations and the deuterocanonical books; and the default text), **Reading aids** (reading aloud, *Quick look*). *The app*: **Updates** (*Check now*, *Download and install* in the app, *Check automatically*, off by default), Backup, About. A setting with a few choices unfolds them under its row in the theme's own form, not in a pop-up of another style.
 
-**Quick look** (any mode): selecting verses shows a small card above the actions: by default the passage in another Bible (on *Automatic*: in the app's language if it differs from the Bible being read, else in the phone's language, else Malagasy, or French when reading Malagasy; or the one you choose) and the units it names, converted. Settings › Advanced › *Quick look* chooses what it shows (another Bible, units, people and events, places, confessions citing it) and which Bible; a tap opens the full Study panel at that tab.
+**Notes** (selected verses › Note, or the pencil in Church mode): a panel comes up from the foot of the screen, as Navy's menu comes in from the side, and goes back down the same way. It rests at half height, with the passage still in view and scrollable above it, or at full height; drag its grip, tap it, or use the arrows to go between half, full and away. A verse note is kept when the panel is put away (swipe down, the arrow, Back); the sermon note is saved as you type.
+
+**Quick look** (any mode): selecting verses shows a small card above the actions: by default the passage in another Bible (on *Automatic*: in the app's language if it differs from the Bible being read, else in the phone's language, else Malagasy, or French when reading Malagasy; or the one you choose) and the units it names, converted. Settings › Reading aids › *Quick look* chooses what it shows (another Bible, units, people and events, places, confessions citing it) and which Bible; a tap opens the full Study panel at that tab.
 
 **Book introductions and the storyline** (Study panel, *Introduction* tab; assets `book_intros.tsv` and `storyline.tsv`, English, written for the app): author and date, setting, outline and message of each of the 66 books, and ten stages of the one covenant of grace, citing [WCF VII] and [HC Q&A 19]. Reformed disagreements (Exodus date, Daniel 9, the millennium, Ezekiel's temple) are tagged. They are a draft for the owner to review.
 
@@ -89,7 +91,7 @@ Within a theme, the reader can also change the colour variant, the Bible typefac
 
 The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the translation menu (the chip in the top bar) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
 
-The app works fully offline. Its only internet use is **updates** (Settings › Advanced › Updates): *Check now* asks GitHub for the number of the latest version, on a tap; *Check automatically* (off by default) does the same about once a day and shows a silent notification when a new version is out, which opens these settings. *Download and install* downloads the release's APK inside the app, on a tap, checks its SHA-256, package and version, and hands it to Android's installer (REQUEST_INSTALL_PACKAGES), which asks the user to confirm; Android itself refuses an APK not signed with the app's key. Nothing about the reader is sent. No VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
+The app works fully offline. Its only internet use is **updates** (Settings › Updates): *Check now* asks GitHub for the number of the latest version, on a tap; *Check automatically* (off by default) does the same about once a day and shows a silent notification when a new version is out, which opens these settings. *Download and install* downloads the release's APK inside the app, on a tap, checks its SHA-256, package and version, and hands it to Android's installer (REQUEST_INSTALL_PACKAGES), which asks the user to confirm; Android itself refuses an APK not signed with the app's key. Nothing about the reader is sent. No VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
 
 ## Installing
 
@@ -151,7 +153,7 @@ Every source passes an automatic licence check before it is used; see [docs/data
 | 11 | Notes and highlights survive restart; tapping an entry opens it | `UiAcceptanceTest.menuNotesHighlights` |
 | 12 | Backup and restore reproduce data exactly | `DataAcceptanceTest.task12_backupRoundTrip` |
 | 13 | Study pipeline: 2 Tim 2:25 → *acknowledging* = G1922 ἐπίγνωσις; gap report | `DataAcceptanceTest.task13_studyData`, [docs/reports/lexicon_gaps.md](docs/reports/lexicon_gaps.md) |
-| — | Modes and Tradition: Church mode is silent; Catholic/Protestant under Settings › Advanced | `UiAcceptanceTest.churchModeIsSilent`, `UiAcceptanceTest.traditionInAdvancedSettings` |
+| — | Modes and Tradition: Church mode is silent; Catholic/Protestant under Settings › Bible | `UiAcceptanceTest.churchModeIsSilent`, `UiAcceptanceTest.traditionInBibleSettings` |
 | 14 | α panel, entry, Found N verses → Malagasy text with Back to my place | `UiAcceptanceTest.studyPanel` |
 | — | Malagasy interface by default; switch, live change, kept after restart | `FreshInstallTest`, `UiAcceptanceTest.malagasyInterface` |
 | — | Default Bible in one tap; each text's own chapter numbering (KJV Malachi 4) | `UiAcceptanceTest.defaultBibleAndOwnChapterNumbering` |

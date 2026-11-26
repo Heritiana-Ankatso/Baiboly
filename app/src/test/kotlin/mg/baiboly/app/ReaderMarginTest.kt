@@ -107,16 +107,13 @@ class ReaderMarginTest {
     @Test fun settingsChoicesAreInset() {
         for (i in 0 until 300) { if (vm.ready) break; pump(30) }
         vm.screen = Screen.Settings
-        vm.settingsPage = "look"
-        pump(1000)
         val view = rule.activity.window.decorView
         val minInset = 16 * rule.activity.resources.displayMetrics.density * vm.uiDensity.scale
         val bad = mutableListOf<String>()
-        // what each setting's row shows: its name, its value, its arrow
-        rule.onNode(androidx.compose.ui.test.hasTestTag("settings-list")).performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
-        rule.onNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting")).performClick()
-        pump(500)
-        for (row in listOf("settings-density", "settings-text-formatting", "settings-typesetting", "settings-font")) {
+        // what each setting's row shows: its name, its value, its arrow (each on the page of its group)
+        for ((page, row) in listOf("look" to "settings-density", "page" to "settings-typesetting", "text" to "settings-font")) {
+            vm.settingsPage = page
+            pump(1000)
             rule.onNode(androidx.compose.ui.test.hasTestTag("settings-list")).performScrollToNode(androidx.compose.ui.test.hasTestTag(row))
             pump(300)
             val inside = rule.onAllNodes(androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.hasTestTag(row)), useUnmergedTree = true)

@@ -121,7 +121,7 @@
     <string name="backup_restored">Naverina ny tahiry.</string>
     <string name="backup_failed">Tsy voavaky ity rakitra ity: %1$s</string>
 
-    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Mandeha tanteraka na tsy misy aterineto, tsy mamoaka feo ary tsy mila kaonty. Tsy mifandray amin’ny aterineto afa-tsy hijerena fanavaozana, ary raha angatahinao ihany (Fikirana › Safidy hafa).</string>
+    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Mandeha tanteraka na tsy misy aterineto, tsy mamoaka feo ary tsy mila kaonty. Tsy mifandray amin’ny aterineto afa-tsy hijerena fanavaozana, ary raha angatahinao ihany (Fikirana › Fanavaozana).</string>
     <string name="sources_licences">Soratra, angona ary fahazoan-dalana</string>
     <string name="reading_texts">Dikan-teny vakiana</string>
     <string name="study_data">Angona fandalinana</string>
@@ -228,6 +228,20 @@
     <string name="all_places">Toerana rehetra</string>
     <string name="appearance">Endrika</string>
     <string name="advanced">Safidy hafa</string>
+    <string name="settings_sec_look">Endrika</string>
+    <string name="settings_sec_bible">Baiboly sy famakiana</string>
+    <string name="settings_sec_app">Rindranasa</string>
+    <string name="settings_text">Soratra</string>
+    <string name="settings_page">Fandrafetana ny pejy</string>
+    <string name="settings_bible">Baiboly</string>
+    <string name="settings_aids">Fanampiana amin’ny famakiana</string>
+    <string name="settings_screen">Efijery</string>
+    <string name="settings_verses">Andininy</string>
+    <string name="settings_paragraphs">Fehintsoratra</string>
+    <string name="settings_page_margins">Pejy</string>
+    <string name="panel_half">Antsasa-pahavony</string>
+    <string name="panel_full">Avo tanteraka</string>
+    <string name="panel_tuck">Afeno</string>
     <string name="tradition">Fiangonana sy boky</string>
     <string name="protestant">Protestanta</string>
     <string name="catholic">Katolika</string>
@@ -315,7 +329,7 @@
     <string name="realm_hasmonean">Fanjakana hasmoneana (t. 140–37 talohan’i J.K.)</string>
     <string name="realm_herod">Fanjakan’i Heroda Lehibe</string>
     <string name="realm_rome">Faritany romana (t. 200 taorian’i J.K.)</string>
-    <!-- Update check (Settings › Advanced) -->
+    <!-- Update check (Settings › Updates) -->
     <string name="updates">Fanavaozana</string>
     <string name="update_auto">Jereo ho azy raha misy fanavaozana</string>
     <string name="update_auto_hint">Indray mandeha isan’andro eo ho eo, rehefa misy aterineto ny finday. Misy fampandrenesana rehefa mivoaka ny versiona vaovao.</string>
