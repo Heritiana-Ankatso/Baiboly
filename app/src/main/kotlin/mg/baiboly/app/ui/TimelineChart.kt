@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -136,6 +137,7 @@ private fun lanes(events: List<BibleEvent>): Pair<List<Span>, Int> {
 
 private val STEPS = intArrayOf(1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000)
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, modifier: Modifier = Modifier, extraNames: Map<String, String> = emptyMap()) {
     if (events.isEmpty() || eras.isEmpty()) return
@@ -255,7 +257,8 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
             }
         }
         // legend: identity never by colour alone
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        val outside = remember(events) { events.any { it.id < 0 } }
+        androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             SpanKind.entries.forEach { k ->
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Box(Modifier.size(width = 6.dp, height = 12.dp)
@@ -263,6 +266,12 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                     Spacer(Modifier.width(4.dp))
                     Text(stringResource(k.label), style = legendStyle, color = muted, maxLines = 1)
                 }
+            }
+            // events of church history (negative ids): a hollow ring, never a filled dot like the Bible's own
+            if (outside) Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.testTag("tl-legend-outside")) {
+                Box(Modifier.size(10.dp).border(1.5.dp, muted, androidx.compose.foundation.shape.CircleShape))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.tl_outside_bible), style = legendStyle, color = muted, maxLines = 1)
             }
         }
         val eraNames = eras.associate { it.key to (extraNames[it.key] ?: eraName(it.key)) }
@@ -404,7 +413,8 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 val strong = e.id in chapterIds
                 val r = if (strong) 5.dp.toPx() else 3.dp.toPx()
                 drawCircle(surface, r + 2f, Offset(axisX, y))
-                drawCircle(if (strong) accent else ink.copy(alpha = 0.7f), r, Offset(axisX, y))
+                if (e.id < 0) drawCircle(muted, r, Offset(axisX, y), style = androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
+                else drawCircle(if (strong) accent else ink.copy(alpha = 0.7f), r, Offset(axisX, y))
             }
             // labels in ink, a swatch for spans
             val w = (size.width - labelX - 4f).toInt().coerceAtLeast(1)
@@ -412,8 +422,10 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 val strong = e.id in chapterIds
                 val m = textCache.getOrPut("L|${e.id}|$strong|$span|$w") {
                     val years = if (span) yearsOf(e)?.let { " · " + if (it == 1) yearOne else yearsPattern.replace("999999", "$it") } ?: "" else ""
-                    measurer.measure(e.title + years, TextStyle(fontSize = 12.sp, color = if (strong) accent else ink,
-                        fontWeight = if (strong) FontWeight.SemiBold else FontWeight.Normal), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    // church history outside the Bible: muted and in italics, so it is never read as Scripture's own
+                    measurer.measure(e.title + years, TextStyle(fontSize = 12.sp, color = if (strong) accent else if (e.id < 0) muted else ink,
+                        fontWeight = if (strong) FontWeight.SemiBold else FontWeight.Normal,
+                        fontStyle = if (e.id < 0) androidx.compose.ui.text.font.FontStyle.Italic else null), maxLines = 1, overflow = TextOverflow.Ellipsis,
                         constraints = androidx.compose.ui.unit.Constraints(maxWidth = w))
                 }
                 var lx = labelX

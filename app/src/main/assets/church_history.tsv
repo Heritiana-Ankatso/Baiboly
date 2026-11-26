@@ -1,5 +1,7 @@
-# Church history after the apostles, for the timeline's "Go deeper: to today" (compiled for Baiboly from standard reference dates).
-# kind: era | point | life | period. year/end: AD. approx: 1 = "about". family: all | reformed | catholic | orthodox | madagascar.
+# Church history outside the Bible, for the timeline's "Church history (outside the Bible)": the intertestamental and apostolic
+# periods, then from the apostles to today (compiled for Baiboly from standard reference dates). New rows go at the END:
+# an event's id comes from its row, and notes may link to it.
+# kind: era | point | life | period. year/end: astronomical (AD positive; -166 is 167 BC, 0 is 1 BC). approx: 1 = "about". family: all | reformed | catholic | orthodox | madagascar.
 # weight: how early the label shows when zoomed out (higher first). title_mg may be empty (French is shown then).
 # kind	year	end	approx	family	weight	key_or_id	title_en	title_fr	title_mg
 era	100	451	0	all	0	fathers	Church Fathers	Pères de l’Église	Rain’ny Fiangonana
@@ -144,3 +146,18 @@ life	1912	1984	0	reformed	15	schaeffer	Francis Schaeffer	Francis Schaeffer
 life	1918	2018	0	all	15	graham	Billy Graham	Billy Graham
 life	1926	2020	0	reformed	15	packer	J. I. Packer	J. I. Packer
 life	1939	2017	0	reformed	15	sproul	R. C. Sproul	R. C. Sproul
+point	-331	0	0	all	30	alexander	Alexander the Great takes Judea	Alexandre le Grand prend la Judée	
+point	-249	0	1	all	35	septuagint	The Law translated into Greek (Septuagint) in Alexandria	La Loi traduite en grec (Septante) à Alexandrie	
+point	-166	0	0	all	35	maccabees	Antiochus IV defiles the temple; the Maccabean revolt	Antiochos IV profane le Temple ; révolte des Maccabées	
+point	-163	0	0	all	25	rededication	The temple rededicated (the feast of John 10:22)	Le Temple consacré de nouveau (la fête de Jean 10.22)	
+point	-62	0	0	all	30	pompey	Pompey takes Jerusalem: Judea under Rome	Pompée prend Jérusalem : la Judée sous Rome	
+point	-36	0	0	all	25	herod37	Herod the Great takes Jerusalem and reigns	Hérode le Grand prend Jérusalem et règne	
+point	-19	0	1	all	30	herodtemple	Herod begins rebuilding the temple (John 2:20)	Hérode commence à rebâtir le Temple (Jean 2.20)	
+point	62	0	0	all	20	james62	James, the Lord's brother, martyred in Jerusalem (Josephus)	Martyre de Jacques, frère du Seigneur, à Jérusalem (Josèphe)	
+point	64	0	0	all	35	nero	Fire of Rome; Nero persecutes the Christians	Incendie de Rome ; Néron persécute les chrétiens	
+point	66	0	0	all	25	revolt66	The Jewish revolt against Rome begins	Début de la révolte juive contre Rome	
+point	67	0	1	all	35	peterpaul	Peter and Paul martyred in Rome (tradition)	Martyre de Pierre et Paul à Rome (tradition)	
+point	70	0	0	all	50	jerusalem70	Titus destroys Jerusalem and the temple	Titus détruit Jérusalem et le Temple	
+point	73	0	1	all	15	masada	Masada falls	Chute de Massada	
+point	96	0	1	all	20	clement	Clement of Rome writes to the Corinthians	Clément de Rome écrit aux Corinthiens	
+point	100	0	1	all	25	john100	Death of the apostle John at Ephesus (tradition)	Mort de l’apôtre Jean à Éphèse (tradition)	

@@ -5,6 +5,13 @@
 * **New app icon** from the project's logo: an open Bible with page edges and a cross between its pages, on navy. The themed (monochrome) icon on Android 13+ and the reading-aloud status-bar icon use the same shape.
 * **Bibles in order:** every list of Bibles (translation menu, Settings › Bible and Downloads, Quick look, search, the Study panel) is grouped by language (Malagasy, French, English) and runs from the oldest to the most recent: e.g. KJV 1611, Douay-Rheims 1899, BBE 1949, WEB 2000, BSB 2018, LSV 2020. The Quick look's Bible choice has a heading per language.
 * **Smooth timeline:** the chart no longer lags while scrolling or zooming (each label's text is laid out once instead of on every frame, and the labels are ranked once). A quick swipe now carries on and slows down, as lists do; a touch stops it without opening an event.
+* **Church history outside the Bible** (Timeline, switch *Church history (outside the Bible)*, off by default, for advanced study). The former *Go deeper: to today* now also covers the time between the Testaments and the apostolic age, with what Scripture does not tell:
+  * Alexander takes Judea (332 BC), the Septuagint (about 250 BC), the Maccabean revolt (167 BC) and the rededication of the temple (164 BC);
+  * Pompey takes Jerusalem (63 BC), Herod takes it (37 BC) and begins rebuilding the temple (about 20 BC);
+  * the martyrdom of James (AD 62, Josephus), the fire of Rome and Nero's persecution (64), the Jewish revolt (66), Peter and Paul martyred (about 67, tradition), the fall of Jerusalem and the temple (70), Masada (about 73), Clement's letter (about 96), the death of John (about 100, tradition);
+  * then, as before, the Fathers, the councils, the Reformation, missions and Madagascar to today.
+
+  On the chart they are hollow rings with muted italic labels and a legend entry; in the list and on their page they are marked *Outside the Bible*. Malagasy titles of the new events fall back to French until translated.
 * Everything in 1.12.0 below (a much smaller app, optional downloads).
 
 ## Baiboly 1.12.0

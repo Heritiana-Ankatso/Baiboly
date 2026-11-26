@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.doubleClick
@@ -121,6 +123,41 @@ class HistoryToolsTest {
             councils.take(7), "the seven ecumenical councils, in order")
         assertEquals(setOf("catholic", "orthodox"), h.councils.first { it.id == "nicaea2" }.families)
         vm.changeTradition(Tradition.Protestant)
+    }
+
+    /** Church history outside the Bible: the time between the Testaments and the apostolic age, then to today. */
+    @Test fun churchHistoryOutsideTheBible() {
+        val ch = mg.baiboly.app.ui.ChurchHistory.load(rule.activity, "en")
+        fun ev(title: String) = ch.events.first { it.title.startsWith(title) }
+        // dates in the timeline's astronomical years: 63 BC is -62
+        assertEquals(-62, ev("Pompey takes Jerusalem").year)
+        assertEquals(70, ev("Titus destroys Jerusalem").year)
+        assertTrue(ev("Peter and Paul martyred").approximate)
+        assertTrue(ch.events.any { it.title == "First Council of Nicaea" && it.year == 325 })
+        // rows were added at the end: the events notes may already link to keep their ids
+        assertEquals(-8, ev("Ignatius of Antioch").id)
+        assertEquals(-15, ev("First Council of Nicaea").id)
+        assertTrue(ch.events.all { it.id < 0 })
+        // French titles; Malagasy falls back to French where none is given yet
+        assertEquals("Titus détruit Jérusalem et le Temple", mg.baiboly.app.ui.ChurchHistory.load(rule.activity, "mg").events.first { it.year == 70 }.title)
+
+        settle { vm.ready && vm.chapter != null }
+        vm.chooseUiLanguage("en")
+        vm.changeMode(AppMode.Study)
+        vm.screen = Screen.Dictionary
+        pump(1000)
+        click("dict-tool:Timeline")
+        pump(800)
+        click("tl-to-today")                       // Church history (outside the Bible)
+        rule.onNodeWithTag("tl-legend-outside", useUnmergedTree = true).assertExists()
+        click("tl-mode-list")
+        val pompey = ev("Pompey takes Jerusalem").id
+        val birth = vm.chronicle.timeline.first { it.title == "Birth of Jesus" }.id
+        rule.onNodeWithTag("timeline-search", useUnmergedTree = true).performTextInput("Pomp") // Pompey / Pompée: titles follow the Bible being read
+        pump(800)
+        rule.onNodeWithTag("event:$pompey", useUnmergedTree = true).assertExists()
+        rule.onNodeWithText("Outside the Bible", substring = true, useUnmergedTree = true).assertExists()
+        assertTrue(birth > 0)
     }
 
     @Test fun screens() {
