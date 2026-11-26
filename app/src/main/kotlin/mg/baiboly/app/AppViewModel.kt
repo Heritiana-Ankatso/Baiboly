@@ -509,7 +509,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * The shading of the passage opened (from a search, a link, the history…) is a marker, not a saved highlight.
+     * A tap on the text or a scroll puts it away (Church keeps it: it marks the service list's passage).
+     */
+    var focusDismissed by mutableStateOf(false)
+
     private fun go(loc: ReaderLocation, remember: Passage?) {
+        focusDismissed = false
         val sameChapter = chapter?.let { it.book == loc.book && it.chapter == loc.chapter && it.translation == translationId } == true
         location = loc
         persistState()

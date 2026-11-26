@@ -262,12 +262,14 @@ fun MainScreen(vm: AppViewModel) {
                     vm = vm,
                     selected = selected,
                     onVerseTap = { v ->
+                        if (!church) vm.focusDismissed = true
                         val at = vm.location.book to vm.location.chapter
                         val base = if (selectedAt == at) selected else emptySet()
                         selectedAt = at
                         selected = if (v in base) base - v else base + v
                     },
                     onNumberTap = { v ->
+                        if (!church) vm.focusDismissed = true
                         if (vm.mode == AppMode.Study) studyVerse = v
                         else {
                             val at = vm.location.book to vm.location.chapter
@@ -773,7 +775,10 @@ private fun Reader(
     LaunchedEffect(state) {
         state.interactionSource.interactions.collectLatest { i ->
             when (i) {
-                is androidx.compose.foundation.interaction.DragInteraction.Start -> onScrolling(true)
+                is androidx.compose.foundation.interaction.DragInteraction.Start -> {
+                    onScrolling(true)
+                    if (vm.mode != AppMode.Church) vm.focusDismissed = true
+                }
                 is androidx.compose.foundation.interaction.DragInteraction.Stop,
                 is androidx.compose.foundation.interaction.DragInteraction.Cancel -> {
                     snapshotFlow { state.isScrollInProgress }.first { !it }
@@ -843,7 +848,7 @@ private fun Reader(
             val hls = if (current) highlights else block?.highlights.orEmpty()
             val nts = if (current) notes else block?.notes.orEmpty()
             val sel = if (current) selected else emptySet()
-            val foc: (Int) -> Boolean = { v -> current && (focus?.contains(v) == true || reading == v) }
+            val foc: (Int) -> Boolean = { v -> current && ((!vm.focusDismissed && focus?.contains(v) == true) || reading == v) }
             // a tap in the chapter above or below makes it the chapter being read, then acts on it
             val tap: (Int) -> Unit = { v -> if (!current) vm.scrolledInto(pl.book, pl.chapter); onVerseTap(v) }
             val numberTap: (Int) -> Unit = { v -> if (!current) vm.scrolledInto(pl.book, pl.chapter); onNumberTap(v) }
