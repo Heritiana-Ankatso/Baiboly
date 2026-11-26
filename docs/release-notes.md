@@ -1,3 +1,10 @@
+## Baiboly 1.12.1
+
+**Install:** update from Settings › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights, settings and downloaded Bibles are kept. No data change: the optional downloads stay those of *data-13*.
+
+* **New app icon** from the project's logo: an open Bible with page edges and a cross between its pages, on navy. The themed (monochrome) icon on Android 13+ and the reading-aloud status-bar icon use the same shape.
+* Everything in 1.12.0 below (a much smaller app, optional downloads).
+
 ## Baiboly 1.12.0
 
 **Install:** update from Settings › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept, and so is every Bible you had already opened.

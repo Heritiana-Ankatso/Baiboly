@@ -197,6 +197,7 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages, réglages et Bibles téléchargées. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
+        <item>Nouvelle icône : une Bible ouverte avec une croix entre ses pages.</item>
         <item>L’application est beaucoup plus légère (environ 21 Mo au lieu de 118 Mo) : les mises à jour se téléchargent vite. Malagasy 1865 est toujours sur le téléphone.</item>
         <item>Les autres Bibles, le texte hébreu et grec et les commentaires ne sont téléchargés que si vous les choisissez : dans le menu des textes (marqués ⤓ avec leur taille) ou dans Réglages › Bible › Téléchargements. Chaque fichier est vérifié avant usage.</item>
         <item>Les Bibles que vous aviez déjà ouvertes restent sur le téléphone ; rien n’est à télécharger de nouveau. Une Bible jamais ouverte doit être téléchargée une fois.</item>
