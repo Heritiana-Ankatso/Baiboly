@@ -121,7 +121,7 @@
     <string name="backup_restored">Naverina ny tahiry.</string>
     <string name="backup_failed">Tsy voavaky ity rakitra ity: %1$s</string>
 
-    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Mandeha tanteraka na tsy misy aterineto, tsy mamoaka feo ary tsy mila kaonty. Tsy mifandray amin’ny aterineto afa-tsy hijerena fanavaozana, ary raha angatahinao ihany (Fikirana › Safidy hafa).</string>
+    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Mandeha tanteraka na tsy misy aterineto, tsy mamoaka feo ary tsy mila kaonty. Tsy mifandray amin’ny aterineto afa-tsy hijerena fanavaozana, ary raha angatahinao ihany (Fikirana › Fanavaozana).</string>
     <string name="sources_licences">Soratra, angona ary fahazoan-dalana</string>
     <string name="reading_texts">Dikan-teny vakiana</string>
     <string name="study_data">Angona fandalinana</string>
@@ -199,11 +199,11 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Fisafidianana andininy: ny asa efatra dia hita foana, ny hafa (Fanovozan-kevitra, Henoy, Teny) dia ao ambanin’ny “Hafa koa”; tsy mandeha mivoaka ny efijery intsony.</item>
-        <item>Lohahevitra Modern: ny bokotra toko teo aloha sy manaraka dia eo amin’ny sisin’ny tsipika ambany fa tsy mitsingevana eo ambonin’ny soratra, ary lasa kely ny tsipika.</item>
-        <item>Lohahevitra Glass: ny tsipika ambany dia tsy mamerina ny anaran’ny toko efa hita eo ambony intsony.</item>
-        <item>Endrika › Famolavolana ny soratra: ny fanamboarana tsirairay dia misy anarana sy fisafidianana mitovy sakany, ary ny sisiny dia mampiseho sary kely (tery, antonony, malalaka).</item>
-        <item>Sary famantarana vaovao: boky misokatra misy hazofijaboana eo anelanelan’ny pejiny (manga maizina sy krema), azo ampiasaina ihany koa ho sary mifanaraka amin’ny lohahevitra amin’ny Android 13 sy ny taty aoriana.</item>
+        <item>Nalamina ho pejy fohy enina ao amin’ny ampahany telo ny fikirana (Endrika, Soratra, Fandrafetana ny pejy ; Baiboly, Fanampiana amin’ny famakiana ; Fanavaozana), ary aseho isaky ny andalana ny safidiny ankehitriny. Mihisatra avy eo amin’ny sisiny ny pejy, ary mivelatra eo ambanin’ny andalana ny safidy araka ny endrik’ilay lohahevitra.</item>
+        <item>Miakatra avy eo ambany ny fanamarihana, tahaka ny menio Navy avy eo amin’ny sisiny : antsasa-pahavony mba hahitana miaraka ny andalan-tsoratra sy ny fanamarihanao, na avo tanteraka. Alefaso ambony na ambany ny tanana mba hanova ny habeny, na ambany mihitsy mba hanafenana azy. Toy izany koa ny fanamarihana ny toriteny (Fiangonana).</item>
+        <item>Mikisaka ny bokotra toko teo aloha / manaraka rehefa mamakivaky ny soratra ; mbola mifamadika toko ny fanosehana mankany amin’ny sisiny. Tsy misy tsipika ambany intsony ho an’izy ireo ao amin’ny lohahevitra Glass.</item>
+        <item>Fiangonana : bokotra ＋ kely ao amin’ny lisitra no manampy andalan-tsoratra, ary lafi-kely kokoa ny andalana teo aloha / manaraka.</item>
+        <item>Miala ny loko eo amin’ny andalan-tsoratra nosokafana rehefa tsindriana na hodinihina. Mifanaraka amin’ny lohahevitra ny menio miseho.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -228,6 +228,20 @@
     <string name="all_places">Toerana rehetra</string>
     <string name="appearance">Endrika</string>
     <string name="advanced">Safidy hafa</string>
+    <string name="settings_sec_look">Endrika</string>
+    <string name="settings_sec_bible">Baiboly sy famakiana</string>
+    <string name="settings_sec_app">Rindran’asa</string>
+    <string name="settings_text">Soratra</string>
+    <string name="settings_page">Fandrafetana ny pejy</string>
+    <string name="settings_bible">Baiboly</string>
+    <string name="settings_aids">Fanampiana amin’ny famakiana</string>
+    <string name="settings_screen">Efijery</string>
+    <string name="settings_verses">Andininy</string>
+    <string name="settings_paragraphs">Fehintsoratra</string>
+    <string name="settings_page_margins">Pejy</string>
+    <string name="panel_half">Antsasa-pahavony</string>
+    <string name="panel_full">Avo tanteraka</string>
+    <string name="panel_tuck">Afeno</string>
     <string name="tradition">Fiangonana sy boky</string>
     <string name="protestant">Protestanta</string>
     <string name="catholic">Katolika</string>
@@ -315,7 +329,7 @@
     <string name="realm_hasmonean">Fanjakana hasmoneana (t. 140–37 talohan’i J.K.)</string>
     <string name="realm_herod">Fanjakan’i Heroda Lehibe</string>
     <string name="realm_rome">Faritany romana (t. 200 taorian’i J.K.)</string>
-    <!-- Update check (Settings › Advanced) -->
+    <!-- Update check (Settings › Updates) -->
     <string name="updates">Fanavaozana</string>
     <string name="update_auto">Jereo ho azy raha misy fanavaozana</string>
     <string name="update_auto_hint">Indray mandeha isan’andro eo ho eo, rehefa misy aterineto ny finday. Misy fampandrenesana rehefa mivoaka ny versiona vaovao.</string>

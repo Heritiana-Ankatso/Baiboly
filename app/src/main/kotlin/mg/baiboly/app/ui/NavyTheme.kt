@@ -201,7 +201,8 @@ private fun NavyMenu(vm: AppViewModel, close: () -> Unit) {
             if (openTestament == t) {
                 val books = vm.availableBooks.map { Canon.book(it) }.filter { it.isOldTestament == (t == 0) }
                 item(key = "books$t") {
-                    FlowRow(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    // what unfolds fades in and what is below it slides down, instead of everything jumping
+                    FlowRow(Modifier.animateItem().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         books.forEach { b ->
                             val on = openBook == b.id
@@ -217,7 +218,7 @@ private fun NavyMenu(vm: AppViewModel, close: () -> Unit) {
                 }
                 openBook?.takeIf { id -> books.any { it.id == id } }?.let { id ->
                     item(key = "chapters$id") {
-                        Column(Modifier.padding(horizontal = 16.dp)) {
+                        Column(Modifier.animateItem().padding(horizontal = 16.dp)) {
                             Text(Canon.book(id).name(lang), style = MaterialTheme.typography.titleSmall, color = OnNavy, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 (1..vm.chapterCount(id)).forEach { c ->
@@ -237,6 +238,7 @@ private fun NavyMenu(vm: AppViewModel, close: () -> Unit) {
         val groups = listOf(first, tools, app).filter { it.isNotEmpty() }
         groups.forEachIndexed { gi, group ->
             item(key = "g$gi") {
+              Column(Modifier.animateItem()) {
                 HorizontalDivider(Modifier.padding(top = 8.dp), color = NavyRule)
                 group.forEach { e ->
                     Row(
@@ -248,6 +250,7 @@ private fun NavyMenu(vm: AppViewModel, close: () -> Unit) {
                         Text(stringResource(e.label), style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.Normal), color = OnNavy)
                     }
                 }
+              }
             }
         }
         item { Spacer(Modifier.heightIn(min = 32.dp)) }

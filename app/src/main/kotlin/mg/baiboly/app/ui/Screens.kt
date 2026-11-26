@@ -1,6 +1,20 @@
 package mg.baiboly.app.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.material.icons.outlined.SystemUpdate
+import androidx.compose.material.icons.outlined.TextFields
+import androidx.compose.material.icons.outlined.ViewAgenda
+import androidx.compose.ui.draw.rotate
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -487,76 +501,110 @@ fun SavedListsScreen(vm: AppViewModel) {
 // ---------------------------------------------------------------- settings
 
 /** A group of settings, on its own page; the Settings page lists the groups (every theme). */
-private class SettingsGroup(val key: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val title: String, val content: @Composable () -> Unit)
+private class SettingsGroup(
+    val key: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val title: String,
+    val summary: String,
+    val content: @Composable () -> Unit,
+)
+
+/** The three sections of the Settings list: the look, the Bible and how it is read, the app itself. */
+private class SettingsSection(val title: String, val groups: List<SettingsGroup>)
 
 /**
- * Settings: the light / dark theme and the interface language (changed most often) at the top,
- * then one row per group; each group opens its own page. Every theme works this way, each with
- * its own form of row (it used to be only Stained glass; the other themes showed every setting
- * on one long page).
+ * Settings: the light / dark theme and the interface language (changed most often) at the top, then the
+ * groups in three sections, each row saying what it is set to now; a group opens on its own page that slides in
+ * from the side. Each page holds a handful of related settings, so none is a lone switch and none is a long
+ * list of everything: Appearance (theme, colours, screen), Text (size, typeface, titles, line spacing),
+ * Page layout (verses, alignment, margins), Bible (tradition, default text), Reading aids (reading aloud,
+ * quick look), Updates.
  */
 @Composable
 fun SettingsScreen(vm: AppViewModel) {
-    // opened from the "new version" notification: straight to Advanced (Updates)
+    // opened from the "new version" notification: straight to Updates
     LaunchedEffect(vm.openUpdateSettings) {
-        if (vm.openUpdateSettings) { vm.settingsPage = "advanced"; vm.openUpdateSettings = false }
+        if (vm.openUpdateSettings) { vm.settingsPage = "updates"; vm.openUpdateSettings = false }
     }
     // the next visit starts again at the list of groups
     androidx.compose.runtime.DisposableEffect(Unit) { onDispose { vm.settingsPage = null } }
-    val groups = listOf(
-        SettingsGroup("look", Icons.Outlined.Palette, stringResource(R.string.appearance)) { AppearanceSettings(vm) },
-        SettingsGroup("bible", Icons.Outlined.AutoStories, stringResource(R.string.default_bible)) { DefaultBibleSettings(vm) },
-        SettingsGroup("audio", Icons.Outlined.Headphones, stringResource(R.string.read_aloud)) { ReadAloudSettings(vm) },
+    val defaultBible = vm.translations.firstOrNull { it.id == vm.defaultTranslationId }?.shortName.orEmpty()
+    val sections = listOf(
+        SettingsSection(
+            stringResource(R.string.settings_sec_look),
+            listOf(
+                SettingsGroup("look", Icons.Outlined.Palette, stringResource(R.string.appearance),
+                    vm.style.label() + " · " + vm.palette.label()) { AppearanceSettings(vm) },
+                SettingsGroup("text", Icons.Outlined.TextFields, stringResource(R.string.settings_text),
+                    listOf("${vm.textSize.toInt()}", stringResource(textFontName(vm.textFont))).joinToString(" · ")) { TextSettings(vm) },
+                SettingsGroup("page", Icons.Outlined.ViewAgenda, stringResource(R.string.settings_page),
+                    textFormattingSummary(vm)) { PageLayoutSettings(vm) },
+            ),
+        ),
+        SettingsSection(
+            stringResource(R.string.settings_sec_bible),
+            listOf(
+                SettingsGroup("bible", Icons.Outlined.AutoStories, stringResource(R.string.settings_bible),
+                    listOf(defaultBible, stringResource(if (vm.tradition == Tradition.Protestant) R.string.protestant else R.string.catholic))
+                        .filter { it.isNotEmpty() }.joinToString(" · ")) { BibleSettings(vm) },
+                SettingsGroup("aids", Icons.Outlined.Headphones, stringResource(R.string.settings_aids),
+                    listOfNotNull(
+                        if (vm.readAloudEnabled) stringResource(R.string.read_aloud) else null,
+                        if (vm.quickLookItems.isNotEmpty()) stringResource(R.string.ql_title) else null,
+                    ).joinToString(" · ")) { AidsSettings(vm) },
+            ),
+        ),
+        SettingsSection(
+            stringResource(R.string.settings_sec_app),
+            listOf(
+                SettingsGroup("updates", Icons.Outlined.SystemUpdate, stringResource(R.string.updates),
+                    stringResource(R.string.version_x, vm.versionName)) { UpdateSettings(vm) },
+            ),
+        ),
     )
-    val traditionContent: @Composable () -> Unit = {
-        Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-            ChoiceRow(
-                label = stringResource(R.string.tradition),
-                options = listOf(Tradition.Protestant to stringResource(R.string.protestant), Tradition.Catholic to stringResource(R.string.catholic)),
-                selected = vm.tradition,
-                tag = "settings-tradition",
-            ) { vm.changeTradition(it) }
-            Text(stringResource(R.string.tradition_hint), style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 6.dp))
-        }
-    }
+    val groups = sections.flatMap { it.groups }
     val current = vm.settingsPage
     androidx.activity.compose.BackHandler(enabled = current != null) { vm.settingsPage = null }
     val title = when (current) {
         null -> stringResource(R.string.settings)
-        "advanced" -> stringResource(R.string.advanced)
         else -> groups.firstOrNull { it.key == current }?.title ?: stringResource(R.string.settings)
     }
     SubScreen(vm, title, onBack = if (current != null) ({ vm.settingsPage = null }) else null) { padding ->
-        Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
-            when (current) {
-                null -> {
+        // a group slides in from the side and back out again: where it came from, and how to go back
+        AnimatedContent(
+            targetState = current,
+            transitionSpec = {
+                val into = targetState != null
+                val tweenIn = tween<androidx.compose.ui.unit.IntOffset>(260, easing = FastOutSlowInEasing)
+                (slideInHorizontally(tweenIn) { if (into) it / 5 else -it / 5 } + fadeIn(tween(260))) togetherWith
+                    (slideOutHorizontally(tweenIn) { if (into) -it / 5 else it / 5 } + fadeOut(tween(140)))
+            },
+            label = "settings-page",
+        ) { page ->
+            Column(Modifier.padding(padding).testTag("settings-list").verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
+                if (page == null) {
                     QuickSettings(vm, "settings")
-                    Spacer(Modifier.height(8.dp))
-                    groups.forEach { g -> SettingsLink(g.icon, g.title, "settings-cat:${g.key}") { vm.settingsPage = g.key } }
+                    sections.forEach { sec ->
+                        SettingsHeading(sec.title)
+                        sec.groups.forEach { g -> SettingsLink(g.icon, g.title, "settings-cat:${g.key}", g.summary) { vm.settingsPage = g.key } }
+                    }
                     SettingsLink(Icons.Outlined.SettingsBackupRestore, stringResource(R.string.backup), "settings-backup") { vm.screen = Screen.Backup }
                     SettingsLink(Icons.Outlined.Info, stringResource(R.string.about), "settings-about") { vm.screen = Screen.About }
-                    // rarely changed: kept out of the way
-                    SettingsLink(Icons.Outlined.MoreHoriz, stringResource(R.string.advanced), "settings-advanced") { vm.settingsPage = "advanced" }
-                }
-                "advanced" -> {
-                    Collapsible(stringResource(R.string.tradition), "advanced-tradition", initiallyOpen = true, horizontal = 20.dp,
-                        detail = stringResource(if (vm.tradition == Tradition.Protestant) R.string.protestant else R.string.catholic)) { traditionContent() }
-                    Collapsible(stringResource(R.string.ql_title), "advanced-quick-look", horizontal = 20.dp) { QuickLookSettings(vm) }
-                    Collapsible(stringResource(R.string.updates), "advanced-updates", horizontal = 20.dp) { UpdateSettings(vm) }
-                }
-                else -> groups.firstOrNull { it.key == current }?.content?.invoke()
+                } else groups.firstOrNull { it.key == page }?.content?.invoke()
+                Spacer(Modifier.height(16.dp))
             }
-            Spacer(Modifier.height(16.dp))
         }
     }
 }
 
-/**
- * Appearance: the theme and its colours, then what the text looks like (a live sample with its size),
- * then one row per setting showing its current value; a tap opens the few choices. Every choice
- * spelled out as a row of buttons filled the screen with ~20 buttons (reported).
- */
+@Composable
+private fun textFontName(f: TextFont): Int = when (f) {
+    TextFont.Classic -> R.string.font_classic
+    TextFont.Modern -> R.string.font_modern
+    TextFont.Sans -> R.string.font_sans
+}
+
+/** Appearance: the theme and its colours, then the screen itself (size of the interface, kept awake). */
 @Composable
 private fun AppearanceSettings(vm: AppViewModel) {
     val scheme = MaterialTheme.colorScheme
@@ -566,47 +614,8 @@ private fun AppearanceSettings(vm: AppViewModel) {
         StylePicker(vm)
         PalettePicker(vm)
 
-        // the text as it will read, and its size, together
-        SettingsHeading(stringResource(R.string.text_size))
-        val sample = vm.textSize * LocalTextScale.current
-        Surface(
-            shape = RoundedCornerShape(14.dp), color = scheme.surfaceContainerLow,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).testTag("settings-sample"),
-        ) {
-            Text(stringResource(R.string.sample_text), fontSize = sample.sp, lineHeight = (sample * LocalReading.current.lineSpacing).sp,
-                fontFamily = TextSerif, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp))
-        }
-        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("A", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
-            Slider(
-                value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = mg.baiboly.app.MIN_TEXT..40f, steps = 14,
-                // the 15 stops still snap, without a row of dots
-                colors = androidx.compose.material3.SliderDefaults.colors(activeTickColor = Color.Transparent, inactiveTickColor = Color.Transparent),
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp).testTag("settings-text-size"),
-            )
-            Text("A", style = MaterialTheme.typography.titleLarge, color = scheme.onSurfaceVariant)
-        }
-
-        SettingsHeading(stringResource(R.string.appearance))
-        SettingRow(
-            label = stringResource(R.string.text_font),
-            options = listOf(
-                TextFont.Classic to stringResource(R.string.font_classic),
-                TextFont.Modern to stringResource(R.string.font_modern),
-                TextFont.Sans to stringResource(R.string.font_sans),
-            ),
-            selected = vm.textFont, tag = "settings-font",
-        ) { vm.changeTextFont(it) }
-        SettingRow(
-            label = stringResource(R.string.titles),
-            options = listOf(true to stringResource(R.string.titles_engraved), false to stringResource(R.string.titles_plain)),
-            selected = vm.engravedTitles, tag = "settings-titles",
-        ) { vm.changeEngravedTitles(it) }
-        // how the text is set on the page, in one group that unfolds: layout, flow, alignment, word breaks, spacing
-        Collapsible(stringResource(R.string.text_formatting), "settings-text-formatting", horizontal = 20.dp,
-            detail = textFormattingSummary(vm)) { TextFormattingSettings(vm) }
-        // the size of everything else: bars, buttons, lists
+        SettingsHeading(stringResource(R.string.settings_screen))
+        // the size of everything but the Bible text: bars, buttons, lists
         SettingRow(
             label = stringResource(R.string.ui_density),
             options = listOf(mg.baiboly.app.UiDensity.Compact to stringResource(R.string.ui_compact), mg.baiboly.app.UiDensity.Normal to stringResource(R.string.ui_normal)),
@@ -629,6 +638,61 @@ private fun AppearanceSettings(vm: AppViewModel) {
     }
 }
 
+/**
+ * Text: the text as it will read (a live sample) with its size, then its typeface, its titles and the
+ * line spacing: what the letters look like. How they are set on the page is Page layout.
+ */
+@Composable
+private fun TextSettings(vm: AppViewModel) {
+    val scheme = MaterialTheme.colorScheme
+    Column {
+        val sample = vm.textSize * LocalTextScale.current
+        Surface(
+            shape = RoundedCornerShape(14.dp), color = scheme.surfaceContainerLow,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp).testTag("settings-sample"),
+        ) {
+            Text(stringResource(R.string.sample_text), fontSize = sample.sp, lineHeight = (sample * LocalReading.current.lineSpacing).sp,
+                fontFamily = TextSerif, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp))
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("A", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+            Slider(
+                value = vm.textSize, onValueChange = { vm.changeTextSize(it) }, valueRange = mg.baiboly.app.MIN_TEXT..40f, steps = 14,
+                // the 15 stops still snap, without a row of dots
+                colors = androidx.compose.material3.SliderDefaults.colors(activeTickColor = Color.Transparent, inactiveTickColor = Color.Transparent),
+                modifier = Modifier.weight(1f).padding(horizontal = 8.dp).testTag("settings-text-size"),
+            )
+            Text("A", style = MaterialTheme.typography.titleLarge, color = scheme.onSurfaceVariant)
+        }
+        SettingRow(
+            label = stringResource(R.string.text_font),
+            options = listOf(
+                TextFont.Classic to stringResource(R.string.font_classic),
+                TextFont.Modern to stringResource(R.string.font_modern),
+                TextFont.Sans to stringResource(R.string.font_sans),
+            ),
+            selected = vm.textFont, tag = "settings-font",
+        ) { vm.changeTextFont(it) }
+        SettingRow(
+            label = stringResource(R.string.titles),
+            options = listOf(true to stringResource(R.string.titles_engraved), false to stringResource(R.string.titles_plain)),
+            selected = vm.engravedTitles, tag = "settings-titles",
+        ) { vm.changeEngravedTitles(it) }
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
+            IconChoiceRow(
+                label = stringResource(R.string.line_spacing),
+                options = listOf(
+                    Triple(LineSpacing.Compact, Icons.Filled.DensitySmall, stringResource(R.string.spacing_compact)),
+                    Triple(LineSpacing.Normal, Icons.Filled.DensityMedium, stringResource(R.string.spacing_normal)),
+                    Triple(LineSpacing.Airy, Icons.Filled.DensityLarge, stringResource(R.string.spacing_airy)),
+                ),
+                selected = vm.lineSpacing, tag = "settings-spacing",
+            ) { vm.changeLineSpacing(it) }
+        }
+    }
+}
+
 @Composable
 private fun SettingsHeading(text: String) {
     Text(text, style = MaterialTheme.typography.labelLarge, color = LocalOrnament.current.rubric,
@@ -636,15 +700,17 @@ private fun SettingsHeading(text: String) {
 }
 
 /**
- * One setting as one row: its name, its current value under it, and a menu of the choices on a tap
- * (the usual Android list setting). The row is tagged [tag], each choice "[tag]:value".
+ * One setting as one row: its name, its current value under it. A tap unfolds the choices right under the row,
+ * in the theme's own form of choice (see [ChoiceRow]), and a choice folds them again: nothing pops up in a
+ * window of its own in another style. The row is tagged [tag], each choice "[tag]:value".
  */
 @Composable
 fun <T> SettingRow(label: String, options: List<Pair<T, String>>, selected: T, tag: String, onSelect: (T) -> Unit) {
     var open by remember { mutableStateOf(false) }
-    Box(Modifier.fillMaxWidth()) {
+    val turn by androidx.compose.animation.core.animateFloatAsState(if (open) 180f else 0f, label = "setting-chevron")
+    Column(Modifier.fillMaxWidth().animateContentSize()) {
         Row(
-            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { open = true }
+            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { open = !open }
                 .padding(horizontal = 20.dp, vertical = 8.dp).testTag(tag),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -653,20 +719,31 @@ fun <T> SettingRow(label: String, options: List<Pair<T, String>>, selected: T, t
                 Text(options.firstOrNull { it.first == selected }?.second.orEmpty(), style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary)
             }
-            Icon(Icons.Filled.KeyboardArrowDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(Icons.Filled.KeyboardArrowDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.rotate(turn))
         }
-        androidx.compose.material3.DropdownMenu(expanded = open, onDismissRequest = { open = false },
-            offset = androidx.compose.ui.unit.DpOffset(20.dp, 0.dp)) {
-            options.forEach { (value, text) ->
-                androidx.compose.material3.DropdownMenuItem(
-                    text = { Text(text, fontWeight = if (value == selected) FontWeight.Bold else FontWeight.Normal) },
-                    leadingIcon = { if (value == selected) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },
-                    onClick = { onSelect(value); open = false },
-                    modifier = Modifier.heightIn(min = 48.dp).testTag("$tag:$value"),
-                )
+        AnimatedVisibility(open) {
+            Box(Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp)) {
+                ChoiceRow(label = "", options = options, selected = selected, tag = tag) { onSelect(it); open = false }
             }
         }
     }
+}
+
+/** Bible: which tradition's books and translations are offered, then the text the app opens with. */
+@Composable
+private fun BibleSettings(vm: AppViewModel) {
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+        ChoiceRow(
+            label = stringResource(R.string.tradition),
+            options = listOf(Tradition.Protestant to stringResource(R.string.protestant), Tradition.Catholic to stringResource(R.string.catholic)),
+            selected = vm.tradition,
+            tag = "settings-tradition",
+        ) { vm.changeTradition(it) }
+        Text(stringResource(R.string.tradition_hint), style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp))
+    }
+    SettingsHeading(stringResource(R.string.default_bible))
+    DefaultBibleSettings(vm)
 }
 
 @Composable
@@ -754,7 +831,15 @@ fun Palette.label(): String = stringResource(
 
 /** A row that opens another page (or a group), in the theme's form. */
 @Composable
-private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, tag: String, onClick: () -> Unit) {
+private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, tag: String, summary: String? = null, onClick: () -> Unit) {
+    // the name, and under it what it is set to now
+    val label: @Composable (androidx.compose.ui.text.TextStyle, Modifier) -> Unit = { style, mod ->
+        Column(mod) {
+            Text(title, style = style)
+            if (!summary.isNullOrEmpty()) Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1,
+                overflow = TextOverflow.Ellipsis)
+        }
+    }
     when (LocalStyle.current) {
         mg.baiboly.app.Style.Glass -> Surface(
             onClick = onClick, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -765,7 +850,7 @@ private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, 
                     Icon(icon, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(22.dp))
                 }
                 Spacer(Modifier.width(14.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                label(MaterialTheme.typography.titleMedium, Modifier.weight(1f))
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -778,19 +863,19 @@ private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, 
                     Icon(icon, null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(20.dp))
                 }
                 Spacer(Modifier.width(12.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), modifier = Modifier.weight(1f))
+                label(MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), Modifier.weight(1f))
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         else -> {
             val page = LocalStyle.current == mg.baiboly.app.Style.Page || LocalStyle.current == mg.baiboly.app.Style.Navy
             Row(
-                Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onClick).testTag(tag).padding(horizontal = 20.dp),
+                Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable(onClick = onClick).testTag(tag).padding(horizontal = 20.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(icon, null, tint = if (page) MaterialTheme.colorScheme.onSurfaceVariant else LocalOrnament.current.gold, modifier = Modifier.size(22.dp))
                 Spacer(Modifier.width(if (page) 18.dp else 12.dp))
-                Text(title, style = if (page) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                label(if (page) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.titleMedium, Modifier.weight(1f))
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (page) HorizontalDivider(Modifier.padding(start = 60.dp), color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
@@ -825,11 +910,6 @@ private fun ReadAloudSettings(vm: AppViewModel) {
     }
 }
 
-/**
- * Updates (in Advanced): the only part of the app that goes online. "Check now"
- * runs on a tap; the switch (off by default) checks about once a day and shows
- * a silent notification when a new version is out.
- */
 /** One line saying how the text is set now: "Paragraphs · continuous · justified". */
 @Composable
 private fun textFormattingSummary(vm: AppViewModel): String = listOf(
@@ -838,11 +918,16 @@ private fun textFormattingSummary(vm: AppViewModel): String = listOf(
     stringResource(if (vm.justify) R.string.align_justify else R.string.align_left),
 ).joinToString(" · ")
 
-/** Text formatting: verse layout, continuous reading, alignment (with the usual icons), word breaks, paragraphs, margins, spacing. */
+/**
+ * Page layout: how the text is set on the page, in three short groups: the verses (lines or paragraphs, and whether
+ * the text runs on from chapter to chapter), the paragraphs (alignment, word breaks, how one begins), the page (margins).
+ */
 @Composable
-private fun TextFormattingSettings(vm: AppViewModel) {
+private fun PageLayoutSettings(vm: AppViewModel) {
     val scheme = MaterialTheme.colorScheme
-    Column(Modifier.padding(horizontal = 20.dp, vertical = 4.dp).testTag("settings-typesetting"), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(Modifier.testTag("settings-typesetting")) {
+    SettingsHeading(stringResource(R.string.settings_verses))
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         IconChoiceRow(
             label = stringResource(R.string.verse_layout),
             options = listOf(
@@ -861,6 +946,9 @@ private fun TextFormattingSettings(vm: AppViewModel) {
             }
             androidx.compose.material3.Switch(checked = vm.continuousReading, onCheckedChange = null)
         }
+    }
+    SettingsHeading(stringResource(R.string.settings_paragraphs))
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(stringResource(R.string.typesetting_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
         IconChoiceRow(
             label = stringResource(R.string.text_align),
@@ -886,6 +974,9 @@ private fun TextFormattingSettings(vm: AppViewModel) {
             ),
             selected = vm.paragraphBreak, tag = "settings-paragraph-break",
         ) { vm.changeParagraphBreak(it) }
+    }
+    SettingsHeading(stringResource(R.string.settings_page_margins))
+    Column(Modifier.padding(horizontal = 20.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SegmentedChoiceRow(
             label = stringResource(R.string.margins),
             options = listOf(
@@ -895,16 +986,16 @@ private fun TextFormattingSettings(vm: AppViewModel) {
             ),
             selected = vm.pageMargin, tag = "settings-margins",
         ) { vm.changePageMargin(it) }
-        IconChoiceRow(
-            label = stringResource(R.string.line_spacing),
-            options = listOf(
-                Triple(LineSpacing.Compact, Icons.Filled.DensitySmall, stringResource(R.string.spacing_compact)),
-                Triple(LineSpacing.Normal, Icons.Filled.DensityMedium, stringResource(R.string.spacing_normal)),
-                Triple(LineSpacing.Airy, Icons.Filled.DensityLarge, stringResource(R.string.spacing_airy)),
-            ),
-            selected = vm.lineSpacing, tag = "settings-spacing",
-        ) { vm.changeLineSpacing(it) }
     }
+    }
+}
+
+/** Reading aids: reading aloud, and what the quick look shows with selected verses. */
+@Composable
+private fun AidsSettings(vm: AppViewModel) {
+    ReadAloudSettings(vm)
+    HorizontalDivider(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
+    QuickLookSettings(vm)
 }
 
 /** One choice of a [SegmentedChoiceRow]: its value, the word under it and the drawing above it (tinted with the colour given). */
@@ -965,12 +1056,15 @@ private fun MarginGlyph(inset: Float, color: Color) {
     }
 }
 
+/**
+ * Updates: the only part of the app that goes online. "Check now" runs on a tap; the switch (off by
+ * default) checks about once a day and shows a silent notification when a new version is out.
+ */
 @Composable
 private fun UpdateSettings(vm: AppViewModel) {
     val ctx = LocalContext.current
     val notifPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp).testTag("settings-updates")) {
-        Text(stringResource(R.string.updates), style = MaterialTheme.typography.titleMedium)
         Row(
             Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable {
                 val on = !vm.updateAuto
@@ -1151,7 +1245,7 @@ fun AboutScreen(vm: AppViewModel) {
     }
 }
 
-/** Settings, Advanced: what the quick look shows with selected verses, and in which Bible. */
+/** Settings, Reading aids: what the quick look shows with selected verses, and in which Bible. */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun QuickLookSettings(vm: AppViewModel) {

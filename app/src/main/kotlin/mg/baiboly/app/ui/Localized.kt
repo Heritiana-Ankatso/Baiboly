@@ -6,7 +6,14 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
+import mg.baiboly.app.Style
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -73,7 +80,22 @@ fun LocalizedMenu(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest, modifier = modifier) {
+    // the menu is drawn in the theme's own manner (corners, ground, edge), not in stock Material
+    val scheme = MaterialTheme.colorScheme
+    val ground: Color
+    val edge: BorderStroke?
+    val corners: Shape
+    when (LocalStyle.current) {
+        Style.Manuscript -> { corners = RoundedCornerShape(6.dp); ground = scheme.surface; edge = BorderStroke(1.dp, LocalOrnament.current.gold.copy(alpha = 0.8f)) }
+        Style.Modern -> { corners = RoundedCornerShape(20.dp); ground = scheme.surfaceContainerHigh; edge = null }
+        Style.Page -> { corners = RoundedCornerShape(2.dp); ground = scheme.surface; edge = BorderStroke(0.5.dp, scheme.outline) }
+        Style.Glass -> { corners = MaterialTheme.shapes.medium; ground = scheme.surfaceContainerHigh; edge = null }
+        Style.Navy -> { corners = RoundedCornerShape(12.dp); ground = scheme.surface; edge = BorderStroke(1.dp, scheme.outlineVariant) }
+    }
+    DropdownMenu(
+        expanded = expanded, onDismissRequest = onDismissRequest, modifier = modifier,
+        shape = corners, containerColor = ground, border = edge,
+    ) {
         val scope = this
         Localized { scope.content() }
     }

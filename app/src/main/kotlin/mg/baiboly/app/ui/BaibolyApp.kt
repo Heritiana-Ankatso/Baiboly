@@ -1,6 +1,16 @@
 package mg.baiboly.app.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -65,37 +75,65 @@ private fun AppContent(vm: AppViewModel) {
     }
 }
 
+/** How deep a page is: the reader at the surface, the main pages one level down, Settings and the like below them. */
+private fun Screen.depth(): Int = when (this) {
+    Screen.Main -> 0
+    Screen.Settings, Screen.About, Screen.Backup, Screen.Document -> 2
+    else -> 1
+}
+
 @Composable
 private fun AppFrame(vm: AppViewModel) {
-            Surface(Modifier.fillMaxSize()) {
-                // Back leads home to the reader (Page: to its menu first); from the reader it leaves the app.
-                BackHandler(enabled = vm.screen != Screen.Main) { vm.screen = backTarget(vm) }
-                Column(Modifier.fillMaxSize()) {
-                    Box(Modifier.weight(1f).fillMaxWidth()) {
-                        when (vm.screen) {
-                            Screen.Main -> MainScreen(vm)
-                            Screen.History -> HistoryScreen(vm)
-                            Screen.Notes -> NotesScreen(vm)
-                            Screen.Highlights -> HighlightsScreen(vm)
-                            Screen.Search -> SearchScreen(vm)
-                            Screen.Lists -> SavedListsScreen(vm)
-                            Screen.Settings -> SettingsScreen(vm)
-                            Screen.About -> AboutScreen(vm)
-                            Screen.Backup -> BackupScreen(vm)
-                            Screen.Dictionary -> DictionaryScreen(vm)
-                            Screen.Map -> MapScreen(vm)
-                            Screen.Books -> BooksScreen(vm)
-                            Screen.Library -> LibraryScreen(vm)
-                            Screen.Menu -> PageMenuScreen(vm)
-                            Screen.Documents -> DocumentsScreen(vm)
-                            Screen.Document -> DocumentScreen(vm)
+    // a note docked under the reader belongs to the reader: leaving for another page puts it away
+    LaunchedEffect(vm.screen) { if (vm.screen != Screen.Main && vm.documentDocked) vm.closeDocument() }
+    Surface(Modifier.fillMaxSize()) {
+        // Back leads home to the reader (Page: to its menu first); from the reader it leaves the app.
+        BackHandler(enabled = vm.screen != Screen.Main) { vm.screen = backTarget(vm) }
+        Column(Modifier.fillMaxSize()) {
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                // pages do not swap at once: going deeper slides in from the side, coming back slides out the
+                // other way, and the main pages fade into one another, so the move shows where it went
+                AnimatedContent(
+                    targetState = vm.screen,
+                    modifier = Modifier.fillMaxSize(),
+                    transitionSpec = {
+                        val step = targetState.depth() - initialState.depth()
+                        val move = tween<IntOffset>(260, easing = FastOutSlowInEasing)
+                        when {
+                            step > 0 -> (slideInHorizontally(move) { it / 6 } + fadeIn(tween(260))) togetherWith
+                                (slideOutHorizontally(move) { -it / 6 } + fadeOut(tween(140)))
+                            step < 0 -> (slideInHorizontally(move) { -it / 6 } + fadeIn(tween(260))) togetherWith
+                                (slideOutHorizontally(move) { it / 6 } + fadeOut(tween(140)))
+                            else -> fadeIn(tween(220)) togetherWith fadeOut(tween(120))
                         }
+                    },
+                    label = "page",
+                ) { screen ->
+                    when (screen) {
+                        Screen.Main -> MainScreen(vm)
+                        Screen.History -> HistoryScreen(vm)
+                        Screen.Notes -> NotesScreen(vm)
+                        Screen.Highlights -> HighlightsScreen(vm)
+                        Screen.Search -> SearchScreen(vm)
+                        Screen.Lists -> SavedListsScreen(vm)
+                        Screen.Settings -> SettingsScreen(vm)
+                        Screen.About -> AboutScreen(vm)
+                        Screen.Backup -> BackupScreen(vm)
+                        Screen.Dictionary -> DictionaryScreen(vm)
+                        Screen.Map -> MapScreen(vm)
+                        Screen.Books -> BooksScreen(vm)
+                        Screen.Library -> LibraryScreen(vm)
+                        Screen.Menu -> PageMenuScreen(vm)
+                        Screen.Documents -> DocumentsScreen(vm)
+                        Screen.Document -> DocumentScreen(vm)
                     }
-                    // the mode's main pages, one tap away (not over the full-screen map)
-                    val fullMap = vm.screen == Screen.Map && vm.mapFullscreen
-                    if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive && !fullMap) StyledNavigation(vm)
                 }
             }
+            // the mode's main pages, one tap away (not over the full-screen map)
+            val fullMap = vm.screen == Screen.Map && vm.mapFullscreen
+            if (isTopLevel(vm.style, vm.mode, vm.screen) && !vm.selectionActive && !fullMap) StyledNavigation(vm)
+        }
+    }
 }
 
 /** Where Back goes: the reader, or in the Page theme the menu the page was opened from. */

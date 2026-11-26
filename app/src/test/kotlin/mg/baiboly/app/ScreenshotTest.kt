@@ -290,12 +290,10 @@ class ScreenshotTest {
         rule.onNodeWithTag("tl-mode-list", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
         pump(1500)
         shot("h7-timeline-list-by-era")
-        // text formatting, in one group with the usual icons
+        // page layout, in its own group with the usual icons
         vm.screen = Screen.Settings
-        vm.settingsPage = "look"
+        vm.settingsPage = "page"
         settle()
-        rule.onNodeWithTag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
-        rule.onNodeWithTag("settings-text-formatting", useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
         pump(800)
         rule.onNodeWithTag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-justify:true"))
         pump(400)

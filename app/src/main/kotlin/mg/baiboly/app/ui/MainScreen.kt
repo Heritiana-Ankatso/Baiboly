@@ -1,6 +1,14 @@
 package mg.baiboly.app.ui
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -122,6 +130,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.Style
@@ -155,6 +165,23 @@ fun MainScreen(vm: AppViewModel) {
     val clipboard = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
+
+    // Notes (a verse's, or the day's sermon note) come up from the foot of the screen into a panel that rests
+    // at half height, the passage still in view above it, or at full height, and tuck back down.
+    val panel = remember { PanelState() }
+    // the chapter buttons step aside while the text scrolls
+    var scrolling by remember { mutableStateOf(false) }
+    val panelShown = noteDraft != null || vm.documentDocked
+    fun openNote(d: NoteDraft) {
+        if (vm.documentDocked) vm.closeDocument()
+        noteDraft = d
+        // also stops a panel that is on its way down for the note before: it must not take this one with it
+        panel.animateTo(scope, maxOf(panel.fraction, PanelHalf))
+    }
+    fun tuckNote() { panel.animateTo(scope, 0f) { noteDraft = null } }
+    LaunchedEffect(vm.documentDocked, vm.openDocument?.createdAt) { if (vm.documentDocked) panel.animateTo(scope, PanelHalf) }
+    // nothing in the panel any more (deleted, left for another page): the room goes back to the text
+    LaunchedEffect(panelShown) { if (!panelShown) panel.jumpTo(0f) }
 
     // the screen is kept awake for the whole app (BaibolyApp), always in Church mode
     val church = vm.mode == AppMode.Church
@@ -198,7 +225,7 @@ fun MainScreen(vm: AppViewModel) {
                         onNote = {
                             val ps = selectedPassages()
                             val p = Passage(loc.book, loc.chapter, ps.first().verseStart, ps.last().verseEnd)
-                            noteDraft = NoteDraft(p, "")
+                            openNote(NoteDraft(p, ""))
                         },
                         onHighlight = { colour -> vm.addHighlight(selectedPassages(), colour); selected = emptySet() },
                         onRemoveHighlight = { vm.removeHighlights(selected); selected = emptySet() },
@@ -214,31 +241,35 @@ fun MainScreen(vm: AppViewModel) {
     Scaffold(
         topBar = { if (pageStyle && selected.isNotEmpty()) selectionBar() else ReaderTopBar(vm) },
         bottomBar = {
-            if (selected.isNotEmpty()) {
-                if (!pageStyle) selectionBar()
-            } else {
-                Column {
-                    if (!church) ReadingBar(vm)
-                    if (church) ServiceBar(vm, onAdd = { showAdd = true })
-                    if (style == Style.Glass && !church) ChapterBottomBar(vm)
+            // the bars slide up from the foot instead of replacing one another at once
+            val rise = slideInVertically(tween(220)) { it } + fadeIn(tween(220))
+            Column {
+                AnimatedVisibility(selected.isNotEmpty() && !pageStyle && noteDraft == null, enter = rise, exit = fadeOut(tween(90))) { selectionBar() }
+                AnimatedVisibility(selected.isEmpty() && noteDraft == null, enter = rise, exit = fadeOut(tween(90))) {
+                    Column {
+                        if (!church) ReadingBar(vm)
+                        if (church) ServiceBar(vm)
+                    }
                 }
             }
         },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize()) {
-            if (church) ListStrip(vm, onStartList = { showAdd = true })
-            Box(Modifier.weight(1f).fillMaxWidth()) {
+        Column(Modifier.padding(padding).fillMaxSize().then(if (panelShown) Modifier.imePadding() else Modifier).panelSpan(panel)) {
+            if (church) ListStrip(vm, onAdd = { showAdd = true })
+            Box(Modifier.weight(if (panelShown) panel.restWeight else 1f).fillMaxWidth()) {
                 Reader(
                     vm = vm,
                     selected = selected,
                     onVerseTap = { v ->
+                        if (!church) vm.focusDismissed = true
                         val at = vm.location.book to vm.location.chapter
                         val base = if (selectedAt == at) selected else emptySet()
                         selectedAt = at
                         selected = if (v in base) base - v else base + v
                     },
                     onNumberTap = { v ->
+                        if (!church) vm.focusDismissed = true
                         if (vm.mode == AppMode.Study) studyVerse = v
                         else {
                             val at = vm.location.book to vm.location.chapter
@@ -247,12 +278,13 @@ fun MainScreen(vm: AppViewModel) {
                             selected = if (v in base) base - v else base + v
                         }
                     },
-                    onNoteTap = { n -> noteDraft = NoteDraft(n.passage, n.text, n.id) },
+                    onNoteTap = { n -> openNote(NoteDraft(n.passage, n.text, n.id)) },
+                    onScrolling = { scrolling = it },
                 )
-                ChapterOverlay(vm)
+                ChapterOverlay(vm, shown = !scrolling)
                 // quick look: the passage in another language, its units… (Settings, Advanced, Quick look)
                 LaunchedEffect(selected) { quickLookClosed = false }
-                if (selected.isNotEmpty() && !quickLookClosed && toolsPassage == null) {
+                if (selected.isNotEmpty() && !quickLookClosed && toolsPassage == null && noteDraft == null) {
                     val qp = Passage(loc.book, loc.chapter, selected.min(), selected.max())
                     QuickLookCard(
                         vm, qp,
@@ -278,6 +310,19 @@ fun MainScreen(vm: AppViewModel) {
                     )
                 }
             }
+            noteDraft?.let { d ->
+                NotePanel(
+                    state = panel, draft = d, title = d.passage.longLabel(translation?.lang ?: "mg"),
+                    onSave = { text ->
+                        if (d.noteId != null) vm.updateNote(d.noteId, text) else vm.addNote(d.passage, text)
+                        selected = emptySet()
+                        tuckNote()
+                    },
+                    onDelete = d.noteId?.let { id -> { vm.deleteNote(id); tuckNote() } },
+                    onTuck = { tuckNote() },
+                )
+            }
+            if (noteDraft == null && vm.documentDocked) DocumentDock(vm, panel)
         }
     }
 
@@ -287,19 +332,6 @@ fun MainScreen(vm: AppViewModel) {
     toolsPassage?.let { p -> PassageToolsSheet(vm, p, toolsTab, onDismiss = { toolsPassage = null; selected = emptySet() }) }
     xrefVerse?.let { v -> VerseToolsSheet(vm, loc.book, loc.chapter, v, startOnCrossRefs = true, onDismiss = { xrefVerse = null }) }
     if (vm.showWhatsNew) WhatsNewSheet(vm.versionName, onDismiss = { vm.dismissWhatsNew() })
-    noteDraft?.let { d ->
-        NoteDialog(
-            title = d.passage.longLabel(translation?.lang ?: "mg"),
-            initial = d.initial,
-            onDelete = d.noteId?.let { id -> { vm.deleteNote(id); noteDraft = null } },
-            onSave = { text ->
-                if (d.noteId != null) vm.updateNote(d.noteId, text) else vm.addNote(d.passage, text)
-                noteDraft = null
-                selected = emptySet()
-            },
-            onDismiss = { noteDraft = null },
-        )
-    }
     wordsVerse?.let { v ->
         val text = vm.chapter?.verses?.firstOrNull { it.verse == v }?.text ?: ""
         WordSelectDialog(
@@ -317,7 +349,7 @@ fun MainScreen(vm: AppViewModel) {
             },
             onNote = { s ->
                 wordsVerse = null
-                noteDraft = NoteDraft(Passage(loc.book, loc.chapter, v, v), "“$s” ")
+                openNote(NoteDraft(Passage(loc.book, loc.chapter, v, v), "“$s” "))
             },
             onDismiss = { wordsVerse = null },
         )
@@ -372,41 +404,25 @@ private fun ReaderTopBar(vm: AppViewModel) {
 }
 
 /**
- * Church mode: move between the announced passages with two large buttons
- * (previous / next) and add a passage in the middle.
+ * Church mode: move between the announced passages, one slim row at the foot: previous, where we are
+ * in the list, next. Adding a passage lives in the list strip at the top, so nothing here is spent on it,
+ * and with no list yet there is no bar at all.
  */
 @Composable
-private fun ServiceBar(vm: AppViewModel, onAdd: () -> Unit) {
+private fun ServiceBar(vm: AppViewModel) {
     val list = vm.list
+    if (list.isEmpty) return
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxWidth()) {
             GoldRule()
-            if (list.isEmpty) {
-                Button(
-                    onClick = onAdd,
-                    shape = RoundedCornerShape(28.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp).heightIn(min = 56.dp).testTag("service-add"),
-                ) {
-                    Icon(Icons.Filled.Add, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.add_passages), style = MaterialTheme.typography.titleMedium)
-                }
-                return@Column
-            }
-            Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 val prev = list.items.getOrNull(list.current - 1)
                 val next = list.items.getOrNull(list.current + 1)
                 ServiceStep(prev?.passage?.label(), forward = false, modifier = Modifier.weight(1f).testTag("service-prev")) {
                     vm.selectItem(list.current - 1)
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 6.dp)) {
-                    FilledIconButton(
-                        onClick = onAdd,
-                        modifier = Modifier.size(52.dp).testTag("service-add"),
-                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    ) { Icon(Icons.Filled.Add, stringResource(R.string.add)) }
-                    Text("${list.current + 1} / ${list.items.size}", style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.gold)
-                }
+                Text("${list.current + 1} / ${list.items.size}", style = MaterialTheme.typography.labelMedium, color = LocalOrnament.current.gold,
+                    modifier = Modifier.padding(horizontal = 10.dp))
                 ServiceStep(next?.passage?.label(), forward = true, modifier = Modifier.weight(1f).testTag("service-next")) {
                     vm.selectItem(list.current + 1)
                 }
@@ -421,15 +437,45 @@ private fun ServiceStep(label: String?, forward: Boolean, modifier: Modifier, on
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(24.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, LocalOrnament.current.gold.copy(alpha = if (enabled) 0.8f else 0.3f)),
         contentPadding = PaddingValues(horizontal = 10.dp),
-        modifier = modifier.heightIn(min = 56.dp),
+        modifier = modifier.heightIn(min = 44.dp),
     ) {
         if (!forward) Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_item))
         Text(label ?: "—", style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f, fill = false))
         if (forward) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_item))
+    }
+}
+
+/**
+ * The note panel: the passage as its title, the text to write, Delete for a note that exists. Leaving it
+ * (the arrow, a swipe down, Back) keeps what was written; a note left empty or unchanged is simply put away.
+ */
+@Composable
+private fun ColumnScope.NotePanel(
+    state: PanelState,
+    draft: NoteDraft,
+    title: String,
+    onSave: (String) -> Unit,
+    onDelete: (() -> Unit)?,
+    onTuck: () -> Unit,
+) {
+    var text by remember(draft) { mutableStateOf(TextFieldValue(draft.initial, TextRange(draft.initial.length))) }
+    val written by rememberUpdatedState(text.text)
+    fun finish() { if (written.isNotBlank() && written != draft.initial) onSave(written) else onTuck() }
+    BackHandler { finish() }
+    SlidePanel(state, title, onTuck = { finish() }) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = { Text(stringResource(R.string.note_hint)) },
+            modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp, vertical = 4.dp).testTag("note-field"),
+        )
+        if (onDelete != null) Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+            TextButton(onClick = onDelete, modifier = Modifier.heightIn(min = 44.dp).testTag("note-delete")) { Text(stringResource(R.string.delete)) }
+        }
     }
 }
 
@@ -523,12 +569,12 @@ fun TranslationMenu(vm: AppViewModel, expanded: Boolean, onDismiss: () -> Unit) 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
+private fun ListStrip(vm: AppViewModel, onAdd: () -> Unit) {
     val list = vm.list
     if (list.isEmpty) {
         // Collapsed to a small handle so reading stays uncluttered.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            TextButton(onClick = onStartList, modifier = Modifier.heightIn(min = 48.dp)) {
+            TextButton(onClick = onAdd, modifier = Modifier.heightIn(min = 44.dp).testTag("service-add")) {
                 Text(
                     "✚  " + stringResource(R.string.start_list),
                     style = MaterialTheme.typography.labelLarge,
@@ -548,7 +594,7 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
         LazyRow(
             state = state,
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             itemsIndexed(list.items) { i, item ->
@@ -559,13 +605,13 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
                         color = if (current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                         contentColor = if (current) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .heightIn(min = 48.dp)
+                            .heightIn(min = 44.dp)
                             .then(if (current) Modifier else Modifier.border(1.dp, LocalOrnament.current.gold.copy(alpha = 0.7f), RoundedCornerShape(24.dp)))
                             .clip(RoundedCornerShape(24.dp))
                             .combinedClickable(onClick = { vm.selectItem(i) }, onLongClick = { menuFor = i })
                             .testTag("chip:$i"),
                     ) {
-                        Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text(item.passage.label(), style = MaterialTheme.typography.bodyLarge, fontWeight = if (current) FontWeight.Bold else FontWeight.Normal)
                             if (item.isSide) {
                                 Spacer(Modifier.width(6.dp))
@@ -594,6 +640,8 @@ private fun ListStrip(vm: AppViewModel, onStartList: () -> Unit) {
                 }
             }
         }
+        // add a passage: a small button here, where the list is, not a bar of its own at the foot
+        IconButton(onClick = onAdd, modifier = Modifier.testTag("service-add")) { Icon(Icons.Filled.Add, stringResource(R.string.add_passages)) }
         Box {
             IconButton(onClick = { listMenu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.list_menu)) }
             LocalizedMenu(expanded = listMenu, onDismissRequest = { listMenu = false }) {
@@ -666,6 +714,7 @@ private fun Reader(
     onVerseTap: (Int) -> Unit,
     onNumberTap: (Int) -> Unit,
     onNoteTap: (Note) -> Unit,
+    onScrolling: (Boolean) -> Unit,
 ) {
     val ch = vm.chapter
     val pageStyle = LocalStyle.current == Style.Page
@@ -720,6 +769,25 @@ private fun Reader(
             i
         } ?: start
         state.scrollToItem(maxOf(0, target))
+    }
+    // hidden when a finger starts dragging the text, back a moment after the drag (and its fling) ends;
+    // the app's own jumps (a new chapter opening at its top) do not hide them
+    LaunchedEffect(state) {
+        state.interactionSource.interactions.collectLatest { i ->
+            when (i) {
+                is androidx.compose.foundation.interaction.DragInteraction.Start -> {
+                    onScrolling(true)
+                    if (vm.mode != AppMode.Church) vm.focusDismissed = true
+                }
+                is androidx.compose.foundation.interaction.DragInteraction.Stop,
+                is androidx.compose.foundation.interaction.DragInteraction.Cancel -> {
+                    snapshotFlow { state.isScrollInProgress }.first { !it }
+                    kotlinx.coroutines.delay(700)
+                    onScrolling(false)
+                }
+                else -> Unit
+            }
+        }
     }
     // the chapter at the top of the screen is the one being read: title, selection, notes follow the scroll
     LaunchedEffect(state) {
@@ -780,7 +848,7 @@ private fun Reader(
             val hls = if (current) highlights else block?.highlights.orEmpty()
             val nts = if (current) notes else block?.notes.orEmpty()
             val sel = if (current) selected else emptySet()
-            val foc: (Int) -> Boolean = { v -> current && (focus?.contains(v) == true || reading == v) }
+            val foc: (Int) -> Boolean = { v -> current && ((!vm.focusDismissed && focus?.contains(v) == true) || reading == v) }
             // a tap in the chapter above or below makes it the chapter being read, then acts on it
             val tap: (Int) -> Unit = { v -> if (!current) vm.scrolledInto(pl.book, pl.chapter); onVerseTap(v) }
             val numberTap: (Int) -> Unit = { v -> if (!current) vm.scrolledInto(pl.book, pl.chapter); onNumberTap(v) }

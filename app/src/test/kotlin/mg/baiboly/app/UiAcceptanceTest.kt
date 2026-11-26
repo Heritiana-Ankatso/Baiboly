@@ -301,12 +301,9 @@ class UiAcceptanceTest {
         ready()
         vm.screen = Screen.Settings
         rule.waitForIdle()
-        // Settings lists its groups; Appearance opens on its own page
-        tag("settings-cat:look").tap()
-        // text formatting is one group that unfolds: layout, flow, alignment (icons), word breaks, margins, spacing
-        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
+        // Settings lists its groups; how the text is set on the page opens on its own page (verses, alignment, margins)
         assertTrue(rule.onAllNodesWithTag("settings-layout:Paragraphs", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
-        tag("settings-text-formatting").tap()
+        tag("settings-cat:page").tap()
         tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-layout:Paragraphs"))
         tag("settings-layout:Paragraphs").tap()
         assertEquals(VerseLayout.Paragraphs, vm.verseLayout)
@@ -415,17 +412,17 @@ class UiAcceptanceTest {
         assertEquals("lsg1910", vm.translationId)
     }
 
-    /** The Catholic/Protestant choice sits under Settings > Advanced and filters texts and books. */
-    @Test fun traditionInAdvancedSettings() {
+    /** The Catholic/Protestant choice sits under Settings > Bible and filters texts and books. */
+    @Test fun traditionInBibleSettings() {
         ready()
         assertEquals(Tradition.Protestant, vm.tradition)
         assertTrue(vm.visibleTranslations.none { it.catholic })
         assertTrue(vm.availableBooks.none { it > 66 })
         tag("settings").tap()
         waitFor { vm.screen == Screen.Settings }
-        tag("settings-tradition:Catholic").assertDoesNotExist() // hidden until Advanced is opened
-        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-advanced"))
-        tag("settings-advanced").tap()
+        tag("settings-tradition:Catholic").assertDoesNotExist() // hidden until the Bible group is opened
+        tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-cat:bible"))
+        tag("settings-cat:bible").tap()
         tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-tradition:Catholic"))
         tag("settings-tradition:Catholic").tap()
         waitFor { vm.tradition == Tradition.Catholic }
@@ -516,12 +513,15 @@ class UiAcceptanceTest {
             waitFor { vm.screen == Screen.Settings }
             tag("settings-list").assertExists()
             // every theme: the groups, each on its own page, not every setting at once
-            for (g in listOf("settings-cat:look", "settings-cat:bible", "settings-cat:audio", "settings-advanced")) tag(g).assertExists()
+            for (g in listOf("settings-cat:look", "settings-cat:text", "settings-cat:page", "settings-cat:bible", "settings-cat:aids", "settings-cat:updates")) {
+                tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag(g))
+                tag(g).assertExists()
+            }
             assertTrue(rule.onAllNodesWithTag("settings-layout:Paragraphs", useUnmergedTree = true).fetchSemanticsNodes().isEmpty(),
                 "${st.name}: Appearance choices shown on the Settings list")
             tag("settings-cat:look").tap()
             waitFor { vm.settingsPage == "look" }
-            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-text-formatting"))
+            tag("settings-list").performScrollToNode(androidx.compose.ui.test.hasTestTag("settings-density"))
             vm.screen = Screen.Main
             rule.waitForIdle()
         }

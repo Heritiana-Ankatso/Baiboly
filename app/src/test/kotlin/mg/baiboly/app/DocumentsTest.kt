@@ -53,7 +53,10 @@ class DocumentsTest {
         // the Notes tab of Church mode, and the one-tap note on the service page
         tag("nav:Documents").assertExists()
         tag("sermon-note").tap()
-        waitFor { vm.screen == Screen.Document && vm.openDocument != null }
+        // the sermon note opens docked under the reader (a panel), not on a page of its own
+        waitFor { vm.documentDocked && vm.openDocument != null }
+        assertEquals(Screen.Main, vm.screen)
+        rule.waitForIdle()
         val d = vm.openDocument!!
         assertEquals("sermon", d.kind)
         assertEquals("Jaona 3: 16; Romana 8: 28", d.passages, "the service list's passages are recorded")

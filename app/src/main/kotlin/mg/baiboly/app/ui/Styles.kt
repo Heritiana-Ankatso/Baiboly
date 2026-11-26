@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -418,9 +419,22 @@ fun PageMenuScreen(vm: AppViewModel) {
 
 // ---------------------------------------------------------------- chapters
 
-/** Previous / next chapter laid over the text (Manuscript, Modern). */
+/**
+ * Previous / next chapter laid over the text. They fade away while the text is being scrolled ([shown] false)
+ * and come back when it rests; swiping sideways still turns the chapter whether they show or not.
+ */
 @Composable
-fun BoxScope.ChapterOverlay(vm: AppViewModel) {
+fun BoxScope.ChapterOverlay(vm: AppViewModel, shown: Boolean = true) {
+    val fade by androidx.compose.animation.core.animateFloatAsState(
+        if (shown) 1f else 0f, androidx.compose.animation.core.tween(180), label = "chapter-buttons",
+    )
+    // fully faded: not drawn and not touchable
+    if (fade <= 0.01f) return
+    Box(Modifier.matchParentSize().alpha(fade)) { ChapterButtons(vm) }
+}
+
+@Composable
+private fun BoxScope.ChapterButtons(vm: AppViewModel) {
     when (LocalStyle.current) {
         Style.Manuscript -> {
             ChapterDisc(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter),
@@ -429,7 +443,11 @@ fun BoxScope.ChapterOverlay(vm: AppViewModel) {
                 Modifier.align(Alignment.BottomEnd).padding(14.dp).testTag("next-chapter")) { vm.nextChapter() }
         }
         Style.Navy -> NavyChapterButtons(vm)
-        Style.Modern, Style.Page, Style.Glass -> Unit
+        Style.Glass -> {
+            GlassChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(R.string.previous_chapter), Alignment.BottomStart, "prev-chapter") { vm.previousChapter() }
+            GlassChapterButton(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(R.string.next_chapter), Alignment.BottomEnd, "next-chapter") { vm.nextChapter() }
+        }
+        Style.Modern, Style.Page -> Unit
     }
 }
 
@@ -455,21 +473,17 @@ fun ChapterFooterLinks(vm: AppViewModel) {
     }
 }
 
-/** Glass: a bottom bar with two wide buttons. The chapter is already the header's title, so it is not repeated here. */
+/**
+ * Glass: two small tonal squares over the text, like the other themes' round buttons. They used to be a whole
+ * bar across the foot of the screen, which took a strip of the page for two buttons.
+ */
 @Composable
-fun ChapterBottomBar(vm: AppViewModel) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilledTonalButton(onClick = { vm.previousChapter() }, shape = MaterialTheme.shapes.small, modifier = Modifier.weight(1f).heightIn(min = 44.dp).testTag("prev-chapter")) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null)
-                Text(stringResource(R.string.previous_chapter), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            FilledTonalButton(onClick = { vm.nextChapter() }, shape = MaterialTheme.shapes.small, modifier = Modifier.weight(1f).heightIn(min = 44.dp).testTag("next-chapter")) {
-                Text(stringResource(R.string.next_chapter), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
-            }
-        }
-    }
+private fun BoxScope.GlassChapterButton(icon: ImageVector, label: String, align: Alignment, tag: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick, shape = MaterialTheme.shapes.small, shadowElevation = 4.dp,
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.94f), contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        modifier = Modifier.align(align).padding(12.dp).size(46.dp).testTag(tag),
+    ) { Box(contentAlignment = Alignment.Center) { Icon(icon, label) } }
 }
 
 /** Chapter opening in the theme's form. */
@@ -525,7 +539,7 @@ private fun MoreActions(more: List<VerseAction>, button: @Composable (onClick: (
     var open by remember { mutableStateOf(false) }
     Box {
         button { open = true }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        LocalizedMenu(expanded = open, onDismissRequest = { open = false }) {
             more.forEach { a ->
                 DropdownMenuItem(
                     text = { Text(a.label) },

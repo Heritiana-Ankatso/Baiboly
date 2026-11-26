@@ -1,3 +1,14 @@
+## Baiboly 1.11.0
+
+**Install:** update from Settings › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept. No data change.
+
+* **Settings regrouped:** six short pages in three sections (*Look*: Appearance, Text, Page layout; *Bible and reading*: Bible with Tradition, Reading aids with reading aloud and quick look; *The app*: Updates). Each row shows what it is set to; Advanced is gone. Pages slide in from the side and a setting's choices unfold under its row in the theme's own form.
+* **Notes in a panel:** verse notes and the Church sermon note come up from the foot of the screen and rest at half height (passage still in view and scrollable) or full height; drag the grip, tap it or use the arrows; swipe down, the arrow or Back puts it away.
+* **Screen use:** the chapter buttons fade away while the text is dragged (swiping sideways still turns the chapter); Glass loses its bottom chapter bar; Church mode's add-passage button moves to the list strip and the previous / next passage row is slimmer, absent until there is a list.
+* **Smoother:** pages slide or fade instead of swapping at once; Navy's menu unfolds smoothly; pop-up menus follow the theme.
+* **Fix:** the shading of the passage opened from a search or link (not a saved highlight) goes away on a tap or a scroll.
+* The Malagasy and French wording of the new labels is a draft to review.
+
 ## Baiboly 1.10.1
 
 **Install:** update from Settings › Advanced › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept. No data change.
