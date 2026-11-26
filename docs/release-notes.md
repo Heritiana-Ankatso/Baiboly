@@ -1,3 +1,9 @@
+## Baiboly 1.12.2
+
+**Install:** update from Settings › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights, settings and downloaded Bibles are kept. No data change: the optional downloads stay those of *data-13*.
+
+* **Fix: the sermon note's text field disappeared while typing.** With the keyboard open, the title, details, tools and writing area were squeezed into the space left above the keyboard, and the writing area shrank to nothing. The editor (sermon note and study) now scrolls as a whole and the writing area keeps a minimum height, so you always see what you type.
+
 ## Baiboly 1.12.1
 
 **Install:** update from Settings › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights, settings and downloaded Bibles are kept. No data change: the optional downloads stay those of *data-13*.
