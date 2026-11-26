@@ -9,10 +9,13 @@ bundled in the APK, plus a generated Kotlin canon table and written reports.
     python3 tools/build_data.py --offline  # use tools/.cache only
 
 Outputs
-    app/src/main/assets/databases/bible.db   catalogue + Malagasy 1865 (+ search index)
-    app/src/main/assets/databases/text-*.db  one file per other reading translation
-    app/src/main/assets/databases/study.db   KJV Strong's tagging + lexicon
-    app/src/main/assets/databases/original.db   Hebrew and Greek text, parsing, brief lexicons (tools/build_original.py)
+    app/src/main/assets/databases/bible.db      catalogue + Malagasy 1865 (+ search index)
+    app/src/main/assets/databases/study.db      KJV Strong's tagging + lexicon
+    app/src/main/assets/databases/library.db    cross-references, dictionaries, places, people, confessions
+    app/src/main/assets/databases/packs.json    the optional downloads (tools/packs.py)
+    app/src/debug/assets/databases/text-*.db    one file per other reading translation    } optional downloads:
+    app/src/debug/assets/databases/original.db  Hebrew and Greek text (build_original.py) } in debug builds only,
+    app/src/debug/assets/databases/commentary-*.db  commentaries                           } gzipped in build/packs/
     core/src/main/kotlin/mg/baiboly/core/bible/CanonData.kt
     docs/data-licences.md, docs/reports/*.md
 
@@ -41,6 +44,7 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "vendor"))
 from sword_canons import CANONS  # noqa: E402  (MIT, extracted from PySword)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import build_original as O  # noqa: E402  (Hebrew and Greek text, STEPBible)
+import packs as P  # noqa: E402  (optional downloads: packs.json, build/packs/*.gz)
 
 CACHE = os.path.join(ROOT, "tools", ".cache")
 ASSETS = os.path.join(ROOT, "app", "src", "main", "assets", "databases")
@@ -52,8 +56,10 @@ CANON_KT = os.path.join(ROOT, "core", "src", "main", "kotlin", "mg", "baiboly", 
 CROSSWIRE = "https://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/{}.zip"
 EBIBLE = "https://ebible.org/Scriptures/{}"
 
-# Bump when the schema or content of bible.db / study.db changes, so the app
-# replaces its installed copy.
+# Bump when the schema or content of the bundled databases (bible.db, study.db,
+# library.db) changes, so the app replaces its installed copy. The optional
+# downloads (other texts, original.db, commentaries) have their own
+# PACK_VERSION in tools/packs.py.
 DATA_VERSION = 13
 
 # ---------------------------------------------------------------------------
@@ -722,9 +728,10 @@ def build(offline, openscriptures=True):
     # text-<id>.db with the same schema (text_norm + prebuilt FTS index): the
     # app copies a file out of the APK only when that translation is first
     # opened, so device storage holds only the texts actually used.
-    for f in os.listdir(ASSETS):
-        if f.endswith(".db"):
-            os.remove(os.path.join(ASSETS, f))
+    for d in (ASSETS, P.DEBUG_ASSETS):
+        for f in (os.listdir(d) if os.path.isdir(d) else []):
+            if f.endswith(".db"):
+                os.remove(os.path.join(d, f))
     text_schema = """
         PRAGMA page_size = 4096;
         CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT) WITHOUT ROWID;
@@ -786,7 +793,7 @@ def build(offline, openscriptures=True):
         else:
             tdb = sqlite3.connect(os.path.join(ASSETS, fname))
             tdb.executescript(text_schema)
-            tdb.execute("INSERT INTO meta VALUES('data_version', ?)", (str(DATA_VERSION),))
+            tdb.execute("INSERT INTO meta VALUES('data_version', ?)", (str(P.PACK_VERSION),))
             tdb.execute("INSERT INTO meta VALUES('translation', ?)", (tid,))
         rows = []
         for (b, c, v), t in sorted(texts[tid].items()):
@@ -910,7 +917,7 @@ def build(offline, openscriptures=True):
 
     # ---------------- original.db ----------------
     op = os.path.join(ASSETS, "original.db")
-    orig_stats = O.build_original_db(op, steb, DATA_VERSION, kjv_counts)
+    orig_stats = O.build_original_db(op, steb, P.PACK_VERSION, kjv_counts)
     sizes["original.db"] = os.path.getsize(op)
 
     # ---------------- reports ----------------
@@ -920,7 +927,7 @@ def build(offline, openscriptures=True):
     import build_library as L
     print("Commentaries")
     sizes.update(C.build_commentaries(fetch, CROSSWIRE, conf_of, check_crosswire, CANONS, OSIS_IDS, L.Numbering(VMAP),
-                                      ASSETS, DATA_VERSION, LICENCES, offline))
+                                      ASSETS, P.PACK_VERSION, LICENCES, offline))
     write_reports(books, mism, lexicon, tagged_ids, kw, texts, mg_counts_map)
     sizes["study.db"] = os.path.getsize(sp)
     sizes["library.db"] = os.path.getsize(os.path.join(ASSETS, "library.db"))
@@ -928,6 +935,8 @@ def build(offline, openscriptures=True):
         json.dump({"data_version": DATA_VERSION, "files": sorted(sizes)}, f)
     for k, v in sorted(sizes.items()):
         print(f"  {k:24s} {v / 1e6:6.2f} MB")
+    # the other texts, original.db and the commentaries become optional downloads
+    P.make()
 
 
 def build_study_library(offline):

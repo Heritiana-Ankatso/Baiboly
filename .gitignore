@@ -20,3 +20,5 @@ keystore.properties
 *.base64
 apk/
 .kotlin/
+# Optional downloads: unpacked in the debug assets, gzipped in build/packs (tools/packs.py)
+app/src/debug/assets/databases/
