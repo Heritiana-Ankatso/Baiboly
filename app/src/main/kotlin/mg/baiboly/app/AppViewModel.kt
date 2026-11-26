@@ -473,7 +473,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 val rec = user.recent()
                 val usage = user.bookUsage()
                 withContext(Dispatchers.Main) {
-                    translations = ts
+                    // every menu lists the Bibles by language, from the oldest to the most recent
+                    translations = BibleRepository.ordered(ts)
                     packStates = states
                     if (ts.none { it.id == defaultTranslationId }) defaultTranslationId = BibleRepository.PRIMARY
                     if (ts.none { it.id == translationId }) translationId = defaultTranslationId

@@ -37,6 +37,30 @@ class BibleRepository(private val dbs: AssetDatabases) {
 
     companion object {
         const val PRIMARY = "mg1865"
+
+        /** Languages in the order the menus show them. */
+        val LANGUAGES = listOf("mg", "fr", "en")
+
+        /**
+         * Year each text was first published complete, so every list runs from the
+         * oldest to the most recent within its language. Douay-Rheims: the 1899
+         * edition of Challoner's revision; BSB: the whole Bible as Berean Study
+         * Bible (renamed Berean Standard Bible in 2022); WEB: declared complete in 2000.
+         */
+        val YEAR = mapOf(
+            "mg1865" to 1865, "tdx" to 2023,
+            "darby_fr" to 1885, "lsg1910" to 1910, "crampon" to 1923, "ncl_fr" to 2022,
+            "kjv" to 1611, "dra" to 1899, "bbe" to 1949, "web" to 2000, "webc" to 2000, "bsb" to 2018, "lsv" to 2020,
+        )
+
+        /** By language (Malagasy, French, English), then from the oldest to the most recent. */
+        fun ordered(ts: List<Translation>): List<Translation> = ts.withIndex().sortedWith(
+            compareBy<IndexedValue<Translation>>(
+                { LANGUAGES.indexOf(it.value.lang).let { i -> if (i < 0) LANGUAGES.size else i } },
+                { YEAR[it.value.id] ?: Int.MAX_VALUE },
+                { it.index },
+            ),
+        ).map { it.value }
         private const val CATALOGUE = "bible.db"
         fun verseId(num: Int, book: Int, chapter: Int, verse: Int): Long =
             num * 100_000_000L + book * 1_000_000L + chapter * 1_000L + verse

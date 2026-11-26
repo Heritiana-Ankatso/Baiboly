@@ -1273,15 +1273,21 @@ private fun QuickLookSettings(vm: AppViewModel) {
         if ("translation" in vm.quickLookItems) {
             Text(stringResource(R.string.ql_bible), style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp))
-            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation.isEmpty(), onClick = { vm.changeQuickLookTranslation("") },
-                    label = { Text(stringResource(R.string.ql_bible_auto)) }, modifier = Modifier.testTag("settings-ql-bible:auto"))
-                vm.visibleTranslations.forEach { t ->
+            androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation.isEmpty(), onClick = { vm.changeQuickLookTranslation("") },
+                label = { Text(stringResource(R.string.ql_bible_auto)) }, modifier = Modifier.testTag("settings-ql-bible:auto"))
+            // by language, each from the oldest to the most recent
+            val langName = mapOf("mg" to "Malagasy", "fr" to "Français", "en" to "English")
+            vm.visibleTranslations.groupBy { it.lang }.forEach { (lang, ts) ->
+              Text(langName[lang] ?: lang, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary,
+                  modifier = Modifier.padding(top = 8.dp, bottom = 2.dp).testTag("settings-ql-lang:$lang"))
+              androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                ts.forEach { t ->
                     // a Bible not downloaded yet (⤓) is offered for download; until then the quick look chooses automatically
                     androidx.compose.material3.FilterChip(selected = vm.quickLookTranslation == t.id,
                         onClick = { vm.changeQuickLookTranslation(t.id); if (!vm.isAvailable(t)) vm.packOf(t)?.let { vm.requestDownload(it) } },
                         label = { Text(if (vm.isAvailable(t)) t.shortName else t.shortName + " ⤓") }, modifier = Modifier.testTag("settings-ql-bible:${t.id}"))
                 }
+              }
             }
         }
     }
