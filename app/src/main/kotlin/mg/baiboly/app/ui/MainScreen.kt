@@ -131,6 +131,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.Style
@@ -767,10 +768,20 @@ private fun Reader(
         } ?: start
         state.scrollToItem(maxOf(0, target))
     }
-    // hidden at once when a scroll starts, back a moment after it stops
+    // hidden when a finger starts dragging the text, back a moment after the drag (and its fling) ends;
+    // the app's own jumps (a new chapter opening at its top) do not hide them
     LaunchedEffect(state) {
-        snapshotFlow { state.isScrollInProgress }.collectLatest { moving ->
-            if (moving) onScrolling(true) else { kotlinx.coroutines.delay(700); onScrolling(false) }
+        state.interactionSource.interactions.collectLatest { i ->
+            when (i) {
+                is androidx.compose.foundation.interaction.DragInteraction.Start -> onScrolling(true)
+                is androidx.compose.foundation.interaction.DragInteraction.Stop,
+                is androidx.compose.foundation.interaction.DragInteraction.Cancel -> {
+                    snapshotFlow { state.isScrollInProgress }.first { !it }
+                    kotlinx.coroutines.delay(700)
+                    onScrolling(false)
+                }
+                else -> Unit
+            }
         }
     }
     // the chapter at the top of the screen is the one being read: title, selection, notes follow the scroll
