@@ -199,6 +199,10 @@
     <string name="whats_new_ok">Hidio</string>
     <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko, ny fikiranao ary ny Baiboly nalainao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
+        <item>Sary famantarana vaovao: Baiboly misokatra misy hazofijaliana eo anelanelan’ny pejiny.</item>
+        <item>Voalahatra araka ny fiteny ny Baiboly, avy amin’ny tranainy indrindra ka hatramin’ny vaovao indrindra (lisitry ny dikan-teny, Fikirana ary Topy maso).</item>
+        <item>Mandeha malama ny tetiandro: tsy miadana intsony, ary manohy mandeha mandra-pihena ny hafainganany rehefa notosehina haingana; ny fitsindriana iray no mampijanona azy.</item>
+        <item>Tetiandro › Tantaran’ny Fiangonana (ivelan’ny Baiboly), ho an’ny fandalinana lalina: ireo zava-nitranga tsy notantarain’ny Soratra Masina, hatramin’ny elanelan’ny Testamenta roa (Septanta, Makabeo, Pompée, tempolin’i Heroda) sy ny andron’ny apostoly (Nero, ny faharavan’i Jerosalema tamin’ny taona 70) ka hatramin’ny konsily sy izao. Eo ankavian’ny tsipika izy ireo, eo ambanin’ny “Ivelan’ny Baiboly”, amin’ny faribolana foana sy tsipika banga; eo ankavanana kosa ny zava-nitranga ao amin’ny Baiboly.</item>
         <item>Kely lavitra ny fampiharana (eo amin’ny 21 Mo fa tsy 118 Mo intsony), ka haingana ny fakana fanavaozana. Ao amin’ny finday foana ny Malagasy 1865.</item>
         <item>Ireo Baiboly hafa, ny soratra hebreo sy grika ary ireo fanazavana dia alaina raha ifidiananao ihany: ao amin’ny lisitry ny dikan-teny (misy ⤓ sy ny habeny) na ao amin’ny Fikirana › Baiboly › Azo alaina. Hamarinina aloha ny rakitra tsirairay vao ampiasaina.</item>
         <item>Mijanona ao amin’ny finday ireo Baiboly efa nosokafanao; tsy mila alaina indray. Ny Baiboly mbola tsy nosokafana dia tsy maintsy alaina indray mandeha.</item>
@@ -538,8 +542,8 @@
         <item quantity="one">zava-nitranga %d</item>
         <item quantity="other">zava-nitranga %d</item>
     </plurals>
-    <string name="tl_to_today">Lalina kokoa: hatramin’izao</string>
-    <string name="church_history_credit">Tantaran’ny Fiangonana taorian’ny apostoly: daty avy amin’ny boky fanovozan-kevitra, natambatra ho an’i Baiboly; ‘tokony ho’ raha tsy fantatra tsara ny daty.</string>
+    <string name="tl_to_today">Tantaran’ny Fiangonana (ivelan’ny Baiboly)</string>
+    <string name="church_history_credit">Tantaran’ny Fiangonana ivelan’ny Baiboly, hatramin’ny elanelan’ny Testamenta roa ka hatramin’izao: daty avy amin’ny boky fanovozan-kevitra, natambatra ho an’i Baiboly; ‘tokony ho’ raha tsy fantatra tsara ny daty; ‘lovantsofina’ raha ny Fiangonana taloha no mitantara fa tsy ny Soratra Masina.</string>
     <string name="madagascar">Madagasikara</string>
     <string name="commentary">Fanazavana</string>
     <string name="tab_book_intro">Fampidirana</string>
@@ -643,4 +647,6 @@
     <string name="original_not_downloaded">Mbola tsy ao amin’ity finday ity ny soratra hebreo sy grika.</string>
     <string name="commentary_not_downloaded">Mbola tsy ao amin’ity finday ity io fanazavana io.</string>
     <string name="catholic_needs_download">Ao amin’ny Baiboly katolika ity boky ity: alaivo ny iray ao amin’ny Fikirana › Baiboly › Azo alaina.</string>
+    <string name="tl_outside_bible">Ivelan’ny Baiboly</string>
+    <string name="tl_in_bible">Ao amin’ny Baiboly</string>
 </resources>

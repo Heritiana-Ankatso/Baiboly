@@ -5,9 +5,10 @@ import mg.baiboly.data.BibleEvent
 import mg.baiboly.data.Era
 
 /**
- * Church history after the apostles (assets/church_history.tsv): the eras from the Church Fathers to
- * today and their events, lives and periods, for the timeline's "Go deeper: to today". Events get
- * negative ids so they never meet the Bible's own; they name no verses.
+ * Church history outside the Bible (assets/church_history.tsv), for the timeline's switch "Church history
+ * (outside the Bible)": events between the Testaments and in the apostolic age that Scripture does not
+ * tell, then the eras from the Church Fathers to today and their events, lives and periods. Events get
+ * negative ids so they never meet the Bible's own (the chart draws them as hollow rings); they name no verses.
  */
 class ChurchHistory(val eras: List<Era>, val eraNames: Map<String, String>, val events: List<BibleEvent>, val family: Map<Int, String>) {
     companion object {

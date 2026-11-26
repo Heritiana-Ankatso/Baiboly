@@ -273,7 +273,8 @@ private fun durationLabel(d: String): String? {
 private fun EventRow(vm: AppViewModel, e: BibleEvent, family: String? = null) {
     Column(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable { vm.openEvent(e.id) }.testTag("event:${e.id}").padding(vertical = 6.dp)) {
         Text(e.title, style = MaterialTheme.typography.bodyLarge)
-        Note(listOfNotNull(eventDates(e), e.first?.label(), churchFamilyLabel(family)).joinToString(" · "))
+        // church history is marked, so it is never read as an event the Bible tells
+        Note(listOfNotNull(eventDates(e), e.first?.label(), if (e.id < 0) stringResource(R.string.tl_outside_bible) else null, churchFamilyLabel(family)).joinToString(" · "))
     }
 }
 
@@ -285,7 +286,8 @@ fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
     var open by remember { mutableStateOf(vm.eventRequest) }
     // the chart by default; the list is its table view (and the place to search)
     var asList by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
-    // Go deeper: on past the apostles to today (the Fathers, the councils, the Reformation, missions, Madagascar)
+    // Church history outside the Bible (for advanced study): between the Testaments, the apostolic age, then the Fathers,
+    // the councils, the Reformation, missions and Madagascar to today
     var toToday by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val lang = refLang()
@@ -295,7 +297,8 @@ fun TimelineView(vm: AppViewModel, modifier: Modifier = Modifier) {
     LaunchedEffect(vm.eventRequest) { vm.eventRequest?.let { open = it; vm.eventRequest = null } }
     androidx.activity.compose.BackHandler(enabled = open != null) { open = null }
     val ch = church
-    val all = if (toToday && ch != null) bible + ch.events else bible
+    // in the order of time, so the events outside the Bible fall among the Bible's own (Pompey before the birth of Jesus)
+    val all = remember(bible, toToday, ch) { if (toToday && ch != null) (bible + ch.events).sortedBy { it.year } else bible }
     val eras = remember(bibleEras, toToday, ch) {
         if (!toToday || ch == null || bibleEras.isEmpty()) bibleEras
         else {
@@ -389,7 +392,7 @@ private fun EventView(vm: AppViewModel, e: BibleEvent, modifier: Modifier, famil
                     (if (churchEvent) (if (e.endYear > e.year) " – " + yearLabel(e.endYear.toInt()) else "") else " " + stringResource(R.string.after_jones)),
                 style = MaterialTheme.typography.bodyLarge,
             )
-            if (churchEvent) churchFamilyLabel(family)?.let { Note(it, Modifier.padding(top = 4.dp)) }
+            if (churchEvent) Note(listOfNotNull(stringResource(R.string.tl_outside_bible), churchFamilyLabel(family)).joinToString(" · "), Modifier.padding(top = 4.dp))
             e.ussher?.let { Text(stringResource(R.string.ussher_x, yearLabel(it)) + " " + stringResource(R.string.after_tsk), style = MaterialTheme.typography.bodyMedium) }
             durationLabel(e.duration)?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
             if (e.notes.isNotEmpty()) Text(e.notes, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic, modifier = Modifier.padding(top = 8.dp))

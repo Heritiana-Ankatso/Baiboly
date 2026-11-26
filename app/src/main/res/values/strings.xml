@@ -214,6 +214,10 @@
     <string name="whats_new_ok">Close</string>
     <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights, settings and downloaded Bibles. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
+        <item>New app icon: an open Bible with a cross between its pages.</item>
+        <item>The Bibles are listed by language, each from the oldest to the most recent (in the translation menu, Settings and the Quick look).</item>
+        <item>The timeline scrolls smoothly: it no longer lags, and a quick swipe carries on and slows down; a touch stops it.</item>
+        <item>Timeline › Church history (outside the Bible), for advanced study: events Scripture does not tell, from the time between the Testaments (Septuagint, Maccabees, Pompey, Herod’s temple) and the apostolic age (Nero, the fall of Jerusalem in AD 70) through the councils to today. They stand on the left of the axis, under “Outside the Bible”, as hollow rings and outlined bars; the Bible’s events stay on the right.</item>
         <item>The app is much smaller (about 21 MB instead of 118 MB), so updates download quickly. Malagasy 1865 is always on the phone.</item>
         <item>The other Bibles, the Hebrew and Greek text and the commentaries are downloaded only when you choose them: in the translation menu (marked ⤓ with their size) or in Settings › Bible › Downloads. Each file is checked before use.</item>
         <item>Bibles you had already opened are kept on the phone; nothing needs downloading again. A Bible you never opened must be downloaded once.</item>
@@ -553,8 +557,8 @@
         <item quantity="one">%d event</item>
         <item quantity="other">%d events</item>
     </plurals>
-    <string name="tl_to_today">Go deeper: to today</string>
-    <string name="church_history_credit">Church history after the apostles: dates from standard reference works, compiled for Baiboly; ‘about’ marks a date known only roughly.</string>
+    <string name="tl_to_today">Church history (outside the Bible)</string>
+    <string name="church_history_credit">Church history outside the Bible, from the time between the Testaments to today: dates from standard reference works, compiled for Baiboly; ‘about’ marks a date known only roughly; ‘tradition’ marks what the early church reports but Scripture does not.</string>
     <string name="madagascar">Madagascar</string>
     <string name="commentary">Commentary</string>
     <string name="tab_book_intro">Introduction</string>
@@ -658,4 +662,6 @@
     <string name="original_not_downloaded">The Hebrew and Greek text is not on this phone yet.</string>
     <string name="commentary_not_downloaded">This commentary is not on this phone yet.</string>
     <string name="catholic_needs_download">This book is in the Catholic Bibles: download one in Settings › Bible › Downloads.</string>
+    <string name="tl_outside_bible">Outside the Bible</string>
+    <string name="tl_in_bible">In the Bible</string>
 </resources>

@@ -197,6 +197,10 @@
     <string name="whats_new_ok">Fermer</string>
     <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages, réglages et Bibles téléchargées. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
+        <item>Nouvelle icône : une Bible ouverte avec une croix entre ses pages.</item>
+        <item>Les Bibles sont classées par langue, chacune de la plus ancienne à la plus récente (menu des textes, Réglages et Aperçu).</item>
+        <item>La frise défile sans à-coups : elle ne rame plus, et un geste rapide continue sur sa lancée puis ralentit ; un toucher l’arrête.</item>
+        <item>Frise › Histoire de l’Église (hors Bible), pour l’étude approfondie : les faits que l’Écriture ne raconte pas, de l’époque entre les Testaments (Septante, Maccabées, Pompée, Temple d’Hérode) et de l’âge apostolique (Néron, chute de Jérusalem en 70) jusqu’aux conciles et à aujourd’hui. Ils se placent à gauche de l’axe, sous « Hors Bible », en cercles vides et barres creuses ; les faits de la Bible restent à droite.</item>
         <item>L’application est beaucoup plus légère (environ 21 Mo au lieu de 118 Mo) : les mises à jour se téléchargent vite. Malagasy 1865 est toujours sur le téléphone.</item>
         <item>Les autres Bibles, le texte hébreu et grec et les commentaires ne sont téléchargés que si vous les choisissez : dans le menu des textes (marqués ⤓ avec leur taille) ou dans Réglages › Bible › Téléchargements. Chaque fichier est vérifié avant usage.</item>
         <item>Les Bibles que vous aviez déjà ouvertes restent sur le téléphone ; rien n’est à télécharger de nouveau. Une Bible jamais ouverte doit être téléchargée une fois.</item>
@@ -536,8 +540,8 @@
         <item quantity="one">%d événement</item>
         <item quantity="other">%d événements</item>
     </plurals>
-    <string name="tl_to_today">Aller plus loin : jusqu’à aujourd’hui</string>
-    <string name="church_history_credit">Histoire de l’Église après les apôtres : dates des ouvrages de référence usuels, réunies pour Baiboly ; « vers » marque une date connue approximativement.</string>
+    <string name="tl_to_today">Histoire de l’Église (hors Bible)</string>
+    <string name="church_history_credit">Histoire de l’Église hors de la Bible, de l’époque entre les Testaments à aujourd’hui : dates des ouvrages de référence usuels, réunies pour Baiboly ; « vers » marque une date connue approximativement ; « tradition » marque ce que rapporte l’Église ancienne mais non l’Écriture.</string>
     <string name="madagascar">Madagascar</string>
     <string name="commentary">Commentaire</string>
     <string name="tab_book_intro">Présentation</string>
@@ -641,4 +645,6 @@
     <string name="original_not_downloaded">Le texte hébreu et grec n’est pas encore sur ce téléphone.</string>
     <string name="commentary_not_downloaded">Ce commentaire n’est pas encore sur ce téléphone.</string>
     <string name="catholic_needs_download">Ce livre est dans les Bibles catholiques : téléchargez-en une dans Réglages › Bible › Téléchargements.</string>
+    <string name="tl_outside_bible">Hors Bible</string>
+    <string name="tl_in_bible">Dans la Bible</string>
 </resources>

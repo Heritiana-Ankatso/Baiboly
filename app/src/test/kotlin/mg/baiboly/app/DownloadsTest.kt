@@ -127,6 +127,23 @@ class DownloadsTest {
         assertTrue(asked.isEmpty())
     }
 
+    /** Every list of Bibles: by language (Malagasy, French, English), each from the oldest to the most recent. */
+    @Test fun biblesByLanguageOldestFirst() {
+        ready()
+        vm.changeTradition(Tradition.Catholic)
+        assertEquals(
+            listOf("mg1865", "tdx", "darby_fr", "lsg1910", "crampon", "ncl_fr", "kjv", "dra", "bbe", "web", "webc", "bsb", "lsv"),
+            vm.visibleTranslations.map { it.id },
+        )
+        vm.changeTradition(Tradition.Protestant)
+        assertEquals(listOf("mg1865", "tdx", "darby_fr", "lsg1910", "kjv", "bbe", "web", "bsb", "lsv"), vm.visibleTranslations.map { it.id })
+        // Settings › Reading aids › Quick look: a heading per language over its Bibles
+        vm.screen = Screen.Settings
+        vm.settingsPage = "aids"
+        rule.waitForIdle()
+        listOf("mg", "fr", "en").forEach { tag("settings-ql-lang:$it").assertExists() }
+    }
+
     @Test fun tradition() {
         ready()
         if (vm.tradition != Tradition.Protestant) vm.changeTradition(Tradition.Protestant)
