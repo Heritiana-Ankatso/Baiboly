@@ -4,6 +4,7 @@
 
 * **New app icon** from the project's logo: an open Bible with page edges and a cross between its pages, on navy. The themed (monochrome) icon on Android 13+ and the reading-aloud status-bar icon use the same shape.
 * **Bibles in order:** every list of Bibles (translation menu, Settings › Bible and Downloads, Quick look, search, the Study panel) is grouped by language (Malagasy, French, English) and runs from the oldest to the most recent: e.g. KJV 1611, Douay-Rheims 1899, BBE 1949, WEB 2000, BSB 2018, LSV 2020. The Quick look's Bible choice has a heading per language.
+* **Smooth timeline:** the chart no longer lags while scrolling or zooming (each label's text is laid out once instead of on every frame, and the labels are ranked once). A quick swipe now carries on and slows down, as lists do; a touch stops it without opening an event.
 * Everything in 1.12.0 below (a much smaller app, optional downloads).
 
 ## Baiboly 1.12.0

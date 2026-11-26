@@ -4,6 +4,10 @@ import android.graphics.Bitmap
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.doubleClick
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import mg.baiboly.core.ref.Passage
@@ -136,6 +140,16 @@ class HistoryToolsTest {
         // the chart by default; the list as its table view
         rule.onNodeWithTag("timeline-chart").assertExists()
         shot("h3-timeline-chart")
+        // zoomed into one era: a quick drag carries on (fling) and a touch stops it without opening an event; a slow drag still works
+        repeat(2) { rule.onNodeWithTag("timeline-chart").performTouchInput { doubleClick(center) }; pump(400) }
+        rule.onNodeWithTag("timeline-chart").performTouchInput { swipeUp(durationMillis = 80) }
+        rule.mainClock.advanceTimeBy(200)
+        rule.onNodeWithTag("timeline-chart").performTouchInput { down(center); up() }
+        pump(800)
+        rule.onNodeWithTag("timeline-chart").performTouchInput { swipeDown(durationMillis = 600) }
+        pump(800)
+        rule.onNodeWithTag("timeline-chart").assertExists()
+        assertEquals(Screen.Dictionary, vm.screen, "a touch that stops the chart does not open an event")
         click("tl-mode-list")
         pump(800)
         rule.onNodeWithTag("timeline").assertExists()

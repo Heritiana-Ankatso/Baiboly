@@ -216,6 +216,7 @@
     <string-array name="whats_new_items">
         <item>New app icon: an open Bible with a cross between its pages.</item>
         <item>The Bibles are listed by language, each from the oldest to the most recent (in the translation menu, Settings and the Quick look).</item>
+        <item>The timeline scrolls smoothly: it no longer lags, and a quick swipe carries on and slows down; a touch stops it.</item>
         <item>The app is much smaller (about 21 MB instead of 118 MB), so updates download quickly. Malagasy 1865 is always on the phone.</item>
         <item>The other Bibles, the Hebrew and Greek text and the commentaries are downloaded only when you choose them: in the translation menu (marked ⤓ with their size) or in Settings › Bible › Downloads. Each file is checked before use.</item>
         <item>Bibles you had already opened are kept on the phone; nothing needs downloading again. A Bible you never opened must be downloaded once.</item>

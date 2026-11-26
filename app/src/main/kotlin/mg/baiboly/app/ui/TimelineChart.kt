@@ -1,9 +1,16 @@
 package mg.baiboly.app.ui
 
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +36,7 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -39,10 +47,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +65,8 @@ import mg.baiboly.app.AppViewModel
 import mg.baiboly.app.R
 import mg.baiboly.data.BibleEvent
 import mg.baiboly.data.Era
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -101,6 +114,9 @@ internal fun eraName(key: String): String = stringResource(
 
 /** A span placed in its lane. */
 private class Span(val event: BibleEvent, val kind: SpanKind, val lane: Int)
+
+/** A label that may be drawn, in the order of importance (ranked once, not on every frame). */
+private class Candidate(val event: BibleEvent, val span: Boolean, val chapter: Boolean, val score: Double)
 
 /**
  * One pool of lanes for every kind (colour tells the kind): a span goes to the first lane free at its
@@ -155,6 +171,20 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
     // a new range of years (church history switched on or off) is framed whole
     LaunchedEffect(first, last) { if (heightPx > 0) fit(first, last) }
     val lifeEra = remember(chapterIds) { events.filter { it.id in chapterIds } }
+    val points = remember(events) { events.filter { it.kind == "point" } }
+    // one ranking: the chapter's events first, then by the verses that tell them; a span gains a little for its length
+    val ranked = remember(spans, points, chapterIds) {
+        buildList {
+            spans.forEach { s -> add(Candidate(s.event, true, s.event.id in chapterIds, s.event.weight + min(20.0, (s.event.endYear - s.event.year) * 0.2))) }
+            points.forEach { e -> add(Candidate(e, false, e.id in chapterIds, e.weight.toDouble())) }
+        }.sortedWith(compareBy({ !it.chapter }, { -it.score }))
+    }
+    // Text is laid out once and kept: laying out every label again on each frame made scrolling stutter.
+    val textCache = remember(measurer, ink, accent, muted, density) { HashMap<String, TextLayoutResult>() }
+    // momentum after a drag (fling), stopped by the next touch
+    val scope = rememberCoroutineScope()
+    var fling by remember { mutableStateOf<Job?>(null) }
+    var swallowTap by remember { mutableStateOf(false) }
 
     // layout: year gutter | span lanes | axis | labels
     val gutter = with(density) { 56.dp.toPx() }
@@ -180,26 +210,26 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
         return out
     }
 
-    /** Labels that fit, most important first: (event, y, is span). */
-    fun placedLabels(): List<Triple<BibleEvent, Float, Boolean>> {
-        val taken = placedEras().map { (it.second - rowH / 2)..(it.second + rowH / 2) }.toMutableList()
+    /** Labels that fit, most important first: (event, y, is span). A span's label is pinned to the top of the view while it lasts. */
+    fun placedLabels(eraRows: List<Pair<Era, Float>> = placedEras()): List<Triple<BibleEvent, Float, Boolean>> {
+        val taken = ArrayList<ClosedFloatingPointRange<Float>>(64)
+        eraRows.forEach { taken += (it.second - rowH / 2)..(it.second + rowH / 2) }
         val out = mutableListOf<Triple<BibleEvent, Float, Boolean>>()
-        // one ranking: the chapter's events first, then by the verses that tell them; a span gains a little for its length.
-        // A span's label is pinned to the top of the view while it lasts.
-        val candidates = buildList {
-            spans.forEach { s ->
-                val y0 = yOf(s.event.year.toDouble()); val y1 = yOf(s.event.endYear)
-                if (y1 > 0 && y0 < heightPx) add(Triple(Triple(s.event, max(y0, 0f), true), s.event.weight + min(20.0, (s.event.endYear - s.event.year) * 0.2), s.event.id in chapterIds))
+        val room = (heightPx / rowH).toInt() + 1 // no more labels than lines on the screen
+        for (c in ranked) {
+            if (taken.size >= room) break
+            val y = if (c.span) {
+                val y0 = yOf(c.event.year.toDouble()); val y1 = yOf(c.event.endYear)
+                if (y1 <= 0 || y0 >= heightPx) continue
+                max(y0, 0f)
+            } else {
+                val y = yOf(c.event.year + 0.5)
+                if (y < 0f || y > heightPx) continue
+                y
             }
-            events.filter { it.kind == "point" }.forEach { e ->
-                val y = yOf(e.year + 0.5)
-                if (y in 0f..heightPx) add(Triple(Triple(e, y, false), e.weight.toDouble(), e.id in chapterIds))
-            }
-        }.sortedWith(compareBy({ !it.third }, { -it.second })).map { it.first }
-        for ((e, y, span) in candidates) {
-            val r = (y - rowH / 2)..(y + rowH / 2)
-            if (taken.none { it.start < r.endInclusive && r.start < it.endInclusive }) {
-                taken += r; out += Triple(e, y, span)
+            val lo = y - rowH / 2; val hi = y + rowH / 2
+            if (taken.none { it.start < hi && lo < it.endInclusive }) {
+                taken += lo..hi; out += Triple(c.event, y, c.span)
             }
         }
         return out
@@ -249,11 +279,53 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                     if (firstLayout || pxPerYear < minScale()) fit(first, last)
                 }
                 .pointerInput(Unit) {
-                    detectTransformGestures { centroid, pan, zoom, _ ->
-                        val anchor = top + centroid.y / pxPerYear
-                        pxPerYear = (pxPerYear * zoom).coerceIn(minScale(), 400f)
-                        top = anchor - centroid.y / pxPerYear - pan.y / pxPerYear
-                        clampTop()
+                    // drag and pinch as before, plus momentum: after a quick drag the chart glides on and slows
+                    // down (the platform's fling curve); the next touch stops it.
+                    val decay = splineBasedDecay<Float>(this)
+                    val slop = viewConfiguration.touchSlop
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        // set on every touch: this touch only stops the fling if one was running
+                        swallowTap = fling?.isActive == true
+                        fling?.cancel()
+                        val tracker = VelocityTracker()
+                        tracker.addPosition(down.uptimeMillis, down.position)
+                        var moved = 0f
+                        var dragging = false
+                        var pinched = false
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.changes.none { it.pressed }) break
+                            if (event.changes.count { it.pressed } > 1) pinched = true
+                            val zoom = event.calculateZoom()
+                            val pan = event.calculatePan()
+                            if (!dragging) {
+                                moved += pan.getDistance()
+                                if (moved > slop || zoom != 1f) dragging = true
+                            }
+                            if (dragging && (zoom != 1f || pan != Offset.Zero)) {
+                                val centroid = event.calculateCentroid(useCurrent = false)
+                                val anchor = top + centroid.y / pxPerYear
+                                pxPerYear = (pxPerYear * zoom).coerceIn(minScale(), 400f)
+                                top = anchor - centroid.y / pxPerYear - pan.y / pxPerYear
+                                clampTop()
+                                event.changes.forEach { if (it.positionChanged()) it.consume() }
+                            }
+                            event.changes.firstOrNull { it.id == down.id }?.let { tracker.addPosition(it.uptimeMillis, it.position) }
+                        }
+                        if (dragging && !pinched) {
+                            val v = tracker.calculateVelocity().y
+                            if (abs(v) > 300f) fling = scope.launch {
+                                var last = 0f
+                                AnimationState(0f, v).animateDecay(decay) {
+                                    val before = top
+                                    top -= (value - last) / pxPerYear
+                                    last = value
+                                    clampTop()
+                                    if (top == before) cancelAnimation() // reached either end
+                                }
+                            }
+                        }
                     }
                 }
                 .pointerInput(Unit) {
@@ -265,6 +337,8 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                             clampTop()
                         },
                         onTap = { p ->
+                            // a tap that stops a fling only stops it, as in a list
+                            if (swallowTap) { swallowTap = false; return@detectTapGestures }
                             // a span bar, then a label or dot on the same line
                             val hitSpan = spans.firstOrNull { s ->
                                 val sx = lanesX + s.lane * (laneW + laneGap)
@@ -285,11 +359,15 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 if (i % 2 == 0) drawRect(band, Offset(0f, max(0f, y0)), Size(size.width, min(size.height, y1) - max(0f, y0)))
                 drawLine(hairline, Offset(0f, y0), Offset(size.width, y0), 1f)
             }
-            for ((era, y) in placedEras()) {
-                val name = measurer.measure(eraNames.getValue(era.key).uppercase(),
-                    TextStyle(fontSize = 10.sp, letterSpacing = 1.2.sp, color = accent, fontWeight = FontWeight.SemiBold),
-                    maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    constraints = androidx.compose.ui.unit.Constraints(maxWidth = (size.width - labelX - 8f).toInt().coerceAtLeast(1)))
+            val eraRows = placedEras()
+            val eraW = (size.width - labelX - 8f).toInt().coerceAtLeast(1)
+            for ((era, y) in eraRows) {
+                val name = textCache.getOrPut("E|${era.key}|$eraW") {
+                    measurer.measure(eraNames.getValue(era.key).uppercase(),
+                        TextStyle(fontSize = 10.sp, letterSpacing = 1.2.sp, color = accent, fontWeight = FontWeight.SemiBold),
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        constraints = androidx.compose.ui.unit.Constraints(maxWidth = eraW))
+                }
                 drawText(name, topLeft = Offset(labelX, y - name.size.height / 2))
             }
             // year ticks: the smallest round step at least 56dp apart
@@ -305,7 +383,7 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
             for ((t, label) in ticks) {
                 val y = yOf(t.toDouble())
                 drawLine(hairline, Offset(gutter, y), Offset(axisX, y), 1f)
-                val m = measurer.measure(label, TextStyle(fontSize = 11.sp, color = muted))
+                val m = textCache.getOrPut("T|$label") { measurer.measure(label, TextStyle(fontSize = 11.sp, color = muted)) }
                 drawText(m, topLeft = Offset(gutter - m.size.width - 6f, y - m.size.height / 2))
             }
             // axis
@@ -320,8 +398,7 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 drawRoundRect(if (strong) c else c.copy(alpha = 0.85f), Offset(sx, y0), Size(laneW, y1 - y0), CornerRadius(min(4.dp.toPx(), laneW / 2)))
             }
             // point events: dots on the axis with a surface ring; the chapter's events larger, in the accent
-            for (e in events) {
-                if (e.kind != "point") continue
+            for (e in points) {
                 val y = yOf(e.year + 0.5)
                 if (y < -8 || y > size.height + 8) continue
                 val strong = e.id in chapterIds
@@ -330,13 +407,15 @@ fun TimelineChart(vm: AppViewModel, events: List<BibleEvent>, eras: List<Era>, m
                 drawCircle(if (strong) accent else ink.copy(alpha = 0.7f), r, Offset(axisX, y))
             }
             // labels in ink, a swatch for spans
-            for ((e, y, span) in placedLabels()) {
+            val w = (size.width - labelX - 4f).toInt().coerceAtLeast(1)
+            for ((e, y, span) in placedLabels(eraRows)) {
                 val strong = e.id in chapterIds
-                val w = (size.width - labelX - 4f).toInt().coerceAtLeast(1)
-                val years = if (span) yearsOf(e)?.let { " · " + if (it == 1) yearOne else yearsPattern.replace("999999", "$it") } ?: "" else ""
-                val m = measurer.measure(e.title + years, TextStyle(fontSize = 12.sp, color = if (strong) accent else ink,
-                    fontWeight = if (strong) FontWeight.SemiBold else FontWeight.Normal), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    constraints = androidx.compose.ui.unit.Constraints(maxWidth = w))
+                val m = textCache.getOrPut("L|${e.id}|$strong|$span|$w") {
+                    val years = if (span) yearsOf(e)?.let { " · " + if (it == 1) yearOne else yearsPattern.replace("999999", "$it") } ?: "" else ""
+                    measurer.measure(e.title + years, TextStyle(fontSize = 12.sp, color = if (strong) accent else ink,
+                        fontWeight = if (strong) FontWeight.SemiBold else FontWeight.Normal), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        constraints = androidx.compose.ui.unit.Constraints(maxWidth = w))
+                }
                 var lx = labelX
                 if (span) {
                     val k = SpanKind.entries.first { it.key == e.kind }
