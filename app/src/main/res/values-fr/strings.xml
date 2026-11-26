@@ -111,7 +111,7 @@
     <string name="backup_restored">Sauvegarde restaurée.</string>
     <string name="backup_failed">Impossible de lire ce fichier : %1$s</string>
 
-    <string name="about_text">Baiboly est une Bible gratuite et hors ligne pour les cultes et l’étude personnelle. Elle fonctionne entièrement hors ligne, n’émet aucun son et ne demande aucun compte. Elle ne se connecte que pour rechercher les mises à jour, et seulement si vous le demandez (Réglages › Mises à jour).</string>
+    <string name="about_text">Baiboly est une Bible gratuite et hors ligne pour les cultes et l’étude personnelle. Elle fonctionne entièrement hors ligne, n’émet aucun son et ne demande aucun compte. Elle ne se connecte à internet que si vous le demandez : pour rechercher les mises à jour (Réglages › Mises à jour) et pour télécharger d’autres Bibles et des données d’étude (Réglages › Bible › Téléchargements).</string>
     <string name="sources_licences">Textes, données et licences</string>
     <string name="reading_texts">Textes de lecture</string>
     <string name="study_data">Données d’étude</string>
@@ -195,13 +195,12 @@
     <string name="lang_english">anglaise</string>
     <string name="whats_new">Nouveautés</string>
     <string name="whats_new_ok">Fermer</string>
-    <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages et réglages. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
+    <string name="updates_hint">Les mises à jour s’installent par-dessus l’application, depuis l’application, et conservent vos listes, notes, surlignages, réglages et Bibles téléchargées. Les nouvelles versions sont publiées sur la page GitHub du projet (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Les réglages sont regroupés en six pages courtes dans trois sections (Apparence, Texte, Mise en page ; Bible, Aides à la lecture ; Mises à jour), chaque ligne indiquant sa valeur. Les pages glissent depuis le côté et les choix se déplient sous leur ligne, dans le style du thème.</item>
-        <item>Les notes montent depuis le bas de l’écran, comme le menu de Navy depuis le côté : à mi-hauteur pour voir le passage et votre note ensemble, ou en pleine hauteur. Faites glisser la poignée pour la redimensionner, ou vers le bas pour la ranger. La note de prédication (mode Église) fonctionne de la même façon.</item>
-        <item>Les boutons chapitre précédent / suivant s’effacent pendant le défilement ; un balayage latéral change toujours de chapitre. Le thème Vitrail n’a plus de barre en bas pour eux.</item>
-        <item>Mode Église : l’ajout d’un passage est un petit ＋ dans la liste du culte, et la ligne passage précédent / suivant est plus fine.</item>
-        <item>Le surlignage du passage ouvert disparaît au toucher ou au défilement. Les menus contextuels suivent maintenant le thème.</item>
+        <item>L’application est beaucoup plus légère (environ 21 Mo au lieu de 118 Mo) : les mises à jour se téléchargent vite. Malagasy 1865 est toujours sur le téléphone.</item>
+        <item>Les autres Bibles, le texte hébreu et grec et les commentaires ne sont téléchargés que si vous les choisissez : dans le menu des textes (marqués ⤓ avec leur taille) ou dans Réglages › Bible › Téléchargements. Chaque fichier est vérifié avant usage.</item>
+        <item>Les Bibles que vous aviez déjà ouvertes restent sur le téléphone ; rien n’est à télécharger de nouveau. Une Bible jamais ouverte doit être téléchargée une fois.</item>
+        <item>Réglages › Bible › Téléchargements permet aussi de retirer une Bible ou un commentaire pour libérer de la place. Vos notes, surlignages, listes et historique sont conservés.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Quotidien</string>
@@ -339,7 +338,7 @@
     <string name="update_tap_to_open">Touchez pour l’installer depuis l’application.</string>
     <string name="update_open_page">Ouvrir la page de téléchargement</string>
     <string name="update_last_check">Dernière vérification : %1$s</string>
-    <string name="update_privacy">Seules les mises à jour utilisent internet : la vérification demande à GitHub le numéro de la dernière version, et l’installation télécharge la nouvelle version depuis GitHub, quand vous la touchez. Rien sur vous ni sur votre lecture n’est envoyé.</string>
+    <string name="update_privacy">Internet n’est utilisé que quand vous touchez : la vérification demande à GitHub le numéro de la dernière version ; l’installation télécharge la nouvelle version, et Téléchargements récupère les Bibles et données d’étude que vous choisissez, toutes deux depuis la page GitHub du projet. Chaque fichier est vérifié (SHA-256) avant usage. Rien sur vous ni sur votre lecture n’est envoyé ; comme tout site web, GitHub voit l’adresse internet du téléphone.</string>
     <string name="update_install">Télécharger et installer</string>
     <string name="update_install_size">Télécharger et installer (%1$s Mo)</string>
     <string name="update_downloading">Téléchargement de la version %1$s…</string>
@@ -611,4 +610,35 @@
     <string name="style_navy_desc">Simple et sobre : une page blanche, un titre centré, deux boutons ronds pour les chapitres, et un menu latéral bleu marine (☰) avec d’abord ce qui sert le plus : recherche, livres, vos notes.</string>
     <string name="palette_navy">Marine</string>
     <string name="books_of_the_bible">Livres de la Bible</string>
+    <string name="downloads">Téléchargements</string>
+    <string name="downloads_hint">Malagasy 1865 est toujours sur le téléphone. Les autres Bibles, le texte hébreu et grec et les commentaires ne sont téléchargés que quand vous les touchez, depuis la page GitHub du projet par une connexion sécurisée (HTTPS), et vérifiés (SHA-256) avant usage. Rien sur vous ni sur votre lecture n’est envoyé.</string>
+    <string name="downloads_bibles">Bibles</string>
+    <string name="downloads_study">Étude</string>
+    <string name="downloads_on_phone">Sur ce téléphone : %1$s</string>
+    <string name="pack_original">Texte hébreu et grec</string>
+    <string name="pack_original_note">L’Ancien Testament en hébreu et le Nouveau en grec, mot à mot, avec l’analyse et des lexiques plus complets (STEPBible)</string>
+    <string name="pack_download">Télécharger</string>
+    <string name="pack_update">Mettre à jour</string>
+    <string name="pack_remove">Retirer</string>
+    <string name="pack_installed">Sur ce téléphone</string>
+    <string name="pack_update_available">Une version plus récente peut être téléchargée</string>
+    <string name="pack_sizes">%1$s à télécharger · %2$s sur le téléphone</string>
+    <string name="pack_downloading">Téléchargement… %1$d %%</string>
+    <string name="size_mb">%1$s Mo</string>
+    <string name="pack_confirm_title">Télécharger %1$s ?</string>
+    <string name="pack_confirm_text">%1$s à télécharger (%2$s sur le téléphone), depuis la page GitHub du projet. Le fichier est vérifié avant usage. Rien sur vous ni sur votre lecture n’est envoyé.</string>
+    <string name="pack_remove_title">Retirer %1$s de ce téléphone ?</string>
+    <string name="pack_remove_text">Cela libère %1$s. Vos notes, surlignages, listes et historique sont conservés. Vous pourrez le télécharger à nouveau.</string>
+    <string name="pack_ready">%1$s est prêt.</string>
+    <string name="pack_removed">%1$s a été retiré de ce téléphone.</string>
+    <string name="pack_failed_network">%1$s n’a pas pu être téléchargé. Le téléphone est-il connecté à internet ? Réessayez plus tard.</string>
+    <string name="pack_failed_checksum">%1$s n’a pas été installé : le fichier reçu ne correspond pas à sa vérification (SHA-256). Réessayez.</string>
+    <string name="pack_failed_space">%1$s n’a pas été installé : il n’y a pas assez d’espace libre sur le téléphone.</string>
+    <string name="pack_failed_insecure">%1$s n’a pas été installé : l’adresse n’est pas sécurisée (HTTPS).</string>
+    <string name="to_download">À télécharger</string>
+    <string name="not_downloaded">Non téléchargé · %1$s</string>
+    <string name="more_to_download">D’autres Bibles peuvent être téléchargées : Réglages › Bible › Téléchargements.</string>
+    <string name="original_not_downloaded">Le texte hébreu et grec n’est pas encore sur ce téléphone.</string>
+    <string name="commentary_not_downloaded">Ce commentaire n’est pas encore sur ce téléphone.</string>
+    <string name="catholic_needs_download">Ce livre est dans les Bibles catholiques : téléchargez-en une dans Réglages › Bible › Téléchargements.</string>
 </resources>

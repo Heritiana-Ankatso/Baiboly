@@ -33,6 +33,8 @@ A free, silent Malagasy Bible for Android that works fully offline, built for tw
 | English | World English Bible, Catholic Edition ✝ | Modern, easy to read | Public domain |
 | English | Douay-Rheims 1899 ✝ | Classic Catholic translation (Psalms numbered as in the Vulgate) | Public domain |
 
+Only Malagasy 1865 is inside the app. The other texts are **optional downloads** (about 4–5.5 MB each): the translation menu lists them under each language with their size, and *Settings › Bible › Downloads* downloads, updates or removes them. The same page offers the Hebrew and Greek text (14.4 MB) and the four commentaries (1.5–13.6 MB). The **Tradition** setting decides which Bibles are offered.
+
 ✝ Catholic Bibles (73 books): they include Tobit, Judith, 1–2 Maccabees, Wisdom, Sirach, Baruch and the Greek parts of Esther and Daniel, in Catholic order. A free Malagasy Catholic Bible could not be found: the 1938 text has no stated free licence, so it is not included.
 
 **Design.** Vellum and ink by day, warm black and gilt by night; Gentium Book Plus for the text and Cormorant SC small capitals for titles (both SIL Open Font License); chapter openings with a rubricated initial and a gilt fleuron. Screenshots: [docs/screenshots](docs/screenshots) (01 Casual, 03 Church, 07 Study, 04 Settings, 06 Books, 10 Library; regenerate with `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*'`).
@@ -52,7 +54,7 @@ A free, silent Malagasy Bible for Android that works fully offline, built for tw
 
 Within a theme, the reader can also change the colour variant, the Bible typeface (classic Gentium / modern serif / sans-serif), engraved or plain titles, line spacing and text size; *Restore the original look* undoes it all.
 
-**Settings** (gear icon): theme and language at the top, then three sections of groups, each row saying what it is set to now and opening a page that slides in from the side. *Look*: **Appearance** (style, colours, interface size, keep the screen on), **Text** (size, typeface, titles, line spacing), **Page layout** (verses and continuous reading; alignment, word breaks, paragraphs; margins). *Bible and reading*: **Bible** (the **Tradition** choice, *Protestant* by default: 66 books, Catholic translations hidden, or *Catholic*: adds the Catholic translations and the deuterocanonical books; and the default text), **Reading aids** (reading aloud, *Quick look*). *The app*: **Updates** (*Check now*, *Download and install* in the app, *Check automatically*, off by default), Backup, About. A setting with a few choices unfolds them under its row in the theme's own form, not in a pop-up of another style.
+**Settings** (gear icon): theme and language at the top, then three sections of groups, each row saying what it is set to now and opening a page that slides in from the side. *Look*: **Appearance** (style, colours, interface size, keep the screen on), **Text** (size, typeface, titles, line spacing), **Page layout** (verses and continuous reading; alignment, word breaks, paragraphs; margins). *Bible and reading*: **Bible** (the **Tradition** choice, *Protestant* by default: 66 books, Catholic translations hidden, or *Catholic*: adds the Catholic translations and the deuterocanonical books; and the default text), **Downloads** (the other Bibles, Hebrew and Greek, commentaries: download, update, remove), **Reading aids** (reading aloud, *Quick look*). *The app*: **Updates** (*Check now*, *Download and install* in the app, *Check automatically*, off by default), Backup, About. A setting with a few choices unfolds them under its row in the theme's own form, not in a pop-up of another style.
 
 **Notes** (selected verses › Note, or the pencil in Church mode): a panel comes up from the foot of the screen, as Navy's menu comes in from the side, and goes back down the same way. It rests at half height, with the passage still in view and scrollable above it, or at full height; drag its grip, tap it, or use the arrows to go between half, full and away. A verse note is kept when the panel is put away (swipe down, the arrow, Back); the sermon note is saved as you type.
 
@@ -91,7 +93,11 @@ Within a theme, the reader can also change the colour variant, the Bible typefac
 
 The **default Bible** (what the app opens with) is Malagasy 1865; it is changed with one tap on ☆ in the translation menu (the chip in the top bar) or in Settings. The **interface** opens in Malagasy and can be switched to French, English or the phone’s language in Settings.
 
-The app works fully offline. Its only internet use is **updates** (Settings › Updates): *Check now* asks GitHub for the number of the latest version, on a tap; *Check automatically* (off by default) does the same about once a day and shows a silent notification when a new version is out, which opens these settings. *Download and install* downloads the release's APK inside the app, on a tap, checks its SHA-256, package and version, and hands it to Android's installer (REQUEST_INSTALL_PACKAGES), which asks the user to confirm; Android itself refuses an APK not signed with the app's key. Nothing about the reader is sent. No VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
+The app works fully offline. It uses the internet only when the user taps, for two things.
+
+**Optional downloads** (Settings › Bible › Downloads, the translation menu, the Study panel) come from this project's GitHub Releases (a `data-N` pre-release) over HTTPS. Before a download starts, a confirmation shows its size. Each file is checked against a SHA-256 built into the app before it is used, and a file that fails the check is refused with a message. Wherever a text that is not on the phone is chosen (the default Bible, the Quick look Bible, search, the Study panel's other Bibles, a backup from another phone), the app reads Malagasy 1865 meanwhile, keeps the setting, and offers the download. Notes, highlights, lists and history store no translation and are never affected.
+
+**Updates** (Settings › Updates): *Check now* asks GitHub for the number of the latest version, on a tap; *Check automatically* (off by default) does the same about once a day and shows a silent notification when a new version is out, which opens these settings. *Download and install* downloads the release's APK inside the app, on a tap, checks its SHA-256, package and version, and hands it to Android's installer (REQUEST_INSTALL_PACKAGES), which asks the user to confirm; Android itself refuses an APK not signed with the app's key. Nothing about the reader is sent; like any web server, GitHub sees the phone's internet address when it answers. No VIBRATE permission, no accounts, no analytics and no ads. It makes no sound and no vibration.
 
 ## Installing
 
@@ -107,7 +113,7 @@ python3 tools/build_data.py          # downloads the sources once (cached in too
 ```
 
 * The Gradle `bibleData` task runs `tools/build_data.py` automatically when the databases are missing.
-* The generated databases are not committed (about 120 MB). They are rebuilt from the sources.
+* The generated databases are not committed (about 120 MB). They are rebuilt from the sources. The bundled ones go to `app/src/main/assets/databases/`. The optional downloads go unpacked to `app/src/debug/assets/databases/` (debug builds and tests only) and gzipped to `build/packs/`.
 * **Release signing.** The permanent key is never in the repository: GitHub Actions uses repository secrets, local builds a git-ignored `keystore.properties` (see [docs/RELEASING.md](docs/RELEASING.md)). Without a key, release builds are signed with the debug key and cannot update an installed release.
 
 **Tests:**
@@ -134,9 +140,9 @@ bash tools/check_silence.sh          # also runs before every build
   * `verse(id, translation, book, chapter, verse, text, text_norm)`. The id encodes translation, book, chapter and verse, so a chapter is a single id range.
   * `chapter_info` gives the verse counts; `heading` holds section titles.
   * `verse_fts` is a contentless FTS4 index over `text_norm`, the accent-free form, so `masina` finds `masìna`.
-* **`text-<id>.db`**: one file per other translation, with the same schema and its own prebuilt search index. A file is unpacked only when that translation is first opened. Adding a translation is one line in `TRANSLATIONS` in `build_data.py`.
+* **`text-<id>.db`**: one file per other translation, with the same schema and its own prebuilt search index. It is an optional download (see [docs/RELEASING.md](docs/RELEASING.md), *Optional downloads*); `tools/packs.py` gzips it and lists it in `packs.json`. Adding a translation is one line in `TRANSLATIONS` in `build_data.py`.
 * **`study.db`**: `kjv_word`, `lexicon`, `strongs_verse`, `verse_map` and `verse_map_chapter`. See [docs/reports](docs/reports).
-* **`original.db`** (built by `tools/build_original.py`, unpacked when the Study panel is first opened): the Hebrew and Greek text word by word (`orig_word`, 305,000 Hebrew and 139,000 Greek words, English/KJV verse numbering, psalm titles as verse 0), `morph_label` (every parsing code in words), `orig_strongs_verse` (Found N verses by the original word) and `lexicon_ext` (STEPBible's TBESH and TBESG, 22,700 entries). Sources: STEPBible-Data TAHOT, TAGNT, TBESH, TBESG, TEHMC, all CC BY 4.0 (credit: STEP Bible, Tyndale House, Cambridge); report in [docs/reports/original_text.md](docs/reports/original_text.md). The Greek parsing codes are expanded in `build_original.py` (Robinson's scheme) because the TEGMC file could not be found at a stable address.
+* **`original.db`** (built by `tools/build_original.py`, an optional download): the Hebrew and Greek text word by word (`orig_word`, 305,000 Hebrew and 139,000 Greek words, English/KJV verse numbering, psalm titles as verse 0), `morph_label` (every parsing code in words), `orig_strongs_verse` (Found N verses by the original word) and `lexicon_ext` (STEPBible's TBESH and TBESG, 22,700 entries). Sources: STEPBible-Data TAHOT, TAGNT, TBESH, TBESG, TEHMC, all CC BY 4.0 (credit: STEP Bible, Tyndale House, Cambridge); report in [docs/reports/original_text.md](docs/reports/original_text.md). The Greek parsing codes are expanded in `build_original.py` (Robinson's scheme) because the TEGMC file could not be found at a stable address.
 * **`user.db`**: `service_list`, `list_item`, `recent_passage`, `note` and `highlight`, as in the brief.
 
 Every source passes an automatic licence check before it is used; see [docs/data-licences.md](docs/data-licences.md). The About screen lists them.
@@ -145,7 +151,7 @@ Every source passes an automatic licence check before it is used; see [docs/data
 
 | # | Task | How it is verified |
 |---|---|---|
-| 1 | Project and silence | The manifest has no VIBRATE or network-state permission; INTERNET is declared only for the opt-in update check. `check_silence.sh` runs before every build and fails it on any audio, vibration, haptic or sound-effect API, on those permissions (including in merged manifests), on INTERNET from any other source, and on network code outside the reviewed files of `update/` (the check and the in-app installer). Compose haptics are replaced by a no-op. |
+| 1 | Project and silence | The manifest has no VIBRATE or network-state permission; INTERNET is declared only for the opt-in update check and the optional downloads, both on a tap. `check_silence.sh` runs before every build and fails it on any audio, vibration, haptic or sound-effect API, on those permissions (including in merged manifests), on INTERNET from any other source, and on network code outside the reviewed files of `update/` (the check, the in-app installer and the pack download). Compose haptics are replaced by a no-op. |
 | 2 | Text pipeline | `DataAcceptanceTest.task2_textPipeline`: Jaona 3:16, Salamo 1, 66 books, every translation |
 | 3 | Parser | `ReferenceParserTest` (15 tests) |
 | 4–9 | Reader, list strip, Add (4 taps), Browse and Back to my place, persistence, five-verse dry run | `UiAcceptanceTest.serviceDryRun` |
@@ -157,7 +163,8 @@ Every source passes an automatic licence check before it is used; see [docs/data
 | 14 | α panel, entry, Found N verses → Malagasy text with Back to my place | `UiAcceptanceTest.studyPanel` |
 | — | Malagasy interface by default; switch, live change, kept after restart | `FreshInstallTest`, `UiAcceptanceTest.malagasyInterface` |
 | — | Default Bible in one tap; each text's own chapter numbering (KJV Malachi 4) | `UiAcceptanceTest.defaultBibleAndOwnChapterNumbering` |
-| 15 | Offline, dark mode, size report | No network permission at all; [docs/size-report.md](docs/size-report.md) |
+| — | Optional downloads: only Malagasy 1865 in the release APK; nothing downloads without a tap; checksum, network, space and cancel failures; migration from 1.11.0; remove | `PacksTest`, `DownloadsTest` |
+| 15 | Offline, dark mode, size report | Works offline; network only on the user's tap; [docs/size-report.md](docs/size-report.md) |
 
 **Not verified here:** no Android emulator could run in the build environment (no hardware virtualisation). The UI scenarios run under Robolectric on the JVM, not on a phone, and touch-target size and low-end-device performance still need a check on a real device.
 

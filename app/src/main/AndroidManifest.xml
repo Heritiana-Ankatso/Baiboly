@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Update check only (opt-in). -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- silence-check: allow (update check and in-app update, update/) -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- silence-check: allow (update check, in-app update and the optional downloads chosen by the user, update/) -->
     <!-- In-app update: hands the downloaded APK to Android's installer (the user confirms). -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 

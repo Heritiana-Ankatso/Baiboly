@@ -121,7 +121,7 @@
     <string name="backup_restored">Naverina ny tahiry.</string>
     <string name="backup_failed">Tsy voavaky ity rakitra ity: %1$s</string>
 
-    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Mandeha tanteraka na tsy misy aterineto, tsy mamoaka feo ary tsy mila kaonty. Tsy mifandray amin’ny aterineto afa-tsy hijerena fanavaozana, ary raha angatahinao ihany (Fikirana › Fanavaozana).</string>
+    <string name="about_text">Baiboly maimaimpoana azo vakiana na tsy misy aterineto aza ity, natao ho an’ny fotoam-pivavahana sy ny fandalinana manokana. Mandeha tanteraka na tsy misy aterineto, tsy mamoaka feo ary tsy mila kaonty. Tsy mifandray amin’ny aterineto afa-tsy raha angatahinao: hijerena fanavaozana (Fikirana › Fanavaozana) sy haka Baiboly hafa sy fitaovana fandalinana (Fikirana › Baiboly › Azo alaina).</string>
     <string name="sources_licences">Soratra, angona ary fahazoan-dalana</string>
     <string name="reading_texts">Dikan-teny vakiana</string>
     <string name="study_data">Angona fandalinana</string>
@@ -197,13 +197,12 @@
     <string name="lang_english">anglisy</string>
     <string name="whats_new">Vaovao</string>
     <string name="whats_new_ok">Hidio</string>
-    <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko ary ny fikiranao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
+    <string name="updates_hint">Mipetraka eo ambonin’ny fampiharana ny fanavaozana, avy ao anatin’ny fampiharana ihany, ary tsy mamafa ny lisitra, ny fanamarihana, ny voaloko, ny fikiranao ary ny Baiboly nalainao. Ao amin’ny pejy GitHub an’ny tetikasa (Releases) no mivoaka ny versiona vaovao.</string>
     <string-array name="whats_new_items">
-        <item>Nalamina ho pejy fohy enina ao amin’ny ampahany telo ny fikirana (Endrika, Soratra, Fandrafetana ny pejy ; Baiboly, Fanampiana amin’ny famakiana ; Fanavaozana), ary aseho isaky ny andalana ny safidiny ankehitriny. Mihisatra avy eo amin’ny sisiny ny pejy, ary mivelatra eo ambanin’ny andalana ny safidy araka ny endrik’ilay lohahevitra.</item>
-        <item>Miakatra avy eo ambany ny fanamarihana, tahaka ny menio Navy avy eo amin’ny sisiny : antsasa-pahavony mba hahitana miaraka ny andalan-tsoratra sy ny fanamarihanao, na avo tanteraka. Alefaso ambony na ambany ny tanana mba hanova ny habeny, na ambany mihitsy mba hanafenana azy. Toy izany koa ny fanamarihana ny toriteny (Fiangonana).</item>
-        <item>Mikisaka ny bokotra toko teo aloha / manaraka rehefa mamakivaky ny soratra ; mbola mifamadika toko ny fanosehana mankany amin’ny sisiny. Tsy misy tsipika ambany intsony ho an’izy ireo ao amin’ny lohahevitra Glass.</item>
-        <item>Fiangonana : bokotra ＋ kely ao amin’ny lisitra no manampy andalan-tsoratra, ary lafi-kely kokoa ny andalana teo aloha / manaraka.</item>
-        <item>Miala ny loko eo amin’ny andalan-tsoratra nosokafana rehefa tsindriana na hodinihina. Mifanaraka amin’ny lohahevitra ny menio miseho.</item>
+        <item>Kely lavitra ny fampiharana (eo amin’ny 21 Mo fa tsy 118 Mo intsony), ka haingana ny fakana fanavaozana. Ao amin’ny finday foana ny Malagasy 1865.</item>
+        <item>Ireo Baiboly hafa, ny soratra hebreo sy grika ary ireo fanazavana dia alaina raha ifidiananao ihany: ao amin’ny lisitry ny dikan-teny (misy ⤓ sy ny habeny) na ao amin’ny Fikirana › Baiboly › Azo alaina. Hamarinina aloha ny rakitra tsirairay vao ampiasaina.</item>
+        <item>Mijanona ao amin’ny finday ireo Baiboly efa nosokafanao; tsy mila alaina indray. Ny Baiboly mbola tsy nosokafana dia tsy maintsy alaina indray mandeha.</item>
+        <item>Ao amin’ny Fikirana › Baiboly › Azo alaina koa no anesorana Baiboly na fanazavana mba hanafahana toerana. Tsy voakitika ny fanamarihana, ny voaloko, ny lisitra ary ny tantaran’ny famakianao.</item>
     </string-array>
     <string name="mode">Fomba fampiasana</string>
     <string name="mode_casual">Tsotra</string>
@@ -341,7 +340,7 @@
     <string name="update_tap_to_open">Tsindrio hametrahana azy avy ao amin’ny fampiharana.</string>
     <string name="update_open_page">Sokafy ny pejy hakana azy</string>
     <string name="update_last_check">Fanamarinana farany: %1$s</string>
-    <string name="update_privacy">Ny fanavaozana ihany no mampiasa aterineto: manontany an’i GitHub ny laharan’ny versiona farany ny fijerena, ary maka ny versiona vaovao avy ao amin’i GitHub ny fametrahana, rehefa tsindrianao. Tsy misy mombamomba anao na ny famakianao alefa.</string>
+    <string name="update_privacy">Tsy ampiasaina ny aterineto afa-tsy rehefa tsindrianao: manontany an’i GitHub ny laharan’ny versiona farany ny fijerena; maka ny versiona vaovao ny fametrahana, ary maka ireo Baiboly sy fitaovana fandalinana nofidinao ny “Azo alaina”, samy avy ao amin’ny pejy GitHub an’ny tetikasa. Hamarinina (SHA-256) aloha ny rakitra tsirairay vao ampiasaina. Tsy misy mombamomba anao na ny famakianao alefa; toy ny tranonkala rehetra, hitan’i GitHub ny adiresy aterineton’ny finday.</string>
     <string name="update_install">Alaivo ary apetraho</string>
     <string name="update_install_size">Alaivo ary apetraho (%1$s Mo)</string>
     <string name="update_downloading">Maka ny versiona %1$s…</string>
@@ -613,4 +612,35 @@
     <string name="style_navy_desc">Tsotra sy milamina: pejy fotsy, lohateny eo afovoany, bokotra boribory roa ho an’ny toko, ary lisitry ny safidy manga maizina eo amin’ny sisiny (☰) misy ny tena ampiasaina aloha: fikarohana, ny boky, ny naotinao.</string>
     <string name="palette_navy">Manga maizina</string>
     <string name="books_of_the_bible">Bokin’ny Baiboly</string>
+    <string name="downloads">Azo alaina</string>
+    <string name="downloads_hint">Ao amin’ny finday foana ny Malagasy 1865. Ireo Baiboly hafa, ny soratra hebreo sy grika ary ireo fanazavana dia alaina rehefa tsindrianao ihany, avy ao amin’ny pejy GitHub an’ny tetikasa amin’ny fifandraisana voaaro (HTTPS), ary hamarinina (SHA-256) aloha vao ampiasaina. Tsy misy mombamomba anao na ny famakianao alefa.</string>
+    <string name="downloads_bibles">Baiboly</string>
+    <string name="downloads_study">Fandalinana</string>
+    <string name="downloads_on_phone">Ao amin’ity finday ity: %1$s</string>
+    <string name="pack_original">Soratra hebreo sy grika</string>
+    <string name="pack_original_note">Ny Testamenta Taloha amin’ny teny hebreo sy ny Testamenta Vaovao amin’ny teny grika, teny tsirairay, miaraka amin’ny famakafakana sy rakibolana feno kokoa (STEPBible)</string>
+    <string name="pack_download">Alaivo</string>
+    <string name="pack_update">Havaozy</string>
+    <string name="pack_remove">Esory</string>
+    <string name="pack_installed">Ao amin’ity finday ity</string>
+    <string name="pack_update_available">Misy versiona vaovao kokoa azo alaina</string>
+    <string name="pack_sizes">%1$s alaina · %2$s ao amin’ny finday</string>
+    <string name="pack_downloading">Maka… %1$d %%</string>
+    <string name="size_mb">%1$s Mo</string>
+    <string name="pack_confirm_title">Haka ny %1$s?</string>
+    <string name="pack_confirm_text">%1$s no alaina (%2$s ao amin’ny finday), avy ao amin’ny pejy GitHub an’ny tetikasa. Hamarinina aloha vao ampiasaina. Tsy misy mombamomba anao na ny famakianao alefa.</string>
+    <string name="pack_remove_title">Hesorina amin’ity finday ity ny %1$s?</string>
+    <string name="pack_remove_text">Hanafaka %1$s izany. Tsy voakitika ny fanamarihana, ny voaloko, ny lisitra ary ny tantaran’ny famakianao. Azonao alaina indray izy any aoriana.</string>
+    <string name="pack_ready">Vonona ny %1$s.</string>
+    <string name="pack_removed">Nesorina tamin’ity finday ity ny %1$s.</string>
+    <string name="pack_failed_network">Tsy azo nalaina ny %1$s. Mifandray amin’ny aterineto ve ny finday? Andramo indray any aoriana.</string>
+    <string name="pack_failed_checksum">Tsy napetraka ny %1$s: tsy mifanaraka amin’ny fanamarinana azy (SHA-256) ny rakitra voaray. Andramo indray.</string>
+    <string name="pack_failed_space">Tsy napetraka ny %1$s: tsy ampy ny toerana malalaka ao amin’ny finday.</string>
+    <string name="pack_failed_insecure">Tsy napetraka ny %1$s: tsy voaaro ny adiresy (HTTPS).</string>
+    <string name="to_download">Azo alaina</string>
+    <string name="not_downloaded">Tsy mbola nalaina · %1$s</string>
+    <string name="more_to_download">Misy Baiboly hafa azo alaina: Fikirana › Baiboly › Azo alaina.</string>
+    <string name="original_not_downloaded">Mbola tsy ao amin’ity finday ity ny soratra hebreo sy grika.</string>
+    <string name="commentary_not_downloaded">Mbola tsy ao amin’ity finday ity io fanazavana io.</string>
+    <string name="catholic_needs_download">Ao amin’ny Baiboly katolika ity boky ity: alaivo ny iray ao amin’ny Fikirana › Baiboly › Azo alaina.</string>
 </resources>

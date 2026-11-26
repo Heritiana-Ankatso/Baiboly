@@ -46,8 +46,10 @@ fun CommentaryPage(vm: AppViewModel, passage: Passage, onDismiss: () -> Unit) {
     if (all.isEmpty()) return
     var chosen by rememberSaveable { mutableStateOf(all.first().id) }
     val c = all.firstOrNull { it.id == chosen } ?: all.first()
+    val installed = vm.isInstalled(c)
     var notes by remember(passage, c.id) { mutableStateOf<List<CommentNote>?>(null) }
-    LaunchedEffect(passage, c.id) {
+    LaunchedEffect(passage, c.id, installed) {
+        if (!installed) return@LaunchedEffect
         val m = vm.toMalagasy(passage)
         notes = vm.onIo { vm.commentaries.notes(c, m.book, m.chapter, m.verseStart.coerceAtLeast(1), if (m.isWholeChapter) 999 else m.verseEnd) }
     }
@@ -65,7 +67,14 @@ fun CommentaryPage(vm: AppViewModel, passage: Passage, onDismiss: () -> Unit) {
         if (otherTradition) Text(stringResource(R.string.other_tradition_note, stringResource(R.string.tradition_reformed)),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         val list = notes
+        val pack = vm.packOf(c)
         when {
+            // an optional download: offered here, with its size
+            !installed && pack != null -> Column(Modifier.padding(top = 12.dp).testTag("commentary-not-downloaded")) {
+                Text(stringResource(R.string.commentary_not_downloaded), style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                PackRow(vm, pack, note = c.author, removable = false)
+            }
             list == null -> Text(stringResource(R.string.loading), Modifier.padding(top = 12.dp))
             list.isEmpty() -> Text(stringResource(R.string.commentary_none, c.title), style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp).testTag("commentary-none"))

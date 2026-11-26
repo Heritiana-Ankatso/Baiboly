@@ -27,6 +27,11 @@ import mg.baiboly.data.LibraryRepository
 import mg.baiboly.app.audio.ReadAloud
 import mg.baiboly.app.audio.ReadAloudState
 import mg.baiboly.data.LexiconEntry
+import mg.baiboly.data.Pack
+import mg.baiboly.data.PackDownloadException
+import mg.baiboly.data.PackFailure
+import mg.baiboly.data.PackInstaller
+import mg.baiboly.data.PackState
 import mg.baiboly.data.Note
 import mg.baiboly.data.RecentPassage
 import mg.baiboly.data.SavedListSummary
@@ -126,6 +131,147 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val commentaries = mg.baiboly.data.CommentaryRepository(dbs)
     private val user = UserStore(app)
     private val io = Dispatchers.IO.limitedParallelism(1)
+
+    // ------------------------------------------------------------ optional downloads
+    // The other Bibles, the Hebrew and Greek text and the commentaries are not in the
+    // APK: each is downloaded on a tap (Settings › Bible › Downloads, the translation
+    // menu, the Study panel). Nothing is ever downloaded on its own.
+
+    private val installer = PackInstaller(dbs, app.cacheDir)
+
+    /** How each pack downloads: the HTTPS source in update/ (tests replace it). */
+    var packSource: mg.baiboly.data.PackSource = mg.baiboly.app.update.PackDownload
+
+    /** Every pack of this app version, in the order of packs.json. */
+    val allPacks: List<Pack> get() = dbs.catalogue.packs
+
+    /** file -> state; read when the app starts and after each download or removal. */
+    var packStates by mutableStateOf<Map<String, PackState>>(emptyMap())
+        private set
+
+    /** file -> progress (0..1) of the downloads running now. */
+    var downloads by mutableStateOf<Map<String, Float>>(emptyMap())
+        private set
+
+    /** What to do once a download asked for from a menu is finished. */
+    enum class AfterDownload { Nothing, Read, MakeDefault, Search }
+
+    /** The download waiting for the user's yes (the confirmation dialog). */
+    var confirmDownload by mutableStateOf<Pair<Pack, AfterDownload>?>(null)
+
+    private val cancelled = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    private fun readPackStates(): Map<String, PackState> = dbs.catalogue.packs.associate { it.file to dbs.state(it.file) }
+
+    private fun refreshPacks() {
+        viewModelScope.launch { packStates = withContext(io) { readPackStates() } }
+    }
+
+    fun packState(p: Pack): PackState = packStates[p.file] ?: PackState.NotInstalled
+
+    /** Can be read now (Malagasy 1865 always). A text not downloaded yet is offered for download instead. */
+    fun isAvailable(t: Translation): Boolean =
+        t.id == BibleRepository.PRIMARY || dbs.catalogue.pack(t.file).let { it == null || packState(it) != PackState.NotInstalled }
+
+    fun isAvailable(id: String): Boolean = translations.firstOrNull { it.id == id }?.let { isAvailable(it) } ?: false
+
+    /** The id itself when that text can be read now, else Malagasy 1865 (the setting is kept). */
+    private fun readableId(id: String): String = if (isAvailable(id)) id else BibleRepository.PRIMARY
+
+    fun packOf(t: Translation): Pack? = dbs.catalogue.pack(t.file)
+
+    fun packOf(c: mg.baiboly.data.Commentary): Pack? = commentaries.pack(c)
+
+    val originalPack: Pack? get() = study.originalPack
+
+    /** The Hebrew and Greek text is on the phone. */
+    val originalAvailable: Boolean get() = originalPack?.let { packState(it) != PackState.NotInstalled } ?: true
+
+    fun isInstalled(c: mg.baiboly.data.Commentary): Boolean = packOf(c)?.let { packState(it) != PackState.NotInstalled } ?: true
+
+    /** Name of a pack in the interface language where it has one. */
+    fun packTitle(p: Pack): String = when (p.kind) {
+        "text" -> translations.firstOrNull { it.id == p.id }?.name ?: p.title
+        "commentary" -> mg.baiboly.data.CommentaryRepository.KNOWN.firstOrNull { it.id == p.id }?.title ?: p.title
+        else -> str(R.string.pack_original)
+    }
+
+    /** Packs offered for the chosen tradition: Catholic Bibles only with the Catholic tradition. */
+    val visiblePacks: List<Pack>
+        get() = allPacks.filter { p -> p.kind != "text" || visibleTranslations.any { it.id == p.id } }
+
+    /** Asks before downloading (the dialog shows the size and where it comes from). */
+    fun requestDownload(p: Pack, then: AfterDownload = AfterDownload.Nothing) {
+        if (p.file in downloads) return
+        confirmDownload = p to then
+    }
+
+    /** Starts a download the user has confirmed. */
+    fun startDownload(p: Pack, then: AfterDownload = AfterDownload.Nothing) {
+        confirmDownload = null
+        if (p.file in downloads) return
+        cancelled.remove(p.file)
+        downloads = downloads + (p.file to 0f)
+        val title = packTitle(p)
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    installer.install(p, packSource, isCancelled = { p.file in cancelled }) { f ->
+                        viewModelScope.launch { if (p.file in downloads) downloads = downloads + (p.file to f) }
+                    }
+                }
+            }
+            downloads = downloads - p.file
+            cancelled.remove(p.file)
+            packStates = withContext(io) { readPackStates() }
+            result.onSuccess {
+                message = str(R.string.pack_ready, title)
+                if (p.kind == "text") when (then) {
+                    AfterDownload.Read -> setTranslation(p.id)
+                    AfterDownload.MakeDefault -> setDefaultTranslation(p.id)
+                    AfterDownload.Search -> search(searchQuery, p.id)
+                    AfterDownload.Nothing -> {}
+                }
+            }.onFailure { e ->
+                val failure = (e as? PackDownloadException)?.failure ?: PackFailure.Network
+                if (failure != PackFailure.Cancelled) message = str(
+                    when (failure) {
+                        PackFailure.Checksum -> R.string.pack_failed_checksum
+                        PackFailure.Space -> R.string.pack_failed_space
+                        PackFailure.Insecure -> R.string.pack_failed_insecure
+                        else -> R.string.pack_failed_network
+                    },
+                    title,
+                )
+            }
+        }
+    }
+
+    fun cancelDownload(p: Pack) { cancelled.add(p.file) }
+
+    /**
+     * Deletes a downloaded pack to free space. If it was the text being read or
+     * the default Bible, the app goes back to Malagasy 1865. Notes, highlights,
+     * lists and history do not depend on a translation and are not touched.
+     */
+    fun removePack(p: Pack) {
+        if (p.file in downloads) return
+        if (p.kind == "text") {
+            if (readState.active && readState.translation == p.id) stopReading()
+            if (defaultTranslationId == p.id) {
+                defaultTranslationId = BibleRepository.PRIMARY
+            }
+            if (searchTranslation == p.id) searchTranslation = BibleRepository.PRIMARY
+            if (translationId == p.id) { translationId = BibleRepository.PRIMARY; chapter = null }
+        }
+        val title = packTitle(p)
+        viewModelScope.launch {
+            packStates = withContext(io) { dbs.remove(p.file); readPackStates() }
+            persistState()
+            loadChapter()
+            message = str(R.string.pack_removed, title)
+        }
+    }
 
     // ------------------------------------------------------------ settings
     /** The Bible the app opens with; changed in one tap from the reading-text menu or Settings. */
@@ -229,7 +375,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (t == Tradition.Protestant) {
             val catholic = translations.filter { it.catholic }.map { it.id }.toSet()
             if (defaultTranslationId in catholic) setDefaultTranslation(BibleRepository.PRIMARY)
-            if (translationId in catholic) setTranslation(defaultTranslationId)
+            if (translationId in catholic) setTranslation(readableId(defaultTranslationId))
             if (searchTranslation in catholic) searchTranslation = defaultTranslationId
         }
     }
@@ -319,6 +465,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             val newTitle = defaultTitle()
             withContext(io) {
                 val ts = bible.translations
+                val states = readPackStates()
+                installer.clean()
                 val listId = prefs.getLong("list_id", -1)
                 val restored = if (listId > 0) user.loadList(listId, prefs.getInt("list_current", 0)) else null
                 val l = restored ?: user.createList(newTitle, today())
@@ -326,8 +474,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 val usage = user.bookUsage()
                 withContext(Dispatchers.Main) {
                     translations = ts
+                    packStates = states
                     if (ts.none { it.id == defaultTranslationId }) defaultTranslationId = BibleRepository.PRIMARY
                     if (ts.none { it.id == translationId }) translationId = defaultTranslationId
+                    // a text that is not on the phone (not downloaded yet, or restored from a backup
+                    // made on another phone): read Malagasy 1865, keep the setting, offer the download
+                    if (!isAvailable(translationId)) translationId = BibleRepository.PRIMARY
+                    if (!isAvailable(searchTranslation)) searchTranslation = BibleRepository.PRIMARY
                     list = l
                     recent = rec.map { it.passage }
                     bookUsage = usage
@@ -413,7 +566,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                 // e.g. Tobit while reading a 66-book Bible: show it in a Catholic Bible,
                 // in the same language when there is one, and say so.
                 val current = bible.translation(tid)
-                val other = translations.filter { it.catholic }.let { cs -> cs.firstOrNull { it.lang == current.lang } ?: cs.firstOrNull() }
+                val other = translations.filter { it.catholic && isAvailable(it) }.let { cs -> cs.firstOrNull { it.lang == current.lang } ?: cs.firstOrNull() }
+                if (other == null && tradition == Tradition.Catholic) message = str(R.string.catholic_needs_download)
                 if (other != null) {
                     tid = other.id
                     translationId = other.id
@@ -605,14 +759,23 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Reads [id] now; a text that is not downloaded yet is offered for download first. */
     fun setTranslation(id: String) {
+        if (!isAvailable(id)) {
+            translations.firstOrNull { it.id == id }?.let { packOf(it) }?.let { requestDownload(it, AfterDownload.Read) }
+            return
+        }
         translationId = id
         persistState()
         loadChapter()
     }
 
-    /** Makes [id] the Bible the app opens with, and switches to it now. */
+    /** Makes [id] the Bible the app opens with, and switches to it now (after its download, if needed). */
     fun setDefaultTranslation(id: String) {
+        if (!isAvailable(id)) {
+            translations.firstOrNull { it.id == id }?.let { packOf(it) }?.let { requestDownload(it, AfterDownload.MakeDefault) }
+            return
+        }
         defaultTranslationId = id
         searchTranslation = id
         setTranslation(id)
@@ -828,7 +991,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         fun kjv(v: Int) = if (fromMg) study.mgToKjv(VerseRef(p.book, p.chapter, v)) else VerseRef(p.book, p.chapter, v)
         val a = kjv(p.verseStart)
         val b = kjv(p.verseEnd)
-        visibleTranslations.mapNotNull { t ->
+        visibleTranslations.filter { isAvailable(it) }.mapNotNull { t ->
             val q = if (t.id == translationId) p else {
                 val (s, e) = if (t.id == BibleRepository.PRIMARY) study.kjvToMg(a) to study.kjvToMg(b) else a to b
                 runCatching { Passage(p.book, s.chapter, s.verse, if (e.chapter == s.chapter) maxOf(s.verse, e.verse) else s.verse) }.getOrNull()
@@ -875,7 +1038,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun quickLookTarget(): Translation? {
         val current = translations.firstOrNull { it.id == translationId }
-        val offered = visibleTranslations.filter { it.id != translationId }
+        // only the Bibles on the phone: a chosen one not downloaded yet falls back to the automatic choice
+        val offered = visibleTranslations.filter { it.id != translationId && isAvailable(it) }
         offered.firstOrNull { it.id == quickLookTranslation }?.let { return it }
         val reading = current?.lang
         val phone = runCatching { android.content.res.Resources.getSystem().configuration.locales[0].language }
@@ -929,7 +1093,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         fun words(s: String) = Regex("[\\p{L}][\\p{L}’'-]*").findAll(s).map { it.value.trim('’', '\'', '-') }
             .filter { it.length >= 3 && it.lowercase() !in STOP_WORDS }
             .flatMap { w -> sequenceOf(w, w.removeSuffix("s"), w.removeSuffix("es")) }.toList()
-        val en = words(text("kjv"))
+        // the KJV's words come from its Strong's tagging (bundled) when the KJV text is not downloaded
+        val en = words(if (isAvailable("kjv")) text("kjv") else study.kjvWords(k1.book, k1.chapter, k1.verse, if (k2.chapter == k1.chapter) maxOf(k1.verse, k2.verse) else k1.verse))
         val fr = words(text("lsg1910"))
         library.sources.mapNotNull { s ->
             val keys = library.entriesNamed(s.id, if (s.lang == "fr") fr else en).take(40)
@@ -947,7 +1112,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         mapOf(
             "mg" to t(BibleRepository.PRIMARY, mg.book, mg.chapter, mg.verseStart, mg.verseEnd),
             "fr" to t("lsg1910", k1.book, k1.chapter, k1.verse, end),
-            "en" to t("kjv", k1.book, k1.chapter, k1.verse, end),
+            "en" to if (isAvailable("kjv")) t("kjv", k1.book, k1.chapter, k1.verse, end) else study.kjvWords(k1.book, k1.chapter, k1.verse, end),
         )
     }
 
@@ -1374,6 +1539,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun search(q: String, translation: String = searchTranslation) {
         searchQuery = q
+        if (!isAvailable(translation)) {
+            translations.firstOrNull { it.id == translation }?.let { packOf(it) }?.let { requestDownload(it, AfterDownload.Search) }
+            if (!isAvailable(searchTranslation)) searchTranslation = BibleRepository.PRIMARY
+            return search(q, searchTranslation)
+        }
         searchTranslation = translation
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
@@ -1458,7 +1628,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     private suspend fun reloadFromPrefs() {
         defaultTranslationId = prefs.getString("default_translation", BibleRepository.PRIMARY)!!
-        translationId = defaultTranslationId
+        translationId = readableId(defaultTranslationId)
         uiLanguage = prefs.getString(UiLanguage.KEY, UiLanguage.DEFAULT) ?: UiLanguage.DEFAULT
         textSize = prefs.getFloat("text_size", 20f)
         theme = ThemeMode.entries[prefs.getInt("theme", 0).coerceIn(0, 2)]

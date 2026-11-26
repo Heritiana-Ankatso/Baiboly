@@ -8,6 +8,14 @@
 #   BAIBOLY_KEY_ALIAS         baiboly
 #   BAIBOLY_KEY_PASSWORD
 # The key is never stored in the repository.
+#
+# Optional downloads (the other Bibles, Hebrew and Greek, commentaries) are
+# not in the APK: they are release assets of a pre-release tagged
+# data-<PACK_VERSION> (tools/packs.py). If that data release exists, this
+# build uses exactly its files (and the tests run on them); otherwise it is
+# published here, as a pre-release so that phones never take it for an app
+# update, before the app release. Never delete a data release: older
+# versions of the app download from it.
 name: Release
 
 on:
@@ -54,6 +62,20 @@ jobs:
           echo "TAG=$want" >> "$GITHUB_ENV"
       - name: Bible data (licence-checked sources)
         run: python3 tools/build_data.py
+      - name: Optional downloads (use the published data release, or publish it below)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(python3 tools/packs.py tag)"
+          echo "DATA_TAG=$tag" >> "$GITHUB_ENV"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            # already published: the APK's packs.json and the tests use exactly those files
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir build/published --clobber
+            python3 tools/packs.py adopt build/published
+          else
+            echo "No $tag yet: it is published with this release"
+            echo "PUBLISH_DATA=1" >> "$GITHUB_ENV"
+          fi
       - name: Tests
         run: ./gradlew :core:test :app:testDebugUnitTest --console=plain
       - name: Signing key
@@ -79,9 +101,23 @@ jobs:
           if grep -q "CN=Android Debug" certs.txt; then echo "Signed with the debug key: check the four secrets"; exit 1; fi
           grep -q "CN=Baiboly" certs.txt || { echo "Not signed with the Baiboly release key"; exit 1; }
           sha256sum "Baiboly-${TAG}.apk" > "Baiboly-${TAG}.apk.sha256"
+          # the optional downloads must not be inside the release APK
+          if unzip -l "Baiboly-${TAG}.apk" | grep -E 'assets/databases/(text-|commentary-|original\.db)'; then
+            echo "The release APK carries optional downloads"; exit 1
+          fi
+          unzip -l "Baiboly-${TAG}.apk" | grep -q 'assets/databases/packs.json' || { echo "packs.json missing from the APK"; exit 1; }
+          ls -l "Baiboly-${TAG}.apk"
       - name: Remove the key from the runner
         if: always()
         run: rm -f "$RUNNER_TEMP/baiboly-release.p12"
+      - name: Publish the data release (only the first time for this data set)
+        if: env.PUBLISH_DATA == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$DATA_TAG" build/packs/*.gz build/packs/packs.json \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false \
+            --title "Baiboly data ${DATA_TAG#data-}" --notes-file docs/data-release.md
       - name: Publish the release
         uses: softprops/action-gh-release@v2
         with:

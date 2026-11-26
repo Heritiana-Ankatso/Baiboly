@@ -32,7 +32,7 @@ data class ChapterText(
 
 data class SearchHit(val book: Int, val chapter: Int, val verse: Int, val text: String)
 
-/** Read access to the bundled reading texts. Call from a background thread. */
+/** Read access to the reading texts (bundled or downloaded). Call from a background thread. */
 class BibleRepository(private val dbs: AssetDatabases) {
 
     companion object {
@@ -60,6 +60,20 @@ class BibleRepository(private val dbs: AssetDatabases) {
     }
 
     fun translation(id: String): Translation = translations.firstOrNull { it.id == id } ?: translations.first()
+
+    /**
+     * On the phone now, so it can be read, searched and compared. A text that is
+     * not downloaded yet is still listed in [translations] (the catalogue is in
+     * bible.db), and offered for download where it would appear. Reading it
+     * before then throws [PackMissingException].
+     */
+    fun isAvailable(id: String): Boolean {
+        val t = translations.firstOrNull { it.id == id } ?: return false
+        return t.id == PRIMARY || dbs.isUsable(t.file)
+    }
+
+    /** The download of a text, or null when it is bundled (Malagasy 1865) or unknown. */
+    fun pack(id: String): Pack? = translations.firstOrNull { it.id == id }?.let { dbs.catalogue.pack(it.file) }
 
     private fun db(t: Translation): SQLiteDatabase = dbs.get(t.file)
 

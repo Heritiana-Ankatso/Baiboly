@@ -69,7 +69,7 @@ fun quickLookItemLabel(item: String): String = stringResource(
 fun QuickLookCard(vm: AppViewModel, passage: Passage, onOpen: (PassageTab) -> Unit, onClose: () -> Unit, modifier: Modifier = Modifier) {
     val items = vm.quickLookItems
     if (items.isEmpty()) return
-    val target = remember(vm.translationId, vm.quickLookTranslation, vm.tradition) { vm.quickLookTarget() }
+    val target = remember(vm.translationId, vm.quickLookTranslation, vm.tradition, vm.packStates) { vm.quickLookTarget() }
     var other by remember(passage, target) { mutableStateOf<AppViewModel.Compared?>(null) }
     var units by remember(passage) { mutableStateOf<List<BibleUnit>>(emptyList()) }
     var people by remember(passage) { mutableStateOf<List<Person>>(emptyList()) }

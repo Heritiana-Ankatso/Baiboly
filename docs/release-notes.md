@@ -1,3 +1,19 @@
+## Baiboly 1.12.0
+
+**Install:** update from Settings › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept, and so is every Bible you had already opened.
+
+* **A much smaller app: 21 MB instead of 118 MB.** Updates now download quickly. The app carries Malagasy 1865, the study data (Strong's tagging, verse matching), the library (cross-references, dictionaries, map, people, timeline, confessions) and the fonts.
+* **Optional downloads.** The other Bibles (3.9–5.5 MB each), the Hebrew and Greek text (14.4 MB) and the four commentaries (1.5–13.6 MB) are downloaded only when you choose them:
+  * in the translation menu, where they are marked ⤓ with their size;
+  * in Settings › Bible › Downloads;
+  * from the Study panel.
+  Each download asks first, shows its size, comes from this project's GitHub page over HTTPS (release *data-13*), and is checked against a SHA-256 built into the app. A file that fails the check is refused.
+* **Kept from before.** Bibles and data you had already opened in an earlier version stay on the phone and work without a download. A Bible you had never opened has to be downloaded once.
+* **Not downloaded yet?** Wherever such a Bible is chosen (default Bible, Quick look, search, the Study panel), the app reads Malagasy 1865 meanwhile, keeps your choice and offers the download. The Tradition setting still decides which Bibles are offered.
+* **Remove** a Bible or commentary in Settings › Bible › Downloads to free space. Notes, highlights, lists and history do not depend on a translation and are kept.
+* **Privacy.** The internet is used only on your tap: for updates and for the downloads you choose. Nothing about you or your reading is sent.
+* The Malagasy and French wording of the new labels is a draft to review.
+
 ## Baiboly 1.11.0
 
 **Install:** update from Settings › Updates › *Download and install*, or download the APK below. Your lists, notes, highlights and settings are kept. No data change.

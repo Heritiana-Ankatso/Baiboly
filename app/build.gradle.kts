@@ -89,9 +89,14 @@ val bibleData by tasks.registering(Exec::class) {
     description = "Builds the bundled Bible and study databases (tools/build_data.py)."
     val assets = file("src/main/assets/databases")
     inputs.file(rootProject.file("tools/build_data.py"))
+    inputs.file(rootProject.file("tools/packs.py"))
     inputs.file(rootProject.file("tools/abbreviations.tsv"))
     outputs.dir(assets)
-    onlyIf { !file("src/main/assets/databases/manifest.json").exists() }
+    // The optional downloads (other texts, Hebrew and Greek, commentaries) are
+    // written to src/debug/assets: debug builds and the tests keep them inside
+    // the APK, release builds leave them out (tools/packs.py).
+    outputs.dir(file("src/debug/assets/databases"))
+    onlyIf { !file("src/main/assets/databases/manifest.json").exists() || !file("src/main/assets/databases/packs.json").exists() }
     commandLine("python3", rootProject.file("tools/build_data.py").path)
 }
 tasks.named("preBuild") { dependsOn(bibleData) }

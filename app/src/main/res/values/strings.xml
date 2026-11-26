@@ -127,7 +127,7 @@
     <string name="backup_failed">Could not read this file: %1$s</string>
 
     <!-- About -->
-    <string name="about_text">Baiboly is a free, offline Bible for church services and personal study. It works fully offline, makes no sound and needs no account. It connects only to check for updates, and only if you ask it to (Settings › Updates).</string>
+    <string name="about_text">Baiboly is a free, offline Bible for church services and personal study. It works fully offline, makes no sound and needs no account. It connects to the internet only when you ask it to: to check for updates (Settings › Updates) and to download extra Bibles and study data (Settings › Bible › Downloads).</string>
     <string name="sources_licences">Texts, data and licences</string>
     <string name="reading_texts">Reading texts</string>
     <string name="study_data">Study data</string>
@@ -212,13 +212,12 @@
     <string name="lang_english">English</string>
     <string name="whats_new">What’s new</string>
     <string name="whats_new_ok">Close</string>
-    <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights and settings. New versions are published on the project’s GitHub page (Releases).</string>
+    <string name="updates_hint">Updates install over the app, from within the app, and keep your lists, notes, highlights, settings and downloaded Bibles. New versions are published on the project’s GitHub page (Releases).</string>
     <string-array name="whats_new_items">
-        <item>Settings are regrouped into six short pages in three sections (Appearance, Text, Page layout; Bible, Reading aids; Updates), each row showing what it is set to. Pages slide in from the side, and choices unfold under their row in the theme’s own style.</item>
-        <item>Notes come up from the foot of the screen, like Navy’s menu from the side: half height to see the passage and your note together, or full height. Drag the grip to resize or swipe down to put it away. The Church sermon note works the same way.</item>
-        <item>The previous and next chapter buttons fade away while you scroll; swiping sideways still turns the chapter. Glass no longer has a bottom bar for them.</item>
-        <item>Church mode: the add-passage button is a small ＋ in the list strip, and the previous / next passage row is slimmer.</item>
-        <item>The shading of the passage you opened goes away when you tap or scroll. Pop-up menus now follow the theme.</item>
+        <item>The app is much smaller (about 21 MB instead of 118 MB), so updates download quickly. Malagasy 1865 is always on the phone.</item>
+        <item>The other Bibles, the Hebrew and Greek text and the commentaries are downloaded only when you choose them: in the translation menu (marked ⤓ with their size) or in Settings › Bible › Downloads. Each file is checked before use.</item>
+        <item>Bibles you had already opened are kept on the phone; nothing needs downloading again. A Bible you never opened must be downloaded once.</item>
+        <item>Settings › Bible › Downloads also removes a Bible or commentary to free space. Your notes, highlights, lists and history are kept.</item>
     </string-array>
     <string name="mode">Mode</string>
     <string name="mode_casual">Casual</string>
@@ -356,7 +355,7 @@
     <string name="update_tap_to_open">Tap to install it from the app.</string>
     <string name="update_open_page">Open the download page</string>
     <string name="update_last_check">Last checked: %1$s</string>
-    <string name="update_privacy">Only updates use the internet: checking asks GitHub for the number of the latest version, and installing downloads the new version from GitHub, when you tap it. Nothing about you or your reading is sent.</string>
+    <string name="update_privacy">The internet is used only when you tap: checking asks GitHub for the number of the latest version; installing downloads the new version, and Downloads fetches the Bibles and study data you choose, both from the project’s GitHub page. Every file is checked (SHA-256) before it is used. Nothing about you or your reading is sent; like any website, GitHub sees the phone’s internet address.</string>
     <string name="update_install">Download and install</string>
     <string name="update_install_size">Download and install (%1$s MB)</string>
     <string name="update_downloading">Downloading version %1$s…</string>
@@ -628,4 +627,35 @@
     <string name="style_navy_desc">Simple and quiet: a white page, a centred title, two round chapter buttons, and a navy side menu (☰) with the most used things first: search, the books, your notes.</string>
     <string name="palette_navy">Navy</string>
     <string name="books_of_the_bible">Books of the Bible</string>
+    <string name="downloads">Downloads</string>
+    <string name="downloads_hint">Malagasy 1865 is always on the phone. The other Bibles, the Hebrew and Greek text and the commentaries are downloaded only when you tap them, from the project’s GitHub page over a secure connection (HTTPS), and checked (SHA-256) before use. Nothing about you or your reading is sent.</string>
+    <string name="downloads_bibles">Bibles</string>
+    <string name="downloads_study">Study</string>
+    <string name="downloads_on_phone">On this phone: %1$s</string>
+    <string name="pack_original">Hebrew and Greek text</string>
+    <string name="pack_original_note">The Old Testament in Hebrew and the New Testament in Greek, word by word, with parsing and fuller lexicons (STEPBible)</string>
+    <string name="pack_download">Download</string>
+    <string name="pack_update">Update</string>
+    <string name="pack_remove">Remove</string>
+    <string name="pack_installed">On this phone</string>
+    <string name="pack_update_available">A newer version can be downloaded</string>
+    <string name="pack_sizes">%1$s to download · %2$s on the phone</string>
+    <string name="pack_downloading">Downloading… %1$d %%</string>
+    <string name="size_mb">%1$s MB</string>
+    <string name="pack_confirm_title">Download %1$s?</string>
+    <string name="pack_confirm_text">%1$s to download (%2$s on the phone), from the project’s GitHub page. It is checked before it is used. Nothing about you or your reading is sent.</string>
+    <string name="pack_remove_title">Remove %1$s from this phone?</string>
+    <string name="pack_remove_text">This frees %1$s. Your notes, highlights, lists and history are kept. You can download it again later.</string>
+    <string name="pack_ready">%1$s is ready.</string>
+    <string name="pack_removed">%1$s was removed from this phone.</string>
+    <string name="pack_failed_network">%1$s could not be downloaded. Is the phone connected to the internet? Try again later.</string>
+    <string name="pack_failed_checksum">%1$s was not installed: the file received does not match its check (SHA-256). Try again.</string>
+    <string name="pack_failed_space">%1$s was not installed: there is not enough free space on the phone.</string>
+    <string name="pack_failed_insecure">%1$s was not installed: the address is not secure (HTTPS).</string>
+    <string name="to_download">Available to download</string>
+    <string name="not_downloaded">Not downloaded · %1$s</string>
+    <string name="more_to_download">Other Bibles can be downloaded: Settings › Bible › Downloads.</string>
+    <string name="original_not_downloaded">The Hebrew and Greek text is not on this phone yet.</string>
+    <string name="commentary_not_downloaded">This commentary is not on this phone yet.</string>
+    <string name="catholic_needs_download">This book is in the Catholic Bibles: download one in Settings › Bible › Downloads.</string>
 </resources>
