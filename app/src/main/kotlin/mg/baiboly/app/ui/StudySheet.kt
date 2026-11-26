@@ -227,7 +227,7 @@ fun PassageToolsSheet(vm: AppViewModel, passage: Passage, start: PassageTab = Pa
 @Composable
 private fun TranslationsPage(vm: AppViewModel, passage: Passage, onDismiss: () -> Unit) {
     var list by remember(passage) { mutableStateOf<List<AppViewModel.Compared>?>(null) }
-    LaunchedEffect(passage, vm.translationId) { list = vm.compareTranslations(passage) }
+    LaunchedEffect(passage, vm.translationId, vm.packStates) { list = vm.compareTranslations(passage) }
     val items = list ?: return Text(stringResource(R.string.loading))
     val ornament = LocalOrnament.current
     val notOnPhone = vm.visibleTranslations.count { !vm.isAvailable(it) }

@@ -230,7 +230,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     AfterDownload.Read -> setTranslation(p.id)
                     AfterDownload.MakeDefault -> setDefaultTranslation(p.id)
                     AfterDownload.Search -> search(searchQuery, p.id)
-                    AfterDownload.Nothing -> if (p.id == translationId || p.id == defaultTranslationId && translationId == BibleRepository.PRIMARY) loadChapter()
+                    AfterDownload.Nothing -> {}
                 }
             }.onFailure { e ->
                 val failure = (e as? PackDownloadException)?.failure ?: PackFailure.Network

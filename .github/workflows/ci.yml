@@ -36,6 +36,11 @@ jobs:
         run: python3 tools/build_data.py
       - name: Silence check
         run: bash tools/check_silence.sh
+      - name: Optional downloads stay out of the release assets
+        run: |
+          # bible.db, study.db and library.db only in src/main; the packs in src/debug and build/packs
+          if ls app/src/main/assets/databases | grep -E '^(text-|commentary-|original\.db)'; then exit 1; fi
+          python3 -c "import json; m=json.load(open('app/src/main/assets/databases/manifest.json')); p=json.load(open('app/src/main/assets/databases/packs.json')); assert sorted(m['files'])==['bible.db','library.db','study.db'], m; assert len(p['packs'])>0 and all(x['url'].startswith('https://') for x in p['packs'])"
       - name: Tests
         run: ./gradlew :core:test :app:testDebugUnitTest --console=plain
       - name: Debug build
