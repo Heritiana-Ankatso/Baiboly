@@ -6,7 +6,7 @@ Release build (`./gradlew :app:assembleRelease`, R8 minified, resources shrunk).
 
 | | v1.11.0 (everything bundled) | Now (optional downloads) |
 |---|---|---|
-| **Whole release APK** | **117.9 MB** | **≈ 20.5 MB (estimate; to be measured)** |
+| **Whole release APK** | **117.9 MB** | **20.6 MB** (measured 2026-11-26) |
 
 What the release APK carries now (compressed, as measured in the v1.11.0 APK):
 
@@ -34,7 +34,7 @@ Data release `data-13`. Each download is a gzipped database; the size is what th
 
 ## Notes
 
-* **Updates are small now.** The in-app updater downloads the whole APK, so an update now costs about 20 MB instead of 118 MB. Downloaded packs are kept across updates and are downloaded again only when their `PACK_VERSION` changes (see [RELEASING.md](RELEASING.md)).
+* **Updates are small now.** The in-app updater downloads the whole APK, so an update now costs about 21 MB instead of 118 MB. Downloaded packs are kept across updates and are downloaded again only when their `PACK_VERSION` changes (see [RELEASING.md](RELEASING.md)).
 * **Device storage.** A phone that reads only Malagasy stores about 49 MB once every bundled database is unpacked: `bible.db` at first launch, `study.db` and `library.db` when first used.
 * **Why `study.db` and `library.db` stay in the APK.** They hold the verse mapping (Quick look and comparisons), the cross-references, the map, the dictionaries, people, timeline and confessions. Together they cost 11.5 MB of the APK. The smallest possible APK (bible.db only) would be about 9 MB, but every study tool would then need a download first.
 * **Ways to shrink further, if needed:**
